@@ -23,20 +23,15 @@ public struct RoleplaySuggestedResponsesView: View {
             }
         }
         .animation(theme.animations.springSnappy, value: viewModel.isHintsExpanded)
-        .onChange(of: viewModel.audioLevel) { _, newLevel in
-            if viewModel.isHintsExpanded && newLevel > 0.08 {
-                withAnimation(theme.animations.springSnappy) {
-                    viewModel.isHintsExpanded = false
-                }
-            }
-        }
         .onChange(of: viewModel.state) { _, newState in
             if viewModel.isHintsExpanded {
-                if case .listening(let transcript) = newState,
-                   !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                switch newState {
+                case .thinking, .speaking, .ended:
                     withAnimation(theme.animations.springSnappy) {
                         viewModel.isHintsExpanded = false
                     }
+                case .idle, .listening:
+                    break
                 }
             }
         }

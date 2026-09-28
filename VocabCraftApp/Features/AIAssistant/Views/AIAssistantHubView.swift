@@ -7,8 +7,8 @@ import SwiftUI
 
 public struct AIAssistantHubView: View {
     @State private var viewModel: AIAssistantHubViewModel
-    @State private var activeScenario: RoleplayScenario?
-    @State private var activeVoiceCallScenario: RoleplayScenario?
+    @State private var activeRoomViewModel: RoleplayRoomViewModel?
+    @State private var activeVoiceCallViewModel: RoleplayVoiceCallViewModel?
     @State private var showConfigSheet: Bool = false
     @State private var showPermissionDeniedAlert: Bool = false
     private let customStore: UserSettingsStore?
@@ -74,29 +74,29 @@ public struct AIAssistantHubView: View {
             AIConfigSheet(store: settingsStore)
         }
         #if os(iOS)
-        .fullScreenCover(item: $activeScenario) { scenario in
+        .fullScreenCover(item: $activeRoomViewModel) { roomViewModel in
             RoleplayRoomView(
-                viewModel: appContainer.makeRoleplayRoomViewModel(for: scenario),
-                onDismiss: { activeScenario = nil }
+                viewModel: roomViewModel,
+                onDismiss: { activeRoomViewModel = nil }
             )
         }
-        .fullScreenCover(item: $activeVoiceCallScenario) { scenario in
+        .fullScreenCover(item: $activeVoiceCallViewModel) { voiceCallViewModel in
             RoleplayVoiceCallView(
-                viewModel: appContainer.makeRoleplayVoiceCallViewModel(for: scenario),
-                onDismiss: { activeVoiceCallScenario = nil }
+                viewModel: voiceCallViewModel,
+                onDismiss: { activeVoiceCallViewModel = nil }
             )
         }
         #else
-        .sheet(item: $activeScenario) { scenario in
+        .sheet(item: $activeRoomViewModel) { roomViewModel in
             RoleplayRoomView(
-                viewModel: appContainer.makeRoleplayRoomViewModel(for: scenario),
-                onDismiss: { activeScenario = nil }
+                viewModel: roomViewModel,
+                onDismiss: { activeRoomViewModel = nil }
             )
         }
-        .sheet(item: $activeVoiceCallScenario) { scenario in
+        .sheet(item: $activeVoiceCallViewModel) { voiceCallViewModel in
             RoleplayVoiceCallView(
-                viewModel: appContainer.makeRoleplayVoiceCallViewModel(for: scenario),
-                onDismiss: { activeVoiceCallScenario = nil }
+                viewModel: voiceCallViewModel,
+                onDismiss: { activeVoiceCallViewModel = nil }
             )
         }
         #endif
@@ -211,7 +211,7 @@ public struct AIAssistantHubView: View {
                         variant: .secondary,
                         size: .md
                     ) {
-                        activeScenario = scenario
+                        activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
                     }
                 }
                 .padding(.top, theme.spacing.xs)
@@ -314,7 +314,7 @@ public struct AIAssistantHubView: View {
                                 variant: .secondary,
                                 size: .sm
                             ) {
-                                activeScenario = scenario
+                                activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
                             }
                         }
                     }
@@ -326,7 +326,7 @@ public struct AIAssistantHubView: View {
     private func startVoiceCall(for scenario: RoleplayScenario) {
         #if os(iOS)
         #if targetEnvironment(simulator)
-        activeVoiceCallScenario = scenario
+        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
         #else
         let speechStatus = SFSpeechRecognizer.authorizationStatus()
         let micPermission = AVAudioApplication.shared.recordPermission
@@ -352,15 +352,15 @@ public struct AIAssistantHubView: View {
                     showPermissionDeniedAlert = true
                     return
                 }
-                activeVoiceCallScenario = scenario
+                activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
             }
             return
         }
 
-        activeVoiceCallScenario = scenario
+        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
         #endif
         #else
-        activeVoiceCallScenario = scenario
+        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
         #endif
     }
 }

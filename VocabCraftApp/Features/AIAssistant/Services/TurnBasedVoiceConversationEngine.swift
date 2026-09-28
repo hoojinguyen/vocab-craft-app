@@ -69,6 +69,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func startCall() async {
+        guard state == .idle else { return }
         suggestedResponses = scenario.starterSuggestions
         let greeting = scenario.initialGreeting
         let initialMessage = RoleplayMessage(

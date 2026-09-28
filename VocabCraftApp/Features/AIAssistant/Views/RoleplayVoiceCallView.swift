@@ -4,12 +4,12 @@ import SwiftUI
 /// Full-screen calling screen for real-time voice roleplay conversations with an AI character.
 @MainActor
 public struct RoleplayVoiceCallView: View {
-    @Bindable public var viewModel: RoleplayVoiceCallViewModel
+    @State private var viewModel: RoleplayVoiceCallViewModel
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
 
     public init(viewModel: RoleplayVoiceCallViewModel, onDismiss: @escaping () -> Void) {
-        self.viewModel = viewModel
+        self._viewModel = State(initialValue: viewModel)
         self.onDismiss = onDismiss
     }
 

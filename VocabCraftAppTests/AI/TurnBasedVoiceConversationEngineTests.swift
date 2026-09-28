@@ -583,4 +583,26 @@ struct TurnBasedVoiceConversationEngineTests {
         _ = await engine.endCall()
         #expect(engine.audioLevel == 0.0)
     }
+
+    @Test("startCall when engine is already in non-idle state is idempotent")
+    @MainActor
+    func startCallIdempotency() async {
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        await engine.startCall()
+        let messagesCount = engine.messages.count
+        #expect(messagesCount == 1)
+        #expect(engine.state != .idle)
+
+        // Second invocation should be ignored
+        await engine.startCall()
+        #expect(engine.messages.count == messagesCount)
+    }
 }

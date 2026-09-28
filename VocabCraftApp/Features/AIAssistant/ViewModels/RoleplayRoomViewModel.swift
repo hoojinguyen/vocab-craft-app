@@ -28,7 +28,8 @@ public struct DisplayChatMessage: Identifiable, Sendable, Equatable {
 
 @Observable
 @MainActor
-public final class RoleplayRoomViewModel {
+public final class RoleplayRoomViewModel: Identifiable {
+    public let id: UUID = UUID()
     public let scenario: RoleplayScenario
     public var messages: [DisplayChatMessage] = []
     public var masteredWords: Set<String> = []

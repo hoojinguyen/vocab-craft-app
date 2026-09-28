@@ -5,7 +5,8 @@ import Observation
 /// ViewModel orchestrating state, muting, captions, haptic feedback, and call termination for full-screen voice roleplay.
 @MainActor
 @Observable
-public final class RoleplayVoiceCallViewModel {
+public final class RoleplayVoiceCallViewModel: Identifiable {
+    public let id: UUID = UUID()
     public let engine: VoiceConversationEngineProtocol
     public var sessionSummary: RoleplaySessionSummary?
     public private(set) var isCallCancelled: Bool = false
