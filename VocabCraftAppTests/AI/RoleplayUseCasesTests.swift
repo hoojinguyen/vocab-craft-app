@@ -66,6 +66,45 @@ struct RoleplayUseCasesTests {
         #expect(result.targetWordsUsed.contains("beverage"))
     }
 
+    @Test("ExecuteRoleplayTurnUseCase forwards suggested responses from provider")
+    func testExecuteRoleplayTurnForwardsSuggestedResponses() async throws {
+        let mockOutput = RoleplayTurnOutput(
+            characterReply: "Here is your drink.",
+            targetWordsUsed: ["beverage"],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil,
+            suggestedResponses: [
+                "Could I also get a pastry?",
+                "Is there a complimentary refill?"
+            ]
+        )
+        let mockProvider = MockLLMProvider(mockTurnOutput: mockOutput)
+        let useCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["beverage", "pastry"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        let result = try await useCase.execute(
+            scenario: scenario,
+            userUtterance: "What is your best beverage?",
+            chatHistory: []
+        )
+
+        #expect(result.suggestedResponses.count == 2)
+        #expect(result.suggestedResponses.contains("Could I also get a pastry?"))
+    }
+
     @Test("ExecuteRoleplayTurnUseCase unions local detected words with LLM output")
     func testExecuteRoleplayTurnUnionsLocalAndLLMWords() async throws {
         let mockOutput = RoleplayTurnOutput(

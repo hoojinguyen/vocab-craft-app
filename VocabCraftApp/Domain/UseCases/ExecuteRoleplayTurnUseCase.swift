@@ -32,6 +32,7 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         - targetWordsUsed: list of target words the user used correctly in their message
         - refinementSuggestion: if the user's sentence could be phrased more naturally, provide the improved sentence; otherwise null
         - pedagogicalNote: brief encouragement or usage tip; otherwise null
+        - suggestedResponses: array of 2-3 natural spoken candidate responses the user can say next, demonstrating natural usage of target vocabulary.
         """
 
         var fullHistory = chatHistory
@@ -48,7 +49,8 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
             characterReply: output.characterReply,
             targetWordsUsed: combinedWords,
             refinementSuggestion: output.refinementSuggestion,
-            pedagogicalNote: output.pedagogicalNote
+            pedagogicalNote: output.pedagogicalNote,
+            suggestedResponses: output.suggestedResponses
         )
     }
 

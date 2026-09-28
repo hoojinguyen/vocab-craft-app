@@ -226,4 +226,82 @@ struct IntelligentMockLLMProviderTests {
         #expect(extracted.contains("gelato"))
         #expect(!extracted.contains("pastry"))
     }
+
+    @Test("Generates contextual suggested responses for user turn")
+    func testIntelligentMockGeneratesSuggestedResponses() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .system, content: "Target vocabulary for the user: beverage, pastry, complimentary."),
+            LLMChatMessage(role: .user, content: "Hello!")
+        ]
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "Target vocabulary for the user: beverage, pastry, complimentary.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(!output.suggestedResponses.isEmpty, "Mock provider should generate at least one suggested response")
+        #expect(output.suggestedResponses.count >= 2)
+    }
+
+    @Test("Generates suggested responses for Interview scenario turns")
+    func testInterviewSuggestedResponses() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "In my previous experience, I led collaboration.")
+        ]
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "You are Ms. Jenkins, Lead Hiring Manager. Target vocabulary for the user: collaborate, innovative, initiative.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.suggestedResponses.count >= 2)
+        #expect(output.suggestedResponses.allSatisfy { !$0.isEmpty })
+    }
+
+    @Test("Generates suggested responses for Hotel scenario turns")
+    func testHotelSuggestedResponses() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "Hello, I have a reservation and here is my passport.")
+        ]
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "You are David, Front Desk Concierge. Target vocabulary for the user: reservation, amenities, accommodate.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.suggestedResponses.count >= 2)
+        #expect(output.suggestedResponses.allSatisfy { !$0.isEmpty })
+    }
+
+    @Test("Generates suggested responses for second turn in cafe")
+    func testCafeSecondTurnSuggestedResponses() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "Can I have an espresso?"),
+            LLMChatMessage(role: .model, content: "Sure, single or double?"),
+            LLMChatMessage(role: .user, content: "Double please.")
+        ]
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "You are Alex the barista.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.suggestedResponses.count >= 2)
+        #expect(output.suggestedResponses.contains(where: { $0.localizedCaseInsensitiveContains("receipt") }))
+    }
+
+    @Test("Generates suggested responses for fallback general scenario")
+    func testFallbackSuggestedResponses() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "How is the weather today?")
+        ]
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "General conversation topic",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.suggestedResponses.count >= 2)
+        #expect(output.suggestedResponses.allSatisfy { !$0.isEmpty })
+    }
 }
