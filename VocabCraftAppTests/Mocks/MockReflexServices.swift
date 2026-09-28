@@ -5,22 +5,35 @@ import SpeechKit
 final class MockSpeechRecognitionService: SpeechRecognitionProtocol {
     var isListening: Bool = false
     var recognizedText: String = ""
+    var audioLevel: Float = 0.0
     var onResultCallback: ((String) -> Void)?
+    var onAudioLevelCallback: ((Float) -> Void)?
     var onErrorCallback: ((Error) -> Void)?
 
-    func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void) {
+    func startListening(
+        onResult: @escaping (String) -> Void,
+        onAudioLevel: ((Float) -> Void)? = nil,
+        onError: @escaping (Error) -> Void
+    ) {
         self.isListening = true
         self.onResultCallback = onResult
+        self.onAudioLevelCallback = onAudioLevel
         self.onErrorCallback = onError
     }
 
     func stopListening() {
         self.isListening = false
+        self.audioLevel = 0.0
     }
 
     func simulateResult(_ text: String) {
         self.recognizedText = text
         onResultCallback?(text)
+    }
+
+    func simulateAudioLevel(_ level: Float) {
+        self.audioLevel = level
+        onAudioLevelCallback?(level)
     }
 
     func simulateError(_ error: Error) {

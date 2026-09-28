@@ -111,8 +111,8 @@ final class SpeechServiceTests: XCTestCase {
         let stt = SpeechRecognitionService(audioSessionCoordinator: coordinator)
 
         try stt.startListening()
-        #expect(stt.isRecording)
         _ = await stt.leaseAcquisitionTask?.value
+        #expect(stt.isRecording)
         #expect(await coordinator.activeLeaseCount == 1)
         #expect(await coordinator.effectiveIntent == .speechCapture)
 

@@ -31,7 +31,25 @@ public extension TextToSpeechProtocol {
 public protocol SpeechRecognitionProtocol: AnyObject {
     var isListening: Bool { get }
     var recognizedText: String { get }
+    var audioLevel: Float { get }
 
-    func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void)
+    func startListening(
+        onResult: @escaping (String) -> Void,
+        onAudioLevel: ((Float) -> Void)?,
+        onError: @escaping (Error) -> Void
+    )
     func stopListening()
+}
+
+public extension SpeechRecognitionProtocol {
+    var audioLevel: Float {
+        0.0
+    }
+
+    func startListening(
+        onResult: @escaping (String) -> Void,
+        onError: @escaping (Error) -> Void
+    ) {
+        startListening(onResult: onResult, onAudioLevel: nil, onError: onError)
+    }
 }
