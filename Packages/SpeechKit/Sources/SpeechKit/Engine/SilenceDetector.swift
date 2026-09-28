@@ -5,6 +5,7 @@ import Foundation
 public final class SilenceDetector: @unchecked Sendable {
     private let initialSilenceDuration: Duration
     private let trailingSilenceDuration: Duration
+    private let firesSilenceOnInitialTimeout: Bool
     private let onSilence: @Sendable () -> Void
     private let lock = NSLock()
     private var timerTask: Task<Void, Never>?
@@ -26,27 +27,33 @@ public final class SilenceDetector: @unchecked Sendable {
     /// Initializes a dual-phase silence detector.
     ///
     /// - Parameters:
-    ///   - initialSilenceDuration: Duration to wait before first speech before entering standby (default: 5.0s).
+    ///   - initialSilenceDuration: Duration to wait before first speech before timeout or entering standby (default: 5.0s).
     ///   - trailingSilenceDuration: Inactivity duration after speech activity before auto-stopping (default: 1.3s).
+    ///   - firesSilenceOnInitialTimeout: Whether onSilence fires when initial silence expires without speech (default: true).
+    ///     When false, enters standby mode instead of firing onSilence.
     ///   - onSilence: Callback invoked when silence threshold elapses.
     public init(
         initialSilenceDuration: Duration = .seconds(5),
         trailingSilenceDuration: Duration = .milliseconds(1300),
+        firesSilenceOnInitialTimeout: Bool = true,
         onSilence: @escaping @Sendable () -> Void
     ) {
         self.initialSilenceDuration = initialSilenceDuration
         self.trailingSilenceDuration = trailingSilenceDuration
+        self.firesSilenceOnInitialTimeout = firesSilenceOnInitialTimeout
         self.onSilence = onSilence
     }
 
     /// Convenience initializer using default 5s initial silence and custom trailing silence duration.
     public convenience init(
         silenceDuration: Duration = .milliseconds(1300),
+        firesSilenceOnInitialTimeout: Bool = true,
         onSilence: @escaping @Sendable () -> Void
     ) {
         self.init(
             initialSilenceDuration: .seconds(5),
             trailingSilenceDuration: silenceDuration,
+            firesSilenceOnInitialTimeout: firesSilenceOnInitialTimeout,
             onSilence: onSilence
         )
     }
@@ -56,8 +63,9 @@ public final class SilenceDetector: @unchecked Sendable {
     }
 
     /// Arms the silence detector, starting the initial silence countdown.
-    /// If no speech activity is registered before the initial duration expires,
-    /// the detector enters standby mode rather than permanently cancelling.
+    /// If no speech activity is registered before the initial duration expires:
+    /// - If `firesSilenceOnInitialTimeout` is true, fires `onSilence`.
+    /// - If `firesSilenceOnInitialTimeout` is false, enters standby mode without firing `onSilence`.
     public func arm() {
         lock.lock()
         timerTask?.cancel()
@@ -69,7 +77,7 @@ public final class SilenceDetector: @unchecked Sendable {
             do {
                 try await Task.sleep(for: duration)
                 guard !Task.isCancelled else { return }
-                self?.markStandbyIfInactive()
+                self?.handleInitialTimeout()
             } catch {
                 // Cancelled
             }
@@ -77,10 +85,18 @@ public final class SilenceDetector: @unchecked Sendable {
         lock.unlock()
     }
 
-    private func markStandbyIfInactive() {
+    private func handleInitialTimeout() {
+        var shouldFireCallback = false
         lock.withLock {
             guard !hasRegisteredActivity else { return }
-            isStandby = true
+            if firesSilenceOnInitialTimeout {
+                shouldFireCallback = true
+            } else {
+                isStandby = true
+            }
+        }
+        if shouldFireCallback {
+            onSilence()
         }
     }
 

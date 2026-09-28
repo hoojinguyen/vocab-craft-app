@@ -108,6 +108,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         silenceDetector = SilenceDetector(
             initialSilenceDuration: initialSilenceDuration,
             trailingSilenceDuration: .milliseconds(Int(silenceDelaySeconds * 1000)),
+            firesSilenceOnInitialTimeout: false,
             onSilence: { [weak self] in
                 Task { @MainActor [weak self] in
                     guard let self, case .listening(let transcript) = self.state else { return }

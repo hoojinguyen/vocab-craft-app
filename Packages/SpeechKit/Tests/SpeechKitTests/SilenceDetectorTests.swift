@@ -98,7 +98,8 @@ final class SilenceDetectorTests: XCTestCase {
         let expectation = expectation(description: "Trailing silence detected after standby")
         let detector = SilenceDetector(
             initialSilenceDuration: .milliseconds(30),
-            trailingSilenceDuration: .milliseconds(50)
+            trailingSilenceDuration: .milliseconds(50),
+            firesSilenceOnInitialTimeout: false
         ) {
             expectation.fulfill()
         }
