@@ -520,6 +520,20 @@ extension AppStrings {
         public static var speakPromptText: String {
             String(localized: "app.ai_assistant.call.speak_prompt", defaultValue: "Speak into the microphone...", bundle: .module)
         }
+
+        // Conversational Scaffolding Hints
+        public static var speakingHintsButton: LocalizedStringKey { "app.ai_assistant.speaking_hints_button" }
+        public static var speakingHintsButtonText: String {
+            String(localized: "app.ai_assistant.speaking_hints_button", defaultValue: "💡 Suggested responses", bundle: .module)
+        }
+        public static var speakingHintsTitle: LocalizedStringKey { "app.ai_assistant.speaking_hints_title" }
+        public static var speakingHintsTitleText: String {
+            String(localized: "app.ai_assistant.speaking_hints_title", defaultValue: "Suggested responses", bundle: .module)
+        }
+        public static var listenSample: LocalizedStringKey { "app.ai_assistant.listen_sample" }
+        public static var listenSampleText: String {
+            String(localized: "app.ai_assistant.listen_sample", defaultValue: "Listen to sample", bundle: .module)
+        }
     }
 
     // MARK: - Home Learning Path

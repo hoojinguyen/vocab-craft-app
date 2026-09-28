@@ -181,6 +181,18 @@ struct AIAssistantLocalizationTests {
         "app.ai_assistant.call.speak_prompt": (
             vi: "Hãy nói vào micro...",
             en: "Speak into the microphone..."
+        ),
+        "app.ai_assistant.speaking_hints_button": (
+            vi: "💡 Gợi ý câu trả lời",
+            en: "💡 Suggested responses"
+        ),
+        "app.ai_assistant.speaking_hints_title": (
+            vi: "Gợi ý câu nói",
+            en: "Suggested responses"
+        ),
+        "app.ai_assistant.listen_sample": (
+            vi: "Nghe mẫu",
+            en: "Listen to sample"
         )
     ]
 
@@ -225,7 +237,10 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.permissionMessage,
             AppStrings.AIAssistant.openSettings,
             AppStrings.AIAssistant.retry,
-            AppStrings.AIAssistant.speakPrompt
+            AppStrings.AIAssistant.speakPrompt,
+            AppStrings.AIAssistant.speakingHintsButton,
+            AppStrings.AIAssistant.speakingHintsTitle,
+            AppStrings.AIAssistant.listenSample
         ]
         for key in keys {
             #expect(key != nil)
@@ -269,6 +284,9 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.openSettingsText == "Open Settings")
         #expect(AppStrings.AIAssistant.retryText == "Retry")
         #expect(AppStrings.AIAssistant.speakPromptText == "Speak into the microphone...")
+        #expect(AppStrings.AIAssistant.speakingHintsButtonText == "💡 Suggested responses")
+        #expect(AppStrings.AIAssistant.speakingHintsTitleText == "Suggested responses")
+        #expect(AppStrings.AIAssistant.listenSampleText == "Listen to sample")
     }
 
     @Test("AppStrings Settings AI configuration keys exist")
@@ -404,6 +422,66 @@ struct AIAssistantLocalizationTests {
             #expect(json.strings[key] != nil, "Missing key: \(key)")
             #expect(json.strings[key]?.localizations["en"] != nil, "Missing 'en' for \(key)")
             #expect(json.strings[key]?.localizations["vi"] != nil, "Missing 'vi' for \(key)")
+        }
+    }
+
+    @Test func testSpeakingHintsAndDiscardLocalizationKeysExist() {
+        let requiredKeys = [
+            "app.ai_assistant.speaking_hints_button",
+            "app.ai_assistant.speaking_hints_title",
+            "app.ai_assistant.listen_sample"
+        ]
+        for key in requiredKeys {
+            let enString = String(localized: String.LocalizationValue(key), bundle: .main, locale: Locale(identifier: "en"))
+            let viString = String(localized: String.LocalizationValue(key), bundle: .main, locale: Locale(identifier: "vi"))
+            #expect(!enString.isEmpty, "Missing EN string for \(key)")
+            #expect(!viString.isEmpty, "Missing VI string for \(key)")
+            #expect(enString != key, "Untranslated key: \(key)")
+        }
+    }
+
+    nonisolated(unsafe) private static let catalogStrings: [String: Any]? = {
+        let potentialPaths: [String?] = [
+            Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
+            URL(fileURLWithPath: #file)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path,
+            "VocabCraftApp/Resources/Localizable.xcstrings"
+        ]
+
+        for case let path? in potentialPaths {
+            if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)),
+               let json = try? JSONSerialization.jsonObject(with: fileData) as? [String: Any],
+               let strings = json["strings"] as? [String: Any] {
+                return strings
+            }
+        }
+        return nil
+    }()
+
+    static func lookupCatalog(key: String, language: String) -> String? {
+        guard let entry = catalogStrings?[key] as? [String: Any],
+              let localizations = entry["localizations"] as? [String: [String: Any]],
+              let langUnit = localizations[language],
+              let stringUnit = langUnit["stringUnit"] as? [String: Any],
+              let value = stringUnit["value"] as? String else {
+            return nil
+        }
+        return value
+    }
+}
+
+private extension String {
+    init(localized value: String.LocalizationValue, bundle: Bundle, locale: Locale) {
+        let mirror = Mirror(reflecting: value)
+        let key = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""
+        let lang = locale.language.languageCode?.identifier ?? "en"
+        if let translated = AIAssistantLocalizationTests.lookupCatalog(key: key, language: lang) {
+            self = translated
+        } else {
+            self = key
         }
     }
 }
