@@ -37,6 +37,10 @@
 		3000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift */; };
 		3000A1A10000000000000030 /* ResilientConversationSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000030 /* ResilientConversationSpeechEngine.swift */; };
 		3000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift */; };
+		3000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */; };
+		3000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */; };
+		3000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */; };
+		3000A1A10000000000000035 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000035 /* LocalizationTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -384,6 +388,10 @@
 		2000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedResponsesView.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000030 /* ResilientConversationSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientConversationSpeechEngine.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientConversationSpeechEngineTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawer.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawerTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExecuteRoleplayTurnUseCaseFuzzyTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000035 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1197,6 +1205,7 @@
 			children = (
 				2000A1A10000000000000024 /* CraftVoiceOrbView.swift */,
 				2000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift */,
+				2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1348,8 +1357,18 @@
 				2000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift */,
 				2000A1A10000000000000027 /* RoleplayVoiceCallViewModelTests.swift */,
 				2000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift */,
+				2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */,
+				2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */,
 			);
 			path = AI;
+			sourceTree = "<group>";
+		};
+		4000A1A1TEST000000000002 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A10000000000000035 /* LocalizationTests.swift */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		4000A43204724448D0C9 /* Reflex */ = {
@@ -1374,6 +1393,7 @@
 				4000538975BBBF45E56C /* Features */,
 				40001795D309886C29B1 /* Mocks */,
 				4000A43204724448D0C9 /* Reflex */,
+				4000A1A1TEST000000000002 /* Resources */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
 				2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */,
 				20007E84695DF55F278D /* SettingsViewModelTests.swift */,
@@ -2082,6 +2102,7 @@
 				3000A1A10000000000000026 /* RoleplayVoiceCallView.swift in Sources */,
 				3000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift in Sources */,
 				3000A1A10000000000000030 /* ResilientConversationSpeechEngine.swift in Sources */,
+				3000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2208,6 +2229,9 @@
 				3000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift in Sources */,
 				3000A1A10000000000000027 /* RoleplayVoiceCallViewModelTests.swift in Sources */,
 				3000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift in Sources */,
+				3000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift in Sources */,
+				3000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Sources */,
+				3000A1A10000000000000035 /* LocalizationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
