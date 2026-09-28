@@ -238,6 +238,17 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         isSubtitlesVisible.toggle()
     }
 
+    public func cancelCall() {
+        activeSpeechTask?.cancel()
+        activeSpeechTask = nil
+        silenceDetector?.cancel()
+        silenceDetector = nil
+        audioLevel = 0.0
+        speechService.stopListening()
+        ttsService.stop()
+        state = .ended
+    }
+
     public func endCall() async -> RoleplaySessionSummary {
         activeSpeechTask?.cancel()
         activeSpeechTask = nil

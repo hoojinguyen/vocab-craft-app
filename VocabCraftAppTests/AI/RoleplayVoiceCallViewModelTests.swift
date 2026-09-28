@@ -37,6 +37,16 @@ struct RoleplayVoiceCallViewModelTests {
         )
     }
 
+    @MainActor
+    private func makeTestVoiceCallViewModel(
+        callStartTime: Date = Date().addingTimeInterval(-10),
+        mockSummary: RoleplaySessionSummary? = nil
+    ) -> RoleplayVoiceCallViewModel {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: mockSummary)
+        return RoleplayVoiceCallViewModel(engine: engine, callStartTime: callStartTime)
+    }
+
     @Test("ViewModel initializes with engine properties forwarded and no summary")
     @MainActor
     func initialProperties() {
@@ -288,6 +298,77 @@ struct RoleplayVoiceCallViewModelTests {
         vm.playSamplePronunciation(sample)
         #expect(tts.lastSpokenText == "I'd like an espresso, please.")
     }
+
+    @Test("Close button triggers discard alert when call is active")
+    @MainActor
+    func testCloseButtonTriggersDiscardAlertWhenCallInProgress() async {
+        let viewModel = makeTestVoiceCallViewModel()
+        viewModel.handleCloseButton()
+        #expect(viewModel.showDiscardAlert == true)
+        viewModel.cancelCall()
+        #expect(viewModel.isCallCancelled == true)
+        #expect(viewModel.sessionSummary == nil)
+    }
+
+    @Test("Quick exit within 3s without turns cancels immediately without alert")
+    @MainActor
+    func quickExitWithin3sWithoutTurnsCancelsImmediately() async {
+        let viewModel = makeTestVoiceCallViewModel(callStartTime: Date())
+        viewModel.handleCloseButton()
+        #expect(viewModel.showDiscardAlert == false)
+        #expect(viewModel.isCallCancelled == true)
+        #expect(viewModel.sessionSummary == nil)
+    }
+
+    @Test("Close button within 3s but with turns triggers discard alert")
+    @MainActor
+    func closeButtonWithin3sWithTurnsTriggersDiscardAlert() async {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        engine.messages = [
+            RoleplayMessage(sender: .character(name: "Alex"), text: "Hi!"),
+            RoleplayMessage(sender: .user, text: "I want an espresso")
+        ]
+        let viewModel = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date())
+
+        viewModel.handleCloseButton()
+        #expect(viewModel.showDiscardAlert == true)
+        #expect(viewModel.isCallCancelled == false)
+    }
+
+    @Test("Cancel call cancels engine and clears summary")
+    @MainActor
+    func cancelCallCancelsEngineAndClearsSummary() async {
+        let scenario = makeTestScenario()
+        let mockSummary = makeMockSummary(scenarioId: scenario.id)
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: mockSummary)
+        let viewModel = RoleplayVoiceCallViewModel(engine: engine)
+
+        viewModel.sessionSummary = mockSummary
+        #expect(viewModel.sessionSummary != nil)
+
+        viewModel.cancelCall()
+
+        #expect(engine.cancelCallInvoked == true)
+        #expect(viewModel.sessionSummary == nil)
+        #expect(viewModel.isCallCancelled == true)
+    }
+
+    @Test("Hang-up button endCall produces summary for inline rendering")
+    @MainActor
+    func hangUpButtonEndCallProducesSummary() async {
+        let scenario = makeTestScenario()
+        let mockSummary = makeMockSummary(scenarioId: scenario.id)
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: mockSummary)
+        let viewModel = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date().addingTimeInterval(-10.0))
+
+        #expect(viewModel.sessionSummary == nil)
+        await viewModel.endCall()
+
+        #expect(engine.endCallInvoked == true)
+        #expect(viewModel.sessionSummary != nil)
+        #expect(viewModel.isCallCancelled == false)
+    }
 }
 
 // MARK: - Test Mock
@@ -308,6 +389,7 @@ private final class MockVoiceConversationEngine: VoiceConversationEngineProtocol
     var toggleMuteInvoked = false
     var toggleSubtitlesInvoked = false
     var endCallInvoked = false
+    var cancelCallInvoked = false
     var mockSummaryToReturn: RoleplaySessionSummary
 
     init(
@@ -343,6 +425,11 @@ private final class MockVoiceConversationEngine: VoiceConversationEngineProtocol
     func toggleSubtitles() {
         toggleSubtitlesInvoked = true
         isSubtitlesVisible.toggle()
+    }
+
+    func cancelCall() {
+        cancelCallInvoked = true
+        state = .ended
     }
 
     func endCall() async -> RoleplaySessionSummary {

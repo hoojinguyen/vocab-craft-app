@@ -27,6 +27,7 @@ public protocol VoiceConversationEngineProtocol: AnyObject, Sendable {
     func retryListening()
     func toggleMute()
     func toggleSubtitles()
+    func cancelCall()
     func endCall() async -> RoleplaySessionSummary
 }
 
@@ -35,4 +36,5 @@ public extension VoiceConversationEngineProtocol {
     var audioLevel: Float { 0.0 }
     var suggestedResponses: [String] { [] }
     func retryListening() {}
+    func cancelCall() {}
 }

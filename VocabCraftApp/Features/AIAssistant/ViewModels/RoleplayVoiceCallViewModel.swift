@@ -9,6 +9,7 @@ public final class RoleplayVoiceCallViewModel {
     public let engine: VoiceConversationEngineProtocol
     public var sessionSummary: RoleplaySessionSummary?
     public private(set) var isCallCancelled: Bool = false
+    public var showDiscardAlert: Bool = false
     public var isHintsExpanded: Bool = false
     private let ttsService: (any TextToSpeechProtocol)?
     private let callStartTime: Date
@@ -67,6 +68,22 @@ public final class RoleplayVoiceCallViewModel {
         } else {
             self.sessionSummary = summary
         }
+    }
+
+    public func handleCloseButton() {
+        let elapsed = Date().timeIntervalSince(callStartTime)
+        let turns = engine.messages.filter { $0.sender == .user }.count
+        if elapsed < 3.0 && turns == 0 {
+            cancelCall()
+        } else {
+            showDiscardAlert = true
+        }
+    }
+
+    public func cancelCall() {
+        engine.cancelCall()
+        sessionSummary = nil
+        isCallCancelled = true
     }
 
     public func checkForNewTargetWordMastered() {

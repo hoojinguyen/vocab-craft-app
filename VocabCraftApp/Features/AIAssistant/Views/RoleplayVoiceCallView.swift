@@ -18,26 +18,16 @@ public struct RoleplayVoiceCallView: View {
             theme.colors.canvasBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: theme.spacing.md) {
-                // Top Header HUD
-                topHeaderBar
-
-                // Target Words Horizontal Strip
-                targetWordsStrip
-
-                Spacer()
-
-                // Center Stage: Voice Orb & State Text
-                centerVoiceOrbStage
-
-                Spacer()
-
-                // Bottom Subtitle Card & Action Controls
-                bottomControlsStage
+            if let summary = viewModel.sessionSummary {
+                RoleplaySummaryView(summary: summary) {
+                    onDismiss()
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.96)))
+            } else {
+                activeCallStage
             }
-            .padding(.horizontal, theme.spacing.base)
-            .padding(.vertical, theme.spacing.sm)
         }
+        .animation(.easeInOut(duration: 0.25), value: viewModel.sessionSummary != nil)
         .task {
             await viewModel.startCall()
         }
@@ -49,19 +39,40 @@ public struct RoleplayVoiceCallView: View {
                 onDismiss()
             }
         }
-        #if os(iOS)
-        .fullScreenCover(item: $viewModel.sessionSummary) { summary in
-            RoleplaySummaryView(summary: summary) {
+        .alert(
+            AppStrings.AIAssistant.discardConfirmTitle,
+            isPresented: $viewModel.showDiscardAlert
+        ) {
+            Button(AppStrings.Common.cancel, role: .cancel) {}
+            Button(AppStrings.Common.confirm, role: .destructive) {
+                viewModel.cancelCall()
                 onDismiss()
             }
+        } message: {
+            Text(AppStrings.AIAssistant.discardConfirmMessage)
         }
-        #else
-        .sheet(item: $viewModel.sessionSummary) { summary in
-            RoleplaySummaryView(summary: summary) {
-                onDismiss()
-            }
+    }
+
+    private var activeCallStage: some View {
+        VStack(spacing: theme.spacing.md) {
+            // Top Header HUD
+            topHeaderBar
+
+            // Target Words Horizontal Strip
+            targetWordsStrip
+
+            Spacer()
+
+            // Center Stage: Voice Orb & State Text
+            centerVoiceOrbStage
+
+            Spacer()
+
+            // Bottom Subtitle Card & Action Controls
+            bottomControlsStage
         }
-        #endif
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.vertical, theme.spacing.sm)
     }
 
     private var topHeaderBar: some View {
@@ -72,7 +83,7 @@ public struct RoleplayVoiceCallView: View {
                 variant: .subtle,
                 accessibilityLabelKey: AppStrings.Common.close
             ) {
-                Task { await viewModel.endCall() }
+                viewModel.handleCloseButton()
             }
 
             Spacer()
