@@ -304,6 +304,17 @@ public final class AppContainer {
     }
 
     @MainActor
+    public func makeResilientConversationSpeechEngine(for scenario: RoleplayScenario) -> ResilientConversationSpeechEngine {
+        ResilientConversationSpeechEngine(
+            scenario: scenario,
+            ttsService: ttsService,
+            executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
+            completeSessionUseCase: makeCompleteRoleplaySessionUseCase(),
+            audioSessionCoordinator: audioSessionCoordinator
+        )
+    }
+
+    @MainActor
     public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
         let engine = TurnBasedVoiceConversationEngine(
             scenario: scenario,

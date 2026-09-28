@@ -8,6 +8,7 @@ public final class AudioBufferRelay: @unchecked Sendable {
     private let lock = NSLock()
     private weak var activeRequest: SFSpeechAudioBufferRecognitionRequest?
     private var isMuted = false
+    private var bufferListener: (@Sendable (AVAudioPCMBuffer) -> Void)?
 
     public init() {}
 
@@ -27,7 +28,15 @@ public final class AudioBufferRelay: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         activeRequest = request
-        isMuted = false
+        if request != nil {
+            isMuted = false
+        }
+    }
+
+    public func setBufferListener(_ listener: (@Sendable (AVAudioPCMBuffer) -> Void)?) {
+        lock.lock()
+        defer { lock.unlock() }
+        bufferListener = listener
     }
 
     public func mute() {
@@ -55,8 +64,13 @@ public final class AudioBufferRelay: @unchecked Sendable {
 
     public func append(_ buffer: AVAudioPCMBuffer) {
         lock.lock()
-        defer { lock.unlock() }
-        guard !isMuted, let request = activeRequest else { return }
-        request.append(buffer)
+        let listener = bufferListener
+        let muted = isMuted
+        let request = activeRequest
+        lock.unlock()
+
+        guard !muted else { return }
+        request?.append(buffer)
+        listener?(buffer)
     }
 }

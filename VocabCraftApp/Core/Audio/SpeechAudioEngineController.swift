@@ -1,28 +1,28 @@
 @preconcurrency import AVFoundation
 
-protocol SpeechAudioEngineControlling: Sendable {
+public protocol SpeechAudioEngineControlling: Sendable {
     func prepare(relay: AudioBufferRelay) async throws
     func resume() async throws
     func pause() async
     func teardown() async
 }
 
-protocol SpeechAudioHardware: Sendable {
+public protocol SpeechAudioHardware: Sendable {
     func prepare(relay: AudioBufferRelay) async throws
     func resume() async throws
     func pause() async
     func teardown() async
 }
 
-actor SpeechAudioEngineController: SpeechAudioEngineControlling {
-    enum State: Equatable, Sendable {
+public actor SpeechAudioEngineController: SpeechAudioEngineControlling {
+    public enum State: Equatable, Sendable {
         case idle
         case preparing
         case ready
         case failed
     }
 
-    private(set) var state: State = .idle
+    public private(set) var state: State = .idle
 
     private var preparationTask: Task<UInt, Error>?
     private var teardownTask: Task<Void, Never>?
@@ -32,7 +32,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private var pauseInFlightGeneration: UInt?
     private let hardware: any SpeechAudioHardware
 
-    init() {
+    public init() {
         #if targetEnvironment(simulator) || os(macOS)
         hardware = SimulatorSpeechAudioHardware()
         #else
@@ -40,11 +40,11 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         #endif
     }
 
-    init(hardware: any SpeechAudioHardware) {
+    public init(hardware: any SpeechAudioHardware) {
         self.hardware = hardware
     }
 
-    func prepare(relay: AudioBufferRelay) async throws {
+    public func prepare(relay: AudioBufferRelay) async throws {
         if let teardownTask {
             await teardownTask.value
         }
@@ -102,7 +102,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
     }
 
-    func resume() async throws {
+    public func resume() async throws {
         pauseRequested = false
         if state == .idle || state == .preparing {
             isPaused = false
@@ -124,7 +124,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
     }
 
-    func pause() async {
+    public func pause() async {
         pauseRequested = true
         if state == .idle || state == .preparing {
             return
@@ -146,7 +146,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
     }
 
-    func teardown() async {
+    public func teardown() async {
         if let teardownTask {
             await teardownTask.value
             return
