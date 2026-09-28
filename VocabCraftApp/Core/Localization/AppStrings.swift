@@ -536,6 +536,30 @@ extension AppStrings {
         }
     }
 
+    // MARK: - Speaking AI Call Strings
+    public enum AICall {
+        public static var activeBadge: LocalizedStringKey { "app.ai_call.active_badge" }
+        public static var activeBadgeText: String { String(localized: "app.ai_call.active_badge", defaultValue: "Live Call", bundle: .module) }
+        public static var suggestedTitle: LocalizedStringKey { "app.ai_call.suggested_title" }
+        public static var suggestedTitleText: String { String(localized: "app.ai_call.suggested_title", defaultValue: "Suggested Responses", bundle: .module) }
+        public static var suggestedToggle: LocalizedStringKey { "app.ai_call.suggested_toggle" }
+        public static var suggestedToggleText: String { String(localized: "app.ai_call.suggested_toggle", defaultValue: "Suggested responses (%lld)", bundle: .module) }
+        public static func suggestedToggle(_ count: Int) -> LocalizedStringKey { LocalizedStringKey("app.ai_call.suggested_toggle \(count)") }
+        public static func suggestedToggleText(_ count: Int) -> String {
+            String(format: String(localized: "app.ai_call.suggested_toggle", defaultValue: "Suggested responses (%lld)", bundle: .module), count)
+        }
+        public static var listenSample: LocalizedStringKey { "app.ai_call.listen_sample" }
+        public static var listenSampleText: String { String(localized: "app.ai_call.listen_sample", defaultValue: "Listen to sample pronunciation", bundle: .module) }
+        public static var finishSpeaking: LocalizedStringKey { "app.ai_call.finish_speaking" }
+        public static var finishSpeakingText: String { String(localized: "app.ai_call.finish_speaking", defaultValue: "Tap when finished speaking", bundle: .module) }
+        public static var micMuted: LocalizedStringKey { "app.ai_call.mic_muted" }
+        public static var micMutedText: String { String(localized: "app.ai_call.mic_muted", defaultValue: "Microphone muted", bundle: .module) }
+        public static var listeningPrompt: LocalizedStringKey { "app.ai_call.listening_prompt" }
+        public static var listeningPromptText: String { String(localized: "app.ai_call.listening_prompt", defaultValue: "Speak into the microphone...", bundle: .module) }
+        public static var retryListening: LocalizedStringKey { "app.ai_call.retry_listening" }
+        public static var retryListeningText: String { String(localized: "app.ai_call.retry_listening", defaultValue: "Tap to retry microphone", bundle: .module) }
+    }
+
     // MARK: - Home Learning Path
     public enum Home {
         // Header
