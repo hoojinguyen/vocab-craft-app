@@ -40,6 +40,7 @@ public final class RoleplayVoiceCallViewModel: Identifiable {
     }
 
     public func finishSpeaking() {
+        isHintsExpanded = false
         engine.finishUserTurnManually()
     }
 
@@ -60,6 +61,7 @@ public final class RoleplayVoiceCallViewModel: Identifiable {
     }
 
     public func endCall() async {
+        isHintsExpanded = false
         let summary = await engine.endCall()
         let elapsed = Date().timeIntervalSince(callStartTime)
         if elapsed < 3.0 && summary.totalTurns == 0 {
@@ -82,6 +84,7 @@ public final class RoleplayVoiceCallViewModel: Identifiable {
     }
 
     public func cancelCall() {
+        isHintsExpanded = false
         engine.cancelCall()
         sessionSummary = nil
         isCallCancelled = true

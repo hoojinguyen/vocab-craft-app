@@ -369,6 +369,71 @@ struct RoleplayVoiceCallViewModelTests {
         #expect(viewModel.sessionSummary != nil)
         #expect(viewModel.isCallCancelled == false)
     }
+
+    @Test("finishSpeaking forwards to engine and automatically collapses scaffolding drawer")
+    @MainActor
+    func finishSpeakingCollapsesDrawerAndForwardsToEngine() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+
+        vm.isHintsExpanded = true
+        #expect(vm.isHintsExpanded == true)
+        #expect(engine.finishUserTurnManuallyInvoked == false)
+
+        vm.finishSpeaking()
+
+        #expect(engine.finishUserTurnManuallyInvoked == true)
+        #expect(vm.isHintsExpanded == false)
+    }
+
+    @Test("cancelCall collapses scaffolding drawer and cleans session")
+    @MainActor
+    func cancelCallCollapsesDrawerAndCleansSession() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+
+        vm.isHintsExpanded = true
+        vm.cancelCall()
+
+        #expect(vm.isHintsExpanded == false)
+        #expect(vm.isCallCancelled == true)
+        #expect(engine.cancelCallInvoked == true)
+    }
+
+    @Test("Discard alert flow properly manages alert visibility and cancellation")
+    @MainActor
+    func discardAlertFlowManagement() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        engine.messages = [
+            RoleplayMessage(sender: .character(name: "Alex"), text: "Welcome!"),
+            RoleplayMessage(sender: .user, text: "I'd like an espresso.")
+        ]
+        let vm = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date())
+
+        #expect(vm.showDiscardAlert == false)
+        #expect(vm.isCallCancelled == false)
+
+        // User taps close button
+        vm.handleCloseButton()
+        #expect(vm.showDiscardAlert == true)
+        #expect(vm.isCallCancelled == false)
+
+        // User cancels discard alert dialog
+        vm.showDiscardAlert = false
+        #expect(vm.showDiscardAlert == false)
+        #expect(vm.isCallCancelled == false)
+
+        // User taps close again and confirms discard
+        vm.handleCloseButton()
+        #expect(vm.showDiscardAlert == true)
+        vm.cancelCall()
+        #expect(vm.isCallCancelled == true)
+        #expect(vm.sessionSummary == nil)
+        #expect(engine.cancelCallInvoked == true)
+    }
 }
 
 // MARK: - Test Mock

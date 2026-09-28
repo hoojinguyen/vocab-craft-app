@@ -68,11 +68,13 @@ public struct RoleplayVoiceCallView: View {
 
             Spacer()
 
-            // Bottom Subtitle Card & Action Controls
+            // Bottom Subtitle Card, Scaffolding Drawer & Action Controls
             bottomControlsStage
         }
         .padding(.horizontal, theme.spacing.base)
-        .padding(.vertical, theme.spacing.sm)
+        .padding(.vertical, theme.spacing.xs)
+        .safeAreaPadding(.top)
+        .safeAreaPadding(.bottom)
     }
 
     private var topHeaderBar: some View {
@@ -101,7 +103,7 @@ public struct RoleplayVoiceCallView: View {
             Spacer()
 
             CraftBadge(
-                AppStrings.AIAssistant.callActiveBadge,
+                AppStrings.AICall.activeBadge,
                 variant: .subtle,
                 tone: .success,
                 size: .sm
@@ -149,7 +151,11 @@ public struct RoleplayVoiceCallView: View {
 
     private var centerVoiceOrbStage: some View {
         VStack(spacing: theme.spacing.lg) {
-            CraftVoiceOrbView(state: viewModel.state)
+            CraftVoiceOrbView(
+                state: viewModel.state,
+                audioLevel: viewModel.audioLevel
+            )
+            .frame(width: 140, height: 140)
 
             Text(stateDescription)
                 .font(theme.typography.bodyLarge)
@@ -165,9 +171,8 @@ public struct RoleplayVoiceCallView: View {
                     .transition(.opacity)
             }
 
-            if viewModel.state != .idle && viewModel.state != .ended && !viewModel.suggestedResponses.isEmpty {
-                RoleplaySuggestedResponsesView(viewModel: viewModel)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            if viewModel.state != .idle && viewModel.state != .ended {
+                RoleplaySuggestedDrawer(viewModel: viewModel)
             }
 
             // Fixed height container for manual turn button / error banner
@@ -175,7 +180,7 @@ public struct RoleplayVoiceCallView: View {
                 if viewModel.engine.audioErrorMessage != nil {
                     HStack(spacing: theme.spacing.xs) {
                         CraftIcon(.sparkles, size: .sm, color: theme.colors.statusDanger)
-                        Text(AppStrings.AIAssistant.retry)
+                        Text(AppStrings.AICall.retryListening)
                             .font(theme.typography.caption)
                             .foregroundStyle(theme.colors.statusDanger)
                     }
@@ -184,7 +189,7 @@ public struct RoleplayVoiceCallView: View {
                     .onTapGesture { viewModel.engine.retryListening() }
                 } else if case .listening = viewModel.state {
                     CraftButton(
-                        AppStrings.AIAssistant.finishTurn,
+                        AppStrings.AICall.finishSpeaking,
                         variant: .secondary,
                         size: .sm
                     ) {
@@ -260,8 +265,15 @@ public struct RoleplayVoiceCallView: View {
                             .lineLimit(2)
                     }
 
-                    if transcript.isEmpty {
-                        Text(AppStrings.AIAssistant.speakPrompt)
+                    if viewModel.isMuted {
+                        Text(AppStrings.AICall.micMuted)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.statusWarning)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                    } else if transcript.isEmpty {
+                        Text(AppStrings.AICall.listeningPrompt)
                             .font(theme.typography.bodyMedium)
                             .foregroundStyle(theme.colors.textMuted)
                             .multilineTextAlignment(.center)
