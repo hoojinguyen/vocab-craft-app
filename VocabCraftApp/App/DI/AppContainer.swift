@@ -312,7 +312,7 @@ public final class AppContainer {
             executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
             completeSessionUseCase: makeCompleteRoleplaySessionUseCase()
         )
-        return RoleplayVoiceCallViewModel(engine: engine)
+        return RoleplayVoiceCallViewModel(engine: engine, ttsService: ttsService)
     }
 
     public static var mock: AppContainer {

@@ -246,6 +246,48 @@ struct RoleplayVoiceCallViewModelTests {
         #expect(vm.sessionSummary != nil)
         #expect(vm.sessionSummary?.totalTurns == 1)
     }
+
+    @Test("ViewModel exposes suggestedResponses and audioLevel from engine")
+    @MainActor
+    func suggestedResponsesAndAudioLevelForwarding() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        engine.suggestedResponses = ["I'd like an espresso, please.", "A croissant as well."]
+        engine.audioLevel = 0.42
+
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+        #expect(vm.suggestedResponses == ["I'd like an espresso, please.", "A croissant as well."])
+        #expect(vm.audioLevel == 0.42)
+    }
+
+    @Test("ViewModel hints expanded state toggles correctly")
+    @MainActor
+    func hintsToggle() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+
+        #expect(vm.isHintsExpanded == false)
+        vm.toggleHints()
+        #expect(vm.isHintsExpanded == true)
+        vm.toggleHints()
+        #expect(vm.isHintsExpanded == false)
+    }
+
+    @Test("ViewModel plays sample pronunciation via ttsService")
+    @MainActor
+    func playSamplePronunciationInvokesTTS() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        engine.suggestedResponses = ["I'd like an espresso, please."]
+        let tts = MockTTS()
+        let vm = RoleplayVoiceCallViewModel(engine: engine, ttsService: tts)
+
+        #expect(!vm.suggestedResponses.isEmpty)
+        let sample = vm.suggestedResponses[0]
+        vm.playSamplePronunciation(sample)
+        #expect(tts.lastSpokenText == "I'd like an espresso, please.")
+    }
 }
 
 // MARK: - Test Mock
@@ -258,6 +300,8 @@ private final class MockVoiceConversationEngine: VoiceConversationEngineProtocol
     var scenario: RoleplayScenario
     var messages: [RoleplayMessage] = []
     var masteredTargetWords: Set<String> = []
+    var audioLevel: Float = 0.0
+    var suggestedResponses: [String] = []
 
     var startCallInvoked = false
     var finishUserTurnManuallyInvoked = false
@@ -306,4 +350,16 @@ private final class MockVoiceConversationEngine: VoiceConversationEngineProtocol
         state = .ended
         return mockSummaryToReturn
     }
+}
+
+@MainActor
+private final class MockTTS: TextToSpeechProtocol {
+    var lastSpokenText: String?
+    var isSpeaking: Bool = false
+
+    func speak(text: String, rate: Float, locale: String) {
+        lastSpokenText = text
+    }
+
+    func stop() {}
 }

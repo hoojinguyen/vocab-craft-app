@@ -53,6 +53,8 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     @available(*, deprecated, renamed: "micSlash")
     public static var slash: CraftSymbol { .micSlash }
 
+    public static var speakerWave2: CraftSymbol { .audio }
+
     // MARK: Feedback, Status & Learning
     case check = "checkmark"
     case checkmarkCircle = "checkmark.circle.fill"

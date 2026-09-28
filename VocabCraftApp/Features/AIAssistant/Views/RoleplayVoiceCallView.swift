@@ -154,6 +154,11 @@ public struct RoleplayVoiceCallView: View {
                     .transition(.opacity)
             }
 
+            if viewModel.state != .idle && viewModel.state != .ended && !viewModel.suggestedResponses.isEmpty {
+                RoleplaySuggestedResponsesView(viewModel: viewModel)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            }
+
             // Fixed height container for manual turn button / error banner
             ZStack {
                 if viewModel.engine.audioErrorMessage != nil {

@@ -9,11 +9,18 @@ public final class RoleplayVoiceCallViewModel {
     public let engine: VoiceConversationEngineProtocol
     public var sessionSummary: RoleplaySessionSummary?
     public private(set) var isCallCancelled: Bool = false
+    public var isHintsExpanded: Bool = false
+    private let ttsService: (any TextToSpeechProtocol)?
     private let callStartTime: Date
     private var previousMasteredCount: Int = 0
 
-    public init(engine: VoiceConversationEngineProtocol, callStartTime: Date = Date()) {
+    public init(
+        engine: VoiceConversationEngineProtocol,
+        ttsService: (any TextToSpeechProtocol)? = nil,
+        callStartTime: Date = Date()
+    ) {
         self.engine = engine
+        self.ttsService = ttsService
         self.callStartTime = callStartTime
         self.previousMasteredCount = engine.masteredTargetWords.count
     }
@@ -23,6 +30,8 @@ public final class RoleplayVoiceCallViewModel {
     public var masteredTargetWords: Set<String> { engine.masteredTargetWords }
     public var isMuted: Bool { engine.isMuted }
     public var isSubtitlesVisible: Bool { engine.isSubtitlesVisible }
+    public var suggestedResponses: [String] { engine.suggestedResponses }
+    public var audioLevel: Float { engine.audioLevel }
 
     public func startCall() async {
         await engine.startCall()
@@ -38,6 +47,14 @@ public final class RoleplayVoiceCallViewModel {
 
     public func toggleSubtitles() {
         engine.toggleSubtitles()
+    }
+
+    public func toggleHints() {
+        isHintsExpanded.toggle()
+    }
+
+    public func playSamplePronunciation(_ text: String) {
+        ttsService?.speak(text: text)
     }
 
     public func endCall() async {

@@ -10,6 +10,8 @@ public enum CraftButtonVariant: String, Sendable, CaseIterable {
     case ghost
     case danger
     case tactile
+
+    public static var subtle: CraftButtonVariant { .secondary }
 }
 
 /// Standardized sizes for Craft buttons.
