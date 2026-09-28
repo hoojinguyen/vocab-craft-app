@@ -1,4 +1,5 @@
 import Foundation
+import SpeechKit
 
 public final class ExecuteRoleplayTurnUseCase: Sendable {
     private let llmProvider: LLMProviderProtocol
@@ -10,20 +11,55 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
     public func execute(
         scenario: RoleplayScenario,
         userUtterance: String,
-        chatHistory: [LLMChatMessage]
+        chatHistory: [LLMChatMessage],
+        suggestedResponses: [String] = []
     ) async throws -> RoleplayTurnOutput {
-        // Fast local detection of target words in user input using word-boundary matching
-        let detectedLocalWords = scenario.targetWordIds.filter { word in
-            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: word))\\b"
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
-                return false
+        var detectedLocalWords = Set<String>()
+
+        // Tier 1: Target word detection across inflections and phonetic variations
+        for word in scenario.targetWordIds where ReflexSpeechMatcher.isReflexMatch(
+            spokenText: userUtterance,
+            targetLemma: word,
+            toleranceThreshold: 0.70
+        ) {
+            detectedLocalWords.insert(word)
+        }
+
+        // Tier 2: Candidate suggestion alignment (starter suggestions & previous turn suggested responses)
+        var candidateSuggestions: [String] = []
+        for candidate in scenario.starterSuggestions + suggestedResponses {
+            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty && !candidateSuggestions.contains(trimmed) {
+                candidateSuggestions.append(trimmed)
             }
-            let range = NSRange(location: 0, length: userUtterance.utf16.count)
-            return regex.firstMatch(in: userUtterance, options: [], range: range) != nil
+        }
+
+        var recognizedCandidate: String?
+        var highestCandidateScore: Double = 0.0
+
+        for candidate in candidateSuggestions {
+            let eval = FuzzySpeechMatcher.evaluate(
+                spokenText: userUtterance,
+                targetSentence: candidate,
+                passThreshold: 0.70
+            )
+            if eval.isPassed {
+                if eval.overallScore > highestCandidateScore {
+                    highestCandidateScore = eval.overallScore
+                    recognizedCandidate = candidate
+                }
+                for word in scenario.targetWordIds where ReflexSpeechMatcher.isReflexMatch(
+                    spokenText: candidate,
+                    targetLemma: word,
+                    toleranceThreshold: 0.70
+                ) {
+                    detectedLocalWords.insert(word)
+                }
+            }
         }
 
         let topicDescriptor = scenario.topic.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
-        let systemPrompt = """
+        var systemPrompt = """
         You are \(scenario.characterName), a \(scenario.characterRole) in a roleplay conversation with the user who is a \(scenario.userRole).
         Maintain an authentic, friendly persona suitable for the scene: \(topicDescriptor).
         Target vocabulary for the user: \(scenario.targetWordIds.joined(separator: ", ")).
@@ -35,6 +71,10 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         - suggestedResponses: array of 2-3 natural spoken candidate responses the user can say next, demonstrating natural usage of target vocabulary.
         """
 
+        if let recognizedCandidate {
+            systemPrompt += "\nRecognized suggested response attempted by user: \"\(recognizedCandidate)\"."
+        }
+
         var fullHistory = chatHistory
         fullHistory.append(LLMChatMessage(role: .user, content: userUtterance))
 
@@ -44,7 +84,7 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
             responseSchema: RoleplayTurnOutput.self
         )
         // Union local detected words with LLM recognized words
-        let combinedWords = Array(Set(output.targetWordsUsed + detectedLocalWords)).sorted()
+        let combinedWords = Array(Set(output.targetWordsUsed + Array(detectedLocalWords))).sorted()
         return RoleplayTurnOutput(
             characterReply: output.characterReply,
             targetWordsUsed: combinedWords,
@@ -56,7 +96,8 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
 
     public func execute(
         scenario: RoleplayScenario,
-        conversation: [RoleplayMessage]
+        conversation: [RoleplayMessage],
+        suggestedResponses: [String] = []
     ) async throws -> RoleplayTurnOutput {
         let userUtterance = conversation.last(where: { $0.sender == .user })?.text ?? ""
         let previousMessages: [RoleplayMessage]
@@ -76,7 +117,8 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         return try await execute(
             scenario: scenario,
             userUtterance: userUtterance,
-            chatHistory: chatHistory
+            chatHistory: chatHistory,
+            suggestedResponses: suggestedResponses
         )
     }
 }
