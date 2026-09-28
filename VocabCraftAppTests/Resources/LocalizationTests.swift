@@ -15,6 +15,7 @@ private enum CatalogLookup: @unchecked Sendable {
             URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()
                 .deletingLastPathComponent()
+                .deletingLastPathComponent()
                 .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path,
             "VocabCraftApp/Resources/Localizable.xcstrings"
         ]
@@ -104,6 +105,10 @@ struct LocalizationTests {
             en: "Suggested responses (%lld)",
             vi: "Gợi ý câu trả lời (%lld)"
         ),
+        "app.ai_call.suggested_toggle %lld": (
+            en: "Suggested responses (%lld)",
+            vi: "Gợi ý câu trả lời (%lld)"
+        ),
         "app.ai_call.listen_sample": (
             en: "Listen to sample pronunciation",
             vi: "Nghe phát âm mẫu"
@@ -132,6 +137,7 @@ struct LocalizationTests {
             "app.ai_call.active_badge",
             "app.ai_call.suggested_title",
             "app.ai_call.suggested_toggle",
+            "app.ai_call.suggested_toggle %lld",
             "app.ai_call.listen_sample",
             "app.ai_call.finish_speaking",
             "app.ai_call.mic_muted",

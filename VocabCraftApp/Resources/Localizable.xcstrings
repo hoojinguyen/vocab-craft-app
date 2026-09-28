@@ -1276,6 +1276,23 @@
         }
       }
     },
+    "app.ai_call.suggested_toggle %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggested responses (%lld)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gợi ý câu trả lời (%lld)"
+          }
+        }
+      }
+    },
     "app.database.error.backup_failed" : {
       "extractionState" : "manual",
       "localizations" : {
