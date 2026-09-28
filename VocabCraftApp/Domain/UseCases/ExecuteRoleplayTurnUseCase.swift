@@ -84,7 +84,7 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
             responseSchema: RoleplayTurnOutput.self
         )
         // Union local detected words with LLM recognized words
-        let combinedWords = Array(Set(output.targetWordsUsed + Array(detectedLocalWords))).sorted()
+        let combinedWords = detectedLocalWords.union(output.targetWordsUsed).sorted()
         return RoleplayTurnOutput(
             characterReply: output.characterReply,
             targetWordsUsed: combinedWords,

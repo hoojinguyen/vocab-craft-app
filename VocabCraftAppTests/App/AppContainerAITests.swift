@@ -33,6 +33,26 @@ struct AppContainerAITests {
     }
 
     @Test @MainActor
+    func testAppContainerCreatesRoleplayVoiceCallViewModelWithResilientEngine() {
+        let container = AppContainer()
+        let scenario = RoleplayScenario(
+            id: "voice-test",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Alex",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hello",
+            targetWordIds: ["espresso"],
+            iconSymbol: "cup.and.saucer"
+        )
+        let voiceCallVM = container.makeRoleplayVoiceCallViewModel(for: scenario)
+        #expect(voiceCallVM.engine is ResilientConversationSpeechEngine)
+    }
+
+    @Test @MainActor
     func testDynamicLLMProviderSwitchingWithApiKey() {
         let defaults = UserDefaults(suiteName: "test_dynamic_llm_\(UUID().uuidString)") ?? .standard
         let store = UserSettingsStore(defaults: defaults)

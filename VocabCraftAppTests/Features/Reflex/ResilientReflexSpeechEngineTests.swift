@@ -201,6 +201,16 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(relay.isCurrentlyMuted)
     }
 
+    func testAudioBufferRelay_setRequest_doesNotImplicitlyUnmute() {
+        let relay = AudioBufferRelay()
+        relay.mute()
+        XCTAssertTrue(relay.isCurrentlyMuted)
+
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        relay.setRequest(request)
+        XCTAssertTrue(relay.isCurrentlyMuted, "setRequest should not implicitly unmute relay")
+    }
+
     func testAudioBufferRelay_detachAndEnd_resetsRequestAndMutes() {
         let relay = AudioBufferRelay()
         let request = SFSpeechAudioBufferRecognitionRequest()

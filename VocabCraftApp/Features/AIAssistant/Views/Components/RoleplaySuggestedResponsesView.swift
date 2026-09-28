@@ -107,15 +107,11 @@ public struct RoleplaySuggestedResponsesView: View {
     }
 
     private func highlightedText(for sentence: String) -> AttributedString {
-        var attributed = AttributedString(sentence)
-        for targetWord in viewModel.scenario.targetWordIds where !targetWord.isEmpty {
-            var searchRange = attributed.startIndex..<attributed.endIndex
-            while let range = attributed[searchRange].range(of: targetWord, options: .caseInsensitive) {
-                attributed[range].foregroundColor = theme.colors.brandPrimary
-                attributed[range].font = theme.typography.bodyMedium.bold()
-                searchRange = range.upperBound..<attributed.endIndex
-            }
-        }
-        return attributed
+        RoleplaySuggestedDrawer.highlightedText(
+            for: sentence,
+            targetWords: viewModel.scenario.targetWordIds,
+            primaryColor: theme.colors.brandPrimary,
+            highlightFont: theme.typography.bodyMedium.bold()
+        )
     }
 }

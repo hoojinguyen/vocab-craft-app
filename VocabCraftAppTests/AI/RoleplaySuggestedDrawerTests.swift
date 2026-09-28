@@ -105,6 +105,33 @@ struct RoleplaySuggestedDrawerTests {
         }
     }
 
+    @Test("Word boundaries prevent sub-words from being falsely highlighted")
+    @MainActor
+    func testWordBoundariesPreventSubwordHighlighting() {
+        let sentence = "The bear has a tiny ear."
+        let targetWords = ["ear"]
+        let primaryColor = Color.blue
+        let highlightFont = Font.body.bold()
+
+        let attributed = RoleplaySuggestedDrawer.highlightedText(
+            for: sentence,
+            targetWords: targetWords,
+            primaryColor: primaryColor,
+            highlightFont: highlightFont
+        )
+
+        if let bearRange = attributed.range(of: "bear") {
+            #expect(attributed[bearRange].foregroundColor == nil)
+        }
+
+        let highlightedRuns = attributed.runs.filter { $0.foregroundColor == primaryColor }
+        #expect(highlightedRuns.count == 1)
+        if let firstRun = highlightedRuns.first {
+            #expect(String(attributed[firstRun.range].characters) == "ear")
+            #expect(firstRun.font == highlightFont)
+        }
+    }
+
     @Test("Audio preview button calls viewModel.playSamplePronunciation")
     @MainActor
     func testAudioPreviewCallsTTS() {

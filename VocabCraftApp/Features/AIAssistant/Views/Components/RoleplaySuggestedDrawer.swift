@@ -1,4 +1,5 @@
 import CraftUIKit
+import Foundation
 import SwiftUI
 
 /// Conversational scaffolding drawer providing candidate spoken responses with
@@ -8,6 +9,7 @@ import SwiftUI
 public struct RoleplaySuggestedDrawer: View {
     @Bindable public var viewModel: RoleplayVoiceCallViewModel
     @Environment(\.craftTheme) private var theme
+    @ScaledMetric private var maxDrawerListHeight: CGFloat = 240
 
     public init(viewModel: RoleplayVoiceCallViewModel) {
         self.viewModel = viewModel
@@ -98,7 +100,7 @@ public struct RoleplaySuggestedDrawer: View {
                     }
                     .padding(.vertical, theme.spacing.xxs)
                 }
-                .frame(maxHeight: theme.spacing.xxl * 5)
+                .frame(maxHeight: maxDrawerListHeight)
             }
         }
     }
@@ -162,11 +164,18 @@ public struct RoleplaySuggestedDrawer: View {
     ) -> AttributedString {
         var attributed = AttributedString(sentence)
         for targetWord in targetWords where !targetWord.isEmpty {
-            var searchRange = attributed.startIndex..<attributed.endIndex
-            while let range = attributed[searchRange].range(of: targetWord, options: .caseInsensitive) {
-                attributed[range].foregroundColor = primaryColor
-                attributed[range].font = highlightFont
-                searchRange = range.upperBound..<attributed.endIndex
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: targetWord))\\b"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+                continue
+            }
+            let nsString = sentence as NSString
+            let matches = regex.matches(in: sentence, options: [], range: NSRange(location: 0, length: nsString.length))
+            for match in matches {
+                if let stringRange = Range(match.range, in: sentence),
+                   let attrRange = Range(stringRange, in: attributed) {
+                    attributed[attrRange].foregroundColor = primaryColor
+                    attributed[attrRange].font = highlightFont
+                }
             }
         }
         return attributed

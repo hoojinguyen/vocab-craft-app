@@ -28,9 +28,6 @@ public final class AudioBufferRelay: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         activeRequest = request
-        if request != nil {
-            isMuted = false
-        }
     }
 
     public func setBufferListener(_ listener: (@Sendable (AVAudioPCMBuffer) -> Void)?) {
