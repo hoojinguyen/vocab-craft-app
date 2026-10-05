@@ -34,7 +34,7 @@ public struct RoleplayModelDownloadCard: View {
                 if isDownloading {
                     VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                         CraftProgressBar(progress: overallProgress, height: 6)
-                        Text("\(Int(overallProgress * 100))%")
+                        Text(overallProgress, format: .percent.precision(.fractionLength(0)))
                             .font(theme.typography.caption)
                             .foregroundStyle(theme.colors.textMuted)
                     }

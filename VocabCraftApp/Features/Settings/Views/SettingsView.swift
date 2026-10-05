@@ -689,8 +689,8 @@ private struct SettingsOnDeviceModelsCard: View {
     @Bindable private var modelManager = OnDemandAIModelManager.shared
 
     var body: some View {
-        CraftCard(style: .outlined, padding: 0) {
-            VStack(spacing: 0) {
+        CraftCard(style: .outlined, padding: theme.spacing.none) {
+            VStack(spacing: theme.spacing.none) {
                 modelRow(type: .kokoro)
                 CraftDivider()
                 modelRow(type: .whisper)
@@ -722,8 +722,8 @@ private struct SettingsOnDeviceModelsCard: View {
             } else if case .downloading(let progress) = state {
                 HStack(spacing: theme.spacing.xs) {
                     CraftProgressBar(progress: progress, height: 4)
-                        .frame(width: 40)
-                    Text("\(Int(progress * 100))%")
+                        .frame(width: theme.spacing.xxl)
+                    Text(progress, format: .percent.precision(.fractionLength(0)))
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textMuted)
                 }
