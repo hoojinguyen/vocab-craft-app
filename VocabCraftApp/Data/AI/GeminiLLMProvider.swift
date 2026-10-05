@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 /// Errors that may arise when communicating with the Gemini API.
 public enum GeminiError: Error, LocalizedError, Sendable, Equatable {
@@ -18,8 +19,9 @@ public enum GeminiError: Error, LocalizedError, Sendable, Equatable {
     }
 }
 
-/// Production LLM provider implementing Google Gemini 1.5 Flash client with JSON structured output.
+/// Production LLM provider implementing Google Gemini Flash client with JSON structured output.
 public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "GeminiAI")
     public let providerIdentifier: String = "gemini-flash"
     private let apiKey: String
     private let session: URLSession
@@ -40,12 +42,14 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         responseSchema: T.Type
     ) async throws -> T {
         guard !apiKey.isEmpty else {
+            Self.logger.error("Gemini API key is missing or empty")
             throw GeminiError.missingApiKey
         }
 
         guard let endpoint = URL(
-            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
         ) else {
+            Self.logger.error("Failed to construct Gemini endpoint URL")
             throw GeminiError.invalidResponse
         }
 
@@ -53,6 +57,7 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        request.timeoutInterval = 15.0
 
         let contents = messages.map { msg -> [String: Any] in
             let role = msg.role == .user ? "user" : "model"
@@ -78,26 +83,40 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
+            Self.logger.error("Gemini response is not HTTPURLResponse")
             throw GeminiError.invalidResponse
         }
 
         guard httpResponse.statusCode == 200 else {
             let errorText = String(data: data, encoding: .utf8) ?? "Unknown"
+            Self.logger.error("Gemini API error statusCode=\(httpResponse.statusCode) message=\(errorText)")
             throw GeminiError.apiError(statusCode: httpResponse.statusCode, message: errorText)
         }
 
-        // Parse candidates[0].content.parts[0].text
+        // Parse candidates[0].content.parts.text (finding the text part, handling potential thought parts)
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = json["candidates"] as? [[String: Any]],
               let firstCandidate = candidates.first,
               let content = firstCandidate["content"] as? [String: Any],
               let parts = content["parts"] as? [[String: Any]],
-              let firstPart = parts.first,
-              let text = firstPart["text"] as? String else {
+              let textPart = parts.first(where: { ($0["text"] as? String)?.isEmpty == false }),
+              let rawText = textPart["text"] as? String else {
+            Self.logger.error("Failed to parse candidates text from Gemini JSON")
             throw GeminiError.invalidResponse
         }
 
-        let rawData = Data(text.utf8)
+        Self.logger.notice("Gemini LLM response received successfully")
+        let cleanedText: String
+        let trimmed = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.hasPrefix("```json") && trimmed.hasSuffix("```") {
+            cleanedText = String(trimmed.dropFirst(7).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if trimmed.hasPrefix("```") && trimmed.hasSuffix("```") {
+            cleanedText = String(trimmed.dropFirst(3).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            cleanedText = trimmed
+        }
+
+        let rawData = Data(cleanedText.utf8)
         return try JSONDecoder().decode(T.self, from: rawData)
     }
 }

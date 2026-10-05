@@ -100,10 +100,11 @@ struct GeminiAudioSpeechEngineTests {
 
         let urlString = request.url?.absoluteString ?? ""
         #expect(urlString.contains("generativelanguage.googleapis.com"))
+        #expect(urlString.contains("gemini-2.5-flash-preview-tts"))
         #expect(request.url?.query?.contains("key=test-api-key") == true)
         #expect(request.httpMethod == "POST")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
-        #expect(request.timeoutInterval == 3.5)
+        #expect(request.timeoutInterval == 8.0)
 
         guard let bodyData = request.httpBody,
               let json = try JSONSerialization.jsonObject(with: bodyData) as? [String: Any] else {
@@ -361,5 +362,28 @@ struct GeminiAudioSpeechEngineTests {
         engine.audioPlayerDecodeErrorDidOccur(stalePlayer, error: URLError(.cannotDecodeContentData))
         await Task.yield()
         #expect(engine.isSpeaking)
+    }
+
+    @Test("Verify pcmToWav wraps raw PCM in valid RIFF WAV container")
+    func test_pcmToWav_wrapsRawPCM() throws {
+        let rawPCM = Data(repeating: 0x20, count: 4800) // 100ms of 24kHz 16-bit mono
+        let wavData = GeminiAudioSpeechEngine.pcmToWav(data: rawPCM, sampleRate: 24000, channels: 1, bitsPerSample: 16)
+
+        #expect(wavData.count == rawPCM.count + 44)
+        #expect(wavData.prefix(4) == Data([0x52, 0x49, 0x46, 0x46])) // "RIFF"
+        #expect(wavData[8..<12] == Data([0x57, 0x41, 0x56, 0x45])) // "WAVE"
+        #expect(wavData[12..<16] == Data([0x66, 0x6D, 0x74, 0x20])) // "fmt "
+        #expect(wavData[36..<40] == Data([0x64, 0x61, 0x74, 0x61])) // "data"
+
+        let player = try AVAudioPlayer(data: wavData)
+        #expect(player.duration > 0.09)
+        #expect(player.numberOfChannels == 1)
+    }
+
+    @Test("Verify pcmToWav leaves already-wrapped RIFF data untouched")
+    func test_pcmToWav_idempotentOnRiff() {
+        let alreadyWav = Data([0x52, 0x49, 0x46, 0x46, 0x01, 0x02, 0x03, 0x04])
+        let result = GeminiAudioSpeechEngine.pcmToWav(data: alreadyWav)
+        #expect(result == alreadyWav)
     }
 }

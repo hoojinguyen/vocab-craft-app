@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import os
 
 private final class AudioPlayerTransferBox: @unchecked Sendable {
     let player: AVAudioPlayer
@@ -44,22 +45,67 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
         cache[key] = data
     }
 
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "GeminiAudio")
+
+    /// Converts raw 24kHz 16-bit 1-channel PCM data to WAV container format if not already wrapped in RIFF.
+    public nonisolated static func pcmToWav(data: Data, sampleRate: Int = 24000, channels: Int = 1, bitsPerSample: Int = 16) -> Data {
+        if data.count >= 4 && data.prefix(4) == Data([0x52, 0x49, 0x46, 0x46]) {
+            return data
+        }
+        var header = Data()
+        let byteRate = sampleRate * channels * (bitsPerSample / 8)
+        let blockAlign = channels * (bitsPerSample / 8)
+        let totalChunkSize = 36 + data.count
+
+        // RIFF header
+        header.append(contentsOf: [0x52, 0x49, 0x46, 0x46]) // "RIFF"
+        var chunkSize = UInt32(totalChunkSize).littleEndian
+        withUnsafeBytes(of: &chunkSize) { header.append(contentsOf: $0) }
+        header.append(contentsOf: [0x57, 0x41, 0x56, 0x45]) // "WAVE"
+
+        // fmt chunk
+        header.append(contentsOf: [0x66, 0x6D, 0x74, 0x20]) // "fmt "
+        var subchunk1Size = UInt32(16).littleEndian
+        withUnsafeBytes(of: &subchunk1Size) { header.append(contentsOf: $0) }
+        var audioFormat = UInt16(1).littleEndian // PCM = 1
+        withUnsafeBytes(of: &audioFormat) { header.append(contentsOf: $0) }
+        var numChannels = UInt16(channels).littleEndian
+        withUnsafeBytes(of: &numChannels) { header.append(contentsOf: $0) }
+        var sRate = UInt32(sampleRate).littleEndian
+        withUnsafeBytes(of: &sRate) { header.append(contentsOf: $0) }
+        var bRate = UInt32(byteRate).littleEndian
+        withUnsafeBytes(of: &bRate) { header.append(contentsOf: $0) }
+        var bAlign = UInt16(blockAlign).littleEndian
+        withUnsafeBytes(of: &bAlign) { header.append(contentsOf: $0) }
+        var bPerSample = UInt16(bitsPerSample).littleEndian
+        withUnsafeBytes(of: &bPerSample) { header.append(contentsOf: $0) }
+
+        // data chunk
+        header.append(contentsOf: [0x64, 0x61, 0x74, 0x61]) // "data"
+        var subchunk2Size = UInt32(data.count).littleEndian
+        withUnsafeBytes(of: &subchunk2Size) { header.append(contentsOf: $0) }
+
+        return header + data
+    }
+
     public func buildRequest(text: String, persona: VoicePersona, apiKey: String) throws -> URLRequest {
         let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKey.isEmpty else {
+            Self.logger.error("Gemini API key is empty when building TTS request")
             throw URLError(.userAuthenticationRequired)
         }
 
-        var components = URLComponents(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
+        var components = URLComponents(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent")
         components?.queryItems = [URLQueryItem(name: "key", value: trimmedKey)]
         guard let url = components?.url else {
+            Self.logger.error("Failed to build Gemini TTS URL")
             throw URLError(.badURL)
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 3.5
+        request.timeoutInterval = 8.0
 
         let body: [String: Any] = [
             "contents": [
@@ -100,7 +146,14 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
             let request = try buildRequest(text: text, persona: persona, apiKey: apiKey)
             let (data, response) = try await urlSession.data(for: request)
 
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            guard let httpResponse = response as? HTTPURLResponse else {
+                Self.logger.error("Gemini TTS response is not HTTPURLResponse")
+                throw URLError(.badServerResponse)
+            }
+
+            guard httpResponse.statusCode == 200 else {
+                let errorBody = String(data: data, encoding: .utf8) ?? "Unknown"
+                Self.logger.error("Gemini TTS HTTP error statusCode=\(httpResponse.statusCode) body=\(errorBody)")
                 throw URLError(.badServerResponse)
             }
 
@@ -113,11 +166,14 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
                   let inlineData = audioPart["inlineData"] as? [String: Any],
                   let base64String = inlineData["data"] as? String,
                   let decoded = Data(base64Encoded: base64String) else {
+                Self.logger.error("Gemini TTS failed to decode base64 inline audio data from JSON response")
                 throw URLError(.cannotParseResponse)
             }
 
-            audioData = decoded
-            storeInCache(key: key, data: decoded)
+            let wavData = Self.pcmToWav(data: decoded)
+            audioData = wavData
+            storeInCache(key: key, data: wavData)
+            Self.logger.notice("Gemini TTS synthesized successfully (\(wavData.count) bytes)")
         }
 
         let isTesting = NSClassFromString("XCTestCase") != nil

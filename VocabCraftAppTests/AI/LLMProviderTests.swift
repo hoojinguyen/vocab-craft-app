@@ -87,7 +87,7 @@ struct LLMProviderTests {
     @Test("GeminiLLMProvider successfully parses valid Gemini response")
     func testGeminiProviderSuccess() async throws {
         let (session, mockId) = MockURLProtocol.register { request in
-            #expect(request.url?.absoluteString.contains("gemini-1.5-flash") == true)
+            #expect(request.url?.absoluteString.contains("gemini-flash-latest") == true)
             #expect(request.httpMethod == "POST")
             #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
             #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "fake-key")
