@@ -212,4 +212,74 @@ struct AIAssistantViewsTests {
         await vm.loadScenarios()
         #expect(!vm.scenarios.isEmpty)
     }
+
+    // MARK: - Task 2: EngineStatusPill & CompanionHeroCard Tests
+
+    @Test @MainActor
+    func test_engineStatusPill_renders_proper_badge_for_modes() {
+        var onDeviceTapped = false
+        let onDevicePill = EngineStatusPill(isCloudConfigured: false) {
+            onDeviceTapped = true
+        }
+        #expect(!onDevicePill.isCloudConfigured)
+        _ = onDevicePill.body
+        onDevicePill.onTap()
+        #expect(onDeviceTapped)
+
+        var cloudTapped = false
+        let cloudPill = EngineStatusPill(isCloudConfigured: true) {
+            cloudTapped = true
+        }
+        #expect(cloudPill.isCloudConfigured)
+        _ = cloudPill.body
+        cloudPill.onTap()
+        #expect(cloudTapped)
+    }
+
+    @Test @MainActor
+    func test_companionHeroCard_renders_and_dispatches_actions() {
+        let scenario = makeSampleScenario()
+        var callStarted = false
+        var chatStarted = false
+
+        let heroCard = CompanionHeroCard(
+            scenario: scenario,
+            wordsLearnedCount: 3,
+            onStartCall: { callStarted = true },
+            onStartChat: { chatStarted = true }
+        )
+
+        #expect(heroCard.scenario == scenario)
+        #expect(heroCard.wordsLearnedCount == 3)
+        _ = heroCard.body
+
+        heroCard.onStartCall()
+        #expect(callStarted)
+
+        heroCard.onStartChat()
+        #expect(chatStarted)
+    }
+
+    @Test @MainActor
+    func test_companionHeroCard_handles_zero_and_large_words_learned() {
+        let scenario = makeSampleScenario()
+
+        let zeroWordsCard = CompanionHeroCard(
+            scenario: scenario,
+            wordsLearnedCount: 0,
+            onStartCall: {},
+            onStartChat: {}
+        )
+        #expect(zeroWordsCard.wordsLearnedCount == 0)
+        _ = zeroWordsCard.body
+
+        let manyWordsCard = CompanionHeroCard(
+            scenario: scenario,
+            wordsLearnedCount: 42,
+            onStartCall: {},
+            onStartChat: {}
+        )
+        #expect(manyWordsCard.wordsLearnedCount == 42)
+        _ = manyWordsCard.body
+    }
 }
