@@ -282,4 +282,73 @@ struct AIAssistantViewsTests {
         #expect(manyWordsCard.wordsLearnedCount == 42)
         _ = manyWordsCard.body
     }
+
+    // MARK: - Task 3: ScenarioListCard Tests
+
+    @Test @MainActor
+    func test_scenarioListCard_renders_and_dispatches_actions() {
+        let scenario = makeSampleScenario()
+        var voiceStarted = false
+        var textStarted = false
+
+        let card = ScenarioListCard(
+            scenario: scenario,
+            onStartVoice: { voiceStarted = true },
+            onStartText: { textStarted = true }
+        )
+
+        #expect(card.scenario == scenario)
+        _ = card.body
+
+        card.onStartVoice()
+        #expect(voiceStarted)
+
+        card.onStartText()
+        #expect(textStarted)
+    }
+
+    @Test @MainActor
+    func test_scenarioListCard_handles_various_target_words() {
+        let emptyScenario = RoleplayScenario(
+            id: "test-empty",
+            titleKey: "app.ai_assistant.scenario.hotel.title",
+            descriptionKey: "app.ai_assistant.scenario.hotel.desc",
+            topic: .travel,
+            difficulty: .intermediate,
+            characterName: "Receptionist",
+            characterRole: "Front Desk",
+            userRole: "Guest",
+            initialGreeting: "Welcome to Grand Hotel!",
+            targetWordIds: [],
+            iconSymbol: "building.2"
+        )
+        let emptyCard = ScenarioListCard(
+            scenario: emptyScenario,
+            onStartVoice: {},
+            onStartText: {}
+        )
+        #expect(emptyCard.scenario.targetWordIds.isEmpty)
+        _ = emptyCard.body
+
+        let manyScenario = RoleplayScenario(
+            id: "test-many",
+            titleKey: "app.ai_assistant.scenario.interview.title",
+            descriptionKey: "app.ai_assistant.scenario.interview.desc",
+            topic: .interview,
+            difficulty: .advanced,
+            characterName: "Interviewer",
+            characterRole: "Hiring Manager",
+            userRole: "Candidate",
+            initialGreeting: "Tell me about yourself.",
+            targetWordIds: ["leadership", "collaboration", "initiative", "deadline", "strategy"],
+            iconSymbol: "briefcase"
+        )
+        let manyCard = ScenarioListCard(
+            scenario: manyScenario,
+            onStartVoice: {},
+            onStartText: {}
+        )
+        #expect(manyCard.scenario.targetWordIds.count == 5)
+        _ = manyCard.body
+    }
 }

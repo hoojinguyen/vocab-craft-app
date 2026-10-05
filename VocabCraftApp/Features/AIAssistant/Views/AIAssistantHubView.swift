@@ -11,6 +11,7 @@ public struct AIAssistantHubView: View {
     @State private var activeVoiceCallViewModel: RoleplayVoiceCallViewModel?
     @State private var showConfigSheet: Bool = false
     @State private var showPermissionDeniedAlert: Bool = false
+    @State private var sampleSummary: RoleplaySessionSummary?
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.craftTheme) private var theme
@@ -37,29 +38,40 @@ public struct AIAssistantHubView: View {
                         alignment: .leading,
                         enableScrollFade: false
                     ) {
-                        CraftIconButton(
-                            symbol: .settings,
-                            size: .md,
-                            variant: .subtle,
-                            accessibilityLabelKey: AppStrings.AIAssistant.configureApiKey
-                        ) {
-                            showConfigSheet = true
+                        HStack(spacing: theme.spacing.sm) {
+                            EngineStatusPill(isCloudConfigured: settingsStore.isGeminiApiKeyConfigured) {
+                                showConfigSheet = true
+                            }
+
+                            CraftIconButton(
+                                symbol: .settings,
+                                size: .md,
+                                variant: .subtle,
+                                accessibilityLabelKey: AppStrings.AIAssistant.configureApiKey
+                            ) {
+                                showConfigSheet = true
+                            }
                         }
                     }
 
-                    if !settingsStore.isGeminiApiKeyConfigured {
-                        configNoticeBanner
-                    }
-
                     if let daily = viewModel.dailyScenario {
-                        heroDailyCard(for: daily)
+                        CompanionHeroCard(
+                            scenario: daily,
+                            wordsLearnedCount: settingsStore.todayWordsLearned,
+                            onStartCall: {
+                                startVoiceCall(for: daily)
+                            },
+                            onStartChat: {
+                                activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: daily)
+                            }
+                        )
                     }
 
                     topicFilterBar
 
                     scenarioListSection
 
-                    Spacer(minLength: theme.spacing.xxl)
+                    Spacer(minLength: theme.spacing.xxl + 88)
                 }
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.top, theme.spacing.xs)
@@ -68,6 +80,38 @@ public struct AIAssistantHubView: View {
         .task {
             if viewModel.scenarios.isEmpty {
                 await viewModel.loadScenarios()
+            }
+            let args = ProcessInfo.processInfo.arguments
+            if args.contains("-test-ai-config") {
+                showConfigSheet = true
+            } else if args.contains("-test-ai-room") {
+                if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
+                    activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
+                }
+            } else if args.contains("-test-ai-voice") {
+                if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
+                    startVoiceCall(for: scenario)
+                }
+            } else if args.contains("-test-ai-summary") {
+                sampleSummary = RoleplaySessionSummary(
+                    scenarioId: "cafe_ordering",
+                    totalTurns: 6,
+                    targetWordsAttempted: ["beverage", "pastry", "complimentary"],
+                    targetWordsMastered: ["beverage", "pastry"],
+                    fluencyScore: 85,
+                    xpEarned: 30,
+                    refinements: [
+                        SentenceRefinementPair(
+                            originalUserSentence: "I want drink coffee hot please.",
+                            refinedNativeSentence: "I'd like a hot coffee, please."
+                        )
+                    ]
+                )
+            }
+        }
+        .sheet(item: $sampleSummary) { summary in
+            RoleplaySummaryView(summary: summary) {
+                sampleSummary = nil
             }
         }
         .sheet(isPresented: $showConfigSheet) {
@@ -114,108 +158,6 @@ public struct AIAssistantHubView: View {
             Button(AppStrings.Common.cancel, role: .cancel) {}
         } message: {
             Text(AppStrings.AIAssistant.permissionMessage)
-        }
-    }
-
-    private var configNoticeBanner: some View {
-        CraftCard(
-            style: .outlined,
-            cornerRadius: theme.radii.lg,
-            padding: theme.spacing.md
-        ) {
-            HStack(spacing: theme.spacing.md) {
-                CraftIcon(
-                    CraftSymbol.sparkles.rawValue,
-                    size: .md,
-                    color: theme.colors.accent
-                )
-                .padding(theme.spacing.sm)
-                .background(theme.colors.accent.opacity(0.12))
-                .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                    Text(AppStrings.AIAssistant.apiKeySheetTitle)
-                        .font(theme.typography.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(theme.colors.textPrimary)
-
-                    Text(AppStrings.AIAssistant.apiKeyBannerDesc)
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textSecondary)
-                }
-
-                Spacer()
-
-                CraftButton(
-                    AppStrings.AIAssistant.configureApiKey,
-                    variant: .secondary,
-                    size: .sm
-                ) {
-                    showConfigSheet = true
-                }
-            }
-        }
-    }
-
-    private func heroDailyCard(for scenario: RoleplayScenario) -> some View {
-        CraftCard(
-            style: .outlined,
-            cornerRadius: theme.radii.xl,
-            padding: theme.spacing.lg
-        ) {
-            VStack(alignment: .leading, spacing: theme.spacing.md) {
-                HStack {
-                    CraftBadge(
-                        AppStrings.AIAssistant.dailyMissionBadge,
-                        symbol: .sparkles,
-                        variant: .subtle,
-                        tone: .primary,
-                        size: .sm,
-                        customTint: theme.colors.accent
-                    )
-                    Spacer()
-                }
-
-                Text(LocalizedStringKey(scenario.titleKey))
-                    .font(theme.typography.titleLarge)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textPrimary)
-
-                Text(LocalizedStringKey(scenario.descriptionKey))
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textSecondary)
-
-                HStack(spacing: theme.spacing.xs) {
-                    ForEach(scenario.targetWordIds, id: \.self) { word in
-                        CraftBadge(
-                            verbatim: word,
-                            variant: .subtle,
-                            tone: .neutral,
-                            size: .sm
-                        )
-                    }
-                }
-
-                HStack(spacing: theme.spacing.sm) {
-                    CraftButton(
-                        AppStrings.AIAssistant.startVoiceCall,
-                        variant: .primary,
-                        size: .md,
-                        isFullWidth: true
-                    ) {
-                        startVoiceCall(for: scenario)
-                    }
-
-                    CraftButton(
-                        AppStrings.AIAssistant.actionStartRoleplay,
-                        variant: .secondary,
-                        size: .md
-                    ) {
-                        activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
-                    }
-                }
-                .padding(.top, theme.spacing.xs)
-            }
         }
     }
 
@@ -269,56 +211,22 @@ public struct AIAssistantHubView: View {
     }
 
     private var scenarioListSection: some View {
-        VStack(spacing: theme.spacing.md) {
+        VStack(alignment: .leading, spacing: theme.spacing.md) {
+            Text(AppStrings.AIAssistant.scenarioSectionTitle)
+                .font(theme.typography.titleMedium)
+                .fontWeight(.bold)
+                .foregroundStyle(theme.colors.textPrimary)
+
             ForEach(viewModel.filteredScenarios.filter { $0.id != viewModel.dailyScenario?.id }) { scenario in
-                CraftCard(
-                    style: .outlined,
-                    cornerRadius: theme.radii.lg,
-                    padding: theme.spacing.md
-                ) {
-                    HStack(spacing: theme.spacing.md) {
-                        CraftIcon(
-                            scenario.iconSymbol,
-                            size: .lg,
-                            color: theme.colors.brandPrimary
-                        )
-                        .frame(width: 44, height: 44)
-                        .background(theme.colors.brandPrimary.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-
-                        VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                            Text(LocalizedStringKey(scenario.titleKey))
-                                .font(theme.typography.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.textPrimary)
-
-                            Text(LocalizedStringKey(scenario.descriptionKey))
-                                .font(theme.typography.caption)
-                                .foregroundStyle(theme.colors.textSecondary)
-                        }
-
-                        Spacer()
-
-                        HStack(spacing: theme.spacing.xs) {
-                            CraftIconButton(
-                                symbol: .audio,
-                                size: .md,
-                                variant: .subtle,
-                                accessibilityLabelKey: AppStrings.AIAssistant.startVoiceCall
-                            ) {
-                                startVoiceCall(for: scenario)
-                            }
-
-                            CraftButton(
-                                AppStrings.AIAssistant.actionStartRoleplay,
-                                variant: .secondary,
-                                size: .sm
-                            ) {
-                                activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
-                            }
-                        }
+                ScenarioListCard(
+                    scenario: scenario,
+                    onStartVoice: {
+                        startVoiceCall(for: scenario)
+                    },
+                    onStartText: {
+                        activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
                     }
-                }
+                )
             }
         }
     }
