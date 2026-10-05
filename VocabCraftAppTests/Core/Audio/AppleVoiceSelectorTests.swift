@@ -79,4 +79,24 @@ struct AppleVoiceSelectorTests {
         #expect(AppleVoiceSelector.curatedWhitelist.contains("nathan"))
         #expect(AppleVoiceSelector.curatedWhitelist.contains("daniel"))
     }
+
+    @Test("Verify en-GB voice is preferred over en-US voice for en-GB locale when both have same quality")
+    func test_resolveBestVoice_prefersExactLocaleOverUS() {
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+        let usVoice = voices.first(where: {
+            $0.language == "en-US" && !AppleVoiceSelector.isBlacklisted(voiceName: $0.name)
+        })
+        let gbVoice = voices.first(where: {
+            $0.language == "en-GB" && !AppleVoiceSelector.isBlacklisted(voiceName: $0.name)
+        })
+
+        guard let usVoice, let gbVoice else {
+            return
+        }
+
+        // Place en-US voice first in the array to ensure ordering doesn't bias result
+        let resolved = AppleVoiceSelector.resolveBestVoice(for: "en-GB", availableVoices: [usVoice, gbVoice])
+        #expect(resolved?.language == "en-GB")
+        #expect(resolved?.identifier == gbVoice.identifier)
+    }
 }

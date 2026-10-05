@@ -50,23 +50,34 @@ public enum AppleVoiceSelector: Sendable {
         }
 
         // Rank 1: Premium quality voices
-        if let premium = matchingVoices.first(where: {
-            $0.quality == .premium && ($0.language == locale || $0.language.hasPrefix("en-US"))
+        if let premiumExact = matchingVoices.first(where: {
+            $0.quality == .premium && $0.language == locale
         }) {
-            return premium
+            return premiumExact
+        }
+        if let premiumFallback = matchingVoices.first(where: {
+            $0.quality == .premium && $0.language.hasPrefix("en-US")
+        }) {
+            return premiumFallback
         }
 
         // Rank 2: Enhanced quality voices
-        if let enhanced = matchingVoices.first(where: {
-            $0.quality == .enhanced && ($0.language == locale || $0.language.hasPrefix("en-US"))
+        if let enhancedExact = matchingVoices.first(where: {
+            $0.quality == .enhanced && $0.language == locale
         }) {
-            return enhanced
+            return enhancedExact
+        }
+        if let enhancedFallback = matchingVoices.first(where: {
+            $0.quality == .enhanced && $0.language.hasPrefix("en-US")
+        }) {
+            return enhancedFallback
         }
 
         // Rank 3: Curated whitelist compact voices
         for preferredName in curatedWhitelist {
             if let matched = matchingVoices.first(where: {
-                $0.name.lowercased() == preferredName && $0.language == locale
+                $0.name.lowercased() == preferredName &&
+                ($0.language == locale || $0.language.hasPrefix(locale))
             }) {
                 return matched
             }
