@@ -1599,6 +1599,74 @@
         }
       }
     },
+    "app.audio.fallback_notice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switched to offline voice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chuyển sang giọng đọc ngoại tuyến"
+          }
+        }
+      }
+    },
+    "app.audio.voice_quality_enhanced" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enhanced Natural Voice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giọng nói tự nhiên nâng cao"
+          }
+        }
+      }
+    },
+    "app.audio.voice_quality_premium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Studio Quality Voice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chất lượng giọng nói chuẩn Studio"
+          }
+        }
+      }
+    },
+    "app.audio.voice_quality_standard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard Voice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giọng nói tiêu chuẩn"
+          }
+        }
+      }
+    },
     "app.database.error.backup_failed" : {
       "extractionState" : "manual",
       "localizations" : {

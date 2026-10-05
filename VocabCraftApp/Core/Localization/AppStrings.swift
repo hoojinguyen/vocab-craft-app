@@ -486,12 +486,8 @@ extension AppStrings {
         public static var actionDoneText: String { String(localized: "app.ai_assistant.summary.action_done", defaultValue: "Back to Hub", bundle: .module) }
         public static var fallbackReply: LocalizedStringKey { "app.ai_assistant.room.fallback_reply" }
         public static var fallbackReplyText: String { String(localized: "app.ai_assistant.room.fallback_reply", defaultValue: "I see! Please go on.", bundle: .module) }
-        public static var inputPlaceholder: LocalizedStringKey {
-            LocalizedStringKey("app.ai_assistant.room.input_placeholder")
-        }
-        public static var inputPlaceholderText: String {
-            String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module)
-        }
+        public static var inputPlaceholder: LocalizedStringKey { LocalizedStringKey("app.ai_assistant.room.input_placeholder") }
+        public static var inputPlaceholderText: String { String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module) }
         public static var audioPlayButton: LocalizedStringKey { "app.ai_assistant.room.play_audio" }
         public static var audioPlayButtonText: String { String(localized: "app.ai_assistant.room.play_audio", defaultValue: "Play dialogue audio", bundle: .module) }
 
@@ -614,26 +610,16 @@ extension AppStrings {
         public static func deckSummary(lessons: Int, words: Int) -> String {
             String(format: String(localized: "app.home.section.deck_summary_format", defaultValue: "%lld lessons • %lld words", bundle: .module), lessons, words)
         }
-        public static var todayLabelText: String {
-            String(localized: "app.home.header.today_label", defaultValue: "today", bundle: .module)
-        }
+        public static var todayLabelText: String { String(localized: "app.home.header.today_label", defaultValue: "today", bundle: .module) }
         public static var todayLabel: LocalizedStringKey { "app.home.header.today_label" }
         public static var checkpointTitle: LocalizedStringKey { "app.home.section.checkpoint_title" }
-        public static var checkpointTitleText: String {
-            String(localized: "app.home.section.checkpoint_title", defaultValue: "Unit Review Exam", bundle: .module)
-        }
+        public static var checkpointTitleText: String { String(localized: "app.home.section.checkpoint_title", defaultValue: "Unit Review Exam", bundle: .module) }
         public static var checkpointSubtitle: LocalizedStringKey { "app.home.section.checkpoint_subtitle" }
-        public static var checkpointSubtitleText: String {
-            String(localized: "app.home.section.checkpoint_subtitle", defaultValue: "Comprehensive exam covering all unit words", bundle: .module)
-        }
+        public static var checkpointSubtitleText: String { String(localized: "app.home.section.checkpoint_subtitle", defaultValue: "Comprehensive exam covering all unit words", bundle: .module) }
         public static var treasureTitle: LocalizedStringKey { "app.home.section.treasure_title" }
-        public static var treasureTitleText: String {
-            String(localized: "app.home.section.treasure_title", defaultValue: "Treasure Chest", bundle: .module)
-        }
+        public static var treasureTitleText: String { String(localized: "app.home.section.treasure_title", defaultValue: "Treasure Chest", bundle: .module) }
         public static var treasureSubtitle: LocalizedStringKey { "app.home.section.treasure_subtitle" }
-        public static var treasureSubtitleText: String {
-            String(localized: "app.home.section.treasure_subtitle", defaultValue: "150 XP Bonus", bundle: .module)
-        }
+        public static var treasureSubtitleText: String { String(localized: "app.home.section.treasure_subtitle", defaultValue: "150 XP Bonus", bundle: .module) }
 
         // Node Metadata & Objectives
         public static func wordsDuration(words: Int, minutes: Int) -> String {
@@ -695,5 +681,17 @@ extension AppStrings {
         public static func levelText(_ level: Int) -> String {
             String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld", bundle: .module), level)
         }
+    }
+
+    // MARK: - Audio
+    public enum Audio {
+        public static var voiceQualityPremium: LocalizedStringKey { "app.audio.voice_quality_premium" }
+        public static var voiceQualityPremiumText: String { String(localized: "app.audio.voice_quality_premium", defaultValue: "Studio Quality Voice", bundle: .module) }
+        public static var voiceQualityEnhanced: LocalizedStringKey { "app.audio.voice_quality_enhanced" }
+        public static var voiceQualityEnhancedText: String { String(localized: "app.audio.voice_quality_enhanced", defaultValue: "Enhanced Natural Voice", bundle: .module) }
+        public static var voiceQualityStandard: LocalizedStringKey { "app.audio.voice_quality_standard" }
+        public static var voiceQualityStandardText: String { String(localized: "app.audio.voice_quality_standard", defaultValue: "Standard Voice", bundle: .module) }
+        public static var fallbackNotice: LocalizedStringKey { "app.audio.fallback_notice" }
+        public static var fallbackNoticeText: String { String(localized: "app.audio.fallback_notice", defaultValue: "Switched to offline voice", bundle: .module) }
     }
 }
