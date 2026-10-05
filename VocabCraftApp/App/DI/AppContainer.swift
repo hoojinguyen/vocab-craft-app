@@ -87,11 +87,23 @@ public final class AppContainer {
         self.srsRepository = srsRepo
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
 
+        #if canImport(SwiftDataMacros) || canImport(SwiftData)
+        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
+        #else
+        let hasPersistedRecords = false
+        #endif
+        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
+        self.userSettingsStore = effectiveUserSettingsStore
+        self.appRouter = appRouter ?? AppRouter()
+
         let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
             ?? AudioSessionCoordinator()
         self.audioSessionCoordinator = resolvedAudioCoordinator
 
-        let resolvedTTS = ttsService ?? TextToSpeechService(audioSessionCoordinator: resolvedAudioCoordinator)
+        let resolvedTTS = ttsService ?? TextToSpeechService(
+            audioSessionCoordinator: resolvedAudioCoordinator,
+            settingsStore: effectiveUserSettingsStore
+        )
         self.ttsService = resolvedTTS
 
         // Existing Use Cases
@@ -126,15 +138,6 @@ public final class AppContainer {
             progressRepo: resolvedUserProgressRepo,
             dataSource: resolvedDataSource
         )
-
-        #if canImport(SwiftDataMacros) || canImport(SwiftData)
-        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
-        #else
-        let hasPersistedRecords = false
-        #endif
-        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
-        self.userSettingsStore = effectiveUserSettingsStore
-        self.appRouter = appRouter ?? AppRouter()
 
         self.initializeUserRoadmapUseCase = initializeUserRoadmapUseCase ?? InitializeUserRoadmapUseCase(
             dataSource: resolvedDataSource,

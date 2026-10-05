@@ -35,11 +35,17 @@ private final class UtteranceTransferBox: @unchecked Sendable {
     }
 }
 
+/// Identifies which underlying speech synthesis engine handled the latest utterance.
+public enum ActiveEngineType: Sendable, Equatable {
+    case apple
+    case gemini
+}
+
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
     private let synthesizer = AVSpeechSynthesizer()
-    public var isSpeaking: Bool = false
+    public private(set) var isSpeaking: Bool = false
     private var activeContinuation: CheckedContinuation<Void, Never>?
     private let cleanupBox = TTSCleanupBox()
     private var eventSubscriptionTask: Task<Void, Never>? {
@@ -48,6 +54,12 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public let audioSessionCoordinator: any AudioSessionCoordinating
+    public let appleEngine: AppleEnhancedTTSEngine
+    public let geminiEngine: any GeminiAudioSynthesizing
+    public private(set) weak var settingsStore: UserSettingsStore?
+    private let apiKeyProvider: (@MainActor @Sendable () -> String?)?
+
+    public private(set) var lastActiveEngine: ActiveEngineType?
     private(set) var activeLease: AudioSessionLease?
     private(set) var playbackStartTask: Task<Void, Never>?
     private(set) var playbackReleaseTask: Task<Void, Never>?
@@ -58,8 +70,18 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         self.init(audioSessionCoordinator: AudioSessionCoordinator())
     }
 
-    public init(audioSessionCoordinator: any AudioSessionCoordinating) {
+    public init(
+        audioSessionCoordinator: any AudioSessionCoordinating = AudioSessionCoordinator(),
+        appleEngine: AppleEnhancedTTSEngine = AppleEnhancedTTSEngine(),
+        geminiEngine: any GeminiAudioSynthesizing = GeminiAudioSpeechEngine(),
+        settingsStore: UserSettingsStore? = nil,
+        apiKeyProvider: (@MainActor @Sendable () -> String?)? = nil
+    ) {
         self.audioSessionCoordinator = audioSessionCoordinator
+        self.appleEngine = appleEngine
+        self.geminiEngine = geminiEngine
+        self.settingsStore = settingsStore
+        self.apiKeyProvider = apiKeyProvider
         super.init()
         synthesizer.delegate = self
         subscribeToAudioSessionEvents()
@@ -71,7 +93,18 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func prewarm() {
+        _ = AppleVoiceSelector.resolveBestVoice(for: "en-US")
         _ = Self.resolveVoice(for: "en-US")
+    }
+
+    private var resolvedApiKey: String? {
+        if let providerKey = apiKeyProvider?()?.trimmingCharacters(in: .whitespacesAndNewlines), !providerKey.isEmpty {
+            return providerKey
+        }
+        if let storeKey = settingsStore?.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines), !storeKey.isEmpty {
+            return storeKey
+        }
+        return nil
     }
 
     private func subscribeToAudioSessionEvents() {
@@ -144,56 +177,87 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         return task
     }
 
-    private func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-
-        let utterance = AVSpeechUtterance(string: trimmed)
-
-        // Scale rate relative to AVSpeechUtteranceDefaultSpeechRate (0.5) so 1.0x = normal speed
-        let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
-        utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
-
-        if let voice = Self.resolveVoice(for: locale) {
-            utterance.voice = voice
+    private func releaseActiveLeaseAsync() async {
+        guard let lease = activeLease else { return }
+        activeLease = nil
+        let coordinator = audioSessionCoordinator
+        let task = Task {
+            await coordinator.release(lease)
         }
-        return utterance
+        playbackReleaseTask = task
+        await task.value
+    }
+
+    public func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
+        appleEngine.makeUtterance(text: text, rate: rate, locale: locale)
     }
 
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else { return }
+        speak(text: text, context: .pronunciation(locale: locale), rate: rate)
+    }
+
+    public func speak(text: String, context: SpeechContext, rate: Float = 1.0) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
         LessonPerformanceDiagnostics.event("TTSRequest")
 
         stop()
 
         isSpeaking = true
-        currentUtterance = utterance
         requestGeneration += 1
         let currentGeneration = requestGeneration
 
-        playbackStartTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            let acquired = await self.acquirePlaybackLease(generation: currentGeneration)
-            guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
-                if self.requestGeneration == currentGeneration {
-                    self.isSpeaking = false
-                    self.currentUtterance = nil
-                    self.releaseActiveLease()
-                }
+        switch context {
+        case .pronunciation(let locale):
+            lastActiveEngine = .apple
+            guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
+                isSpeaking = false
                 return
+            }
+            currentUtterance = utterance
+
+            playbackStartTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                let acquired = await self.acquirePlaybackLease(generation: currentGeneration)
+                guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
+                    if self.requestGeneration == currentGeneration {
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                        self.releaseActiveLease()
+                    }
+                    return
+                }
+
+                self.isSpeaking = true
+                let isTesting = NSClassFromString("XCTestCase") != nil
+                if isTesting {
+                    return
+                }
+                self.appleEngine.speak(text: text, rate: rate, locale: locale) { [weak self] in
+                    Task { @MainActor [weak self] in
+                        guard let self, self.requestGeneration == currentGeneration else { return }
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                        self.releaseActiveLease()
+                    }
+                }
             }
 
-            self.isSpeaking = true
-            let isTesting = NSClassFromString("XCTestCase") != nil
-            if isTesting {
-                return
+        case .conversation:
+            playbackStartTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                await self.speakAsync(text: text, context: context, rate: rate)
             }
-            self.synthesizer.speak(utterance)
         }
     }
 
     public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
+        await speakAsync(text: text, context: .pronunciation(locale: locale), rate: rate)
+    }
+
+    public func speakAsync(text: String, context: SpeechContext, rate: Float = 1.0) async {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
             isSpeaking = false
             currentUtterance = nil
             return
@@ -202,7 +266,6 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         stop()
 
         isSpeaking = true
-        currentUtterance = utterance
         requestGeneration += 1
         let currentGeneration = requestGeneration
 
@@ -226,46 +289,43 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
         self.isSpeaking = true
 
-        let isTesting = NSClassFromString("XCTestCase") != nil
-        if isTesting {
-            if self.requestGeneration == currentGeneration {
-                self.isSpeaking = false
-                self.currentUtterance = nil
-                self.releaseActiveLease()
-            }
-            return
-        }
-
-        let safetyTimeoutNanoseconds = Self.calculateSafetyTimeoutNanoseconds(for: text)
-
-        let timeoutTask = Task { @MainActor [weak self] in
-            do {
-                try await Task.sleep(nanoseconds: safetyTimeoutNanoseconds)
-            } catch {
-                return
-            }
-            guard let self = self else { return }
-            if self.activeContinuation != nil {
-                if self.synthesizer.isSpeaking {
-                    self.synthesizer.stopSpeaking(at: .immediate)
+        switch context {
+        case .conversation(let persona, let locale):
+            if let apiKey = resolvedApiKey {
+                lastActiveEngine = .gemini
+                do {
+                    try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+                } catch {
+                    guard self.requestGeneration == currentGeneration, !Task.isCancelled else {
+                        if self.requestGeneration == currentGeneration {
+                            self.isSpeaking = false
+                            self.currentUtterance = nil
+                        }
+                        await releaseActiveLeaseAsync()
+                        return
+                    }
+                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+                    lastActiveEngine = .apple
+                    currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
+                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
                 }
-                self.isSpeaking = false
-                self.currentUtterance = nil
-                self.releaseActiveLease()
-                if let continuation = self.activeContinuation {
-                    self.activeContinuation = nil
-                    continuation.resume()
-                }
+            } else {
+                lastActiveEngine = .apple
+                currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
+                await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
             }
+
+        case .pronunciation(let locale):
+            lastActiveEngine = .apple
+            currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
+            await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
         }
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            self.activeContinuation = continuation
-            self.isSpeaking = true
-            self.synthesizer.speak(utterance)
+        if self.requestGeneration == currentGeneration {
+            self.isSpeaking = false
+            self.currentUtterance = nil
         }
-
-        timeoutTask.cancel()
+        await releaseActiveLeaseAsync()
     }
 
     /// Calculates a safety timeout in nanoseconds scaled to speech text length, guaranteeing minimum 25s window.
@@ -280,6 +340,9 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         playbackStartTask?.cancel()
         playbackStartTask = nil
         requestGeneration += 1
+
+        geminiEngine.stop()
+        appleEngine.stop()
 
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
