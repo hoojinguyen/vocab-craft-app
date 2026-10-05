@@ -46,6 +46,7 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case play = "play.fill"
     case pause = "pause.fill"
     case docText = "doc.text"
+    case quoteBubble = "quote.bubble"
     case micSlash = "mic.slash.fill"
     case phone = "phone.fill"
     case phoneDown = "phone.down.fill"

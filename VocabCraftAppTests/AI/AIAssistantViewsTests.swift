@@ -351,4 +351,55 @@ struct AIAssistantViewsTests {
         #expect(manyCard.scenario.targetWordIds.count == 5)
         _ = manyCard.body
     }
+
+    // MARK: - Task 4: RoleplayVoiceCallView Tests
+
+    @Test @MainActor
+    func test_roleplayVoiceCallView_controlPropertiesAndMappings() {
+        // Microphone symbol mapping (correcting .audio to .mic)
+        #expect(RoleplayVoiceCallView.micSymbol(isMuted: false) == .mic)
+        #expect(RoleplayVoiceCallView.micSymbol(isMuted: true) == .micSlash)
+
+        // Microphone accessibility keys
+        #expect(RoleplayVoiceCallView.micAccessibilityKey(isMuted: false) == AppStrings.AIAssistant.callMicMute)
+        #expect(RoleplayVoiceCallView.micAccessibilityKey(isMuted: true) == AppStrings.AIAssistant.callMicUnmute)
+
+        // Subtitles symbol mapping (using quoteBubble)
+        #expect(RoleplayVoiceCallView.subtitlesSymbol() == .quoteBubble)
+
+        // Live badge key
+        #expect(RoleplayVoiceCallView.liveBadgeKey == AppStrings.AIAssistant.callLiveBadge)
+    }
+
+    @Test @MainActor
+    func test_roleplayVoiceCallView_rendersActiveCallAndStates() async {
+        let scenario = makeSampleScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+
+        var dismissed = false
+        let view = RoleplayVoiceCallView(viewModel: vm, onDismiss: { dismissed = true })
+        _ = view.body
+
+        // Verify startCall triggered
+        await vm.startCall()
+        #expect(engine.startCallInvoked)
+        _ = view.body
+
+        // Toggle mute and check state
+        vm.toggleMute()
+        #expect(vm.isMuted)
+        _ = view.body
+
+        // Toggle captions and check state
+        vm.toggleSubtitles()
+        #expect(!vm.isSubtitlesVisible)
+        _ = view.body
+
+        // Finish call
+        await vm.endCall()
+        #expect(vm.sessionSummary != nil)
+        _ = view.body
+        #expect(!dismissed)
+    }
 }

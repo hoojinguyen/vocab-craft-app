@@ -7,6 +7,8 @@ public struct RoleplayVoiceCallView: View {
     @State private var viewModel: RoleplayVoiceCallViewModel
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isLivePulsing: Bool = false
 
     public init(viewModel: RoleplayVoiceCallViewModel, onDismiss: @escaping () -> Void) {
         self._viewModel = State(initialValue: viewModel)
@@ -61,12 +63,13 @@ public struct RoleplayVoiceCallView: View {
             // Target Words Horizontal Strip
             targetWordsStrip
 
-            Spacer()
+            Spacer(minLength: theme.spacing.sm)
 
             // Center Stage: Voice Orb & State Text
             centerVoiceOrbStage
+                .frame(maxWidth: .infinity)
 
-            Spacer()
+            Spacer(minLength: theme.spacing.sm)
 
             // Bottom Subtitle Card, Scaffolding Drawer & Action Controls
             bottomControlsStage
@@ -102,12 +105,40 @@ public struct RoleplayVoiceCallView: View {
 
             Spacer()
 
-            CraftBadge(
-                AppStrings.AICall.activeBadge,
-                variant: .subtle,
-                tone: .success,
-                size: .sm
-            )
+            liveIndicatorBadge
+        }
+    }
+
+    private var liveIndicatorBadge: some View {
+        HStack(spacing: theme.spacing.xxs) {
+            ZStack {
+                if !reduceMotion {
+                    Circle()
+                        .fill(theme.colors.statusSuccess.opacity(0.35))
+                        .frame(width: theme.spacing.sm, height: theme.spacing.sm)
+                        .scaleEffect(isLivePulsing ? 1.4 : 1.0)
+                        .opacity(isLivePulsing ? 0.2 : 0.8)
+                }
+
+                Circle()
+                    .fill(theme.colors.statusSuccess)
+                    .frame(width: theme.spacing.xs, height: theme.spacing.xs)
+            }
+
+            Text(Self.liveBadgeKey)
+                .font(theme.typography.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(theme.colors.statusSuccess)
+        }
+        .padding(.horizontal, theme.spacing.xs)
+        .padding(.vertical, theme.spacing.xxs)
+        .background(theme.colors.statusSuccess.opacity(0.12))
+        .clipShape(Capsule())
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                isLivePulsing = true
+            }
         }
     }
 
@@ -205,9 +236,9 @@ public struct RoleplayVoiceCallView: View {
 
     private var bottomActionButtons: some View {
         HStack(spacing: theme.spacing.lg) {
-            // Subtitles toggle
+            // Subtitles toggle (Left)
             CraftIconButton(
-                symbol: .docText,
+                symbol: Self.subtitlesSymbol(),
                 size: .lg,
                 variant: viewModel.isSubtitlesVisible ? .filled : .subtle,
                 accessibilityLabelKey: AppStrings.AIAssistant.toggleCaptions
@@ -215,7 +246,7 @@ public struct RoleplayVoiceCallView: View {
                 viewModel.toggleSubtitles()
             }
 
-            // Hang Up Button (Red)
+            // Hang Up Button (Middle)
             CraftIconButton(
                 symbol: .phoneDown,
                 size: .xl,
@@ -226,12 +257,12 @@ public struct RoleplayVoiceCallView: View {
                 Task { await viewModel.endCall() }
             }
 
-            // Mute toggle
+            // Mute toggle (Right)
             CraftIconButton(
-                symbol: viewModel.isMuted ? .micSlash : .audio,
+                symbol: Self.micSymbol(isMuted: viewModel.isMuted),
                 size: .lg,
                 variant: viewModel.isMuted ? .filled : .subtle,
-                accessibilityLabelKey: viewModel.isMuted ? AppStrings.AIAssistant.unmuteMicrophone : AppStrings.AIAssistant.muteMicrophone
+                accessibilityLabelKey: Self.micAccessibilityKey(isMuted: viewModel.isMuted)
             ) {
                 viewModel.toggleMute()
             }
@@ -240,7 +271,7 @@ public struct RoleplayVoiceCallView: View {
 
     private var subtitlesCard: some View {
         CraftCard(
-            style: .elevated,
+            style: .glass,
             cornerRadius: theme.radii.lg,
             padding: theme.spacing.md
         ) {
@@ -328,5 +359,24 @@ public struct RoleplayVoiceCallView: View {
         case .thinking: return AppStrings.AIAssistant.stateThinking
         case .ended: return AppStrings.AIAssistant.stateEnded
         }
+    }
+}
+
+// MARK: - Testing Hooks
+extension RoleplayVoiceCallView {
+    public static func micSymbol(isMuted: Bool) -> CraftSymbol {
+        isMuted ? .micSlash : .mic
+    }
+
+    public static func micAccessibilityKey(isMuted: Bool) -> LocalizedStringKey {
+        isMuted ? AppStrings.AIAssistant.callMicUnmute : AppStrings.AIAssistant.callMicMute
+    }
+
+    public static func subtitlesSymbol() -> CraftSymbol {
+        .quoteBubble
+    }
+
+    public static var liveBadgeKey: LocalizedStringKey {
+        AppStrings.AIAssistant.callLiveBadge
     }
 }

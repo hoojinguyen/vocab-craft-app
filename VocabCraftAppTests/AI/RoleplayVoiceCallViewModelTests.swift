@@ -439,7 +439,7 @@ struct RoleplayVoiceCallViewModelTests {
 // MARK: - Test Mock
 
 @MainActor
-private final class MockVoiceConversationEngine: VoiceConversationEngineProtocol {
+final class MockVoiceConversationEngine: VoiceConversationEngineProtocol {
     var state: VoiceCallState = .idle
     var isMuted: Bool = false
     var isSubtitlesVisible: Bool = true
