@@ -30,6 +30,9 @@ public struct SettingsView: View {
                     // 4. AI Configuration Section
                     aiSection
 
+                    // 4.1 On-Device Models
+                    onDeviceModelsSection
+
                     // 5. Appearance & Feedback Section
                     appearanceSection
 
@@ -115,6 +118,13 @@ public struct SettingsView: View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionAI)
             SettingsAICard(store: viewModel.store)
+        }
+    }
+
+    private var onDeviceModelsSection: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            sectionHeader(AppStrings.Settings.modelsTitle)
+            SettingsOnDeviceModelsCard()
         }
     }
 
@@ -671,5 +681,72 @@ private struct SettingsAboutCard: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "v\(version) (Build \(build))"
+    }
+}
+
+private struct SettingsOnDeviceModelsCard: View {
+    @Environment(\.craftTheme) private var theme
+    @Bindable private var modelManager = OnDemandAIModelManager.shared
+
+    var body: some View {
+        CraftCard(style: .outlined, padding: 0) {
+            VStack(spacing: 0) {
+                modelRow(type: .kokoro)
+                CraftDivider()
+                modelRow(type: .whisper)
+            }
+        }
+        .onAppear {
+            modelManager.refreshStatus()
+        }
+    }
+
+    @ViewBuilder
+    private func modelRow(type: AIModelType) -> some View {
+        let isReady = modelManager.isModelReady(type)
+        let state = modelManager.state(for: type)
+
+        CraftListRow(
+            title: LocalizedStringKey(type.displayName),
+            subtitle: LocalizedStringKey(subtitle(for: type, state: state))
+        ) {
+            if isReady {
+                CraftButton(
+                    AppStrings.Settings.modelsFreeSpace,
+                    variant: .ghost,
+                    size: .sm
+                ) {
+                    try? modelManager.deleteModel(type)
+                }
+                .tint(theme.colors.statusDanger)
+            } else if case .downloading(let progress) = state {
+                HStack(spacing: theme.spacing.xs) {
+                    CraftProgressBar(progress: progress, height: 4)
+                        .frame(width: 40)
+                    Text("\(Int(progress * 100))%")
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textMuted)
+                }
+            } else {
+                CraftButton(
+                    AppStrings.AIModelDownload.btnDownload,
+                    variant: .secondary,
+                    size: .sm
+                ) {
+                    let remoteURL = type == .kokoro 
+                        ? URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
+                        : URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+                    modelManager.startDownload(for: type, remoteURL: remoteURL)
+                }
+            }
+        }
+    }
+
+    private func subtitle(for type: AIModelType, state: AIModelDownloadState) -> String {
+        switch state {
+        case .ready: return AppStrings.AIModelDownload.statusReady(type.estimatedSizeMB)
+        case .downloading: return AppStrings.AIModelDownload.statusDownloadingText
+        default: return AppStrings.AIModelDownload.statusSize(type.estimatedSizeMB)
+        }
     }
 }

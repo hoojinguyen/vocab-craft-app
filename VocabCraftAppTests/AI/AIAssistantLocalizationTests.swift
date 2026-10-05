@@ -507,6 +507,25 @@ struct AIAssistantLocalizationTests {
         }
     }
 
+
+    @Test("Verify Model Download string keys exist in English and Vietnamese")
+    func test_modelDownload_stringKeys_existInEnglishAndVietnamese() {
+        let keys = [
+            "app.ai.model_download.banner_title",
+            "app.ai.model_download.banner_desc",
+            "app.ai.model_download.btn_download",
+            "app.ai.model_download.btn_later",
+            "app.ai.model_download.status_ready",
+            "app.ai.model_download.status_downloading",
+            "app.ai.model_download.status_size",
+            "app.settings.models.title",
+            "app.settings.models.free_space"
+        ]
+        for key in keys {
+            assertLocalizationExists(key: key)
+        }
+    }
+
     nonisolated(unsafe) private static let catalogStrings: [String: Any]? = {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),

@@ -375,6 +375,125 @@
         }
       }
     },
+    "app.ai.model_download.banner_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download on-device neural voice and speech models (~190MB) for ultra-realistic conversation without rate limits."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải gói mô hình AI trên máy (~190MB) để trò chuyện tự nhiên như người bản xứ và không lo rate limit."
+          }
+        }
+      }
+    },
+    "app.ai.model_download.banner_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natural Voice & Speech Upgrade"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nâng cấp Giọng nói & Nhận diện AI"
+          }
+        }
+      }
+    },
+    "app.ai.model_download.btn_download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download AI Pack (~190MB)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Gói AI (~190MB)"
+          }
+        }
+      }
+    },
+    "app.ai.model_download.btn_later": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maybe Later"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để sau"
+          }
+        }
+      }
+    },
+    "app.ai.model_download.status_downloading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang tải..."
+          }
+        }
+      }
+    },
+    "app.ai.model_download.status_ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~%lldMB (Downloaded)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~%lldMB (Đã tải)"
+          }
+        }
+      }
+    },
+    "app.ai.model_download.status_size": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~%lldMB"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "~%lldMB"
+          }
+        }
+      }
+    },
     "app.ai.summary.action_reflex": {
       "extractionState": "manual",
       "localizations": {
@@ -6729,6 +6848,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trình độ mục tiêu"
+          }
+        }
+      }
+    },
+    "app.settings.models.free_space": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free up storage"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giải phóng dung lượng"
+          }
+        }
+      }
+    },
+    "app.settings.models.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-Device AI Models"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô hình AI trên máy"
           }
         }
       }

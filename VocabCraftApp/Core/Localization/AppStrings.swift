@@ -710,4 +710,28 @@ extension AppStrings {
         public static var fallbackNotice: LocalizedStringKey { "app.audio.fallback_notice" }
         public static var fallbackNoticeText: String { String(localized: "app.audio.fallback_notice", defaultValue: "Switched to offline voice", bundle: .module) }
     }
+
+    // MARK: - AI Models
+    public enum AIModelDownload {
+        public static var bannerTitle: LocalizedStringKey { "app.ai.model_download.banner_title" }
+        public static var bannerTitleText: String { String(localized: "app.ai.model_download.banner_title", defaultValue: "Natural Voice & Speech Upgrade", bundle: .module) }
+        public static var bannerDesc: LocalizedStringKey { "app.ai.model_download.banner_desc" }
+        public static var bannerDescText: String { String(localized: "app.ai.model_download.banner_desc", defaultValue: "Download on-device neural voice and speech models (~190MB) for ultra-realistic conversation without rate limits.", bundle: .module) }
+        public static var btnDownload: LocalizedStringKey { "app.ai.model_download.btn_download" }
+        public static var btnDownloadText: String { String(localized: "app.ai.model_download.btn_download", defaultValue: "Download AI Pack (~190MB)", bundle: .module) }
+        public static var btnLater: LocalizedStringKey { "app.ai.model_download.btn_later" }
+        public static var btnLaterText: String { String(localized: "app.ai.model_download.btn_later", defaultValue: "Maybe Later", bundle: .module) }
+
+        public static func statusReady(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_ready", defaultValue: "~%lldMB (Downloaded)", bundle: .module), sizeMB) }
+        public static var statusDownloading: LocalizedStringKey { "app.ai.model_download.status_downloading" }
+        public static var statusDownloadingText: String { String(localized: "app.ai.model_download.status_downloading", defaultValue: "Downloading...", bundle: .module) }
+        public static func statusSize(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_size", defaultValue: "~%lldMB", bundle: .module), sizeMB) }
+    }
+}
+
+extension AppStrings.Settings {
+    public static var modelsTitle: LocalizedStringKey { "app.settings.models.title" }
+    public static var modelsTitleText: String { String(localized: "app.settings.models.title", defaultValue: "On-Device AI Models", bundle: .module) }
+    public static var modelsFreeSpace: LocalizedStringKey { "app.settings.models.free_space" }
+    public static var modelsFreeSpaceText: String { String(localized: "app.settings.models.free_space", defaultValue: "Free up storage", bundle: .module) }
 }

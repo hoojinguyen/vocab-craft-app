@@ -8,6 +8,8 @@ public struct RoleplayRoomView: View {
     @Environment(\.craftTheme) private var theme
     @State private var showDiscardAlert = false
     @State private var selectedWordTooltip: String?
+    @State private var hideDownloadBanner = false
+    private var modelManager = OnDemandAIModelManager.shared
 
     public init(viewModel: RoleplayRoomViewModel, onDismiss: @escaping () -> Void) {
         self._viewModel = State(initialValue: viewModel)
@@ -39,6 +41,14 @@ public struct RoleplayRoomView: View {
 
                 if let selectedWord = selectedWordTooltip {
                     wordTooltipBanner(selectedWord)
+                }
+
+                if !hideDownloadBanner,
+                   !modelManager.isModelReady(.kokoro) || !modelManager.isModelReady(.whisper) {
+                    RoleplayModelDownloadCard {
+                        hideDownloadBanner = true
+                    }
+                    .padding(.horizontal, theme.spacing.base)
                 }
 
                 // Dialogue Stream
