@@ -110,6 +110,48 @@ struct AIAssistantViewsTests {
     }
 
     @Test @MainActor
+    func testRoleplaySummaryView_dualCTAsAndBreakdown() {
+        let refinement = SentenceRefinementPair(
+            originalUserSentence: "I want latte",
+            refinedNativeSentence: "Could I please get a latte?"
+        )
+        let summary = RoleplaySessionSummary(
+            scenarioId: "test-cafe",
+            totalTurns: 3,
+            targetWordsAttempted: ["latte", "croissant"],
+            targetWordsMastered: ["latte"],
+            fluencyScore: 85,
+            xpEarned: 35,
+            refinements: [refinement]
+        )
+
+        var reflexTriggered = false
+        var dismissed = false
+        var savedPair: SentenceRefinementPair?
+
+        let summaryView = RoleplaySummaryView(
+            summary: summary,
+            onStartReflex: { reflexTriggered = true },
+            onSaveToVault: { savedPair = $0 },
+            onDismiss: { dismissed = true }
+        )
+
+        _ = summaryView.body
+
+        #expect(summaryView.masteredWords == ["latte"])
+        #expect(summaryView.unmasteredWords == ["croissant"])
+
+        summaryView.onStartReflex?()
+        #expect(reflexTriggered)
+
+        summaryView.onDismiss()
+        #expect(dismissed)
+
+        summaryView.onSaveToVault?(refinement)
+        #expect(savedPair == refinement)
+    }
+
+    @Test @MainActor
     func testRoleplaySummaryViewConfettiThreshold() {
         let highSummary = RoleplaySessionSummary(
             scenarioId: "test-cafe",

@@ -71,6 +71,7 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case starFill = "star.fill"
     case info = "info.circle.fill"
     case warning = "exclamationmark.triangle.fill"
+    public static var exclamationmarkTriangle: CraftSymbol { .warning }
     case danger = "exclamationmark.circle.fill"
     case help = "questionmark.circle.fill"
 
