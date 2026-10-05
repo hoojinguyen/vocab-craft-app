@@ -278,23 +278,88 @@ struct GeminiAudioSpeechEngineTests {
         #expect(!engine.isSpeaking)
     }
 
-    @Test("Verify delegate didFinish callbacks reset state")
+    private func makeValidWavData() -> Data {
+        var data = Data()
+        data.append(contentsOf: "RIFF".utf8)
+        let fileSize: UInt32 = 44 + 100 - 8
+        withUnsafeBytes(of: fileSize.littleEndian) { data.append(contentsOf: $0) }
+        data.append(contentsOf: "WAVEfmt ".utf8)
+        let subchunk1Size: UInt32 = 16
+        withUnsafeBytes(of: subchunk1Size.littleEndian) { data.append(contentsOf: $0) }
+        let audioFormat: UInt16 = 1
+        withUnsafeBytes(of: audioFormat.littleEndian) { data.append(contentsOf: $0) }
+        let numChannels: UInt16 = 1
+        withUnsafeBytes(of: numChannels.littleEndian) { data.append(contentsOf: $0) }
+        let sampleRate: UInt32 = 8000
+        withUnsafeBytes(of: sampleRate.littleEndian) { data.append(contentsOf: $0) }
+        let byteRate: UInt32 = 8000 * 1 * 2
+        withUnsafeBytes(of: byteRate.littleEndian) { data.append(contentsOf: $0) }
+        let blockAlign: UInt16 = 2
+        withUnsafeBytes(of: blockAlign.littleEndian) { data.append(contentsOf: $0) }
+        let bitsPerSample: UInt16 = 16
+        withUnsafeBytes(of: bitsPerSample.littleEndian) { data.append(contentsOf: $0) }
+        data.append(contentsOf: "data".utf8)
+        let subchunk2Size: UInt32 = 100
+        withUnsafeBytes(of: subchunk2Size.littleEndian) { data.append(contentsOf: $0) }
+        data.append(contentsOf: [UInt8](repeating: 0, count: 100))
+        return data
+    }
+
+    private func makeValidTestPlayer() throws -> AVAudioPlayer {
+        try AVAudioPlayer(data: makeValidWavData())
+    }
+
+    @Test("Verify delegate didFinish callbacks reset state when player matches")
     @MainActor
-    func test_delegateDidFinishPlaying() async {
+    func test_delegateDidFinishPlaying() async throws {
         let engine = GeminiAudioSpeechEngine()
-        let player = AVAudioPlayer()
+        let player = try makeValidTestPlayer()
+        engine.attachPlayerForTesting(player)
+        #expect(engine.isSpeaking)
 
         engine.audioPlayerDidFinishPlaying(player, successfully: true)
+        await Task.yield()
         #expect(!engine.isSpeaking)
     }
 
-    @Test("Verify delegate decodeError callback resets state")
+    @Test("Verify delegate didFinish ignores stale callbacks from mismatched player")
     @MainActor
-    func test_delegateDecodeError() async {
+    func test_delegateDidFinishPlaying_staleIgnored() async throws {
         let engine = GeminiAudioSpeechEngine()
-        let player = AVAudioPlayer()
+        let activePlayer = try makeValidTestPlayer()
+        let stalePlayer = try makeValidTestPlayer()
+        engine.attachPlayerForTesting(activePlayer)
+        #expect(engine.isSpeaking)
+
+        engine.audioPlayerDidFinishPlaying(stalePlayer, successfully: true)
+        await Task.yield()
+        #expect(engine.isSpeaking)
+    }
+
+    @Test("Verify delegate decodeError callback resets state when player matches")
+    @MainActor
+    func test_delegateDecodeError() async throws {
+        let engine = GeminiAudioSpeechEngine()
+        let player = try makeValidTestPlayer()
+        engine.attachPlayerForTesting(player)
+        #expect(engine.isSpeaking)
 
         engine.audioPlayerDecodeErrorDidOccur(player, error: URLError(.cannotDecodeContentData))
+        await Task.yield()
         #expect(!engine.isSpeaking)
+    }
+
+    @Test("Verify delegate decodeError ignores stale callbacks from mismatched player")
+    @MainActor
+    func test_delegateDecodeError_staleIgnored() async throws {
+        let engine = GeminiAudioSpeechEngine()
+        let activePlayer = try makeValidTestPlayer()
+        let stalePlayer = try makeValidTestPlayer()
+        engine.attachPlayerForTesting(activePlayer)
+        #expect(engine.isSpeaking)
+
+        engine.audioPlayerDecodeErrorDidOccur(stalePlayer, error: URLError(.cannotDecodeContentData))
+        await Task.yield()
+        #expect(engine.isSpeaking)
     }
 }

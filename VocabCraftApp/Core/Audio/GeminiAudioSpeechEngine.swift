@@ -1,6 +1,14 @@
 import AVFoundation
 import Foundation
 
+private final class AudioPlayerTransferBox: @unchecked Sendable {
+    let player: AVAudioPlayer
+
+    init(_ player: AVAudioPlayer) {
+        self.player = player
+    }
+}
+
 @MainActor
 public protocol GeminiAudioSynthesizing: AnyObject, Sendable {
     var isSpeaking: Bool { get }
@@ -127,7 +135,12 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             self.activeContinuation = continuation
-            player.play()
+            if !player.play() {
+                self.activeContinuation = nil
+                self.audioPlayer = nil
+                self.isSpeaking = false
+                continuation.resume(throwing: URLError(.cannotDecodeContentData))
+            }
         }
     }
 
@@ -143,11 +156,17 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
         }
     }
 
+    func attachPlayerForTesting(_ player: AVAudioPlayer) {
+        self.audioPlayer = player
+        self.isSpeaking = true
+    }
+
     // MARK: - AVAudioPlayerDelegate
 
     public nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        let box = AudioPlayerTransferBox(player)
         Task { @MainActor [weak self] in
-            guard let self else { return }
+            guard let self, self.audioPlayer === box.player else { return }
             self.isSpeaking = false
             self.audioPlayer = nil
             if let continuation = self.activeContinuation {
@@ -158,8 +177,9 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
     }
 
     public nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        let box = AudioPlayerTransferBox(player)
         Task { @MainActor [weak self] in
-            guard let self else { return }
+            guard let self, self.audioPlayer === box.player else { return }
             self.isSpeaking = false
             self.audioPlayer = nil
             if let continuation = self.activeContinuation {
