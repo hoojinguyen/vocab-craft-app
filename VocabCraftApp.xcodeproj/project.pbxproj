@@ -1382,14 +1382,6 @@
 			path = AI;
 			sourceTree = "<group>";
 		};
-		4000A1A1TEST000000000002 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				2000A1A10000000000000035 /* LocalizationTests.swift */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		4000A43204724448D0C9 /* Reflex */ = {
 			isa = PBXGroup;
 			children = (
@@ -1412,7 +1404,6 @@
 				4000538975BBBF45E56C /* Features */,
 				40001795D309886C29B1 /* Mocks */,
 				4000A43204724448D0C9 /* Reflex */,
-				4000A1A1TEST000000000002 /* Resources */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
 				2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */,
 				20007E84695DF55F278D /* SettingsViewModelTests.swift */,
