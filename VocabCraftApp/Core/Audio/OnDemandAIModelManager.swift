@@ -31,7 +31,7 @@ public enum AIModelDownloadState: Sendable, Equatable {
 @MainActor
 @Observable
 public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate {
-    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "AIModelManager")
+    nonisolated private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "AIModelManager")
 
     public static let shared = OnDemandAIModelManager()
 
@@ -148,18 +148,32 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
+        let tempUUID = UUID().uuidString
+        let safeTempLocation = FileManager.default.temporaryDirectory.appendingPathComponent(tempUUID)
+
+        do {
+            try FileManager.default.moveItem(at: location, to: safeTempLocation)
+        } catch {
+            Self.logger.error("Failed to move downloaded file to safe temp location: \(error.localizedDescription)")
+            return
+        }
+
         Task { @MainActor in
-            guard let (type, _) = self.downloadTasks.first(where: { $0.value == downloadTask }) else { return }
+            guard let (type, _) = self.downloadTasks.first(where: { $0.value == downloadTask }) else {
+                try? FileManager.default.removeItem(at: safeTempLocation)
+                return
+            }
             let dest = self.modelURL(for: type)
             do {
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.createDirectory(at: dest, withIntermediateDirectories: true)
                 let targetFile = dest.appendingPathComponent("model_archive.bin")
-                try FileManager.default.moveItem(at: location, to: targetFile)
+                try FileManager.default.moveItem(at: safeTempLocation, to: targetFile)
                 self.updateState(.ready, for: type)
                 self.downloadTasks.removeValue(forKey: type)
             } catch {
                 self.updateState(.error(error.localizedDescription), for: type)
+                try? FileManager.default.removeItem(at: safeTempLocation)
             }
         }
     }

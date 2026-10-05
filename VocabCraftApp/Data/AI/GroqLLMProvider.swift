@@ -68,7 +68,7 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
                 return try JSONDecoder().decode(T.self, from: cleanedData)
             } catch {
                 lastError = error
-                Self.logger.warning("Groq model \\(model) failed: \\(error.localizedDescription), trying next")
+                Self.logger.warning("Groq model \(model) failed: \(error.localizedDescription), trying next")
             }
         }
 
@@ -101,7 +101,7 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("Bearer \\(apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         var formattedMessages: [[String: String]] = [
@@ -126,7 +126,7 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
         }
 
         guard httpResponse.statusCode == 200 else {
-            let errMsg = String(data: data, encoding: .utf8) ?? "HTTP \\(httpResponse.statusCode)"
+            let errMsg = String(data: data, encoding: .utf8) ?? "HTTP \(httpResponse.statusCode)"
             throw GroqError.apiError(statusCode: httpResponse.statusCode, message: errMsg)
         }
 
