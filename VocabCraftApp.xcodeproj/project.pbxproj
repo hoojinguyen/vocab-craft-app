@@ -40,7 +40,13 @@
 		3000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */; };
 		3000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */; };
 		3000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */; };
-		3000A1A10000000000000035 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000035 /* LocalizationTests.swift */; };
+		3000A1A10000000000000035 /* AIAssistantLocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000035 /* AIAssistantLocalizationTests.swift */; };
+		3000A1A10000000000000036 /* EngineStatusPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000036 /* EngineStatusPill.swift */; };
+		3000A1A10000000000000037 /* CompanionHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000037 /* CompanionHeroCard.swift */; };
+		3000A1A10000000000000038 /* ScenarioListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000038 /* ScenarioListCard.swift */; };
+		3000A1A10000000000000039 /* SentenceStarterChipsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000039 /* SentenceStarterChipsBar.swift */; };
+		3000A1A10000000000000040 /* InteractiveTargetWordsStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000040 /* InteractiveTargetWordsStrip.swift */; };
+		3000A1A10000000000000041 /* AIAssistantViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000041 /* AIAssistantViewsTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -391,7 +397,13 @@
 		2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawer.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawerTests.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExecuteRoleplayTurnUseCaseFuzzyTests.swift"; sourceTree = "<group>"; };
-		2000A1A10000000000000035 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000035 /* AIAssistantLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000036 /* EngineStatusPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EngineStatusPill.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000037 /* CompanionHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompanionHeroCard.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000038 /* ScenarioListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioListCard.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000039 /* SentenceStarterChipsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentenceStarterChipsBar.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000040 /* InteractiveTargetWordsStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InteractiveTargetWordsStrip.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000041 /* AIAssistantViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantViewsTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1206,6 +1218,11 @@
 				2000A1A10000000000000024 /* CraftVoiceOrbView.swift */,
 				2000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift */,
 				2000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift */,
+				2000A1A10000000000000036 /* EngineStatusPill.swift */,
+				2000A1A10000000000000037 /* CompanionHeroCard.swift */,
+				2000A1A10000000000000038 /* ScenarioListCard.swift */,
+				2000A1A10000000000000039 /* SentenceStarterChipsBar.swift */,
+				2000A1A10000000000000040 /* InteractiveTargetWordsStrip.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1359,6 +1376,8 @@
 				2000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift */,
 				2000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift */,
 				2000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */,
+				2000A1A10000000000000035 /* AIAssistantLocalizationTests.swift */,
+				2000A1A10000000000000041 /* AIAssistantViewsTests.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -2103,6 +2122,11 @@
 				3000A1A10000000000000028 /* RoleplaySuggestedResponsesView.swift in Sources */,
 				3000A1A10000000000000030 /* ResilientConversationSpeechEngine.swift in Sources */,
 				3000A1A10000000000000032 /* RoleplaySuggestedDrawer.swift in Sources */,
+				3000A1A10000000000000036 /* EngineStatusPill.swift in Sources */,
+				3000A1A10000000000000037 /* CompanionHeroCard.swift in Sources */,
+				3000A1A10000000000000038 /* ScenarioListCard.swift in Sources */,
+				3000A1A10000000000000039 /* SentenceStarterChipsBar.swift in Sources */,
+				3000A1A10000000000000040 /* InteractiveTargetWordsStrip.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2231,7 +2255,8 @@
 				3000A1A10000000000000031 /* ResilientConversationSpeechEngineTests.swift in Sources */,
 				3000A1A10000000000000033 /* RoleplaySuggestedDrawerTests.swift in Sources */,
 				3000A1A10000000000000034 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Sources */,
-				3000A1A10000000000000035 /* LocalizationTests.swift in Sources */,
+				3000A1A10000000000000035 /* AIAssistantLocalizationTests.swift in Sources */,
+				3000A1A10000000000000041 /* AIAssistantViewsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

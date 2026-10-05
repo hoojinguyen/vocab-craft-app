@@ -125,6 +125,8 @@ public final class AppBootstrapper {
             initialTab = .vocabulary
         } else if args.contains("-tab-settings") {
             initialTab = .settings
+        } else if args.contains("-tab-ai") || args.contains("-tab-ai-assistant") {
+            initialTab = .aiAssistant
         } else {
             initialTab = .home
         }

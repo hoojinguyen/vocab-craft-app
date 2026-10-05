@@ -313,7 +313,7 @@ struct AIAssistantLocalizationTests {
             #expect(key != nil)
         }
 
-        #expect(AppStrings.AIAssistant.engineOnDeviceText == "On-Device (Local)")
+        #expect(AppStrings.AIAssistant.engineOnDeviceText == "On-Device")
         #expect(AppStrings.AIAssistant.engineCloudText == "Cloud Active")
         #expect(AppStrings.AIAssistant.companionBadgeText == "Daily Companion")
         #expect(AppStrings.AIAssistant.companionStartCallText == "Quick Voice Practice (2m)")

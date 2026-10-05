@@ -41,13 +41,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On-Device (Local)"
+            "value" : "On-Device"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On-Device (Nội bộ)"
+            "value" : "Trên thiết bị"
           }
         }
       }

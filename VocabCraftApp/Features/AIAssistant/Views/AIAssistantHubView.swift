@@ -38,7 +38,7 @@ public struct AIAssistantHubView: View {
                         alignment: .leading,
                         enableScrollFade: false
                     ) {
-                        HStack(spacing: theme.spacing.sm) {
+                        HStack(spacing: theme.spacing.xs) {
                             EngineStatusPill(isCloudConfigured: settingsStore.isGeminiApiKeyConfigured) {
                                 showConfigSheet = true
                             }
@@ -54,26 +54,28 @@ public struct AIAssistantHubView: View {
                         }
                     }
 
-                    if let daily = viewModel.dailyScenario {
-                        CompanionHeroCard(
-                            scenario: daily,
-                            wordsLearnedCount: settingsStore.todayWordsLearned,
-                            onStartCall: {
-                                startVoiceCall(for: daily)
-                            },
-                            onStartChat: {
-                                activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: daily)
-                            }
-                        )
+                    VStack(spacing: theme.spacing.lg) {
+                        if let daily = viewModel.dailyScenario {
+                            CompanionHeroCard(
+                                scenario: daily,
+                                wordsLearnedCount: settingsStore.todayWordsLearned,
+                                onStartCall: {
+                                    startVoiceCall(for: daily)
+                                },
+                                onStartChat: {
+                                    activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: daily)
+                                }
+                            )
+                        }
+
+                        topicFilterBar
+
+                        scenarioListSection
+
+                        Spacer(minLength: theme.spacing.xxl + 88)
                     }
-
-                    topicFilterBar
-
-                    scenarioListSection
-
-                    Spacer(minLength: theme.spacing.xxl + 88)
+                    .padding(.horizontal, theme.spacing.base)
                 }
-                .padding(.horizontal, theme.spacing.base)
                 .padding(.top, theme.spacing.xs)
             }
         }

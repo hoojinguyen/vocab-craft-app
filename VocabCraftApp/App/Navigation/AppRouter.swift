@@ -85,6 +85,8 @@ public final class AppRouter {
             selectTab(.vocabulary)
         } else if host == "settings" {
             selectTab(.settings)
+        } else if host == "ai" || host == "aiAssistant" {
+            selectTab(.aiAssistant)
         } else {
             selectTab(.home)
         }
