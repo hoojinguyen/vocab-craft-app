@@ -378,6 +378,20 @@ extension AppStrings {
                 bundle: .module
             )
         }
+        public static var aiGroqKeyTitle: LocalizedStringKey { "app.settings.ai.groq_key_title" }
+        public static var aiGroqKeyTitleText: String { String(localized: "app.settings.ai.groq_key_title", defaultValue: "Groq API Key", bundle: .module) }
+        public static var aiGroqKeyPlaceholder: LocalizedStringKey { "app.settings.ai.groq_key_placeholder" }
+        public static var aiGroqKeyPlaceholderText: String { String(localized: "app.settings.ai.groq_key_placeholder", defaultValue: "Enter Groq API Key (gsk_...)", bundle: .module) }
+        public static var aiGroqStatusActive: LocalizedStringKey { "app.settings.ai.groq_status_active" }
+        public static var aiGroqStatusActiveText: String { String(localized: "app.settings.ai.groq_status_active", defaultValue: "Active (Groq Llama 3.3)", bundle: .module) }
+        public static var aiGroqHelpText: LocalizedStringKey { "app.settings.ai.groq_help_text" }
+        public static var aiGroqHelpTextString: String {
+            String(
+                localized: "app.settings.ai.groq_help_text",
+                defaultValue: "Get a free ultra-fast Groq key at console.groq.com",
+                bundle: .module
+            )
+        }
         public static var aiShowKey: LocalizedStringKey { "app.settings.ai.show_key" }
         public static var aiShowKeyText: String { String(localized: "app.settings.ai.show_key", defaultValue: "Show API Key", bundle: .module) }
         public static var aiHideKey: LocalizedStringKey { "app.settings.ai.hide_key" }

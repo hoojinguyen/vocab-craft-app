@@ -193,4 +193,20 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testGroqApiKeyPersistence() {
+        let suite = "test_groq_settings_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let store = UserSettingsStore(defaults: defaults)
+
+        XCTAssertFalse(store.isGroqApiKeyConfigured)
+        store.groqApiKey = "gsk_123456"
+        XCTAssertTrue(store.isGroqApiKeyConfigured)
+        XCTAssertEqual(store.groqApiKey, "gsk_123456")
+
+        store.groqApiKey = "   "
+        XCTAssertFalse(store.isGroqApiKeyConfigured)
+        
+        defaults.removePersistentDomain(forName: suite)
+    }
 }

@@ -332,8 +332,12 @@ private struct SettingsAudioCard: View {
 public struct SettingsAICard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable public var store: UserSettingsStore
-    @State private var isSecure: Bool = true
-    @FocusState private var isFieldFocused: Bool
+    
+    @State private var isGeminiSecure: Bool = true
+    @State private var isGroqSecure: Bool = true
+    
+    @FocusState private var isGeminiFieldFocused: Bool
+    @FocusState private var isGroqFieldFocused: Bool
 
     public init(store: UserSettingsStore) {
         self.store = store
@@ -342,6 +346,7 @@ public struct SettingsAICard: View {
     public var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
+                // Gemini Key
                 CraftListRow(
                     title: AppStrings.Settings.aiGeminiKeyTitle
                 ) {
@@ -361,7 +366,7 @@ public struct SettingsAICard: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack(spacing: theme.spacing.xs) {
                         Group {
-                            if isSecure {
+                            if isGeminiSecure {
                                 SecureField(
                                     AppStrings.Settings.aiGeminiKeyPlaceholder,
                                     text: $store.geminiApiKey
@@ -373,7 +378,7 @@ public struct SettingsAICard: View {
                                 )
                             }
                         }
-                        .focused($isFieldFocused)
+                        .focused($isGeminiFieldFocused)
                         .onSubmit {
                             store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
                         }
@@ -397,25 +402,107 @@ public struct SettingsAICard: View {
                         }
 
                         CraftIconButton(
-                            symbol: isSecure ? .eye : .eyeSlash,
+                            symbol: isGeminiSecure ? .eye : .eyeSlash,
                             size: .sm,
                             variant: .ghost,
-                            accessibilityLabelKey: isSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
+                            accessibilityLabelKey: isGeminiSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
                         ) {
-                            isSecure.toggle()
+                            isGeminiSecure.toggle()
                         }
                     }
                     .padding(.horizontal, theme.spacing.sm)
                     .padding(.vertical, theme.spacing.xs)
                     .background(theme.colors.surfaceSubtle)
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                    .onChange(of: isFieldFocused) { _, isFocused in
+                    .onChange(of: isGeminiFieldFocused) { _, isFocused in
                         if !isFocused {
                             store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
                         }
                     }
 
                     Text(AppStrings.Settings.aiGeminiHelpText)
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textSecondary)
+                }
+                .padding(theme.spacing.md)
+                
+                CraftDivider()
+                
+                // Groq Key
+                CraftListRow(
+                    title: AppStrings.Settings.aiGroqKeyTitle
+                ) {
+                    CraftBadge(
+                        store.isGroqApiKeyConfigured
+                            ? AppStrings.Settings.aiGroqStatusActive
+                            : AppStrings.Settings.aiGeminiMock,
+                        symbol: store.isGroqApiKeyConfigured ? .check : .sparkles,
+                        variant: .subtle,
+                        tone: store.isGroqApiKeyConfigured ? .success : .neutral,
+                        size: .sm
+                    )
+                }
+
+                CraftDivider()
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack(spacing: theme.spacing.xs) {
+                        Group {
+                            if isGroqSecure {
+                                SecureField(
+                                    AppStrings.Settings.aiGroqKeyPlaceholder,
+                                    text: $store.groqApiKey
+                                )
+                            } else {
+                                TextField(
+                                    AppStrings.Settings.aiGroqKeyPlaceholder,
+                                    text: $store.groqApiKey
+                                )
+                            }
+                        }
+                        .focused($isGroqFieldFocused)
+                        .onSubmit {
+                            store.groqApiKey = store.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .tint(theme.colors.brandPrimary)
+                        .autocorrectionDisabled()
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+
+                        if !store.groqApiKey.isEmpty {
+                            CraftIconButton(
+                                symbol: .clear,
+                                size: .sm,
+                                variant: .ghost,
+                                accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                            ) {
+                                store.groqApiKey = ""
+                            }
+                        }
+
+                        CraftIconButton(
+                            symbol: isGroqSecure ? .eye : .eyeSlash,
+                            size: .sm,
+                            variant: .ghost,
+                            accessibilityLabelKey: isGroqSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
+                        ) {
+                            isGroqSecure.toggle()
+                        }
+                    }
+                    .padding(.horizontal, theme.spacing.sm)
+                    .padding(.vertical, theme.spacing.xs)
+                    .background(theme.colors.surfaceSubtle)
+                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                    .onChange(of: isGroqFieldFocused) { _, isFocused in
+                        if !isFocused {
+                            store.groqApiKey = store.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }
+                    }
+
+                    Text(AppStrings.Settings.aiGroqHelpText)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textSecondary)
                 }
