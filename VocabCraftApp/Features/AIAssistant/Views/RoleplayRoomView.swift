@@ -1,4 +1,5 @@
 import CraftUIKit
+import Foundation
 import SwiftUI
 
 public struct RoleplayRoomView: View {
@@ -6,6 +7,7 @@ public struct RoleplayRoomView: View {
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
     @State private var showDiscardAlert = false
+    @State private var selectedWordTooltip: String?
 
     public init(viewModel: RoleplayRoomViewModel, onDismiss: @escaping () -> Void) {
         self._viewModel = State(initialValue: viewModel)
@@ -22,10 +24,36 @@ public struct RoleplayRoomView: View {
                 headerBar
 
                 // Target Words Strip
-                targetWordsStrip
+                InteractiveTargetWordsStrip(
+                    targetWords: viewModel.scenario.targetWordIds,
+                    masteredWords: viewModel.masteredWords
+                ) { word in
+                    withAnimation(theme.animations.springSnappy) {
+                        if selectedWordTooltip == word {
+                            selectedWordTooltip = nil
+                        } else {
+                            selectedWordTooltip = word
+                        }
+                    }
+                }
+
+                if let selectedWord = selectedWordTooltip {
+                    wordTooltipBanner(selectedWord)
+                }
 
                 // Dialogue Stream
                 dialogueStream
+
+                // Sentence Starter Chips Bar
+                SentenceStarterChipsBar(
+                    prompts: viewModel.scenario.starterSuggestions
+                ) { prompt in
+                    if viewModel.inputText.isEmpty {
+                        viewModel.inputText = prompt
+                    } else {
+                        viewModel.inputText += " " + prompt
+                    }
+                }
 
                 // Bottom Control Bar
                 bottomInputBar
@@ -92,29 +120,41 @@ public struct RoleplayRoomView: View {
         .padding(.vertical, theme.spacing.sm)
     }
 
-    private var targetWordsStrip: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: theme.spacing.xs) {
-                Text(AppStrings.AIAssistant.targetWordsTitle)
-                    .font(theme.typography.caption)
-                    .foregroundStyle(theme.colors.textSecondary)
-                    .padding(.trailing, theme.spacing.xs)
+    private func wordTooltipBanner(_ word: String) -> some View {
+        HStack(spacing: theme.spacing.xs) {
+            CraftIcon(.info, size: .sm, color: theme.colors.brandPrimary)
 
-                ForEach(viewModel.scenario.targetWordIds, id: \.self) { word in
-                    let isMastered = viewModel.masteredWords.contains(word)
-                    CraftBadge(
-                        LocalizedStringKey(word),
-                        iconName: isMastered ? "checkmark.circle.fill" : nil,
-                        variant: isMastered ? .solid : .subtle,
-                        tone: isMastered ? .success : .neutral,
-                        size: .sm
-                    )
+            Text(word)
+                .font(theme.typography.bodyMedium)
+                .fontWeight(.semibold)
+                .foregroundStyle(theme.colors.textPrimary)
+
+            Spacer()
+
+            CraftIconButton(
+                symbol: .audio,
+                size: .sm,
+                variant: .subtle,
+                accessibilityLabelKey: AppStrings.AIAssistant.audioPlayButton
+            ) {
+                viewModel.playSpeech(for: word)
+            }
+
+            CraftIconButton(
+                symbol: .close,
+                size: .sm,
+                variant: .ghost,
+                accessibilityLabelKey: AppStrings.Common.close
+            ) {
+                withAnimation(theme.animations.springSnappy) {
+                    selectedWordTooltip = nil
                 }
             }
-            .padding(.horizontal, theme.spacing.base)
-            .padding(.vertical, theme.spacing.xs)
         }
-        .background(theme.colors.surfaceCard)
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.vertical, theme.spacing.xs)
+        .background(theme.colors.surfaceSubtle)
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 
     private var dialogueStream: some View {
@@ -150,23 +190,32 @@ public struct RoleplayRoomView: View {
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
 
                 if let refinement = message.refinementSuggestion {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    VStack(alignment: message.isUser ? .trailing : .leading, spacing: theme.spacing.xs) {
                         Button {
-                            viewModel.toggleRefinement(for: message.id)
+                            withAnimation(theme.animations.springSnappy) {
+                                viewModel.toggleRefinement(for: message.id)
+                            }
                         } label: {
-                            Text(AppStrings.AIAssistant.refineSuggestionButton)
-                                .font(theme.typography.caption)
-                                .foregroundStyle(theme.colors.brandPrimary)
+                            HStack(spacing: theme.spacing.xxs) {
+                                CraftIcon(.sparkles, size: .sm, color: theme.colors.brandPrimary)
+                                Text(AppStrings.AIAssistant.refineSuggestionButton)
+                                    .font(theme.typography.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(theme.colors.brandPrimary)
+                                CraftIcon(
+                                    message.isRefinementExpanded ? .chevronUp : .chevronDown,
+                                    size: .sm,
+                                    color: theme.colors.brandPrimary
+                                )
+                            }
+                            .padding(.vertical, theme.spacing.xxs)
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
 
                         if message.isRefinementExpanded {
-                            Text(refinement)
-                                .font(theme.typography.caption)
-                                .italic()
-                                .foregroundStyle(theme.colors.textSecondary)
-                                .padding(theme.spacing.xs)
-                                .background(theme.colors.brandPrimary.opacity(0.08))
-                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+                            refinementPreviewCard(refinement)
                         }
                     }
                 }
@@ -185,6 +234,39 @@ public struct RoleplayRoomView: View {
 
             if !message.isUser { Spacer() }
         }
+    }
+
+    private func refinementPreviewCard(_ refinement: String) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            HStack(spacing: theme.spacing.xs) {
+                Text(AppStrings.AIAssistant.chatRefinePrefix)
+                    .font(theme.typography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(theme.colors.textSecondary)
+
+                Spacer()
+
+                CraftIconButton(
+                    symbol: .audio,
+                    size: .sm,
+                    variant: .subtle,
+                    accessibilityLabelKey: AppStrings.AIAssistant.audioPlayButton
+                ) {
+                    viewModel.playSpeech(for: refinement)
+                }
+            }
+
+            Text(refinement)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textPrimary)
+        }
+        .padding(theme.spacing.sm)
+        .background(theme.colors.surfaceElevated)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.md)
+                .stroke(theme.colors.borderDefault, lineWidth: 1)
+        )
     }
 
     private var bottomInputBar: some View {

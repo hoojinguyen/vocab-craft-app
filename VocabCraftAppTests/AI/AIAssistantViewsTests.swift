@@ -402,4 +402,105 @@ struct AIAssistantViewsTests {
         _ = view.body
         #expect(!dismissed)
     }
+
+    // MARK: - Task 5: SentenceStarterChipsBar & InteractiveTargetWordsStrip Tests
+
+    @Test @MainActor
+    func test_sentenceStarterChipsBar_rendersAndSelectsPrompt() {
+        var selectedPrompt: String?
+        let prompts = [
+            "Hi! I'd like to order a warm beverage, please.",
+            "Could I get an iced coffee?"
+        ]
+        let bar = SentenceStarterChipsBar(prompts: prompts) { prompt in
+            selectedPrompt = prompt
+        }
+
+        #expect(bar.prompts.count == 2)
+        #expect(bar.prompts.first == "Hi! I'd like to order a warm beverage, please.")
+        _ = bar.body
+
+        bar.onSelectPrompt("Could I get an iced coffee?")
+        #expect(selectedPrompt == "Could I get an iced coffee?")
+    }
+
+    @Test @MainActor
+    func test_sentenceStarterChipsBar_handlesEmptyPrompts() {
+        let bar = SentenceStarterChipsBar(prompts: []) { _ in }
+        #expect(bar.prompts.isEmpty)
+        _ = bar.body
+    }
+
+    @Test @MainActor
+    func test_interactiveTargetWordsStrip_rendersAndDispatchesTap() {
+        var tappedWord: String?
+        let targetWords = ["beverage", "pastry", "complimentary"]
+        let mastered: Set<String> = ["beverage"]
+
+        let strip = InteractiveTargetWordsStrip(
+            targetWords: targetWords,
+            masteredWords: mastered
+        ) { word in
+            tappedWord = word
+        }
+
+        #expect(strip.targetWords.count == 3)
+        #expect(strip.masteredWords.contains("beverage"))
+        #expect(!strip.masteredWords.contains("pastry"))
+        _ = strip.body
+
+        strip.onWordTap("pastry")
+        #expect(tappedWord == "pastry")
+    }
+
+    @Test @MainActor
+    func test_interactiveTargetWordsStrip_handlesEmptyWords() {
+        let strip = InteractiveTargetWordsStrip(targetWords: [], masteredWords: []) { _ in }
+        #expect(strip.targetWords.isEmpty)
+        _ = strip.body
+    }
+
+    @Test @MainActor
+    func test_roleplayRoomView_withScaffoldingAndRefinements() async {
+        let scenario = RoleplayScenario(
+            id: "test-cafe",
+            titleKey: "app.ai_assistant.scenario.cafe.title",
+            descriptionKey: "app.ai_assistant.scenario.cafe.desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Alex",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Welcome! What can I get started for you?",
+            targetWordIds: ["latte", "croissant"],
+            iconSymbol: "cup.and.saucer",
+            starterSuggestions: ["I'd like a latte, please.", "Do you have croissants?"]
+        )
+        let executeTurnUseCase = ExecuteRoleplayTurnUseCase(llmProvider: MockLLMProvider())
+        let completeSessionUseCase = CompleteRoleplaySessionUseCase()
+        let vm = RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: executeTurnUseCase,
+            completeSessionUseCase: completeSessionUseCase
+        )
+
+        var dismissed = false
+        let view = RoleplayRoomView(viewModel: vm, onDismiss: { dismissed = true })
+        _ = view.body
+
+        // Simulate choosing a starter suggestion
+        vm.inputText = scenario.starterSuggestions[0]
+        #expect(vm.inputText == "I'd like a latte, please.")
+
+        await vm.sendMessage(vm.inputText)
+        #expect(vm.messages.count >= 2)
+
+        // Expand refinement if message has one
+        if let userMsg = vm.messages.first(where: { $0.isUser }) {
+            vm.toggleRefinement(for: userMsg.id)
+            #expect(vm.messages.first(where: { $0.id == userMsg.id })?.isRefinementExpanded == true)
+        }
+        _ = view.body
+        #expect(!dismissed)
+    }
 }
