@@ -35,9 +35,12 @@ struct SmartVoiceRouterTests {
     func test_pronunciationRouting_usesAppleEngine() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-gemini-key" }
         )
 
@@ -52,9 +55,12 @@ struct SmartVoiceRouterTests {
     func test_conversationRouting_fallbackToApple() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { nil }
         )
 
@@ -69,9 +75,12 @@ struct SmartVoiceRouterTests {
     func test_conversationRouting_usesGeminiEngineWhenKeyPresent() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-api-key" }
         )
 
@@ -90,10 +99,13 @@ struct SmartVoiceRouterTests {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
         mockGemini.shouldThrowError = true
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
 
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-api-key" }
         )
 
@@ -108,9 +120,11 @@ struct SmartVoiceRouterTests {
     func test_stop_cancelsBothEngines() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
-            geminiEngine: mockGemini
+            geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro
         )
 
         service.speak(text: "Hello there", context: .conversation(persona: .expressiveFemale))
@@ -118,6 +132,7 @@ struct SmartVoiceRouterTests {
 
         #expect(!service.isSpeaking)
         #expect(mockGemini.stopCallCount >= 1)
+        #expect(mockKokoro.isSpeaking == false)
     }
 
     @Test("Verify backward compatibility of speak and speakAsync without context parameter")
@@ -125,9 +140,12 @@ struct SmartVoiceRouterTests {
     func test_backwardCompatibility_pronunciationDefault() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-api-key" }
         )
 
@@ -142,9 +160,12 @@ struct SmartVoiceRouterTests {
     func test_synchronousSpeak_conversation_executesWithoutSelfCancellation() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-api-key" }
         )
 
@@ -167,9 +188,12 @@ struct SmartVoiceRouterTests {
     func test_synchronousSpeak_pronunciation_cleansUpInTestEnvironment() async {
         let coordinator = AudioSessionCoordinator()
         let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
         let service = TextToSpeechService(
             audioSessionCoordinator: coordinator,
             geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
             apiKeyProvider: { "valid-api-key" }
         )
 
