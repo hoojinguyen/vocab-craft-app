@@ -434,6 +434,20 @@ struct RoleplayVoiceCallViewModelTests {
         #expect(vm.sessionSummary == nil)
         #expect(engine.cancelCallInvoked == true)
     }
+
+    @Test("Auto-concluded callback from engine automatically updates sessionSummary in ViewModel")
+    @MainActor
+    func autoConcludedCallbackUpdatesSessionSummary() {
+        let scenario = makeTestScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+
+        #expect(vm.sessionSummary == nil)
+        let expectedSummary = engine.mockSummaryToReturn
+        engine.onSessionAutoConcluded?(expectedSummary)
+
+        #expect(vm.sessionSummary == expectedSummary)
+    }
 }
 
 // MARK: - Test Mock
@@ -448,6 +462,7 @@ final class MockVoiceConversationEngine: VoiceConversationEngineProtocol {
     var masteredTargetWords: Set<String> = []
     var audioLevel: Float = 0.0
     var suggestedResponses: [String] = []
+    var onSessionAutoConcluded: ((RoleplaySessionSummary) -> Void)?
 
     var startCallInvoked = false
     var finishUserTurnManuallyInvoked = false

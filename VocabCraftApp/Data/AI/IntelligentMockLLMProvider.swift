@@ -33,7 +33,8 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
             targetWordsUsed: targetWordsUsed,
             refinementSuggestion: turn.refinement,
             pedagogicalNote: turn.tip,
-            suggestedResponses: turn.suggestedResponses
+            suggestedResponses: turn.suggestedResponses,
+            isConcluded: turn.isConcluded
         )
 
         if let typedResult = output as? T {
@@ -97,6 +98,7 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
         let refinement: String?
         let tip: String?
         let suggestedResponses: [String]
+        let isConcluded: Bool
     }
 
     private enum ScenarioType {
@@ -191,42 +193,69 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
                     : "Great choice! Would you like a single or double espresso? And should I warm up the croissant for you?"
                 let refinement = "You could say: 'I'd like a double espresso and a warmed croissant, please.'"
                 let tip = "In a cafe, specifying 'single or double shot' makes ordering seamless!"
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
-            } else {
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else if userTurnCount == 2 {
                 let reply = "Coming right up! That will be $6.50. You can tap your card right on the reader. Have a wonderful day!"
                 let refinement = "Native tip: 'Keep the change!' is common if paying cash."
                 let tip = "Great job finishing your cafe order using your target vocabulary!"
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else {
+                let reply = "All set! Here is your receipt and your fresh order. Thank you for visiting Craft Cafe, have a wonderful day!"
+                let refinement = "Polite wrap-up: 'Thank you so much, have a great day!' is warm and natural."
+                let tip = "Congratulations on completing your cafe ordering practice with all target vocabulary!"
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: true)
             }
         case .interview:
             if userTurnCount <= 1 {
                 let reply = "Thank you for sharing that. Could you tell me about a time you handled a tight deadline or challenge?"
                 let refinement = "Consider using the STAR method (Situation, Task, Action, Result) when answering."
                 let tip = "Strong action verbs like 'managed', 'developed', and 'collaborated' elevate your response."
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
-            } else {
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else if userTurnCount == 2 {
                 let reply = "That demonstrates excellent leadership and problem-solving skills under pressure. Do you have any questions for us about the role or team?"
                 let refinement = "Ask a thoughtful closing question like: 'What does success look like in the first 90 days?'"
                 let tip = "Asking informed questions at the end of an interview reinforces your enthusiasm and preparation."
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else {
+                let reply = "Thank you for those insightful questions. We are very excited about your background and our team will follow up with next steps soon. Have a great day!"
+                let refinement = "Closing strong: 'Thank you for your time, I look forward to hearing from you!'"
+                let tip = "Great job finishing your interview roleplay with compelling communication!"
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: true)
             }
         case .hotel:
             if userTurnCount <= 1 {
                 let reply = "I found your reservation right here. May I have your passport or ID card, please?"
                 let refinement = "Try: 'I have a reservation under the name [Your Name].'"
                 let tip = "'Under the name' is the standard polite phrasing for reservations."
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
-            } else {
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else if userTurnCount == 2 {
                 let reply = "Thank you. Here is your keycard for room 402. Complimentary breakfast and amenities like the pool are on the 5th floor. Enjoy your stay!"
                 let refinement = "Polite inquiry: 'Could you tell me what time breakfast is served?'"
                 let tip = "'Complimentary' means provided free of charge by the establishment."
-                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else {
+                let reply = "You're all set! Don't hesitate to dial 0 from your room if you need anything at all. Have a wonderful stay with us!"
+                let refinement = "Courteous finish: 'Thank you for your help, have a great day!'"
+                let tip = "Excellent work completing your hotel check-in roleplay!"
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: true)
             }
         case .fallback:
-            let reply = "That's very interesting! Could you elaborate more on that, or should we move to the next step?"
-            let refinement = "Natural phrasing: 'Could you give me more details on that?'"
-            let tip = "Keep speaking naturally. Notice how rhythm and intonation help convey meaning."
-            return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions)
+            if userTurnCount <= 1 {
+                let reply = "That's very interesting! Could you elaborate more on that, or should we move to the next step?"
+                let refinement = "Natural phrasing: 'Could you give me more details on that?'"
+                let tip = "Keep speaking naturally. Notice how rhythm and intonation help convey meaning."
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else if userTurnCount == 2 {
+                let reply = "Great practice! Do you have any final thoughts or questions before we wrap up?"
+                let refinement = "Wrap-up inquiry: 'Thank you, that covers everything!'"
+                let tip = "Summarizing key points reinforces spoken vocabulary mastery."
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: false)
+            } else {
+                let reply = "Excellent job practicing today! You've made wonderful progress with your vocabulary. Have a wonderful day!"
+                let refinement = "Friendly sign-off: 'Thank you, see you next time!'"
+                let tip = "Consistent short speaking sessions build long-term fluency."
+                return DialogueTurnContent(reply: reply, refinement: refinement, tip: tip, suggestedResponses: suggestions, isConcluded: true)
+            }
         }
     }
 
@@ -248,6 +277,12 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
     }
 
     private func cafeSuggestedResponses(userTurnCount: Int, expectedWords: [String]) -> [String] {
+        if userTurnCount >= 3 {
+            return [
+                "Thank you, have a wonderful day!",
+                "Thanks so much, goodbye!"
+            ]
+        }
         guard userTurnCount <= 1 else {
             return [
                 "Thank you so much! Could I also get a receipt, please?",
@@ -287,6 +322,12 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
     }
 
     private func interviewSuggestedResponses(userTurnCount: Int, expectedWords: [String]) -> [String] {
+        if userTurnCount >= 3 {
+            return [
+                "Thank you so much for your time, goodbye!",
+                "Thank you, I look forward to hearing from you!"
+            ]
+        }
         guard userTurnCount <= 1 else {
             return [
                 "What opportunities are there to collaborate cross-functionally across teams?",
@@ -319,6 +360,12 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
     }
 
     private func hotelSuggestedResponses(userTurnCount: Int, expectedWords: [String]) -> [String] {
+        if userTurnCount >= 3 {
+            return [
+                "Thank you so much, goodbye!",
+                "Thanks for your help, have a wonderful day!"
+            ]
+        }
         guard userTurnCount <= 1 else {
             return [
                 "Thank you! What time is the complimentary breakfast served in the morning?",
@@ -351,6 +398,12 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, Sendable {
     }
 
     private func fallbackSuggestedResponses(userTurnCount: Int, expectedWords: [String]) -> [String] {
+        if userTurnCount >= 3 {
+            return [
+                "Thank you, have a wonderful day!",
+                "Thanks, goodbye!"
+            ]
+        }
         guard userTurnCount <= 1 else {
             return [
                 "That makes a lot of sense, thank you for the helpful explanation!",

@@ -90,7 +90,8 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
             targetWordsUsed: combinedWords,
             refinementSuggestion: output.refinementSuggestion,
             pedagogicalNote: output.pedagogicalNote,
-            suggestedResponses: output.suggestedResponses
+            suggestedResponses: output.suggestedResponses,
+            isConcluded: output.isConcluded
         )
     }
 

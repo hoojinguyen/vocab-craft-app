@@ -76,4 +76,15 @@ final class SoundEffectAndTTSTests: XCTestCase {
         tts.prewarm()
         XCTAssertFalse(tts.isSpeaking)
     }
+
+    func testSafetyTimeoutGuaranteesMinimumTwentyFiveSeconds() {
+        let timeout = TextToSpeechService.calculateSafetyTimeoutNanoseconds(for: "Hello there!")
+        XCTAssertGreaterThanOrEqual(timeout, 25_000_000_000)
+    }
+
+    func testSafetyTimeoutScalesForLongUtterance() {
+        let longSentence = "Coming right up! That will be $6.50. You can tap your card right on the reader. Have a wonderful day! Please let us know if you need anything else."
+        let timeout = TextToSpeechService.calculateSafetyTimeoutNanoseconds(for: longSentence)
+        XCTAssertGreaterThan(timeout, 25_000_000_000)
+    }
 }

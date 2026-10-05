@@ -336,4 +336,40 @@ struct ResilientConversationSpeechEngineTests {
         #expect(engine.state == .ended)
         #expect(engine.activeLease == nil)
     }
+
+    @Test("Auto-conclusion triggers callback and transitions to ended when turn is concluded")
+    @MainActor
+    func testAutoConclusionTriggersCallbackWhenTurnOutputIsConcluded() async {
+        let scenario = makeTestScenario()
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let mockTTS = MockTextToSpeechService()
+        let mockLLM = MockLLMProvider()
+        mockLLM.mockTurnOutput = RoleplayTurnOutput(
+            characterReply: "All set! Have a wonderful day!",
+            targetWordsUsed: ["espresso"],
+            isConcluded: true
+        )
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = ResilientConversationSpeechEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase,
+            audioSessionCoordinator: coordinator
+        )
+
+        var autoConcludedSummary: RoleplaySessionSummary?
+        engine.onSessionAutoConcluded = { summary in
+            autoConcludedSummary = summary
+        }
+
+        await engine.startCall()
+        await engine.processUserUtterance("Here is my card, thank you!")
+
+        #expect(autoConcludedSummary != nil)
+        #expect(engine.state == .ended)
+    }
 }

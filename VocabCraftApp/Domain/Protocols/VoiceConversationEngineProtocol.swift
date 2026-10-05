@@ -21,6 +21,7 @@ public protocol VoiceConversationEngineProtocol: AnyObject, Sendable {
     var scenario: RoleplayScenario { get }
     var messages: [RoleplayMessage] { get }
     var masteredTargetWords: Set<String> { get }
+    var onSessionAutoConcluded: ((RoleplaySessionSummary) -> Void)? { get set }
 
     func startCall() async
     func finishUserTurnManually()
@@ -35,6 +36,10 @@ public extension VoiceConversationEngineProtocol {
     var audioErrorMessage: String? { nil }
     var audioLevel: Float { 0.0 }
     var suggestedResponses: [String] { [] }
+    var onSessionAutoConcluded: ((RoleplaySessionSummary) -> Void)? {
+        get { nil }
+        set { _ = newValue }
+    }
     func retryListening() {}
     func cancelCall() {}
 }

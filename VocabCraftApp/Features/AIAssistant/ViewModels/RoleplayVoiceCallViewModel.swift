@@ -25,6 +25,10 @@ public final class RoleplayVoiceCallViewModel: Identifiable {
         self.ttsService = ttsService
         self.callStartTime = callStartTime
         self.previousMasteredCount = engine.masteredTargetWords.count
+
+        self.engine.onSessionAutoConcluded = { [weak self] summary in
+            self?.sessionSummary = summary
+        }
     }
 
     public var state: VoiceCallState { engine.state }

@@ -236,9 +236,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             return
         }
 
+        let safetyTimeoutNanoseconds = Self.calculateSafetyTimeoutNanoseconds(for: text)
+
         let timeoutTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(nanoseconds: 8_000_000_000)
+                try await Task.sleep(nanoseconds: safetyTimeoutNanoseconds)
             } catch {
                 return
             }
@@ -264,6 +266,14 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         }
 
         timeoutTask.cancel()
+    }
+
+    /// Calculates a safety timeout in nanoseconds scaled to speech text length, guaranteeing minimum 25s window.
+    public static func calculateSafetyTimeoutNanoseconds(for text: String) -> UInt64 {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let wordsCount = trimmed.split(whereSeparator: { $0.isWhitespace || $0.isPunctuation }).count
+        let timeoutSeconds = max(25.0, Double(wordsCount) * 0.9 + 10.0)
+        return UInt64(timeoutSeconds * 1_000_000_000)
     }
 
     public func stop() {

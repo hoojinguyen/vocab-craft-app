@@ -16,6 +16,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     public let scenario: RoleplayScenario
     public private(set) var messages: [RoleplayMessage] = []
     public private(set) var masteredTargetWords: Set<String> = []
+    public var onSessionAutoConcluded: ((RoleplaySessionSummary) -> Void)?
 
     private let ttsService: TextToSpeechProtocol
     private let speechService: SpeechRecognitionProtocol
@@ -85,7 +86,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         await activeSpeechTask?.value
     }
 
-    public func playCharacterSpeech(_ text: String) async {
+    public func playCharacterSpeech(_ text: String, isConcluded: Bool = false) async {
         guard state != .ended else { return }
         audioLevel = 0.0
         silenceDetector?.cancel()
@@ -94,7 +95,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         await ttsService.speakAsync(text: text)
 
         guard state != .ended else { return }
-        if case .speaking = state {
+        if !isConcluded, case .speaking = state {
             startListening()
         }
     }
@@ -193,7 +194,11 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         messages.append(userMessage)
 
         do {
-            let output = try await executeTurnUseCase.execute(scenario: scenario, conversation: messages)
+            let output = try await executeTurnUseCase.execute(
+                scenario: scenario,
+                conversation: messages,
+                suggestedResponses: suggestedResponses
+            )
             guard state == .thinking else { return }
 
             for word in output.targetWordsUsed {
@@ -212,10 +217,18 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             )
             messages.append(aiMessage)
 
+            let isConcluded = output.isConcluded
             activeSpeechTask = Task { @MainActor [weak self] in
-                await self?.playCharacterSpeech(output.characterReply)
+                await self?.playCharacterSpeech(output.characterReply, isConcluded: isConcluded)
             }
             await activeSpeechTask?.value
+
+            if isConcluded {
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                guard state != .ended else { return }
+                let summary = await endCall()
+                onSessionAutoConcluded?(summary)
+            }
         } catch {
             guard state == .thinking else { return }
             startListening()
