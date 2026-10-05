@@ -272,7 +272,7 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.endCallText == "End call")
         #expect(AppStrings.AIAssistant.summaryCongratulationsText == "Roleplay Completed!")
         #expect(AppStrings.AIAssistant.summaryFluencyScoreText == "Fluency Score")
-        #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Target Words Mastered")
+        #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Mastered in conversation")
         #expect(AppStrings.AIAssistant.summaryTakeawaysTitleText == "Refined Phrasing Takeaways")
         #expect(AppStrings.AIAssistant.actionDoneText == "Back to Hub")
         #expect(AppStrings.AIAssistant.audioPlayButtonText == "Play dialogue audio")
@@ -287,6 +287,45 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.speakingHintsButtonText == "💡 Suggested responses")
         #expect(AppStrings.AIAssistant.speakingHintsTitleText == "Suggested responses")
         #expect(AppStrings.AIAssistant.listenSampleText == "Listen to sample")
+    }
+
+    @Test("Warm Companion AppStrings accessors produce correct keys and text")
+    func testWarmCompanionAppStringsAccessors() {
+        let keys: [LocalizedStringKey?] = [
+            AppStrings.AIAssistant.engineOnDevice,
+            AppStrings.AIAssistant.engineCloud,
+            AppStrings.AIAssistant.companionBadge,
+            AppStrings.AIAssistant.companionStartCall,
+            AppStrings.AIAssistant.companionStartChat,
+            AppStrings.AIAssistant.scenarioSectionTitle,
+            AppStrings.AIAssistant.starterChipsTitle,
+            AppStrings.AIAssistant.summaryMasteredWords,
+            AppStrings.AIAssistant.summaryUnmasteredWords,
+            AppStrings.AIAssistant.summarySaveToVault,
+            AppStrings.AIAssistant.summaryActionReflex,
+            AppStrings.AIAssistant.callLiveBadge,
+            AppStrings.AIAssistant.callMicMute,
+            AppStrings.AIAssistant.callMicUnmute,
+            AppStrings.AIAssistant.callSuggestedPreview,
+            AppStrings.AIAssistant.chatRefinePrefix
+        ]
+        for key in keys {
+            #expect(key != nil)
+        }
+
+        #expect(AppStrings.AIAssistant.engineOnDeviceText == "On-Device (Local)")
+        #expect(AppStrings.AIAssistant.engineCloudText == "Cloud Active")
+        #expect(AppStrings.AIAssistant.companionBadgeText == "Daily Companion")
+        #expect(AppStrings.AIAssistant.companionStartCallText == "Quick Voice Practice (2m)")
+        #expect(AppStrings.AIAssistant.companionStartChatText == "Text Roleplay")
+        #expect(AppStrings.AIAssistant.scenarioSectionTitleText == "Topic Scenarios")
+        #expect(AppStrings.AIAssistant.starterChipsTitleText == "Sentence Starters")
+        #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Mastered in conversation")
+        #expect(AppStrings.AIAssistant.summaryUnmasteredWordsText == "Needs more practice")
+        #expect(AppStrings.AIAssistant.summarySaveToVaultText == "Save to Personal Vault")
+        #expect(AppStrings.AIAssistant.summaryActionReflexText == "Drill weak words in Reflex (60s)")
+        #expect(AppStrings.AIAssistant.companionGreetingFormat.contains("%lld"))
+        #expect(AppStrings.AIAssistant.companionGreeting(wordsCount: 3).contains("3"))
     }
 
     @Test("AppStrings Settings AI configuration keys exist")
@@ -437,6 +476,34 @@ struct AIAssistantLocalizationTests {
             #expect(!enString.isEmpty, "Missing EN string for \(key)")
             #expect(!viString.isEmpty, "Missing VI string for \(key)")
             #expect(enString != key, "Untranslated key: \(key)")
+        }
+    }
+
+    private func assertLocalizationExists(key: String) {
+        let enTranslation = AIAssistantLocalizationTests.lookupCatalog(key: key, language: "en")
+        let viTranslation = AIAssistantLocalizationTests.lookupCatalog(key: key, language: "vi")
+        #expect(enTranslation != nil && !(enTranslation?.isEmpty ?? true), "Missing EN localization for key: \(key)")
+        #expect(viTranslation != nil && !(viTranslation?.isEmpty ?? true), "Missing VI localization for key: \(key)")
+    }
+
+    @Test("Verify Warm Companion string keys exist in English and Vietnamese")
+    func test_warmCompanion_stringKeys_existInEnglishAndVietnamese() {
+        let keys = [
+            "app.ai.hub.engine.on_device",
+            "app.ai.hub.engine.cloud",
+            "app.ai.hub.companion.badge",
+            "app.ai.hub.companion.start_call",
+            "app.ai.hub.companion.start_chat",
+            "app.ai.hub.scenarios.title",
+            "app.ai.call.live_badge",
+            "app.ai.chat.starter_chips_title",
+            "app.ai.summary.mastered_words",
+            "app.ai.summary.unmastered_words",
+            "app.ai.summary.save_to_vault",
+            "app.ai.summary.action_reflex"
+        ]
+        for key in keys {
+            assertLocalizationExists(key: key)
         }
     }
 

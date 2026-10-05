@@ -396,11 +396,8 @@ extension AppStrings {
         public static var heroTitleText: String { String(localized: "app.ai_assistant.hero_title", defaultValue: "VocabCraft AI Copilot", bundle: .module) }
         public static var heroDescription: LocalizedStringKey { "app.ai_assistant.hero_desc" }
         public static var heroDescriptionText: String {
-            String(
-                localized: "app.ai_assistant.hero_desc",
-                defaultValue: "Your personalized AI language tutor. Conversational drills, contextual feedback, and instant pronunciation analysis powered by next-gen on-device models.",
-                bundle: .module
-            )
+            let defaultText = "Your personalized AI language tutor. Conversational drills, contextual feedback, and instant pronunciation analysis powered by next-gen on-device models."
+            return String(localized: "app.ai_assistant.hero_desc", defaultValue: String.LocalizationValue(defaultText), bundle: .module)
         }
         public static var upcomingFeaturesTitle: LocalizedStringKey { "app.ai_assistant.upcoming_features_title" }
         public static var upcomingFeaturesTitleText: String { String(localized: "app.ai_assistant.upcoming_features_title", defaultValue: "Upcoming Capabilities", bundle: .module) }
@@ -426,11 +423,7 @@ extension AppStrings {
         public static var apiKeySheetTitleText: String { String(localized: "app.ai_assistant.hub.api_key_sheet_title", defaultValue: "Gemini API Setup", bundle: .module) }
         public static var apiKeyBannerDesc: LocalizedStringKey { "app.ai_assistant.hub.api_key_banner_desc" }
         public static var apiKeyBannerDescText: String {
-            String(
-                localized: "app.ai_assistant.hub.api_key_banner_desc",
-                defaultValue: "Add your Gemini API key to unlock natural AI roleplay conversations and feedback.",
-                bundle: .module
-            )
+            String(localized: "app.ai_assistant.hub.api_key_banner_desc", defaultValue: "Add your Gemini API key to unlock natural AI roleplay conversations and feedback.", bundle: .module)
         }
         public static var targetWordsTitle: LocalizedStringKey { "app.ai_assistant.room.target_words_title" }
         public static var targetWordsTitleText: String { String(localized: "app.ai_assistant.room.target_words_title", defaultValue: "Target Words", bundle: .module) }
@@ -446,8 +439,44 @@ extension AppStrings {
         public static var summaryCongratulationsText: String { String(localized: "app.ai_assistant.summary.congratulations", defaultValue: "Roleplay Completed!", bundle: .module) }
         public static var summaryFluencyScore: LocalizedStringKey { "app.ai_assistant.summary.fluency_score" }
         public static var summaryFluencyScoreText: String { String(localized: "app.ai_assistant.summary.fluency_score", defaultValue: "Fluency Score", bundle: .module) }
-        public static var summaryMasteredWords: LocalizedStringKey { "app.ai_assistant.summary.mastered_words" }
-        public static var summaryMasteredWordsText: String { String(localized: "app.ai_assistant.summary.mastered_words", defaultValue: "Target Words Mastered", bundle: .module) }
+        public static var summaryMasteredWords: LocalizedStringKey { "app.ai.summary.mastered_words" }
+        public static var summaryMasteredWordsText: String { String(localized: "app.ai.summary.mastered_words", defaultValue: "Mastered in conversation", bundle: .module) }
+        public static var summaryUnmasteredWords: LocalizedStringKey { "app.ai.summary.unmastered_words" }
+        public static var summaryUnmasteredWordsText: String { String(localized: "app.ai.summary.unmastered_words", defaultValue: "Needs more practice", bundle: .module) }
+        public static var summarySaveToVault: LocalizedStringKey { "app.ai.summary.save_to_vault" }
+        public static var summarySaveToVaultText: String { String(localized: "app.ai.summary.save_to_vault", defaultValue: "Save to Personal Vault", bundle: .module) }
+        public static var summaryActionReflex: LocalizedStringKey { "app.ai.summary.action_reflex" }
+        public static var summaryActionReflexText: String { String(localized: "app.ai.summary.action_reflex", defaultValue: "Drill weak words in Reflex (60s)", bundle: .module) }
+
+        // MARK: - Warm Companion & Hybrid Engine (Layer 2: app.ai.*)
+        public static var engineOnDevice: LocalizedStringKey { "app.ai.hub.engine.on_device" }
+        public static var engineOnDeviceText: String { String(localized: "app.ai.hub.engine.on_device", defaultValue: "On-Device (Local)", bundle: .module) }
+        public static var engineCloud: LocalizedStringKey { "app.ai.hub.engine.cloud" }
+        public static var engineCloudText: String { String(localized: "app.ai.hub.engine.cloud", defaultValue: "Cloud Active", bundle: .module) }
+        public static var companionBadge: LocalizedStringKey { "app.ai.hub.companion.badge" }
+        public static var companionBadgeText: String { String(localized: "app.ai.hub.companion.badge", defaultValue: "Daily Companion", bundle: .module) }
+        public static var companionStartCall: LocalizedStringKey { "app.ai.hub.companion.start_call" }
+        public static var companionStartCallText: String { String(localized: "app.ai.hub.companion.start_call", defaultValue: "Quick Voice Practice (2m)", bundle: .module) }
+        public static var companionStartChat: LocalizedStringKey { "app.ai.hub.companion.start_chat" }
+        public static var companionStartChatText: String { String(localized: "app.ai.hub.companion.start_chat", defaultValue: "Text Roleplay", bundle: .module) }
+        public static var companionGreetingFormat: String {
+            String(localized: "app.ai.hub.companion.greeting_format", defaultValue: "Hi there! You've learned %lld new words today. Let's practice for 2 minutes to turn vocabulary into reflex!", bundle: .module)
+        }
+        public static func companionGreeting(wordsCount: Int) -> String { String(format: companionGreetingFormat, wordsCount) }
+        public static var scenarioSectionTitle: LocalizedStringKey { "app.ai.hub.scenarios.title" }
+        public static var scenarioSectionTitleText: String { String(localized: "app.ai.hub.scenarios.title", defaultValue: "Topic Scenarios", bundle: .module) }
+        public static var starterChipsTitle: LocalizedStringKey { "app.ai.chat.starter_chips_title" }
+        public static var starterChipsTitleText: String { String(localized: "app.ai.chat.starter_chips_title", defaultValue: "Sentence Starters", bundle: .module) }
+        public static var callLiveBadge: LocalizedStringKey { "app.ai.call.live_badge" }
+        public static var callLiveBadgeText: String { String(localized: "app.ai.call.live_badge", defaultValue: "Live Call", bundle: .module) }
+        public static var callMicMute: LocalizedStringKey { "app.ai.call.mic_mute" }
+        public static var callMicMuteText: String { String(localized: "app.ai.call.mic_mute", defaultValue: "Mute microphone", bundle: .module) }
+        public static var callMicUnmute: LocalizedStringKey { "app.ai.call.mic_unmute" }
+        public static var callMicUnmuteText: String { String(localized: "app.ai.call.mic_unmute", defaultValue: "Unmute microphone", bundle: .module) }
+        public static var callSuggestedPreview: LocalizedStringKey { "app.ai.call.suggested_preview" }
+        public static var callSuggestedPreviewText: String { String(localized: "app.ai.call.suggested_preview", defaultValue: "Listen example", bundle: .module) }
+        public static var chatRefinePrefix: LocalizedStringKey { "app.ai.chat.refine_prefix" }
+        public static var chatRefinePrefixText: String { String(localized: "app.ai.chat.refine_prefix", defaultValue: "Natural way to say:", bundle: .module) }
         public static var summaryTakeawaysTitle: LocalizedStringKey { "app.ai_assistant.summary.takeaways_title" }
         public static var summaryTakeawaysTitleText: String { String(localized: "app.ai_assistant.summary.takeaways_title", defaultValue: "Refined Phrasing Takeaways", bundle: .module) }
         public static var actionDone: LocalizedStringKey { "app.ai_assistant.summary.action_done" }
@@ -497,43 +526,26 @@ extension AppStrings {
         public static var finishTurn: LocalizedStringKey { "app.ai_assistant.call.finish_turn" }
         public static var finishTurnText: String { String(localized: "app.ai_assistant.call.finish_turn", defaultValue: "Tap when finished speaking", bundle: .module) }
         public static var permissionTitle: LocalizedStringKey { "app.ai_assistant.call.permission_title" }
-        public static var permissionTitleText: String {
-            String(localized: "app.ai_assistant.call.permission_title", defaultValue: "Microphone & Speech Permission", bundle: .module)
-        }
+        public static var permissionTitleText: String { String(localized: "app.ai_assistant.call.permission_title", defaultValue: "Microphone & Speech Permission", bundle: .module) }
         public static var permissionMessage: LocalizedStringKey { "app.ai_assistant.call.permission_message" }
         public static var permissionMessageText: String {
-            String(
-                localized: "app.ai_assistant.call.permission_message",
-                defaultValue: "VocabCraft needs microphone access for interactive voice roleplay.",
-                bundle: .module
-            )
+            String(localized: "app.ai_assistant.call.permission_message",
+                   defaultValue: "VocabCraft needs microphone access for interactive voice roleplay.", bundle: .module)
         }
         public static var openSettings: LocalizedStringKey { "app.ai_assistant.call.open_settings" }
-        public static var openSettingsText: String {
-            String(localized: "app.ai_assistant.call.open_settings", defaultValue: "Open Settings", bundle: .module)
-        }
+        public static var openSettingsText: String { String(localized: "app.ai_assistant.call.open_settings", defaultValue: "Open Settings", bundle: .module) }
         public static var retry: LocalizedStringKey { "app.ai_assistant.call.retry" }
-        public static var retryText: String {
-            String(localized: "app.ai_assistant.call.retry", defaultValue: "Retry", bundle: .module)
-        }
+        public static var retryText: String { String(localized: "app.ai_assistant.call.retry", defaultValue: "Retry", bundle: .module) }
         public static var speakPrompt: LocalizedStringKey { "app.ai_assistant.call.speak_prompt" }
-        public static var speakPromptText: String {
-            String(localized: "app.ai_assistant.call.speak_prompt", defaultValue: "Speak into the microphone...", bundle: .module)
-        }
+        public static var speakPromptText: String { String(localized: "app.ai_assistant.call.speak_prompt", defaultValue: "Speak into the microphone...", bundle: .module) }
 
         // Conversational Scaffolding Hints
         public static var speakingHintsButton: LocalizedStringKey { "app.ai_assistant.speaking_hints_button" }
-        public static var speakingHintsButtonText: String {
-            String(localized: "app.ai_assistant.speaking_hints_button", defaultValue: "💡 Suggested responses", bundle: .module)
-        }
+        public static var speakingHintsButtonText: String { String(localized: "app.ai_assistant.speaking_hints_button", defaultValue: "💡 Suggested responses", bundle: .module) }
         public static var speakingHintsTitle: LocalizedStringKey { "app.ai_assistant.speaking_hints_title" }
-        public static var speakingHintsTitleText: String {
-            String(localized: "app.ai_assistant.speaking_hints_title", defaultValue: "Suggested responses", bundle: .module)
-        }
+        public static var speakingHintsTitleText: String { String(localized: "app.ai_assistant.speaking_hints_title", defaultValue: "Suggested responses", bundle: .module) }
         public static var listenSample: LocalizedStringKey { "app.ai_assistant.listen_sample" }
-        public static var listenSampleText: String {
-            String(localized: "app.ai_assistant.listen_sample", defaultValue: "Listen to sample", bundle: .module)
-        }
+        public static var listenSampleText: String { String(localized: "app.ai_assistant.listen_sample", defaultValue: "Listen to sample", bundle: .module) }
     }
 
     // MARK: - Speaking AI Call Strings
