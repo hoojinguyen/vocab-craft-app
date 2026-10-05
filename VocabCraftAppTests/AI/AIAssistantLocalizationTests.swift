@@ -507,7 +507,6 @@ struct AIAssistantLocalizationTests {
         }
     }
 
-
     @Test("Verify Model Download string keys exist in English and Vietnamese")
     func test_modelDownload_stringKeys_existInEnglishAndVietnamese() {
         let keys = [

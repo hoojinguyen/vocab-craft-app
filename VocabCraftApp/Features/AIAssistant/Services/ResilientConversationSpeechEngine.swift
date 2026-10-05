@@ -55,11 +55,11 @@ private final class ConversationMeterState: @unchecked Sendable {
     }
 }
 
-// swiftlint:disable:next type_body_length
 /// Resilient conversation speech engine maintaining a warm `.duplexSpeech` audio lease throughout
 /// an AI voice call session, with sub-50ms buffer mute/unmute switching and real-time metering.
 @MainActor
 @Observable
+// swiftlint:disable:next type_body_length
 public final class ResilientConversationSpeechEngine: VoiceConversationEngineProtocol {
     private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "ResilientVoiceEngine")
 

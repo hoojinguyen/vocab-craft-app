@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import CraftUIKit
 import SwiftUI
 
@@ -733,7 +734,7 @@ private struct SettingsOnDeviceModelsCard: View {
                     variant: .secondary,
                     size: .sm
                 ) {
-                    let remoteURL = type == .kokoro 
+                    let remoteURL = type == .kokoro
                         ? URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
                         : URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
                     modelManager.startDownload(for: type, remoteURL: remoteURL)

@@ -716,7 +716,13 @@ extension AppStrings {
         public static var bannerTitle: LocalizedStringKey { "app.ai.model_download.banner_title" }
         public static var bannerTitleText: String { String(localized: "app.ai.model_download.banner_title", defaultValue: "Natural Voice & Speech Upgrade", bundle: .module) }
         public static var bannerDesc: LocalizedStringKey { "app.ai.model_download.banner_desc" }
-        public static var bannerDescText: String { String(localized: "app.ai.model_download.banner_desc", defaultValue: "Download on-device neural voice and speech models (~190MB) for ultra-realistic conversation without rate limits.", bundle: .module) }
+        public static var bannerDescText: String {
+            String(
+                localized: "app.ai.model_download.banner_desc",
+                defaultValue: "Download on-device neural voice and speech models (~190MB) for ultra-realistic conversation without rate limits.",
+                bundle: .module
+            )
+        }
         public static var btnDownload: LocalizedStringKey { "app.ai.model_download.btn_download" }
         public static var btnDownloadText: String { String(localized: "app.ai.model_download.btn_download", defaultValue: "Download AI Pack (~190MB)", bundle: .module) }
         public static var btnLater: LocalizedStringKey { "app.ai.model_download.btn_later" }
