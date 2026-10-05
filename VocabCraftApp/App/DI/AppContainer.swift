@@ -265,20 +265,22 @@ public final class AppContainer {
     // MARK: - AI Assistant Factories
 
     public var llmProvider: LLMProviderProtocol {
-        if userSettingsStore.isGeminiApiKeyConfigured {
-            return GeminiLLMProvider(
+        let mock = IntelligentMockLLMProvider()
+        let gemini: (any LLMProviderProtocol)? = userSettingsStore.isGeminiApiKeyConfigured
+            ? GeminiLLMProvider(
                 apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
-                fallbackProvider: IntelligentMockLLMProvider()
+                fallbackProvider: mock
+            )
+            : nil
+        let baseFallback = gemini ?? mock
+
+        if userSettingsStore.isGroqApiKeyConfigured {
+            return GroqLLMProvider(
+                apiKey: userSettingsStore.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
+                fallbackProvider: baseFallback
             )
         }
-        if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"],
-           !envKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return GeminiLLMProvider(
-                apiKey: envKey,
-                fallbackProvider: IntelligentMockLLMProvider()
-            )
-        }
-        return IntelligentMockLLMProvider()
+        return baseFallback
     }
 
     public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
