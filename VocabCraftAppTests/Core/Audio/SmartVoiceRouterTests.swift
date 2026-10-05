@@ -136,4 +136,50 @@ struct SmartVoiceRouterTests {
         #expect(service.lastActiveEngine == .apple)
         #expect(mockGemini.synthesizeCallCount == 0)
     }
+
+    @Test("Verify synchronous speak with conversation context routes to Gemini without self-cancellation")
+    @MainActor
+    func test_synchronousSpeak_conversation_executesWithoutSelfCancellation() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockGemini = MockGeminiAudioEngine()
+        let service = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            geminiEngine: mockGemini,
+            apiKeyProvider: { "valid-api-key" }
+        )
+
+        service.speak(text: "Hello from sync speak!", context: .conversation(persona: .friendlyFemale))
+        #expect(service.isSpeaking)
+
+        // Wait for spawned playbackStartTask to complete
+        await service.playbackStartTask?.value
+
+        #expect(!service.isSpeaking)
+        #expect(service.lastActiveEngine == .gemini)
+        #expect(mockGemini.synthesizeCallCount == 1)
+        #expect(mockGemini.lastSynthesizedText == "Hello from sync speak!")
+        #expect(mockGemini.lastPersona == .friendlyFemale)
+        #expect(mockGemini.lastApiKey == "valid-api-key")
+    }
+
+    @Test("Verify synchronous speak with pronunciation context cleans up state in test environment")
+    @MainActor
+    func test_synchronousSpeak_pronunciation_cleansUpInTestEnvironment() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockGemini = MockGeminiAudioEngine()
+        let service = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            geminiEngine: mockGemini,
+            apiKeyProvider: { "valid-api-key" }
+        )
+
+        service.speak(text: "Pronounce word", context: .pronunciation(locale: "en-US"))
+        #expect(service.isSpeaking)
+
+        await service.playbackStartTask?.value
+
+        #expect(!service.isSpeaking)
+        #expect(service.lastActiveEngine == .apple)
+        #expect(mockGemini.synthesizeCallCount == 0)
+    }
 }

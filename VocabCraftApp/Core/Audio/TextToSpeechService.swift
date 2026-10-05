@@ -28,13 +28,6 @@ private final class TTSCleanupBox: @unchecked Sendable {
     }
 }
 
-private final class UtteranceTransferBox: @unchecked Sendable {
-    let utterance: AVSpeechUtterance
-    init(_ utterance: AVSpeechUtterance) {
-        self.utterance = utterance
-    }
-}
-
 /// Identifies which underlying speech synthesis engine handled the latest utterance.
 public enum ActiveEngineType: Sendable, Equatable {
     case apple
@@ -43,10 +36,8 @@ public enum ActiveEngineType: Sendable, Equatable {
 
 @MainActor
 @Observable
-public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
-    private let synthesizer = AVSpeechSynthesizer()
+public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
     public private(set) var isSpeaking: Bool = false
-    private var activeContinuation: CheckedContinuation<Void, Never>?
     private let cleanupBox = TTSCleanupBox()
     private var eventSubscriptionTask: Task<Void, Never>? {
         get { cleanupBox.eventSubscriptionTask }
@@ -83,7 +74,6 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         self.settingsStore = settingsStore
         self.apiKeyProvider = apiKeyProvider
         super.init()
-        synthesizer.delegate = self
         subscribeToAudioSessionEvents()
         prewarm()
     }
@@ -207,47 +197,9 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         requestGeneration += 1
         let currentGeneration = requestGeneration
 
-        switch context {
-        case .pronunciation(let locale):
-            lastActiveEngine = .apple
-            guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
-                isSpeaking = false
-                return
-            }
-            currentUtterance = utterance
-
-            playbackStartTask = Task { @MainActor [weak self] in
-                guard let self else { return }
-                let acquired = await self.acquirePlaybackLease(generation: currentGeneration)
-                guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
-                    if self.requestGeneration == currentGeneration {
-                        self.isSpeaking = false
-                        self.currentUtterance = nil
-                        self.releaseActiveLease()
-                    }
-                    return
-                }
-
-                self.isSpeaking = true
-                let isTesting = NSClassFromString("XCTestCase") != nil
-                if isTesting {
-                    return
-                }
-                self.appleEngine.speak(text: text, rate: rate, locale: locale) { [weak self] in
-                    Task { @MainActor [weak self] in
-                        guard let self, self.requestGeneration == currentGeneration else { return }
-                        self.isSpeaking = false
-                        self.currentUtterance = nil
-                        self.releaseActiveLease()
-                    }
-                }
-            }
-
-        case .conversation:
-            playbackStartTask = Task { @MainActor [weak self] in
-                guard let self else { return }
-                await self.speakAsync(text: text, context: context, rate: rate)
-            }
+        playbackStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performPlaybackAsync(text: text, context: context, rate: rate, generation: currentGeneration)
         }
     }
 
@@ -269,17 +221,18 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         requestGeneration += 1
         let currentGeneration = requestGeneration
 
-        let startTask = Task { @MainActor [weak self] in
-            guard let self else { return false }
-            return await self.acquirePlaybackLease(generation: currentGeneration)
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.performPlaybackAsync(text: text, context: context, rate: rate, generation: currentGeneration)
         }
-        playbackStartTask = Task {
-            _ = await startTask.value
-        }
+        playbackStartTask = task
+        await task.value
+    }
 
-        let acquired = await startTask.value
-        guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
-            if self.requestGeneration == currentGeneration {
+    func performPlaybackAsync(text: String, context: SpeechContext, rate: Float, generation: UInt) async {
+        let acquired = await acquirePlaybackLease(generation: generation)
+        guard acquired, !Task.isCancelled, self.requestGeneration == generation else {
+            if self.requestGeneration == generation {
                 self.isSpeaking = false
                 self.currentUtterance = nil
                 self.releaseActiveLease()
@@ -289,6 +242,41 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
         self.isSpeaking = true
 
+        let isTesting = NSClassFromString("XCTestCase") != nil
+        if isTesting {
+            switch context {
+            case .conversation(let persona, _):
+                if let apiKey = resolvedApiKey {
+                    lastActiveEngine = .gemini
+                    do {
+                        try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+                    } catch {
+                        guard self.requestGeneration == generation, !Task.isCancelled else {
+                            if self.requestGeneration == generation {
+                                self.isSpeaking = false
+                                self.currentUtterance = nil
+                            }
+                            await releaseActiveLeaseAsync()
+                            return
+                        }
+                        LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+                        lastActiveEngine = .apple
+                    }
+                } else {
+                    lastActiveEngine = .apple
+                }
+            case .pronunciation:
+                lastActiveEngine = .apple
+            }
+
+            if self.requestGeneration == generation {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
+            return
+        }
+
         switch context {
         case .conversation(let persona, let locale):
             if let apiKey = resolvedApiKey {
@@ -296,8 +284,8 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                 do {
                     try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
                 } catch {
-                    guard self.requestGeneration == currentGeneration, !Task.isCancelled else {
-                        if self.requestGeneration == currentGeneration {
+                    guard self.requestGeneration == generation, !Task.isCancelled else {
+                        if self.requestGeneration == generation {
                             self.isSpeaking = false
                             self.currentUtterance = nil
                         }
@@ -321,7 +309,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
         }
 
-        if self.requestGeneration == currentGeneration {
+        if self.requestGeneration == generation {
             self.isSpeaking = false
             self.currentUtterance = nil
         }
@@ -344,49 +332,8 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         geminiEngine.stop()
         appleEngine.stop()
 
-        if synthesizer.isSpeaking {
-            synthesizer.stopSpeaking(at: .immediate)
-        }
         isSpeaking = false
         currentUtterance = nil
-        if let continuation = activeContinuation {
-            activeContinuation = nil
-            continuation.resume()
-        }
         releaseActiveLease()
-    }
-
-    // MARK: - AVSpeechSynthesizerDelegate
-
-    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        let box = UtteranceTransferBox(utterance)
-        Task { @MainActor [weak self] in
-            LessonPerformanceDiagnostics.event("TTSFinished")
-            guard let self = self else { return }
-            guard box.utterance === self.currentUtterance else { return }
-            self.currentUtterance = nil
-            self.isSpeaking = false
-            if let continuation = self.activeContinuation {
-                self.activeContinuation = nil
-                continuation.resume()
-            }
-            self.releaseActiveLease()
-        }
-    }
-
-    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        let box = UtteranceTransferBox(utterance)
-        Task { @MainActor [weak self] in
-            LessonPerformanceDiagnostics.event("TTSCancelled")
-            guard let self = self else { return }
-            guard box.utterance === self.currentUtterance else { return }
-            self.currentUtterance = nil
-            self.isSpeaking = false
-            if let continuation = self.activeContinuation {
-                self.activeContinuation = nil
-                continuation.resume()
-            }
-            self.releaseActiveLease()
-        }
     }
 }
