@@ -463,6 +463,9 @@ extension AppStrings {
             String(localized: "app.ai.hub.companion.greeting_format", defaultValue: "Hi there! You've learned %lld new words today. Let's practice for 2 minutes to turn vocabulary into reflex!", bundle: .module)
         }
         public static func companionGreeting(wordsCount: Int) -> String { String(format: companionGreetingFormat, wordsCount) }
+        public static func companionGreetingKey(wordsCount: Int) -> LocalizedStringKey {
+            LocalizedStringKey("app.ai.hub.companion.greeting_format \(wordsCount)")
+        }
         public static var scenarioSectionTitle: LocalizedStringKey { "app.ai.hub.scenarios.title" }
         public static var scenarioSectionTitleText: String { String(localized: "app.ai.hub.scenarios.title", defaultValue: "Topic Scenarios", bundle: .module) }
         public static var starterChipsTitle: LocalizedStringKey { "app.ai.chat.starter_chips_title" }

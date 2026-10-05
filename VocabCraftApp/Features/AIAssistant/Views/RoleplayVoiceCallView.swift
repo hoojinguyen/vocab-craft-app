@@ -134,6 +134,8 @@ public struct RoleplayVoiceCallView: View {
         .padding(.vertical, theme.spacing.xxs)
         .background(theme.colors.statusSuccess.opacity(0.12))
         .clipShape(Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(AppStrings.AIAssistant.callLiveBadge))
         .onAppear {
             guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {

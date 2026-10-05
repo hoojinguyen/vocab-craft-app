@@ -4,8 +4,6 @@ import SwiftUI
 /// Compact pill badge presenting active AI engine status (On-Device Local vs Cloud Active).
 /// Conforms to HIG Rule 1.1 with minimum 44x44pt touch target.
 public struct EngineStatusPill: View {
-    @Environment(\.craftTheme) private var theme
-
     private let minimumTouchTarget: CGFloat = 44
 
     public let isCloudConfigured: Bool

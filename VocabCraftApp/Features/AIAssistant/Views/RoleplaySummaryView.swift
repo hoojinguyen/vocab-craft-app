@@ -5,6 +5,7 @@ public struct RoleplaySummaryView: View {
     public let summary: RoleplaySessionSummary
     public let onStartReflex: (() -> Void)?
     public let onSaveToVault: ((SentenceRefinementPair) -> Void)?
+    public let onRemoveFromVault: ((SentenceRefinementPair) -> Void)?
     public let onDismiss: () -> Void
 
     @Environment(\.craftTheme) private var theme
@@ -25,11 +26,13 @@ public struct RoleplaySummaryView: View {
         summary: RoleplaySessionSummary,
         onStartReflex: (() -> Void)? = nil,
         onSaveToVault: ((SentenceRefinementPair) -> Void)? = nil,
+        onRemoveFromVault: ((SentenceRefinementPair) -> Void)? = nil,
         onDismiss: @escaping () -> Void
     ) {
         self.summary = summary
         self.onStartReflex = onStartReflex
         self.onSaveToVault = onSaveToVault
+        self.onRemoveFromVault = onRemoveFromVault
         self.onDismiss = onDismiss
         let ratio = summary.targetWordsAttempted.isEmpty ? 1.0 : Double(summary.targetWordsMastered.count) / Double(summary.targetWordsAttempted.count)
         self._confettiTrigger = State(initialValue: ratio >= 0.8)
@@ -43,6 +46,7 @@ public struct RoleplaySummaryView: View {
             summary: summary,
             onStartReflex: nil,
             onSaveToVault: nil,
+            onRemoveFromVault: nil,
             onDismiss: onDismiss
         )
     }
@@ -224,6 +228,7 @@ public struct RoleplaySummaryView: View {
                             ) {
                                 if isSaved {
                                     savedRefinementIds.remove(refinement.id)
+                                    onRemoveFromVault?(refinement)
                                 } else {
                                     savedRefinementIds.insert(refinement.id)
                                     onSaveToVault?(refinement)

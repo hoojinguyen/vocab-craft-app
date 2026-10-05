@@ -100,7 +100,7 @@ public struct CompanionHeroCard: View {
     }
 
     private var greetingView: some View {
-        Text(verbatim: AppStrings.AIAssistant.companionGreeting(wordsCount: wordsLearnedCount))
+        Text(AppStrings.AIAssistant.companionGreetingKey(wordsCount: wordsLearnedCount))
             .font(theme.typography.bodyMedium)
             .foregroundStyle(theme.colors.textSecondary)
             .fixedSize(horizontal: false, vertical: true)

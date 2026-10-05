@@ -83,6 +83,7 @@ public struct AIAssistantHubView: View {
             if viewModel.scenarios.isEmpty {
                 await viewModel.loadScenarios()
             }
+            #if DEBUG
             let args = ProcessInfo.processInfo.arguments
             if args.contains("-test-ai-config") {
                 showConfigSheet = true
@@ -110,6 +111,7 @@ public struct AIAssistantHubView: View {
                     ]
                 )
             }
+            #endif
         }
         .sheet(item: $sampleSummary) { summary in
             RoleplaySummaryView(summary: summary) {

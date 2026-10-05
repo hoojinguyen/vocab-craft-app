@@ -128,11 +128,13 @@ struct AIAssistantViewsTests {
         var reflexTriggered = false
         var dismissed = false
         var savedPair: SentenceRefinementPair?
+        var removedPair: SentenceRefinementPair?
 
         let summaryView = RoleplaySummaryView(
             summary: summary,
             onStartReflex: { reflexTriggered = true },
             onSaveToVault: { savedPair = $0 },
+            onRemoveFromVault: { removedPair = $0 },
             onDismiss: { dismissed = true }
         )
 
@@ -149,6 +151,9 @@ struct AIAssistantViewsTests {
 
         summaryView.onSaveToVault?(refinement)
         #expect(savedPair == refinement)
+
+        summaryView.onRemoveFromVault?(refinement)
+        #expect(removedPair == refinement)
     }
 
     @Test @MainActor
@@ -323,6 +328,12 @@ struct AIAssistantViewsTests {
         )
         #expect(manyWordsCard.wordsLearnedCount == 42)
         _ = manyWordsCard.body
+    }
+
+    @Test @MainActor
+    func test_companionHeroCard_greetingKeyFormatting() {
+        let greetingKey = AppStrings.AIAssistant.companionGreetingKey(wordsCount: 5)
+        #expect(String(reflecting: greetingKey).contains("app.ai.hub.companion.greeting_format"))
     }
 
     // MARK: - Task 3: ScenarioListCard Tests

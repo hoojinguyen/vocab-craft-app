@@ -137,6 +137,23 @@
         }
       }
     },
+    "app.ai.hub.companion.greeting_format %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi there! You've learned %lld new words today. Let's practice for 2 minutes to turn vocabulary into reflex!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chào bạn! Hôm nay bạn đã nạp %lld từ mới. Hãy cùng mình luyện 2 phút để biến từ vựng thành phản xạ nhé!"
+          }
+        }
+      }
+    },
     "app.ai.hub.scenarios.title" : {
       "extractionState" : "manual",
       "localizations" : {
