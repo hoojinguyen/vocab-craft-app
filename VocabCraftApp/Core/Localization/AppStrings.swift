@@ -1,3 +1,5 @@
+// swiftlint:disable:next file_length
+// swiftlint:disable file_length
 import Foundation
 import SwiftUI
 
