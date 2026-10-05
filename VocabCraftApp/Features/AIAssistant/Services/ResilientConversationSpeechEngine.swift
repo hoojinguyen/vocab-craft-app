@@ -55,6 +55,7 @@ private final class ConversationMeterState: @unchecked Sendable {
     }
 }
 
+// swiftlint:disable:next type_body_length
 /// Resilient conversation speech engine maintaining a warm `.duplexSpeech` audio lease throughout
 /// an AI voice call session, with sub-50ms buffer mute/unmute switching and real-time metering.
 @MainActor
@@ -78,6 +79,7 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
     public let bufferRelay: AudioBufferRelay
     public let audioController: any SpeechAudioEngineControlling
     public let audioSessionCoordinator: (any AudioSessionCoordinating)?
+    public let whisperEngine: WhisperKitSpeechEngine
     public private(set) var activeLease: AudioSessionLease?
     public private(set) var isEngineReady: Bool = false
     public private(set) var silenceDetector: SilenceDetector?
@@ -111,7 +113,8 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
         speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
         authorizer: any SpeechAuthorizing = LiveSpeechAuthorizer(),
         silenceDuration: Duration = .milliseconds(1800),
-        initialSilenceDuration: Duration = .seconds(10)
+        initialSilenceDuration: Duration = .seconds(10),
+        whisperEngine: WhisperKitSpeechEngine = WhisperKitSpeechEngine()
     ) {
         self.scenario = scenario
         self.ttsService = ttsService
@@ -124,6 +127,7 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
         self.authorizer = authorizer
         self.silenceDuration = silenceDuration
         self.initialSilenceDuration = initialSilenceDuration
+        self.whisperEngine = whisperEngine
         self.suggestedResponses = scenario.starterSuggestions
 
         installBufferListener()
@@ -141,7 +145,19 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
         }
     }
 
+    private struct AudioBufferSendBox: @unchecked Sendable {
+        let buffer: AVAudioPCMBuffer
+    }
+
     private nonisolated func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        let box = AudioBufferSendBox(buffer: buffer)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            if self.whisperEngine.isReady {
+                self.whisperEngine.ingest(buffer: box.buffer)
+            }
+        }
+
         guard meterState.shouldProcessMeter() else { return }
         let rms = Self.calculateRMS(buffer: buffer)
         let level = Self.calculateNormalizedAudioLevel(rms: rms)
@@ -239,6 +255,8 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
         audioErrorMessage = nil
         state = .listening(liveTranscript: "")
 
+        whisperEngine.clearBuffer()
+
         guard !isMuted else {
             bufferRelay.mute()
             return
@@ -258,7 +276,20 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
             onSilence: { [weak self] in
                 Task { @MainActor [weak self] in
                     guard let self, case .listening(let transcript) = self.state else { return }
-                    let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    var finalTranscript = transcript
+                    if self.whisperEngine.isReady {
+                        do {
+                            let whisperResult = try await self.whisperEngine.transcribeBufferedAudio()
+                            if !whisperResult.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                finalTranscript = whisperResult
+                            }
+                        } catch {
+                            Self.logger.error("Whisper fallback failed: \(error.localizedDescription)")
+                        }
+                    }
+
+                    let trimmed = finalTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !trimmed.isEmpty {
                         await self.processUserUtterance(trimmed)
                     }
