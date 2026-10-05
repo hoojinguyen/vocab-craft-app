@@ -173,4 +173,35 @@ struct AIDomainEntitiesTests {
             }
         }
     }
+
+    @Test("RoleplayScenario maps characterName to expected voicePersona")
+    func testRoleplayScenarioVoicePersonaMapping() {
+        let alexScenario = RoleplayScenario(
+            id: "s1", titleKey: "t", descriptionKey: "d", topic: .dining, difficulty: .beginner,
+            characterName: "Alex", characterRole: "Barista", userRole: "Customer",
+            initialGreeting: "Hi", targetWordIds: [], iconSymbol: "star"
+        )
+        #expect(alexScenario.voicePersona == .friendlyMale)
+
+        let davidScenario = RoleplayScenario(
+            id: "s2", titleKey: "t", descriptionKey: "d", topic: .travel, difficulty: .intermediate,
+            characterName: "David", characterRole: "Concierge", userRole: "Guest",
+            initialGreeting: "Hi", targetWordIds: [], iconSymbol: "star"
+        )
+        #expect(davidScenario.voicePersona == .friendlyMale)
+
+        let emmaScenario = RoleplayScenario(
+            id: "s3", titleKey: "t", descriptionKey: "d", topic: .dining, difficulty: .beginner,
+            characterName: "Emma", characterRole: "Barista", userRole: "Customer",
+            initialGreeting: "Hi", targetWordIds: [], iconSymbol: "star"
+        )
+        #expect(emmaScenario.voicePersona == .friendlyFemale)
+
+        let jenkinsScenario = RoleplayScenario(
+            id: "s4", titleKey: "t", descriptionKey: "d", topic: .interview, difficulty: .advanced,
+            characterName: "Ms. Jenkins", characterRole: "Manager", userRole: "Candidate",
+            initialGreeting: "Hi", targetWordIds: [], iconSymbol: "star"
+        )
+        #expect(jenkinsScenario.voicePersona == .friendlyFemale)
+    }
 }

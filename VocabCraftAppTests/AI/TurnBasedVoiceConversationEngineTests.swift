@@ -605,4 +605,82 @@ struct TurnBasedVoiceConversationEngineTests {
         await engine.startCall()
         #expect(engine.messages.count == messagesCount)
     }
+
+    @Test("Engine plays character speech using conversation context and friendly male persona for Alex")
+    @MainActor
+    func characterSpeechUsesConversationContextWithMalePersona() async {
+        let scenario = makeTestScenario() // characterName: "Alex"
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        await engine.startCall()
+
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyMale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
+
+    @Test("Engine plays character speech using conversation context and friendly female persona for Emma")
+    @MainActor
+    func characterSpeechUsesConversationContextWithFemalePersona() async {
+        let scenario = RoleplayScenario(
+            id: "scenario_emma",
+            titleKey: "test_title",
+            descriptionKey: "test_desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Emma",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hello! Welcome to the cafe.",
+            targetWordIds: ["latte"],
+            iconSymbol: "cup.fill"
+        )
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        await engine.startCall()
+
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyFemale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
+
+    @Test("Character reply during conversation turn uses conversation context and appropriate persona")
+    @MainActor
+    func characterTurnReplyUsesConversationContext() async {
+        let scenario = makeTestScenario()
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Here is your espresso!",
+            targetWordsUsed: ["espresso"]
+        ))
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(llmProvider: mockLLM),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        engine.startListening()
+        await engine.processUserUtterance("Can I get an espresso?")
+
+        #expect(mockTTS.lastSpokenText == "Here is your espresso!")
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyMale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
 }

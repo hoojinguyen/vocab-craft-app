@@ -67,6 +67,7 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
     var lastSpokenText: String?
     var lastSpokenRate: Float?
     var lastSpokenLocale: String?
+    var lastSpokenContext: SpeechContext?
     var speakCallCount: Int = 0
     var speakAsyncCallCount: Int = 0
     var onSpeakAsync: ((String, Float, String) async -> Void)?
@@ -79,6 +80,16 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
         lastSpokenLocale = locale
     }
 
+    func speak(text: String, context: SpeechContext, rate: Float) {
+        lastSpokenContext = context
+        switch context {
+        case .pronunciation(let locale):
+            speak(text: text, rate: rate, locale: locale)
+        case .conversation(_, let locale):
+            speak(text: text, rate: rate, locale: locale)
+        }
+    }
+
     func speakAsync(text: String, rate: Float, locale: String) async {
         speakAsyncCallCount += 1
         isSpeaking = true
@@ -89,6 +100,16 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
             await onSpeakAsync(text, rate, locale)
         }
         isSpeaking = false
+    }
+
+    func speakAsync(text: String, context: SpeechContext, rate: Float) async {
+        lastSpokenContext = context
+        switch context {
+        case .pronunciation(let locale):
+            await speakAsync(text: text, rate: rate, locale: locale)
+        case .conversation(_, let locale):
+            await speakAsync(text: text, rate: rate, locale: locale)
+        }
     }
 
     func stop() {

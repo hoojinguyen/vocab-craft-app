@@ -92,7 +92,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         silenceDetector?.cancel()
         state = .speaking(characterText: text)
 
-        await ttsService.speakAsync(text: text)
+        let persona: VoicePersona = scenario.voicePersona
+        await ttsService.speakAsync(text: text, context: .conversation(persona: persona, locale: "en-US"), rate: 1.0)
 
         guard state != .ended else { return }
         if !isConcluded, case .speaking = state {

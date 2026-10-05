@@ -77,4 +77,13 @@ public struct RoleplayScenario: Identifiable, Codable, Sendable, Equatable {
         self.iconSymbol = try container.decode(String.self, forKey: .iconSymbol)
         self.starterSuggestions = try container.decodeIfPresent([String].self, forKey: .starterSuggestions) ?? []
     }
+
+    /// Maps the scenario character to a suitable natural voice persona.
+    public var voicePersona: VoicePersona {
+        let name = characterName.lowercased()
+        if name.contains("alex") || name.contains("david") || name.contains("mr.") {
+            return .friendlyMale
+        }
+        return .friendlyFemale
+    }
 }
