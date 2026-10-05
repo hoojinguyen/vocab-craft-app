@@ -68,7 +68,7 @@ public final class RoleplayRoomViewModel: Identifiable {
     public func playSpeech(for text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        ttsService?.speak(text: trimmed)
+        ttsService?.speak(text: trimmed, context: .conversation(persona: scenario.voicePersona, locale: "en-US"))
     }
 
     public func sendMessage(_ text: String) async {

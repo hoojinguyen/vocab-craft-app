@@ -266,11 +266,17 @@ public final class AppContainer {
 
     public var llmProvider: LLMProviderProtocol {
         if userSettingsStore.isGeminiApiKeyConfigured {
-            return GeminiLLMProvider(apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines))
+            return GeminiLLMProvider(
+                apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
+                fallbackProvider: IntelligentMockLLMProvider()
+            )
         }
         if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"],
            !envKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return GeminiLLMProvider(apiKey: envKey)
+            return GeminiLLMProvider(
+                apiKey: envKey,
+                fallbackProvider: IntelligentMockLLMProvider()
+            )
         }
         return IntelligentMockLLMProvider()
     }

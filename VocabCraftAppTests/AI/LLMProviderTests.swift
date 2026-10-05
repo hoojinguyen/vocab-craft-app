@@ -87,7 +87,7 @@ struct LLMProviderTests {
     @Test("GeminiLLMProvider successfully parses valid Gemini response")
     func testGeminiProviderSuccess() async throws {
         let (session, mockId) = MockURLProtocol.register { request in
-            #expect(request.url?.absoluteString.contains("gemini-flash-latest") == true)
+            #expect(request.url?.absoluteString.contains("gemini-flash-lite-latest") == true)
             #expect(request.httpMethod == "POST")
             #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
             #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "fake-key")
@@ -133,6 +133,67 @@ struct LLMProviderTests {
         #expect(result.characterReply == "Welcome to the cafe!")
         #expect(result.targetWordsUsed == ["beverage"])
         #expect(result.pedagogicalNote == "Well asked")
+    }
+
+    @Test("GeminiLLMProvider falls back to next model on 503 error")
+    func testGeminiProviderModelFallback() async throws {
+        var requestedModels: [String] = []
+        let (session, mockId) = MockURLProtocol.register { request in
+            let urlString = request.url?.absoluteString ?? ""
+            if urlString.contains("gemini-flash-lite-latest") {
+                requestedModels.append("gemini-flash-lite-latest")
+                let response = HTTPURLResponse(url: request.url!, statusCode: 503, httpVersion: nil, headerFields: nil)!
+                return (response, Data("Unavailable".utf8))
+            } else {
+                requestedModels.append("secondary")
+                let responseJSON: [String: Any] = [
+                    "candidates": [
+                        [
+                            "content": [
+                                "parts": [
+                                    ["text": "{\"characterReply\": \"Hello from secondary!\", \"targetWordsUsed\": []}"]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+                let data = try JSONSerialization.data(withJSONObject: responseJSON)
+                let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!
+                return (response, data)
+            }
+        }
+        defer { MockURLProtocol.unregister(id: mockId) }
+
+        let provider = GeminiLLMProvider(apiKey: "fake-key", session: session)
+        let result: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: [LLMChatMessage(role: .user, content: "Hi")],
+            systemPrompt: "Server",
+            responseSchema: RoleplayTurnOutput.self
+        )
+
+        #expect(requestedModels.contains("gemini-flash-lite-latest"))
+        #expect(requestedModels.contains("secondary"))
+        #expect(result.characterReply == "Hello from secondary!")
+    }
+
+    @Test("GeminiLLMProvider gracefully falls back to offline provider when all models fail")
+    func testGeminiProviderOfflineFallback() async throws {
+        let (session, mockId) = MockURLProtocol.register { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
+            return (response, Data("Error".utf8))
+        }
+        defer { MockURLProtocol.unregister(id: mockId) }
+
+        let mockFallback = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(characterReply: "Fallback speech!", targetWordsUsed: []))
+        let provider = GeminiLLMProvider(apiKey: "fake-key", session: session, fallbackProvider: mockFallback)
+
+        let result: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: [LLMChatMessage(role: .user, content: "Hello")],
+            systemPrompt: "Server",
+            responseSchema: RoleplayTurnOutput.self
+        )
+
+        #expect(result.characterReply == "Fallback speech!")
     }
 
     @Test("GeminiLLMProvider throws apiError on non-200 HTTP status")

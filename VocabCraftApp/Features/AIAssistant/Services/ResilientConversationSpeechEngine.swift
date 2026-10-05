@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 import Observation
+import os
 import Speech
 import SpeechKit
 
@@ -59,6 +60,8 @@ private final class ConversationMeterState: @unchecked Sendable {
 @MainActor
 @Observable
 public final class ResilientConversationSpeechEngine: VoiceConversationEngineProtocol {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VocabCraftApp", category: "ResilientVoiceEngine")
+
     // MARK: - State Properties
     public private(set) var state: VoiceCallState = .idle
     public private(set) var isMuted: Bool = false
@@ -221,7 +224,8 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
         endRecognition()
         state = .speaking(characterText: text)
 
-        await ttsService.speakAsync(text: text)
+        let persona: VoicePersona = scenario.voicePersona
+        await ttsService.speakAsync(text: text, context: .conversation(persona: persona, locale: "en-US"), rate: 1.0)
 
         guard state != .ended else { return }
         if !isConcluded, case .speaking = state {
@@ -397,6 +401,7 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
                 self.onSessionAutoConcluded?(summary)
             }
         } catch {
+            Self.logger.error("Execute roleplay turn error: \(error.localizedDescription)")
             guard state == .thinking else { return }
             startListening()
         }

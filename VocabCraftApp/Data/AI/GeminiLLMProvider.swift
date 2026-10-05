@@ -25,15 +25,32 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
     public let providerIdentifier: String = "gemini-flash"
     private let apiKey: String
     private let session: URLSession
+    private let models: [String]
+    private let fallbackProvider: (any LLMProviderProtocol)?
 
-    /// Initializes a Gemini LLM provider with API key and optional URLSession.
+    public static let defaultModels: [String] = [
+        "gemini-flash-lite-latest",
+        "gemini-3.1-flash-lite",
+        "gemini-flash-latest"
+    ]
+
+    /// Initializes a Gemini LLM provider with API key, optional URLSession, candidate models, and fallback provider.
     ///
     /// - Parameters:
     ///   - apiKey: Google Gemini API key string.
     ///   - session: URLSession instance for networking (defaults to .shared).
-    public init(apiKey: String, session: URLSession = .shared) {
+    ///   - models: List of candidate model IDs in preference order.
+    ///   - fallbackProvider: Optional fallback LLM provider if Gemini API fails or is unreachable.
+    public init(
+        apiKey: String,
+        session: URLSession = .shared,
+        models: [String] = defaultModels,
+        fallbackProvider: (any LLMProviderProtocol)? = nil
+    ) {
         self.apiKey = apiKey
         self.session = session
+        self.models = models.isEmpty ? Self.defaultModels : models
+        self.fallbackProvider = fallbackProvider
     }
 
     public func sendStructuredMessage<T: Decodable & Sendable>(
@@ -43,13 +60,51 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
     ) async throws -> T {
         guard !apiKey.isEmpty else {
             Self.logger.error("Gemini API key is missing or empty")
+            if let fallback = fallbackProvider {
+                Self.logger.notice("Falling back to offline fallback provider due to missing API key")
+                return try await fallback.sendStructuredMessage(
+                    messages: messages,
+                    systemPrompt: systemPrompt,
+                    responseSchema: responseSchema
+                )
+            }
             throw GeminiError.missingApiKey
         }
 
+        var lastError: Error?
+        for modelName in models {
+            do {
+                let cleanedText = try await executeRequest(for: modelName, messages: messages, systemPrompt: systemPrompt)
+                let rawData = Data(cleanedText.utf8)
+                return try JSONDecoder().decode(T.self, from: rawData)
+            } catch {
+                lastError = error
+                Self.logger.warning("Gemini model \(modelName) failed: \(error.localizedDescription), trying next model if available")
+            }
+        }
+
+        if let fallback = fallbackProvider {
+            Self.logger.notice("All Gemini models failed, gracefully falling back to fallback provider")
+            return try await fallback.sendStructuredMessage(
+                messages: messages,
+                systemPrompt: systemPrompt,
+                responseSchema: responseSchema
+            )
+        }
+
+        if let lastError = lastError as? GeminiError {
+            throw lastError
+        } else if let lastError {
+            throw lastError
+        } else {
+            throw GeminiError.invalidResponse
+        }
+    }
+
+    private func executeRequest(for modelName: String, messages: [LLMChatMessage], systemPrompt: String) async throws -> String {
         guard let endpoint = URL(
-            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+            string: "https://generativelanguage.googleapis.com/v1beta/models/\(modelName):generateContent"
         ) else {
-            Self.logger.error("Failed to construct Gemini endpoint URL")
             throw GeminiError.invalidResponse
         }
 
@@ -57,7 +112,7 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
-        request.timeoutInterval = 15.0
+        request.timeoutInterval = 10.0
 
         let contents = messages.map { msg -> [String: Any] in
             let role = msg.role == .user ? "user" : "model"
@@ -68,9 +123,7 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         }
 
         let payload: [String: Any] = [
-            "systemInstruction": [
-                "parts": [["text": systemPrompt]]
-            ],
+            "systemInstruction": ["parts": [["text": systemPrompt]]],
             "contents": contents,
             "generationConfig": [
                 "responseMimeType": "application/json",
@@ -83,17 +136,16 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
-            Self.logger.error("Gemini response is not HTTPURLResponse")
+            Self.logger.error("Gemini response is not HTTPURLResponse for \(modelName)")
             throw GeminiError.invalidResponse
         }
 
         guard httpResponse.statusCode == 200 else {
             let errorText = String(data: data, encoding: .utf8) ?? "Unknown"
-            Self.logger.error("Gemini API error statusCode=\(httpResponse.statusCode) message=\(errorText)")
+            Self.logger.error("Gemini API error for \(modelName) statusCode=\(httpResponse.statusCode) message=\(errorText)")
             throw GeminiError.apiError(statusCode: httpResponse.statusCode, message: errorText)
         }
 
-        // Parse candidates[0].content.parts.text (finding the text part, handling potential thought parts)
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = json["candidates"] as? [[String: Any]],
               let firstCandidate = candidates.first,
@@ -101,22 +153,22 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
               let parts = content["parts"] as? [[String: Any]],
               let textPart = parts.first(where: { ($0["text"] as? String)?.isEmpty == false }),
               let rawText = textPart["text"] as? String else {
-            Self.logger.error("Failed to parse candidates text from Gemini JSON")
+            Self.logger.error("Failed to parse candidates text from Gemini JSON for \(modelName)")
             throw GeminiError.invalidResponse
         }
 
-        Self.logger.notice("Gemini LLM response received successfully")
-        let cleanedText: String
+        Self.logger.notice("Gemini LLM response received successfully using \(modelName)")
+        return Self.cleanJSONText(rawText)
+    }
+
+    private static func cleanJSONText(_ rawText: String) -> String {
         let trimmed = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.hasPrefix("```json") && trimmed.hasSuffix("```") {
-            cleanedText = String(trimmed.dropFirst(7).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
+            return String(trimmed.dropFirst(7).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
         } else if trimmed.hasPrefix("```") && trimmed.hasSuffix("```") {
-            cleanedText = String(trimmed.dropFirst(3).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
+            return String(trimmed.dropFirst(3).dropLast(3)).trimmingCharacters(in: .whitespacesAndNewlines)
         } else {
-            cleanedText = trimmed
+            return trimmed
         }
-
-        let rawData = Data(cleanedText.utf8)
-        return try JSONDecoder().decode(T.self, from: rawData)
     }
 }

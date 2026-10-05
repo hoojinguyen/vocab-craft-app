@@ -372,4 +372,96 @@ struct ResilientConversationSpeechEngineTests {
         #expect(autoConcludedSummary != nil)
         #expect(engine.state == .ended)
     }
+
+    @Test("Engine plays character speech using conversation context and friendly male persona for Alex")
+    @MainActor
+    func testCharacterSpeechUsesConversationContextWithMalePersona() async {
+        let scenario = makeTestScenario() // characterName: "Alex"
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let mockTTS = MockTextToSpeechService()
+        let mockLLM = MockLLMProvider()
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = ResilientConversationSpeechEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase,
+            audioSessionCoordinator: coordinator
+        )
+
+        await engine.startCall()
+
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyMale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
+
+    @Test("Engine plays character speech using conversation context and friendly female persona for Emma")
+    @MainActor
+    func testCharacterSpeechUsesConversationContextWithFemalePersona() async {
+        let scenario = RoleplayScenario(
+            id: "scenario_emma",
+            titleKey: "test_title",
+            descriptionKey: "test_desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Emma",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hello! Welcome to the cafe.",
+            targetWordIds: ["latte"],
+            iconSymbol: "cup.fill"
+        )
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let mockTTS = MockTextToSpeechService()
+        let mockLLM = MockLLMProvider()
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = ResilientConversationSpeechEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase,
+            audioSessionCoordinator: coordinator
+        )
+
+        await engine.startCall()
+
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyFemale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
+
+    @Test("Character reply during conversation turn uses conversation context and appropriate persona")
+    @MainActor
+    func testCharacterTurnReplyUsesConversationContext() async {
+        let scenario = makeTestScenario()
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let mockTTS = MockTextToSpeechService()
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Here is your hot espresso!",
+            targetWordsUsed: ["espresso"]
+        ))
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = ResilientConversationSpeechEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase,
+            audioSessionCoordinator: coordinator
+        )
+
+        engine.startListening()
+        await engine.processUserUtterance("Can I get an espresso?")
+
+        #expect(mockTTS.lastSpokenText == "Here is your hot espresso!")
+        #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyMale, locale: "en-US"))
+        #expect(mockTTS.lastSpokenRate == 1.0)
+    }
 }
