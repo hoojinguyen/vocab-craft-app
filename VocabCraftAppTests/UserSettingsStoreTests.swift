@@ -206,7 +206,7 @@ final class UserSettingsStoreTests: XCTestCase {
 
         store.groqApiKey = "   "
         XCTAssertFalse(store.isGroqApiKeyConfigured)
-        
+
         defaults.removePersistentDomain(forName: suite)
     }
 }

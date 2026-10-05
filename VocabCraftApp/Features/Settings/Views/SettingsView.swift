@@ -332,10 +332,10 @@ private struct SettingsAudioCard: View {
 public struct SettingsAICard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable public var store: UserSettingsStore
-    
+
     @State private var isGeminiSecure: Bool = true
     @State private var isGroqSecure: Bool = true
-    
+
     @FocusState private var isGeminiFieldFocused: Bool
     @FocusState private var isGroqFieldFocused: Bool
 
@@ -425,9 +425,9 @@ public struct SettingsAICard: View {
                         .foregroundStyle(theme.colors.textSecondary)
                 }
                 .padding(theme.spacing.md)
-                
+
                 CraftDivider()
-                
+
                 // Groq Key
                 CraftListRow(
                     title: AppStrings.Settings.aiGroqKeyTitle

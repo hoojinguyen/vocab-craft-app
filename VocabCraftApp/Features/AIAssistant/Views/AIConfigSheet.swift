@@ -11,7 +11,7 @@ public struct AIConfigSheet: View {
 
     @State private var geminiApiKey: String
     @State private var groqApiKey: String
-    
+
     @State private var isGeminiSecure: Bool = true
     @State private var isGroqSecure: Bool = true
 
@@ -46,7 +46,7 @@ public struct AIConfigSheet: View {
                                     size: .md
                                 )
                             }
-                            
+
                             if store.isGroqApiKeyConfigured {
                                 CraftBadge(
                                     AppStrings.Settings.aiGroqStatusActive,
@@ -125,7 +125,7 @@ public struct AIConfigSheet: View {
                                 .foregroundStyle(theme.colors.textSecondary)
                         }
                     }
-                    
+
                     // Groq Input Card
                     CraftCard(style: .outlined, cornerRadius: theme.radii.lg, padding: theme.spacing.md) {
                         VStack(alignment: .leading, spacing: theme.spacing.sm) {
