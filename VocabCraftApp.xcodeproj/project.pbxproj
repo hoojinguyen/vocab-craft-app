@@ -36,6 +36,7 @@
 		30008909ED5CAC456E19 /* WhisperKitSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008909ED5CAC456E19 /* WhisperKitSpeechEngine.swift */; };
 		300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */; };
 		3000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift */; };
+		30001D911957A27A74C8 /* SQLiteContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D911957A27A74C8 /* SQLiteContentRepository.swift */; };
 		3000060D5207497D6BC6 /* VocabularyCatalogDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000060D5207497D6BC6 /* VocabularyCatalogDTO.swift */; };
 		30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */; };
 		300077EE9358A77430BE /* DatabaseStoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200077EE9358A77430BE /* DatabaseStoreError.swift */; };
@@ -274,6 +275,7 @@
 		300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */; };
 		300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */; };
 		30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */; };
+		3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */; };
 		3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */; };
 		3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */; };
 		30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */; };
@@ -427,6 +429,7 @@
 		20008909ED5CAC456E19 /* WhisperKitSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSpeechEngine.swift"; sourceTree = "<group>"; };
 		200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
 		2000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSource.swift"; sourceTree = "<group>"; };
+		20001D911957A27A74C8 /* SQLiteContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepository.swift"; sourceTree = "<group>"; };
 		2000060D5207497D6BC6 /* VocabularyCatalogDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyCatalogDTO.swift"; sourceTree = "<group>"; };
 		20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocol.swift"; sourceTree = "<group>"; };
 		200077EE9358A77430BE /* DatabaseStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseStoreError.swift"; sourceTree = "<group>"; };
@@ -649,6 +652,7 @@
 		200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
 		20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseQuarantineTests.swift"; sourceTree = "<group>"; };
+		2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchemaMigrationTests.swift"; sourceTree = "<group>"; };
 		2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryConcurrencyTests.swift"; sourceTree = "<group>"; };
 		20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechKitAdapterTests.swift"; sourceTree = "<group>"; };
@@ -892,6 +896,7 @@
 			isa = PBXGroup;
 			children = (
 				2000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift */,
+				20001D911957A27A74C8 /* SQLiteContentRepository.swift */,
 				2000060D5207497D6BC6 /* VocabularyCatalogDTO.swift */,
 				20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */,
 			);
@@ -1576,10 +1581,19 @@
 		4000FCC4299866F2CEE2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				40005FB519F175A27AF1 /* Content */,
 				2000B135085E448B7AE0 /* Localizable.xcstrings */,
 				20006F0DCF97A12E9EBA /* vocabulary_catalog.json */,
 			);
 			path = "Resources";
+			sourceTree = "<group>";
+		};
+		40005FB519F175A27AF1 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+
+			);
+			path = "Content";
 			sourceTree = "<group>";
 		};
 		4000A799196F19CD5094 /* VocabCraftWidgetExtension */ = {
@@ -1700,6 +1714,7 @@
 			children = (
 				200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */,
 				20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */,
+				2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */,
 				2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */,
 				2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */,
 			);
@@ -2044,6 +2059,7 @@
 				30008909ED5CAC456E19 /* WhisperKitSpeechEngine.swift in Sources */,
 				300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */,
 				3000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift in Sources */,
+				30001D911957A27A74C8 /* SQLiteContentRepository.swift in Sources */,
 				3000060D5207497D6BC6 /* VocabularyCatalogDTO.swift in Sources */,
 				30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */,
 				300077EE9358A77430BE /* DatabaseStoreError.swift in Sources */,
@@ -2292,6 +2308,7 @@
 				300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */,
 				300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */,
 				30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */,
+				3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */,
 				3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */,
 				30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */,
