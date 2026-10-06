@@ -63,6 +63,7 @@
 		3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ACE33830E9547D1A /* MockLLMProvider.swift */; };
 		30001092B6F33D9A8CBA /* ResilientLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */; };
 		3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */; };
+		30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */; };
 		3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */; };
 		3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */; };
 		300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096397D4172E9A2C5 /* UserWordProgressData.swift */; };
@@ -81,6 +82,7 @@
 		3000E86829B6C5642795 /* RoleplayScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E86829B6C5642795 /* RoleplayScenario.swift */; };
 		3000DFAE9A323AE672C3 /* RoleplaySessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DFAE9A323AE672C3 /* RoleplaySessionSummary.swift */; };
 		3000E6D009C0F829C1FD /* RoleplayTurnOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E6D009C0F829C1FD /* RoleplayTurnOutput.swift */; };
+		3000530333F9785DC813 /* RoleplayVoiceProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000530333F9785DC813 /* RoleplayVoiceProfile.swift */; };
 		300036675EAE3D605018 /* SuggestedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200036675EAE3D605018 /* SuggestedWord.swift */; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		30002A121BF620A9A229 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A121BF620A9A229 /* Word.swift */; };
@@ -131,6 +133,7 @@
 		3000FE9C57F2070134B4 /* RoleplayModelDownloadCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FE9C57F2070134B4 /* RoleplayModelDownloadCard.swift */; };
 		30005E6E26232FB6A857 /* RoleplaySuggestedDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E6E26232FB6A857 /* RoleplaySuggestedDrawer.swift */; };
 		3000E9472D71885FB1C0 /* RoleplaySuggestedResponsesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E9472D71885FB1C0 /* RoleplaySuggestedResponsesView.swift */; };
+		3000A05D36D8B4247E38 /* RoleplayVoicePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A05D36D8B4247E38 /* RoleplayVoicePickerSheet.swift */; };
 		30007534CA14972E5C46 /* ScenarioListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007534CA14972E5C46 /* ScenarioListCard.swift */; };
 		30003AFA0AC948E19209 /* SentenceStarterChipsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003AFA0AC948E19209 /* SentenceStarterChipsBar.swift */; };
 		3000151CF1F6DB058CF7 /* RoleplayRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000151CF1F6DB058CF7 /* RoleplayRoomView.swift */; };
@@ -250,6 +253,7 @@
 		300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */; };
 		3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */; };
 		300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */; };
+		30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */; };
 		30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */; };
 		30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */; };
 		30004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */; };
@@ -450,6 +454,7 @@
 		2000ACE33830E9547D1A /* MockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockLLMProvider.swift"; sourceTree = "<group>"; };
 		20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientLLMProvider.swift"; sourceTree = "<group>"; };
 		2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenarioCatalog.swift"; sourceTree = "<group>"; };
+		20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalog.swift"; sourceTree = "<group>"; };
 		2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor+Mutations.swift"; sourceTree = "<group>"; };
 		2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor.swift"; sourceTree = "<group>"; };
 		200096397D4172E9A2C5 /* UserWordProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserWordProgressData.swift"; sourceTree = "<group>"; };
@@ -468,6 +473,7 @@
 		2000E86829B6C5642795 /* RoleplayScenario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenario.swift"; sourceTree = "<group>"; };
 		2000DFAE9A323AE672C3 /* RoleplaySessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySessionSummary.swift"; sourceTree = "<group>"; };
 		2000E6D009C0F829C1FD /* RoleplayTurnOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayTurnOutput.swift"; sourceTree = "<group>"; };
+		2000530333F9785DC813 /* RoleplayVoiceProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfile.swift"; sourceTree = "<group>"; };
 		200036675EAE3D605018 /* SuggestedWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWord.swift"; sourceTree = "<group>"; };
 		200001EA5C596D2E5E45 /* VaultWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordItem.swift"; sourceTree = "<group>"; };
 		20002A121BF620A9A229 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Word.swift"; sourceTree = "<group>"; };
@@ -518,6 +524,7 @@
 		2000FE9C57F2070134B4 /* RoleplayModelDownloadCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayModelDownloadCard.swift"; sourceTree = "<group>"; };
 		20005E6E26232FB6A857 /* RoleplaySuggestedDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawer.swift"; sourceTree = "<group>"; };
 		2000E9472D71885FB1C0 /* RoleplaySuggestedResponsesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedResponsesView.swift"; sourceTree = "<group>"; };
+		2000A05D36D8B4247E38 /* RoleplayVoicePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoicePickerSheet.swift"; sourceTree = "<group>"; };
 		20007534CA14972E5C46 /* ScenarioListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioListCard.swift"; sourceTree = "<group>"; };
 		20003AFA0AC948E19209 /* SentenceStarterChipsBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentenceStarterChipsBar.swift"; sourceTree = "<group>"; };
 		2000151CF1F6DB058CF7 /* RoleplayRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayRoomView.swift"; sourceTree = "<group>"; };
@@ -621,6 +628,7 @@
 		200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayViewModelsTests.swift"; sourceTree = "<group>"; };
 		200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceCallViewModelTests.swift"; sourceTree = "<group>"; };
+		20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalogTests.swift"; sourceTree = "<group>"; };
 		20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionServiceTests.swift"; sourceTree = "<group>"; };
 		20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
 		20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationStateTests.swift"; sourceTree = "<group>"; };
@@ -980,6 +988,7 @@
 				2000ACE33830E9547D1A /* MockLLMProvider.swift */,
 				20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */,
 				2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */,
+				20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */,
 			);
 			path = "AI";
 			sourceTree = "<group>";
@@ -1047,6 +1056,7 @@
 				2000E86829B6C5642795 /* RoleplayScenario.swift */,
 				2000DFAE9A323AE672C3 /* RoleplaySessionSummary.swift */,
 				2000E6D009C0F829C1FD /* RoleplayTurnOutput.swift */,
+				2000530333F9785DC813 /* RoleplayVoiceProfile.swift */,
 				200036675EAE3D605018 /* SuggestedWord.swift */,
 				200001EA5C596D2E5E45 /* VaultWordItem.swift */,
 				20002A121BF620A9A229 /* Word.swift */,
@@ -1189,6 +1199,7 @@
 				2000FE9C57F2070134B4 /* RoleplayModelDownloadCard.swift */,
 				20005E6E26232FB6A857 /* RoleplaySuggestedDrawer.swift */,
 				2000E9472D71885FB1C0 /* RoleplaySuggestedResponsesView.swift */,
+				2000A05D36D8B4247E38 /* RoleplayVoicePickerSheet.swift */,
 				20007534CA14972E5C46 /* ScenarioListCard.swift */,
 				20003AFA0AC948E19209 /* SentenceStarterChipsBar.swift */,
 			);
@@ -1637,6 +1648,7 @@
 				200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */,
 				2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */,
 				200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */,
+				20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */,
 				20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */,
 				20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */,
 				20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */,
@@ -2059,6 +2071,7 @@
 				3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */,
 				30001092B6F33D9A8CBA /* ResilientLLMProvider.swift in Sources */,
 				3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */,
+				30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */,
 				3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */,
@@ -2077,6 +2090,7 @@
 				3000E86829B6C5642795 /* RoleplayScenario.swift in Sources */,
 				3000DFAE9A323AE672C3 /* RoleplaySessionSummary.swift in Sources */,
 				3000E6D009C0F829C1FD /* RoleplayTurnOutput.swift in Sources */,
+				3000530333F9785DC813 /* RoleplayVoiceProfile.swift in Sources */,
 				300036675EAE3D605018 /* SuggestedWord.swift in Sources */,
 				300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */,
 				30002A121BF620A9A229 /* Word.swift in Sources */,
@@ -2127,6 +2141,7 @@
 				3000FE9C57F2070134B4 /* RoleplayModelDownloadCard.swift in Sources */,
 				30005E6E26232FB6A857 /* RoleplaySuggestedDrawer.swift in Sources */,
 				3000E9472D71885FB1C0 /* RoleplaySuggestedResponsesView.swift in Sources */,
+				3000A05D36D8B4247E38 /* RoleplayVoicePickerSheet.swift in Sources */,
 				30007534CA14972E5C46 /* ScenarioListCard.swift in Sources */,
 				30003AFA0AC948E19209 /* SentenceStarterChipsBar.swift in Sources */,
 				3000151CF1F6DB058CF7 /* RoleplayRoomView.swift in Sources */,
@@ -2256,6 +2271,7 @@
 				300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */,
 				3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */,
 				300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */,
+				30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */,
 				30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */,
 				30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */,
 				30004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift in Test Sources */,
