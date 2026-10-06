@@ -32,7 +32,9 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         text: String,
         rate: Float,
         locale: String,
-        persona: VoicePersona? = nil
+        persona: VoicePersona? = nil,
+        voiceIdentifier: String? = nil,
+        pitch: Float? = nil
     ) -> AVSpeechUtterance? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
@@ -44,8 +46,10 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         let scaledRate = baseRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
 
-        // Pitch multiplier tuned to voice persona
-        if let persona {
+        // Pitch multiplier tuned to voice persona or custom pitch
+        if let pitch {
+            utterance.pitchMultiplier = min(max(pitch, 0.5), 2.0)
+        } else if let persona {
             switch persona {
             case .friendlyFemale:
                 utterance.pitchMultiplier = 1.08
@@ -64,7 +68,24 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         utterance.preUtteranceDelay = 0.05
         utterance.postUtteranceDelay = 0.10
 
-        if let voice = AppleVoiceSelector.resolveBestVoice(for: locale, persona: persona) {
+        if let voiceIdentifier, !voiceIdentifier.isEmpty {
+            let voices = AVSpeechSynthesisVoice.speechVoices()
+            let matched = voices.first(where: {
+                $0.identifier.caseInsensitiveCompare(voiceIdentifier) == .orderedSame
+            }) ?? voices.first(where: {
+                $0.name.caseInsensitiveCompare(voiceIdentifier) == .orderedSame &&
+                ($0.language == locale || $0.language.hasPrefix(locale))
+            }) ?? voices.first(where: {
+                $0.name.caseInsensitiveCompare(voiceIdentifier) == .orderedSame
+            }) ?? voices.first(where: {
+                $0.identifier.localizedCaseInsensitiveContains(voiceIdentifier)
+            })
+            if let matched {
+                utterance.voice = matched
+            } else if let voice = AppleVoiceSelector.resolveBestVoice(for: locale, persona: persona) {
+                utterance.voice = voice
+            }
+        } else if let voice = AppleVoiceSelector.resolveBestVoice(for: locale, persona: persona) {
             utterance.voice = voice
         }
 
@@ -76,9 +97,18 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         rate: Float = 1.0,
         locale: String = "en-US",
         persona: VoicePersona? = nil,
+        voiceIdentifier: String? = nil,
+        pitch: Float? = nil,
         onFinished: (@Sendable () -> Void)? = nil
     ) {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale, persona: persona) else {
+        guard let utterance = makeUtterance(
+            text: text,
+            rate: rate,
+            locale: locale,
+            persona: persona,
+            voiceIdentifier: voiceIdentifier,
+            pitch: pitch
+        ) else {
             onFinished?()
             return
         }
@@ -97,9 +127,18 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         text: String,
         rate: Float = 1.0,
         locale: String = "en-US",
-        persona: VoicePersona? = nil
+        persona: VoicePersona? = nil,
+        voiceIdentifier: String? = nil,
+        pitch: Float? = nil
     ) async {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale, persona: persona) else {
+        guard let utterance = makeUtterance(
+            text: text,
+            rate: rate,
+            locale: locale,
+            persona: persona,
+            voiceIdentifier: voiceIdentifier,
+            pitch: pitch
+        ) else {
             isSpeaking = false
             currentUtterance = nil
             return

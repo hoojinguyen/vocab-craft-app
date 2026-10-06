@@ -206,4 +206,107 @@ struct SmartVoiceRouterTests {
         #expect(service.lastActiveEngine == .apple)
         #expect(mockGemini.synthesizeCallCount == 0)
     }
+
+    @Test("TextToSpeechService routes conversation to selected Apple Enhanced profile voice")
+    @MainActor
+    func testRoutingWithSelectedAppleProfile() async {
+        let defaults = UserDefaults(suiteName: "test_tts_profile_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        store.roleplayVoiceId = "apple-daniel"
+        store.roleplaySpeechRate = 1.10
+        store.roleplaySpeechPitch = 0.90
+
+        let coordinator = AudioSessionCoordinator()
+        let appleEngine = AppleEnhancedTTSEngine()
+        let tts = TextToSpeechService(
+            settingsStore: store,
+            audioSessionCoordinator: coordinator,
+            appleEngine: appleEngine
+        )
+
+        await tts.speakAsync(text: "Good day, let's practice.", context: .conversation(persona: .friendlyMale, locale: "en-GB"))
+        #expect(tts.lastActiveEngine == .apple)
+    }
+
+    @Test("TextToSpeechService previewVoice executes cleanly for Apple Enhanced profile")
+    @MainActor
+    func testPreviewVoiceAppleProfile() async {
+        let coordinator = AudioSessionCoordinator()
+        let appleEngine = AppleEnhancedTTSEngine()
+        let tts = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            appleEngine: appleEngine
+        )
+
+        let profile = RoleplayVoiceProfileCatalog.profile(for: "apple-ava")!
+        await tts.previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+        #expect(tts.lastActiveEngine == .apple)
+    }
+
+    @Test("TextToSpeechService routes conversation to selected Gemini Neural profile when API key present")
+    @MainActor
+    func testRoutingWithSelectedGeminiProfile() async {
+        let defaults = UserDefaults(suiteName: "test_tts_profile_gemini_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        store.roleplayVoiceId = "gemini-aoede"
+
+        let coordinator = AudioSessionCoordinator()
+        let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
+        let tts = TextToSpeechService(
+            settingsStore: store,
+            audioSessionCoordinator: coordinator,
+            geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
+            apiKeyProvider: { "valid-key" }
+        )
+
+        await tts.speakAsync(text: "Hello from Aoede", context: .conversation(persona: .friendlyMale))
+        #expect(tts.lastActiveEngine == .gemini)
+        #expect(mockGemini.synthesizeCallCount == 1)
+        #expect(mockGemini.lastPersona == .friendlyFemale)
+    }
+
+    @Test("TextToSpeechService previewVoice routes to Gemini Neural when API key present")
+    @MainActor
+    func testPreviewVoiceGeminiProfile() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockGemini = MockGeminiAudioEngine()
+        let tts = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            geminiEngine: mockGemini,
+            apiKeyProvider: { "valid-key" }
+        )
+
+        let profile = RoleplayVoiceProfileCatalog.profile(for: "gemini-puck")!
+        await tts.previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+        #expect(tts.lastActiveEngine == .gemini)
+        #expect(mockGemini.synthesizeCallCount == 1)
+        #expect(mockGemini.lastPersona == .friendlyMale)
+    }
+
+    @Test("TextToSpeechService conversation routing with systemAuto uses default behavior")
+    @MainActor
+    func testRoutingWithSystemAutoProfile() async {
+        let defaults = UserDefaults(suiteName: "test_tts_profile_auto_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        store.roleplayVoiceId = "systemAuto"
+
+        let coordinator = AudioSessionCoordinator()
+        let mockGemini = MockGeminiAudioEngine()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
+        let tts = TextToSpeechService(
+            settingsStore: store,
+            audioSessionCoordinator: coordinator,
+            geminiEngine: mockGemini,
+            kokoroEngine: mockKokoro,
+            apiKeyProvider: { "valid-key" }
+        )
+
+        await tts.speakAsync(text: "Hello Auto", context: .conversation(persona: .friendlyMale))
+        #expect(tts.lastActiveEngine == .gemini)
+        #expect(mockGemini.lastPersona == .friendlyMale)
+    }
 }

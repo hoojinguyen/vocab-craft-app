@@ -57,10 +57,28 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
     private(set) var playbackStartTask: Task<Void, Never>?
     private(set) var playbackReleaseTask: Task<Void, Never>?
     private(set) var currentUtterance: AVSpeechUtterance?
-    private var requestGeneration: UInt = 0
+    fileprivate var requestGeneration: UInt = 0
 
     public override convenience init() {
         self.init(audioSessionCoordinator: AudioSessionCoordinator())
+    }
+
+    public convenience init(
+        settingsStore: UserSettingsStore?,
+        audioSessionCoordinator: any AudioSessionCoordinating = AudioSessionCoordinator(),
+        appleEngine: AppleEnhancedTTSEngine = AppleEnhancedTTSEngine(),
+        geminiEngine: any GeminiAudioSynthesizing = GeminiAudioSpeechEngine(),
+        kokoroEngine: any KokoroAudioSynthesizing = KokoroTTSEngine(),
+        apiKeyProvider: (@MainActor @Sendable () -> String?)? = nil
+    ) {
+        self.init(
+            audioSessionCoordinator: audioSessionCoordinator,
+            appleEngine: appleEngine,
+            geminiEngine: geminiEngine,
+            kokoroEngine: kokoroEngine,
+            settingsStore: settingsStore,
+            apiKeyProvider: apiKeyProvider
+        )
     }
 
     public init(
@@ -91,7 +109,7 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         _ = Self.resolveVoice(for: "en-US")
     }
 
-    private var resolvedApiKey: String? {
+    fileprivate var resolvedApiKey: String? {
         if let providerKey = apiKeyProvider?()?.trimmingCharacters(in: .whitespacesAndNewlines), !providerKey.isEmpty {
             return providerKey
         }
@@ -137,7 +155,7 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
     }
 
     @discardableResult
-    private func acquirePlaybackLease(generation: UInt) async -> Bool {
+    fileprivate func acquirePlaybackLease(generation: UInt) async -> Bool {
         let lease: AudioSessionLease
         do {
             lease = try await audioSessionCoordinator.acquire(.playback)
@@ -171,7 +189,7 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         return task
     }
 
-    private func releaseActiveLeaseAsync() async {
+    fileprivate func releaseActiveLeaseAsync() async {
         guard let lease = activeLease else { return }
         activeLease = nil
         let coordinator = audioSessionCoordinator
@@ -182,8 +200,48 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         await task.value
     }
 
-    public func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
-        appleEngine.makeUtterance(text: text, rate: rate, locale: locale)
+    public func makeUtterance(
+        text: String,
+        rate: Float,
+        locale: String,
+        persona: VoicePersona? = nil,
+        voiceIdentifier: String? = nil,
+        pitch: Float? = nil
+    ) -> AVSpeechUtterance? {
+        appleEngine.makeUtterance(
+            text: text,
+            rate: rate,
+            locale: locale,
+            persona: persona,
+            voiceIdentifier: voiceIdentifier,
+            pitch: pitch
+        )
+    }
+
+    public func previewVoice(profile: RoleplayVoiceProfile, rate: Double = 1.0, pitch: Double = 1.0) async {
+        stop()
+        isSpeaking = true
+        defer { isSpeaking = false }
+        switch profile.engine {
+        case .geminiNeural:
+            if let persona = profile.geminiPersona, let apiKey = resolvedApiKey {
+                lastActiveEngine = .gemini
+                try? await geminiEngine.synthesizeAndPlay(text: profile.sampleText, persona: persona, apiKey: apiKey)
+                return
+            }
+            fallthrough
+        case .appleEnhanced:
+            lastActiveEngine = .apple
+            let voiceId = profile.appleVoiceIdentifier
+            await appleEngine.speakAsync(
+                text: profile.sampleText,
+                rate: Float(rate),
+                locale: profile.locale,
+                persona: profile.geminiPersona,
+                voiceIdentifier: voiceId,
+                pitch: Float(pitch)
+            )
+        }
     }
 
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
@@ -233,6 +291,31 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         await task.value
     }
 
+    public static func calculateSafetyTimeoutNanoseconds(for text: String) -> UInt64 {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let wordsCount = trimmed.split(whereSeparator: { $0.isWhitespace || $0.isPunctuation }).count
+        let timeoutSeconds = max(25.0, Double(wordsCount) * 0.9 + 10.0)
+        return UInt64(timeoutSeconds * 1_000_000_000)
+    }
+
+    public func stop() {
+        playbackStartTask?.cancel()
+        playbackStartTask = nil
+        requestGeneration += 1
+
+        kokoroEngine.stop()
+        geminiEngine.stop()
+        appleEngine.stop()
+
+        isSpeaking = false
+        currentUtterance = nil
+        releaseActiveLease()
+    }
+}
+
+// MARK: - Playback Execution
+
+extension TextToSpeechService {
     func performPlaybackAsync(text: String, context: SpeechContext, rate: Float, generation: UInt) async {
         let acquired = await acquirePlaybackLease(generation: generation)
         guard acquired, !Task.isCancelled, self.requestGeneration == generation else {
@@ -254,48 +337,7 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
 
         switch context {
         case .conversation(let persona, let locale):
-            if kokoroEngine.isReady {
-                lastActiveEngine = .kokoro
-                do {
-                    try await kokoroEngine.synthesizeAndPlay(text: text, persona: persona)
-                } catch {
-                    guard self.requestGeneration == generation, !Task.isCancelled else {
-                        if self.requestGeneration == generation {
-                            self.isSpeaking = false
-                            self.currentUtterance = nil
-                        }
-                        await releaseActiveLeaseAsync()
-                        return
-                    }
-                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
-                    lastActiveEngine = .apple
-                    currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
-                }
-            } else if let apiKey = resolvedApiKey {
-                lastActiveEngine = .gemini
-                do {
-                    try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
-                } catch {
-                    guard self.requestGeneration == generation, !Task.isCancelled else {
-                        if self.requestGeneration == generation {
-                            self.isSpeaking = false
-                            self.currentUtterance = nil
-                        }
-                        await releaseActiveLeaseAsync()
-                        return
-                    }
-                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
-                    lastActiveEngine = .apple
-                    currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
-                }
-            } else {
-                lastActiveEngine = .apple
-                currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
-            }
-
+            await playConversation(text: text, persona: persona, locale: locale, rate: rate, generation: generation)
         case .pronunciation(let locale):
             lastActiveEngine = .apple
             currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
@@ -309,44 +351,180 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         await releaseActiveLeaseAsync()
     }
 
+    private func playConversation(
+        text: String,
+        persona: VoicePersona,
+        locale: String,
+        rate: Float,
+        generation: UInt
+    ) async {
+        if await playProfileIfConfigured(text: text, persona: persona, rate: rate, generation: generation) {
+            return
+        }
+
+        if kokoroEngine.isReady {
+            await playWithKokoro(text: text, persona: persona, locale: locale, rate: rate, generation: generation)
+        } else if let apiKey = resolvedApiKey {
+            await playWithGemini(
+                text: text,
+                persona: persona,
+                fallbackLocale: locale,
+                apiKey: apiKey,
+                generation: generation
+            )
+        } else {
+            lastActiveEngine = .apple
+            currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
+            await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
+        }
+    }
+
+    private func playProfileIfConfigured(
+        text: String,
+        persona: VoicePersona,
+        rate: Float,
+        generation: UInt
+    ) async -> Bool {
+        guard let configuredVoiceId = settingsStore?.roleplayVoiceId, configuredVoiceId != "systemAuto",
+              let profile = RoleplayVoiceProfileCatalog.profile(for: configuredVoiceId) else {
+            return false
+        }
+
+        switch profile.engine {
+        case .geminiNeural:
+            if let apiKey = resolvedApiKey {
+                lastActiveEngine = .gemini
+                let targetPersona = profile.geminiPersona ?? persona
+                do {
+                    try await geminiEngine.synthesizeAndPlay(text: text, persona: targetPersona, apiKey: apiKey)
+                    if self.requestGeneration == generation {
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                    }
+                    await releaseActiveLeaseAsync()
+                    return true
+                } catch {
+                    guard self.requestGeneration == generation, !Task.isCancelled else {
+                        if self.requestGeneration == generation {
+                            self.isSpeaking = false
+                            self.currentUtterance = nil
+                        }
+                        await releaseActiveLeaseAsync()
+                        return true
+                    }
+                    LessonPerformanceDiagnostics.event("TTSGeminiFallbackToApple", detail: error.localizedDescription)
+                }
+            }
+            await playAppleEnhancedProfile(
+                text: text,
+                profile: profile,
+                defaultPersona: persona,
+                baseRate: rate,
+                generation: generation
+            )
+            return true
+        case .appleEnhanced:
+            await playAppleEnhancedProfile(
+                text: text,
+                profile: profile,
+                defaultPersona: persona,
+                baseRate: rate,
+                generation: generation
+            )
+            return true
+        }
+    }
+
+    private func playWithKokoro(
+        text: String,
+        persona: VoicePersona,
+        locale: String,
+        rate: Float,
+        generation: UInt
+    ) async {
+        lastActiveEngine = .kokoro
+        do {
+            try await kokoroEngine.synthesizeAndPlay(text: text, persona: persona)
+        } catch {
+            guard self.requestGeneration == generation, !Task.isCancelled else {
+                if self.requestGeneration == generation {
+                    self.isSpeaking = false
+                    self.currentUtterance = nil
+                }
+                await releaseActiveLeaseAsync()
+                return
+            }
+            LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+            lastActiveEngine = .apple
+            currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
+            await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
+        }
+    }
+
+    private func playWithGemini(
+        text: String,
+        persona: VoicePersona,
+        fallbackLocale: String,
+        apiKey: String,
+        generation: UInt
+    ) async {
+        lastActiveEngine = .gemini
+        do {
+            try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+        } catch {
+            guard self.requestGeneration == generation, !Task.isCancelled else {
+                if self.requestGeneration == generation {
+                    self.isSpeaking = false
+                    self.currentUtterance = nil
+                }
+                await releaseActiveLeaseAsync()
+                return
+            }
+            LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+            lastActiveEngine = .apple
+            currentUtterance = makeUtterance(text: text, rate: 1.0, locale: fallbackLocale)
+            await appleEngine.speakAsync(text: text, rate: 1.0, locale: fallbackLocale, persona: persona)
+        }
+    }
+
+    private func playAppleEnhancedProfile(
+        text: String,
+        profile: RoleplayVoiceProfile,
+        defaultPersona: VoicePersona,
+        baseRate: Float,
+        generation: UInt
+    ) async {
+        lastActiveEngine = .apple
+        let userRate = Float(baseRate * Float(settingsStore?.roleplaySpeechRate ?? 1.0))
+        let userPitch = Float(settingsStore?.roleplaySpeechPitch ?? 1.0)
+        let effectivePersona = profile.geminiPersona ?? defaultPersona
+        currentUtterance = makeUtterance(
+            text: text,
+            rate: userRate,
+            locale: profile.locale,
+            persona: effectivePersona,
+            voiceIdentifier: profile.appleVoiceIdentifier,
+            pitch: userPitch
+        )
+        await appleEngine.speakAsync(
+            text: text,
+            rate: userRate,
+            locale: profile.locale,
+            persona: effectivePersona,
+            voiceIdentifier: profile.appleVoiceIdentifier,
+            pitch: userPitch
+        )
+        if self.requestGeneration == generation {
+            self.isSpeaking = false
+            self.currentUtterance = nil
+        }
+        await releaseActiveLeaseAsync()
+    }
+
     private func performTestingPlaybackAsync(text: String, context: SpeechContext, generation: UInt) async {
         switch context {
         case .conversation(let persona, _):
-            if kokoroEngine.isReady {
-                lastActiveEngine = .kokoro
-                do {
-                    try await kokoroEngine.synthesizeAndPlay(text: text, persona: persona)
-                } catch {
-                    guard self.requestGeneration == generation, !Task.isCancelled else {
-                        if self.requestGeneration == generation {
-                            self.isSpeaking = false
-                            self.currentUtterance = nil
-                        }
-                        await releaseActiveLeaseAsync()
-                        return
-                    }
-                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
-                    lastActiveEngine = .apple
-                }
-            } else if let apiKey = resolvedApiKey {
-                lastActiveEngine = .gemini
-                do {
-                    try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
-                } catch {
-                    guard self.requestGeneration == generation, !Task.isCancelled else {
-                        if self.requestGeneration == generation {
-                            self.isSpeaking = false
-                            self.currentUtterance = nil
-                        }
-                        await releaseActiveLeaseAsync()
-                        return
-                    }
-                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
-                    lastActiveEngine = .apple
-                }
-            } else {
-                lastActiveEngine = .apple
-            }
+            await performTestingConversationPlayback(text: text, persona: persona, generation: generation)
         case .pronunciation:
             lastActiveEngine = .apple
         }
@@ -358,25 +536,87 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
         }
     }
 
-    /// Calculates a safety timeout in nanoseconds scaled to speech text length, guaranteeing minimum 25s window.
-    public static func calculateSafetyTimeoutNanoseconds(for text: String) -> UInt64 {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let wordsCount = trimmed.split(whereSeparator: { $0.isWhitespace || $0.isPunctuation }).count
-        let timeoutSeconds = max(25.0, Double(wordsCount) * 0.9 + 10.0)
-        return UInt64(timeoutSeconds * 1_000_000_000)
+    private func performTestingConversationPlayback(
+        text: String,
+        persona: VoicePersona,
+        generation: UInt
+    ) async {
+        if await performTestingProfilePlayback(text: text, persona: persona, generation: generation) {
+            return
+        }
+
+        if kokoroEngine.isReady {
+            lastActiveEngine = .kokoro
+            do {
+                try await kokoroEngine.synthesizeAndPlay(text: text, persona: persona)
+            } catch {
+                guard self.requestGeneration == generation, !Task.isCancelled else {
+                    if self.requestGeneration == generation {
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                    }
+                    await releaseActiveLeaseAsync()
+                    return
+                }
+                LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+                lastActiveEngine = .apple
+            }
+        } else if let apiKey = resolvedApiKey {
+            lastActiveEngine = .gemini
+            do {
+                try await geminiEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+            } catch {
+                guard self.requestGeneration == generation, !Task.isCancelled else {
+                    if self.requestGeneration == generation {
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                    }
+                    await releaseActiveLeaseAsync()
+                    return
+                }
+                LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+                lastActiveEngine = .apple
+            }
+        } else {
+            lastActiveEngine = .apple
+        }
     }
 
-    public func stop() {
-        playbackStartTask?.cancel()
-        playbackStartTask = nil
-        requestGeneration += 1
+    private func performTestingProfilePlayback(
+        text: String,
+        persona: VoicePersona,
+        generation: UInt
+    ) async -> Bool {
+        guard let configuredVoiceId = settingsStore?.roleplayVoiceId, configuredVoiceId != "systemAuto",
+              let profile = RoleplayVoiceProfileCatalog.profile(for: configuredVoiceId) else {
+            return false
+        }
 
-        kokoroEngine.stop()
-        geminiEngine.stop()
-        appleEngine.stop()
-
-        isSpeaking = false
-        currentUtterance = nil
-        releaseActiveLease()
+        switch profile.engine {
+        case .geminiNeural:
+            if let apiKey = resolvedApiKey {
+                lastActiveEngine = .gemini
+                let targetPersona = profile.geminiPersona ?? persona
+                do {
+                    try await geminiEngine.synthesizeAndPlay(text: text, persona: targetPersona, apiKey: apiKey)
+                } catch {
+                    guard self.requestGeneration == generation, !Task.isCancelled else {
+                        if self.requestGeneration == generation {
+                            self.isSpeaking = false
+                            self.currentUtterance = nil
+                        }
+                        await releaseActiveLeaseAsync()
+                        return true
+                    }
+                    LessonPerformanceDiagnostics.event("TTSGeminiFallbackToApple", detail: error.localizedDescription)
+                    lastActiveEngine = .apple
+                }
+            } else {
+                lastActiveEngine = .apple
+            }
+        case .appleEnhanced:
+            lastActiveEngine = .apple
+        }
+        return true
     }
 }

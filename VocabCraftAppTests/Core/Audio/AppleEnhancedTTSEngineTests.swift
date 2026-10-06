@@ -76,6 +76,68 @@ struct AppleEnhancedTTSEngineTests {
         }
     }
 
+    @Test("Verify makeUtterance applies custom pitch and bounds clamps")
+    @MainActor
+    func test_makeUtterance_customPitch() {
+        let engine = AppleEnhancedTTSEngine()
+        let utterance = engine.makeUtterance(text: "Pitch test", rate: 1.0, locale: "en-US", pitch: 0.90)
+
+        #expect(utterance != nil)
+        if let utterance {
+            #expect(abs(utterance.pitchMultiplier - 0.90) < 0.001)
+        }
+
+        let clampedLow = engine.makeUtterance(text: "Low pitch", rate: 1.0, locale: "en-US", pitch: 0.1)
+        #expect(clampedLow?.pitchMultiplier == 0.5)
+
+        let clampedHigh = engine.makeUtterance(text: "High pitch", rate: 1.0, locale: "en-US", pitch: 3.0)
+        #expect(clampedHigh?.pitchMultiplier == 2.0)
+    }
+
+    @Test("Verify makeUtterance selects voice matching voiceIdentifier when available")
+    @MainActor
+    func test_makeUtterance_customVoiceIdentifier() {
+        let engine = AppleEnhancedTTSEngine()
+        if let availableVoice = AVSpeechSynthesisVoice.speechVoices().first(where: {
+            !AppleVoiceSelector.isBlacklisted(voiceName: $0.name)
+        }) {
+            let utterance = engine.makeUtterance(
+                text: "Voice identifier test",
+                rate: 1.0,
+                locale: availableVoice.language,
+                voiceIdentifier: availableVoice.name
+            )
+
+            #expect(utterance != nil)
+            #expect(utterance?.voice?.name.lowercased() == availableVoice.name.lowercased())
+        }
+
+        // Test fallback when voiceIdentifier does not exist
+        let fallbackUtterance = engine.makeUtterance(
+            text: "Fallback test",
+            rate: 1.0,
+            locale: "en-US",
+            voiceIdentifier: "non-existent-voice-xyz"
+        )
+        #expect(fallbackUtterance != nil)
+        #expect(fallbackUtterance?.voice != nil)
+    }
+
+    @Test("Verify speakAsync supports custom voiceIdentifier and pitch")
+    @MainActor
+    func test_speakAsync_withCustomVoiceAndPitch() async {
+        let engine = AppleEnhancedTTSEngine()
+        await engine.speakAsync(
+            text: "Async with voice and pitch",
+            rate: 1.1,
+            locale: "en-US",
+            voiceIdentifier: "daniel",
+            pitch: 0.9
+        )
+        #expect(!engine.isSpeaking)
+        #expect(engine.currentUtterance == nil)
+    }
+
     @Test("Verify speak and stop lifecycle in test environment")
     @MainActor
     func test_speakAndStop_lifecycle() {
