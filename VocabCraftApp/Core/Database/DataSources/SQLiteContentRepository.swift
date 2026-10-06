@@ -109,12 +109,15 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     // MARK: - VocabularyDataSourceProtocol
 
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
-        let sql = "SELECT id, title_en, icon_key, theme_key, sort_order FROM decks ORDER BY sort_order;"
+        let sql = "SELECT id, title_en, icon_key, theme_key, sort_order, ios_sf_symbol FROM decks ORDER BY sort_order;"
         return try query(sql) { [self] stmt in
-            TopicDeckDTO(
+            let iconKey = columnString(stmt, 2)
+            let sfSymbol = columnString(stmt, 5)
+            let finalIconName = sfSymbol.isEmpty ? mapIconKeyToSFSymbol(iconKey) : sfSymbol
+            return TopicDeckDTO(
                 id: columnString(stmt, 0),
                 title: columnString(stmt, 1),
-                iconName: mapIconKeyToSFSymbol(columnString(stmt, 2)),
+                iconName: finalIconName,
                 badgeColorHex: mapThemeKeyToHex(columnString(stmt, 3)),
                 cefrLevel: "A1",
                 sortOrder: columnInt(stmt, 4)
@@ -123,16 +126,19 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     }
 
     public func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] {
-        let sql = "SELECT id, deck_id, title_en, icon_key, sort_order FROM lessons WHERE deck_id = ? ORDER BY sort_order;"
+        let sql = "SELECT id, deck_id, title_en, icon_key, sort_order, ios_sf_symbol FROM lessons WHERE deck_id = ? ORDER BY sort_order;"
         let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         return try query(sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, deckId, -1, sqliteTransient)
         }) { [self] stmt in
-            SubTopicStageDTO(
+            let iconKey = columnString(stmt, 3)
+            let sfSymbol = columnString(stmt, 5)
+            let finalIconName = sfSymbol.isEmpty ? mapIconKeyToSFSymbol(iconKey) : sfSymbol
+            return SubTopicStageDTO(
                 id: columnString(stmt, 0),
                 deckId: columnString(stmt, 1),
                 title: columnString(stmt, 2),
-                iconName: mapIconKeyToSFSymbol(columnString(stmt, 3)),
+                iconName: finalIconName,
                 sortOrder: columnInt(stmt, 4)
             )
         }

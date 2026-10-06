@@ -340,7 +340,7 @@ public final class AppContainer {
                 appropriateFor: nil,
                 create: true
             )
-            let dir = appSupport.appendingPathComponent("VocabCraft/Content/v4", isDirectory: true)
+            let dir = appSupport.appendingPathComponent("VocabCraft/Content/v5", isDirectory: true)
             try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
             let dest = dir.appendingPathComponent("vocab_content.sqlite")
 
