@@ -5,7 +5,7 @@
       "id": "deck_daily",
       "title": "Giao Tiếp Hằng Ngày",
       "iconName": "bubble.left.and.bubble.right.fill",
-      "badgeColorHex": "#38B2AC",
+      "themeKey": "ocean_blue",
       "cefrLevel": "A2 - B1",
       "sortOrder": 1,
       "stages": [
@@ -189,7 +189,7 @@
       "id": "deck_business",
       "title": "Công Sở & Kinh Doanh",
       "iconName": "briefcase.fill",
-      "badgeColorHex": "#ED8936",
+      "themeKey": "sunset_amber",
       "cefrLevel": "B1 - B2",
       "sortOrder": 2,
       "stages": [
@@ -361,7 +361,7 @@
       "id": "deck_tech",
       "title": "Công Nghệ & AI",
       "iconName": "cpu.fill",
-      "badgeColorHex": "#4299E1",
+      "themeKey": "royal_purple",
       "cefrLevel": "B2 - C1",
       "sortOrder": 3,
       "stages": [
@@ -533,7 +533,7 @@
       "id": "deck_academic",
       "title": "Học Thuật & IELTS",
       "iconName": "graduationcap.fill",
-      "badgeColorHex": "#9F7AEA",
+      "themeKey": "forest_green",
       "cefrLevel": "B2 - C1",
       "sortOrder": 4,
       "stages": [

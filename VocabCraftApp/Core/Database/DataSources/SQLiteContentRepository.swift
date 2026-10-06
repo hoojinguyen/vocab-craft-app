@@ -82,43 +82,19 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         )
     }
 
-    // MARK: - Mappers
-
-    private func mapIconKeyToSFSymbol(_ key: String) -> String {
-        switch key {
-        case "graduation_cap": return "graduationcap.fill"
-        case "book_open": return "book.fill"
-        case "bookmark": return "bookmark.fill"
-        case "sparkles": return "sparkles"
-        case "compass": return "safari.fill"
-        default: return "star.fill"
-        }
-    }
-
-    private func mapThemeKeyToHex(_ key: String) -> String {
-        switch key {
-        case "forest_green": return "#34C759"
-        case "sunset_amber": return "#FF9500"
-        case "ocean_blue": return "#007AFF"
-        case "slate_gray": return "#8E8E93"
-        case "royal_purple": return "#AF52DE"
-        default: return "#007AFF"
-        }
-    }
-
     // MARK: - VocabularyDataSourceProtocol
 
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
         let sql = "SELECT id, title_en, icon_key, theme_key, sort_order, ios_sf_symbol FROM decks ORDER BY sort_order;"
         return try query(sql) { [self] stmt in
-            let iconKey = columnString(stmt, 2)
             let sfSymbol = columnString(stmt, 5)
-            let finalIconName = sfSymbol.isEmpty ? mapIconKeyToSFSymbol(iconKey) : sfSymbol
+            // Fallback to star.fill if missing, though schema expects it
+            let finalIconName = sfSymbol.isEmpty ? "star.fill" : sfSymbol
             return TopicDeckDTO(
                 id: columnString(stmt, 0),
                 title: columnString(stmt, 1),
                 iconName: finalIconName,
-                badgeColorHex: mapThemeKeyToHex(columnString(stmt, 3)),
+                themeKey: columnString(stmt, 3),
                 cefrLevel: "A1",
                 sortOrder: columnInt(stmt, 4)
             )
@@ -131,9 +107,8 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         return try query(sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, deckId, -1, sqliteTransient)
         }) { [self] stmt in
-            let iconKey = columnString(stmt, 3)
             let sfSymbol = columnString(stmt, 5)
-            let finalIconName = sfSymbol.isEmpty ? mapIconKeyToSFSymbol(iconKey) : sfSymbol
+            let finalIconName = sfSymbol.isEmpty ? "star.fill" : sfSymbol
             return SubTopicStageDTO(
                 id: columnString(stmt, 0),
                 deckId: columnString(stmt, 1),

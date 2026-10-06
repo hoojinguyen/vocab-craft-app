@@ -69,7 +69,7 @@ public struct MockVocabularyDataSource: VocabularyDataSourceProtocol, Sendable {
             id: "deck_daily",
             title: "Giao Tiếp Hằng Ngày",
             iconName: "bubble.left.and.bubble.right.fill",
-            badgeColorHex: "#38B2AC",
+            themeKey: "ocean_blue",
             cefrLevel: "A2 - B1",
             sortOrder: 1
         ),
@@ -77,7 +77,7 @@ public struct MockVocabularyDataSource: VocabularyDataSourceProtocol, Sendable {
             id: "deck_business",
             title: "Công Sở & Kinh Doanh",
             iconName: "briefcase.fill",
-            badgeColorHex: "#ED8936",
+            themeKey: "sunset_amber",
             cefrLevel: "B1 - B2",
             sortOrder: 2
         )
