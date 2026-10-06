@@ -7260,6 +7260,23 @@
         }
       }
     },
+    "app.settings.voice.quality_kokoro": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-Device Neural"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cục bộ - Tự nhiên"
+          }
+        }
+      }
+    },
     "app.settings.voice.section_title": {
       "extractionState": "manual",
       "localizations": {

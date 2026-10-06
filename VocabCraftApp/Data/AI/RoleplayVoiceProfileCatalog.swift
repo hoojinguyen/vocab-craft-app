@@ -15,7 +15,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         defaultProfile,
         RoleplayVoiceProfile(
             id: "apple-ava",
-            displayNameKey: "Ava (US Female)",
+            displayNameKey: "Ava",
             gender: .female,
             locale: "en-US",
             engine: .appleEnhanced,
@@ -25,7 +25,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "apple-zoe",
-            displayNameKey: "Zoe (US Female)",
+            displayNameKey: "Zoe",
             gender: .female,
             locale: "en-US",
             engine: .appleEnhanced,
@@ -35,7 +35,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "apple-samantha",
-            displayNameKey: "Samantha (US Female)",
+            displayNameKey: "Samantha",
             gender: .female,
             locale: "en-US",
             engine: .appleEnhanced,
@@ -45,7 +45,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "apple-daniel",
-            displayNameKey: "Daniel (UK Male)",
+            displayNameKey: "Daniel",
             gender: .male,
             locale: "en-GB",
             engine: .appleEnhanced,
@@ -55,7 +55,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "apple-oliver",
-            displayNameKey: "Oliver (UK Male)",
+            displayNameKey: "Oliver",
             gender: .male,
             locale: "en-GB",
             engine: .appleEnhanced,
@@ -65,7 +65,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "apple-nathan",
-            displayNameKey: "Nathan (US Male)",
+            displayNameKey: "Nathan",
             gender: .male,
             locale: "en-US",
             engine: .appleEnhanced,
@@ -75,7 +75,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "gemini-aoede",
-            displayNameKey: "Aoede (Studio Neural)",
+            displayNameKey: "Aoede",
             gender: .female,
             locale: "en-US",
             engine: .geminiNeural,
@@ -85,7 +85,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "gemini-puck",
-            displayNameKey: "Puck (Studio Neural)",
+            displayNameKey: "Puck",
             gender: .male,
             locale: "en-US",
             engine: .geminiNeural,
@@ -95,7 +95,7 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "gemini-charon",
-            displayNameKey: "Charon (Studio Neural)",
+            displayNameKey: "Charon",
             gender: .male,
             locale: "en-US",
             engine: .geminiNeural,
@@ -105,13 +105,33 @@ public enum RoleplayVoiceProfileCatalog: Sendable {
         ),
         RoleplayVoiceProfile(
             id: "gemini-kore",
-            displayNameKey: "Kore (Studio Neural)",
+            displayNameKey: "Kore",
             gender: .female,
             locale: "en-US",
             engine: .geminiNeural,
             qualityDescriptionKey: "app.settings.voice.quality_gemini",
             sampleText: "Hello! I'm Kore. Wonderful to speak with you today.",
             geminiPersona: .expressiveFemale
+        ),
+        RoleplayVoiceProfile(
+            id: "kokoro-friendly-female",
+            displayNameKey: "Nova",
+            gender: .female,
+            locale: "en-US",
+            engine: .kokoroNeural,
+            qualityDescriptionKey: "app.settings.voice.quality_kokoro",
+            sampleText: "Hi, I'm Nova. I can't wait to practice English with you today.",
+            geminiPersona: .friendlyFemale
+        ),
+        RoleplayVoiceProfile(
+            id: "kokoro-authoritative-male",
+            displayNameKey: "Orion",
+            gender: .male,
+            locale: "en-US",
+            engine: .kokoroNeural,
+            qualityDescriptionKey: "app.settings.voice.quality_kokoro",
+            sampleText: "Hello. I'm Orion. Let's focus and have a great conversation.",
+            geminiPersona: .authoritativeMale
         )
     ]
 

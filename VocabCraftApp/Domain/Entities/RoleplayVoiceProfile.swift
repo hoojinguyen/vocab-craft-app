@@ -3,6 +3,7 @@ import Foundation
 public enum VoiceEngineType: String, Sendable, Codable, CaseIterable {
     case appleEnhanced
     case geminiNeural
+    case kokoroNeural
 }
 
 public enum VoiceGender: String, Sendable, Codable, CaseIterable {

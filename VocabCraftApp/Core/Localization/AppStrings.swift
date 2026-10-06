@@ -343,6 +343,8 @@ extension AppStrings {
         public static var voiceQualityAppleText: String { String(localized: "app.settings.voice.quality_apple", defaultValue: "Device Enhanced", bundle: .module) }
         public static var voiceQualityGemini: LocalizedStringKey { "app.settings.voice.quality_gemini" }
         public static var voiceQualityGeminiText: String { String(localized: "app.settings.voice.quality_gemini", defaultValue: "Cloud Studio Neural", bundle: .module) }
+        public static var voiceQualityKokoro: LocalizedStringKey { "app.settings.voice.quality_kokoro" }
+        public static var voiceQualityKokoroText: String { String(localized: "app.settings.voice.quality_kokoro", defaultValue: "On-Device Neural", bundle: .module) }
 
         // Appearance Section
         public static var sectionAppearance: LocalizedStringKey { "app.settings.section.appearance" }

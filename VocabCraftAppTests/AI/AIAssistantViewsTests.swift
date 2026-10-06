@@ -621,32 +621,4 @@ struct AIAssistantViewsTests {
         _ = sheet.body
     }
 
-    @Test @MainActor
-    func test_settingsRoleplayVoiceCard_rendering() async {
-        let defaults = UserDefaults(suiteName: "test_settingsRoleplayVoiceCard_\(UUID().uuidString)")!
-        let store = UserSettingsStore(defaults: defaults)
-        let tts = MockTextToSpeechService()
-        var previewPlayed = false
-
-        let card = SettingsRoleplayVoiceCard(
-            store: store,
-            ttsService: tts,
-            isPlayingPreview: false,
-            onPlayPreview: {
-                previewPlayed = true
-            }
-        )
-        _ = card.body
-
-        card.onPlayPreview()
-        #expect(previewPlayed)
-
-        let playingCard = SettingsRoleplayVoiceCard(
-            store: store,
-            ttsService: tts,
-            isPlayingPreview: true,
-            onPlayPreview: {}
-        )
-        _ = playingCard.body
-    }
 }

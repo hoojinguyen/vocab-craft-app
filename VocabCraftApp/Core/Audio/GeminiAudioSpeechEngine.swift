@@ -95,7 +95,7 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
             throw URLError(.userAuthenticationRequired)
         }
 
-        var components = URLComponents(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent")
+        var components = URLComponents(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent")
         components?.queryItems = [URLQueryItem(name: "key", value: trimmedKey)]
         guard let url = components?.url else {
             Self.logger.error("Failed to build Gemini TTS URL")

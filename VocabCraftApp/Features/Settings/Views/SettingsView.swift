@@ -75,7 +75,6 @@ public struct SettingsView: View {
         }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.themePreset) { _, _ in viewModel.store.isHapticsEnabled }
-        .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.roleplayVoiceId) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appTheme) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appLanguage) { _, _ in viewModel.store.isHapticsEnabled }
@@ -107,16 +106,6 @@ public struct SettingsView: View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionAudio)
             SettingsAudioCard(
-                store: viewModel.store,
-                isPlayingAudio: viewModel.isPlayingAudio,
-                onPlayPreview: {
-                    viewModel.playAudioPreview()
-                }
-            )
-
-            sectionHeader(AppStrings.Settings.voiceSectionTitle)
-                .padding(.top, theme.spacing.xs)
-            SettingsRoleplayVoiceCard(
                 store: viewModel.store,
                 ttsService: viewModel.ttsService,
                 isPlayingPreview: viewModel.isPlayingRoleplayAudio,
@@ -256,174 +245,55 @@ private struct SettingsLearningCard: View {
     }
 }
 
+@MainActor
 private struct SettingsAudioCard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable var store: UserSettingsStore
-    let isPlayingAudio: Bool
+    let ttsService: any TextToSpeechProtocol
+    let isPlayingPreview: Bool
     let onPlayPreview: () -> Void
 
-    var body: some View {
-        CraftCard(style: .outlined, padding: 0) {
-            VStack(spacing: 0) {
-                CraftListRow(
-                    title: AppStrings.Settings.audioAccent
-                ) {
-                    CraftSegmentedControl(
-                        selection: $store.ttsVoiceGender,
-                        options: [
-                            CraftSegmentOption("US", title: AppStrings.Settings.accentUSText),
-                            CraftSegmentOption("UK", title: AppStrings.Settings.accentUKText)
-                        ],
-                        style: .flat
-                    )
-                    .frame(width: 170)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText(
-                            AppStrings.Settings.speechSpeed,
-                            style: .headline,
-                            color: theme.colors.textPrimary
-                        )
-
-                        Spacer()
-
-                        CraftBadge(
-                            String(format: "%.2fx", store.ttsSpeed),
-                            variant: .subtle,
-                            tone: .warning,
-                            size: .sm
-                        )
-                    }
-                    .padding(.horizontal, theme.spacing.base)
-                    .padding(.top, theme.spacing.sm)
-
-                    HStack(spacing: theme.spacing.sm) {
-                        Image(systemName: "tortoise")
-                            .foregroundStyle(theme.colors.textMuted)
-                            .accessibilityHidden(true)
-
-                        Slider(value: $store.ttsSpeed, in: 0.5...1.5, step: 0.05)
-                            .tint(theme.colors.brandPrimary)
-
-                        Image(systemName: "hare.fill")
-                            .foregroundStyle(theme.colors.textMuted)
-                            .accessibilityHidden(true)
-                    }
-                    .padding(.horizontal, theme.spacing.base)
-                    .padding(.bottom, theme.spacing.sm)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(Text(AppStrings.Settings.speechSpeed))
-                .accessibilityValue(Text(String(format: "%.2fx", store.ttsSpeed)))
-
-                CraftDivider()
-
-                CraftListRow(
-                    title: isPlayingAudio ? AppStrings.Settings.playingPreview : AppStrings.Settings.testTTS,
-                    iconName: isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle,
-                    showChevron: !isPlayingAudio,
-                    action: onPlayPreview
-                ) {
-                    if isPlayingAudio {
-                        CraftWaveformView(
-                            audioLevels: [0.3, 0.8, 0.6, 0.9],
-                            barCount: 4,
-                            spacing: 3,
-                            minHeight: 6,
-                            maxHeight: 20,
-                            barWidth: 3,
-                            isRecording: true,
-                            activeColor: theme.colors.brandPrimary
-                        )
-                        .padding(.trailing, theme.spacing.xs)
-                    } else {
-                        EmptyView()
-                    }
-                }
-            }
-        }
-    }
-}
-
-@MainActor
-public struct SettingsRoleplayVoiceCard: View {
-    @Environment(\.craftTheme) private var theme
-    @Bindable public var store: UserSettingsStore
-    public let ttsService: any TextToSpeechProtocol
-    public let isPlayingPreview: Bool
-    public let onPlayPreview: () -> Void
-
     @State private var showVoicePicker: Bool = false
-
-    public init(
-        store: UserSettingsStore,
-        ttsService: any TextToSpeechProtocol,
-        isPlayingPreview: Bool,
-        onPlayPreview: @escaping () -> Void
-    ) {
-        self.store = store
-        self.ttsService = ttsService
-        self.isPlayingPreview = isPlayingPreview
-        self.onPlayPreview = onPlayPreview
-    }
 
     private var currentProfile: RoleplayVoiceProfile {
         RoleplayVoiceProfileCatalog.profile(for: store.roleplayVoiceId)
             ?? RoleplayVoiceProfileCatalog.defaultProfile
     }
 
-    public var body: some View {
+    var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
                 // 1. Active Voice Selector Row
                 CraftListRow(
                     title: AppStrings.Settings.voiceCurrentProfile,
+                    subtitle: store.roleplayVoiceId == RoleplayVoiceProfileCatalog.defaultProfile.id ? nil :
+                                (currentProfile.engine == .geminiNeural ? AppStrings.Settings.voiceQualityGemini :
+                                currentProfile.engine == .kokoroNeural ? AppStrings.Settings.voiceQualityKokoro :
+                                AppStrings.Settings.voiceQualityApple),
                     showChevron: true,
                     action: {
                         showVoicePicker = true
                     }
                 ) {
-                    HStack(spacing: theme.spacing.xs) {
-                        if store.roleplayVoiceId == RoleplayVoiceProfileCatalog.defaultProfile.id {
-                            CraftText(
-                                AppStrings.Settings.voiceAutoPersona,
-                                style: .bodyMedium,
-                                color: theme.colors.textSecondary
-                            )
-                        } else {
-                            Text(verbatim: currentProfile.displayNameKey)
-                                .font(theme.typography.bodyMedium)
-                                .foregroundStyle(theme.colors.textSecondary)
-                        }
-
-                        if currentProfile.engine == .geminiNeural {
-                            CraftBadge(
-                                AppStrings.Settings.voiceQualityGemini,
-                                symbol: .sparkles,
-                                variant: .subtle,
-                                tone: .primary,
-                                size: .sm
-                            )
-                        } else {
-                            CraftBadge(
-                                AppStrings.Settings.voiceQualityApple,
-                                variant: .subtle,
-                                tone: .neutral,
-                                size: .sm
-                            )
-                        }
+                    if store.roleplayVoiceId == RoleplayVoiceProfileCatalog.defaultProfile.id {
+                        CraftText(
+                            AppStrings.Settings.voiceAutoPersona,
+                            style: .bodyMedium,
+                            color: theme.colors.textSecondary
+                        )
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    } else {
+                        Text(verbatim: currentProfile.displayNameKey)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .lineLimit(1)
                     }
                 }
 
                 CraftDivider()
 
-                // 2. Speech Rate Slider
+                // 3. Speech Rate Slider
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText(
@@ -465,7 +335,7 @@ public struct SettingsRoleplayVoiceCard: View {
 
                 CraftDivider()
 
-                // 3. Speech Pitch Slider
+                // 4. Speech Pitch Slider
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText(
@@ -505,7 +375,7 @@ public struct SettingsRoleplayVoiceCard: View {
 
                 CraftDivider()
 
-                // 4. Play Preview Button Row
+                // 5. Play Preview Button Row
                 CraftListRow(
                     title: isPlayingPreview ? AppStrings.Settings.voicePreviewing : AppStrings.Settings.voicePreviewButton,
                     iconName: isPlayingPreview ? "speaker.wave.3.fill" : "play.circle.fill",

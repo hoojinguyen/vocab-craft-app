@@ -27,6 +27,7 @@ public struct RoleplayVoicePickerSheet: View {
                 VStack(spacing: theme.spacing.lg) {
                     autoSection
                     cloudNeuralSection
+                    onDeviceNeuralSection
                     deviceEnhancedSection
                 }
                 .padding(.horizontal, theme.spacing.base)
@@ -87,6 +88,27 @@ public struct RoleplayVoicePickerSheet: View {
         }
     }
 
+    private var onDeviceNeuralSection: some View {
+        let profiles = RoleplayVoiceProfileCatalog.allProfiles.filter { $0.engine == .kokoroNeural }
+
+        if profiles.isEmpty { return AnyView(EmptyView()) }
+        
+        return AnyView(VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            sectionHeader(AppStrings.Settings.voiceQualityKokoro)
+
+            CraftCard(style: .outlined, padding: 0) {
+                VStack(spacing: 0) {
+                    ForEach(Array(profiles.enumerated()), id: \.element.id) { index, profile in
+                        if index > 0 {
+                            CraftDivider()
+                        }
+                        profileRow(profile, isAuto: false)
+                    }
+                }
+            }
+        })
+    }
+
     private var deviceEnhancedSection: some View {
         let profiles = RoleplayVoiceProfileCatalog.allProfiles.filter {
             $0.engine == .appleEnhanced && $0.id != RoleplayVoiceProfileCatalog.defaultProfile.id
@@ -139,26 +161,22 @@ public struct RoleplayVoicePickerSheet: View {
                         Text(verbatim: "\(profile.gender.rawValue.capitalized) · \(profile.locale)")
                             .font(theme.typography.caption)
                             .foregroundStyle(theme.colors.textSecondary)
+                        if profile.engine == .geminiNeural {
+                            Text(AppStrings.Settings.voiceQualityGemini)
+                                .font(theme.typography.caption)
+                                .foregroundStyle(theme.colors.textMuted)
+                        } else if profile.engine == .kokoroNeural {
+                            Text(AppStrings.Settings.voiceQualityKokoro)
+                                .font(theme.typography.caption)
+                                .foregroundStyle(theme.colors.textMuted)
+                        } else {
+                            Text(AppStrings.Settings.voiceQualityApple)
+                                .font(theme.typography.caption)
+                                .foregroundStyle(theme.colors.textMuted)
+                        }
                     }
 
                     Spacer()
-
-                    if profile.engine == .geminiNeural {
-                        CraftBadge(
-                            AppStrings.Settings.voiceQualityGemini,
-                            symbol: .sparkles,
-                            variant: .subtle,
-                            tone: .primary,
-                            size: .sm
-                        )
-                    } else {
-                        CraftBadge(
-                            AppStrings.Settings.voiceQualityApple,
-                            variant: .subtle,
-                            tone: .neutral,
-                            size: .sm
-                        )
-                    }
                 }
                 .contentShape(Rectangle())
             }

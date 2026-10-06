@@ -220,13 +220,63 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
 
     public func previewVoice(profile: RoleplayVoiceProfile, rate: Double = 1.0, pitch: Double = 1.0) async {
         stop()
+
+        requestGeneration += 1
+        let currentGeneration = requestGeneration
+
+        let acquired = await acquirePlaybackLease(generation: currentGeneration)
+        guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else { return }
+
         isSpeaking = true
-        defer { isSpeaking = false }
+        defer {
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+            }
+            Task { [weak self] in await self?.releaseActiveLeaseAsync() }
+        }
+
         switch profile.engine {
+        case .kokoroNeural:
+            if kokoroEngine.isReady {
+                lastActiveEngine = .kokoro
+                do {
+                    try await kokoroEngine.synthesizeAndPlay(text: profile.sampleText, persona: profile.geminiPersona ?? .friendlyFemale)
+                    return
+                } catch {
+                    // Fallthrough to Apple if it fails
+                }
+            } else {
+                lastActiveEngine = .apple
+                await appleEngine.speakAsync(
+                    text: "Kokoro model is not downloaded. Please download it in On-Device Models settings.",
+                    rate: Float(rate),
+                    locale: "en-US",
+                    persona: profile.geminiPersona,
+                    voiceIdentifier: nil,
+                    pitch: Float(pitch)
+                )
+                return
+            }
+            fallthrough
         case .geminiNeural:
-            if let persona = profile.geminiPersona, let apiKey = resolvedApiKey {
+            if let persona = profile.geminiPersona, let apiKey = resolvedApiKey, !apiKey.isEmpty {
                 lastActiveEngine = .gemini
-                try? await geminiEngine.synthesizeAndPlay(text: profile.sampleText, persona: persona, apiKey: apiKey)
+                do {
+                    try await geminiEngine.synthesizeAndPlay(text: profile.sampleText, persona: persona, apiKey: apiKey)
+                    return
+                } catch {
+                    // Fallthrough to Apple if it fails
+                }
+            } else {
+                lastActiveEngine = .apple
+                await appleEngine.speakAsync(
+                    text: "API key is required for Studio Neural voices. Please configure it in AI settings.",
+                    rate: Float(rate),
+                    locale: "en-US",
+                    persona: profile.geminiPersona,
+                    voiceIdentifier: nil,
+                    pitch: Float(pitch)
+                )
                 return
             }
             fallthrough
@@ -391,6 +441,46 @@ extension TextToSpeechService {
         }
 
         switch profile.engine {
+        case .kokoroNeural:
+            let targetPersona = profile.geminiPersona ?? persona
+            if kokoroEngine.isReady {
+                await playWithKokoro(text: text, persona: targetPersona, locale: profile.locale, rate: rate, generation: generation)
+                return true
+            }
+            
+            // Fallback to Gemini if Kokoro is not ready (missing ML weights) to provide a neural voice experience
+            if let apiKey = resolvedApiKey {
+                lastActiveEngine = .gemini
+                do {
+                    try await geminiEngine.synthesizeAndPlay(text: text, persona: targetPersona, apiKey: apiKey)
+                    if self.requestGeneration == generation {
+                        self.isSpeaking = false
+                        self.currentUtterance = nil
+                    }
+                    await releaseActiveLeaseAsync()
+                    return true
+                } catch {
+                    // Fallthrough to Apple if Gemini also fails
+                    guard self.requestGeneration == generation, !Task.isCancelled else {
+                        if self.requestGeneration == generation {
+                            self.isSpeaking = false
+                            self.currentUtterance = nil
+                        }
+                        await releaseActiveLeaseAsync()
+                        return true
+                    }
+                    LessonPerformanceDiagnostics.event("TTSGeminiFallbackToApple", detail: error.localizedDescription)
+                }
+            }
+            
+            await playAppleEnhancedProfile(
+                text: text,
+                profile: profile,
+                defaultPersona: persona,
+                baseRate: rate,
+                generation: generation
+            )
+            return true
         case .geminiNeural:
             if let apiKey = resolvedApiKey {
                 lastActiveEngine = .gemini
@@ -454,7 +544,18 @@ extension TextToSpeechService {
                 await releaseActiveLeaseAsync()
                 return
             }
-            LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+            LessonPerformanceDiagnostics.event("TTSFallbackFromKokoro", detail: error.localizedDescription)
+            if let apiKey = self.resolvedApiKey {
+                lastActiveEngine = .gemini
+                do {
+                    let targetPersona = persona
+                    try await geminiEngine.synthesizeAndPlay(text: text, persona: targetPersona, apiKey: apiKey)
+                    return
+                } catch {
+                    LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
+                }
+            }
+            
             lastActiveEngine = .apple
             currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
             await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
@@ -593,6 +694,26 @@ extension TextToSpeechService {
         }
 
         switch profile.engine {
+        case .kokoroNeural:
+            if kokoroEngine.isReady {
+                let targetPersona = profile.geminiPersona ?? persona
+                lastActiveEngine = .kokoro
+                do {
+                    try await kokoroEngine.synthesizeAndPlay(text: text, persona: targetPersona)
+                } catch {
+                    guard self.requestGeneration == generation, !Task.isCancelled else {
+                        if self.requestGeneration == generation {
+                            self.isSpeaking = false
+                            self.currentUtterance = nil
+                        }
+                        await releaseActiveLeaseAsync()
+                        return true
+                    }
+                    lastActiveEngine = .apple
+                }
+            } else {
+                lastActiveEngine = .apple
+            }
         case .geminiNeural:
             if let apiKey = resolvedApiKey {
                 lastActiveEngine = .gemini
