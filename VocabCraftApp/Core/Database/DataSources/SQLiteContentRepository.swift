@@ -42,8 +42,14 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         bind(stmt)
 
         var results: [T] = []
-        while sqlite3_step(stmt) == SQLITE_ROW {
+        var stepResult = sqlite3_step(stmt)
+        while stepResult == SQLITE_ROW {
             results.append(rowMapper(stmt))
+            stepResult = sqlite3_step(stmt)
+        }
+        guard stepResult == SQLITE_DONE else {
+            let msg = String(cString: sqlite3_errmsg(db))
+            throw SQLiteContentError.sqliteError("Step failed: \(msg)")
         }
         return results
     }
