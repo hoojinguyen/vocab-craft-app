@@ -63,3 +63,25 @@ struct KokoroTTSEngineRouterTests {
         #expect(tts.lastActiveEngine == .apple)
     }
 }
+
+@Suite("KokoroTTSEngine Direct Tests")
+struct KokoroTTSEngineDirectTests {
+    @Test("KokoroTTSEngine maps persona to voice profile correctly")
+    @MainActor
+    func testVoiceProfileMapping() {
+        let engine = KokoroTTSEngine()
+        #expect(engine.voiceProfile(for: .friendlyFemale) == "af_bella")
+        #expect(engine.voiceProfile(for: .friendlyMale) == "am_adam")
+        #expect(engine.voiceProfile(for: .authoritativeMale) == "am_michael")
+        #expect(engine.voiceProfile(for: .expressiveFemale) == "af_sarah")
+    }
+
+    @Test("KokoroTTSEngine synthesizeAndPlay executes cleanly with Apple fallback")
+    @MainActor
+    func testSynthesizeAndPlayDelegatesCleanly() async throws {
+        let appleEngine = AppleEnhancedTTSEngine()
+        let engine = KokoroTTSEngine(appleEngine: appleEngine)
+        try await engine.synthesizeAndPlay(text: "Hello, nice to meet you!", persona: .friendlyMale)
+        #expect(!engine.isSpeaking)
+    }
+}

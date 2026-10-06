@@ -24,16 +24,20 @@ struct WhisperKitSpeechEngineTests {
 
         let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
         manager.refreshStatus()
-        let engine = WhisperKitSpeechEngine(modelManager: manager)
-
-        #expect(engine.isReady)
+        let simulatedEngine = WhisperKitSpeechEngine(modelManager: manager, simulatedTranscript: "I want a croissant")
+        #expect(simulatedEngine.isReady)
 
         let format = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1)!
         let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1024)!
         buffer.frameLength = 1024
 
-        engine.ingest(buffer: buffer)
-        let transcript = try await engine.transcribeBufferedAudio()
-        #expect(!transcript.isEmpty)
+        simulatedEngine.ingest(buffer: buffer)
+        let simulatedTranscript = try await simulatedEngine.transcribeBufferedAudio()
+        #expect(simulatedTranscript == "I want a croissant")
+
+        let defaultEngine = WhisperKitSpeechEngine(modelManager: manager)
+        defaultEngine.ingest(buffer: buffer)
+        let defaultTranscript = try await defaultEngine.transcribeBufferedAudio()
+        #expect(defaultTranscript.isEmpty)
     }
 }

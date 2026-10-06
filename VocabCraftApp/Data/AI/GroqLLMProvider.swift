@@ -27,8 +27,8 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
     private let fallbackProvider: (any LLMProviderProtocol)?
 
     public static let defaultModels: [String] = [
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant"
+        "llama-3.1-8b-instant",
+        "llama-3.3-70b-versatile"
     ]
 
     public init(
@@ -115,7 +115,8 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
         let body: [String: Any] = [
             "model": model,
             "messages": formattedMessages,
-            "temperature": 0.7,
+            "temperature": 0.5,
+            "max_tokens": 200,
             "response_format": ["type": "json_object"]
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)

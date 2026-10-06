@@ -278,7 +278,7 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
                     guard let self, case .listening(let transcript) = self.state else { return }
 
                     var finalTranscript = transcript
-                    if self.whisperEngine.isReady {
+                    if finalTranscript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && self.whisperEngine.isReady {
                         do {
                             let whisperResult = try await self.whisperEngine.transcribeBufferedAudio()
                             if !whisperResult.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

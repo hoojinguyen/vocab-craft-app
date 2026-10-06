@@ -65,6 +65,12 @@ struct GroqLLMProviderTests {
         #expect(!output.isConcluded)
     }
 
+    @Test("GroqLLMProvider prioritizes llama-3.1-8b-instant for fast low-latency turns")
+    func testDefaultModelsPriority() {
+        #expect(GroqLLMProvider.defaultModels.first == "llama-3.1-8b-instant")
+        #expect(GroqLLMProvider.defaultModels.contains("llama-3.3-70b-versatile"))
+    }
+
     @Test("GroqLLMProvider falls back to fallback provider on HTTP 429 rate limit")
     func testFallbackOnRateLimit() async throws {
         let (session, mockId) = MockURLProtocol.register { request in

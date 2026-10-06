@@ -270,7 +270,7 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
                     LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
                     lastActiveEngine = .apple
                     currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
+                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
                 }
             } else if let apiKey = resolvedApiKey {
                 lastActiveEngine = .gemini
@@ -288,12 +288,12 @@ public final class TextToSpeechService: NSObject, TextToSpeechProtocol {
                     LessonPerformanceDiagnostics.event("TTSFallbackToApple", detail: error.localizedDescription)
                     lastActiveEngine = .apple
                     currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
+                    await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
                 }
             } else {
                 lastActiveEngine = .apple
                 currentUtterance = makeUtterance(text: text, rate: rate, locale: locale)
-                await appleEngine.speakAsync(text: text, rate: rate, locale: locale)
+                await appleEngine.speakAsync(text: text, rate: rate, locale: locale, persona: persona)
             }
 
         case .pronunciation(let locale):

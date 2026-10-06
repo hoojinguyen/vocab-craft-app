@@ -28,7 +28,12 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         synthesizer.delegate = self
     }
 
-    public func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
+    public func makeUtterance(
+        text: String,
+        rate: Float,
+        locale: String,
+        persona: VoicePersona? = nil
+    ) -> AVSpeechUtterance? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
@@ -39,14 +44,27 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         let scaledRate = baseRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
 
-        // Warm, friendly pitch multiplier
-        utterance.pitchMultiplier = 1.06
+        // Pitch multiplier tuned to voice persona
+        if let persona {
+            switch persona {
+            case .friendlyFemale:
+                utterance.pitchMultiplier = 1.08
+            case .expressiveFemale:
+                utterance.pitchMultiplier = 1.12
+            case .friendlyMale:
+                utterance.pitchMultiplier = 0.94
+            case .authoritativeMale:
+                utterance.pitchMultiplier = 0.88
+            }
+        } else {
+            utterance.pitchMultiplier = 1.06
+        }
 
         // Acoustic buffers to prevent clipping and jarring ends
         utterance.preUtteranceDelay = 0.05
         utterance.postUtteranceDelay = 0.10
 
-        if let voice = AppleVoiceSelector.resolveBestVoice(for: locale) {
+        if let voice = AppleVoiceSelector.resolveBestVoice(for: locale, persona: persona) {
             utterance.voice = voice
         }
 
@@ -57,9 +75,10 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         text: String,
         rate: Float = 1.0,
         locale: String = "en-US",
+        persona: VoicePersona? = nil,
         onFinished: (@Sendable () -> Void)? = nil
     ) {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale, persona: persona) else {
             onFinished?()
             return
         }
@@ -74,8 +93,13 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         synthesizer.speak(utterance)
     }
 
-    public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
-        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
+    public func speakAsync(
+        text: String,
+        rate: Float = 1.0,
+        locale: String = "en-US",
+        persona: VoicePersona? = nil
+    ) async {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale, persona: persona) else {
             isSpeaking = false
             currentUtterance = nil
             return

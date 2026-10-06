@@ -63,12 +63,18 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         You are \(scenario.characterName), a \(scenario.characterRole) in a roleplay conversation with the user who is a \(scenario.userRole).
         Maintain an authentic, friendly persona suitable for the scene: \(topicDescriptor).
         Target vocabulary for the user: \(scenario.targetWordIds.joined(separator: ", ")).
-        Return JSON conforming to RoleplayTurnOutput schema:
-        - characterReply: your in-character spoken dialogue
-        - targetWordsUsed: list of target words the user used correctly in their message
-        - refinementSuggestion: if the user's sentence could be phrased more naturally, provide the improved sentence; otherwise null
-        - pedagogicalNote: brief encouragement or usage tip; otherwise null
-        - suggestedResponses: array of 2-3 natural spoken candidate responses the user can say next, demonstrating natural usage of target vocabulary.
+
+        CONVERSATION & BREVITY RULES (CRITICAL):
+        - `characterReply`: Strictly 1 to 2 short sentences, maximum 25 words total. Speak naturally as in real life dialogue.
+        - NEVER include asterisks, roleplay action descriptions, facial expressions, or stage directions (e.g. do NOT write *smiles*, *nods*, or *laughs*). Spoken dialogue only!
+        - Keep the exchange interactive and dynamic: ask a short follow-up or react briefly so the conversation flows back and forth quickly.
+        - `targetWordsUsed`: list of target words the user actually used correctly in their message.
+        - `refinementSuggestion`: if the user's sentence could be phrased more naturally by a native speaker, provide a concise improved sentence (max 15 words); otherwise null.
+        - `pedagogicalNote`: very brief praise or tip (under 8 words); otherwise null.
+        - `suggestedResponses`: array of 2-3 short, natural spoken phrases (3-7 words each) that the user can say next, demonstrating natural usage of target vocabulary.
+        - `isConcluded`: boolean, false unless the roleplay interaction is fully finished naturally.
+
+        Return JSON conforming to RoleplayTurnOutput schema.
         """
 
         if let recognizedCandidate {
@@ -85,14 +91,22 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         )
         // Union local detected words with LLM recognized words
         let combinedWords = detectedLocalWords.union(output.targetWordsUsed).sorted()
+        let cleanedReply = Self.cleanSpokenDialogue(output.characterReply)
         return RoleplayTurnOutput(
-            characterReply: output.characterReply,
+            characterReply: cleanedReply,
             targetWordsUsed: combinedWords,
             refinementSuggestion: output.refinementSuggestion,
             pedagogicalNote: output.pedagogicalNote,
             suggestedResponses: output.suggestedResponses,
             isConcluded: output.isConcluded
         )
+    }
+
+    public static func cleanSpokenDialogue(_ text: String) -> String {
+        let stripped = text.replacingOccurrences(of: #"\*[^*]*\*"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"^\s*"(.*)"\s*$"#, with: "$1", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return stripped.isEmpty ? text : stripped
     }
 
     public func execute(

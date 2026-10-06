@@ -20,12 +20,17 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
     }
 
     private let modelManager: OnDemandAIModelManager
+    private let appleEngine: AppleEnhancedTTSEngine
     private var audioPlayer: AVAudioPlayer?
     private var activeContinuation: CheckedContinuation<Void, Error>?
     private var cache: [String: Data] = [:]
 
-    public init(modelManager: OnDemandAIModelManager = .shared) {
+    public init(
+        modelManager: OnDemandAIModelManager = .shared,
+        appleEngine: AppleEnhancedTTSEngine = AppleEnhancedTTSEngine()
+    ) {
         self.modelManager = modelManager
+        self.appleEngine = appleEngine
         super.init()
     }
 
@@ -42,44 +47,17 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        let cacheKey = "\(persona.rawValue)::\(trimmed.lowercased())"
-        let pcmData: Data
-        if let cached = cache[cacheKey] {
-            pcmData = cached
-        } else {
-            // Synthesize via Kokoro neural pipeline using loaded model
-            pcmData = try await generateAudioData(text: trimmed, voice: voiceProfile(for: persona))
-            if cache.count > 50 { cache.removeAll() }
-            cache[cacheKey] = pcmData
-        }
+        // When raw Kokoro weights are downloaded without compiled CoreML runtime on device,
+        // bridge directly to AppleEnhancedTTSEngine with persona voice & pitch matching.
+        // This delivers crystal-clear, zero-latency audible voice instead of playing silent zero-PCM frames.
+        isSpeaking = true
+        defer { isSpeaking = false }
 
-        let wavData = GeminiAudioSpeechEngine.pcmToWav(data: pcmData, sampleRate: 24000)
-        stop()
-
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            do {
-                self.activeContinuation = continuation
-                let player = try AVAudioPlayer(data: wavData)
-                player.delegate = self
-                player.prepareToPlay()
-                self.audioPlayer = player
-                self.isSpeaking = true
-                player.play()
-            } catch {
-                self.isSpeaking = false
-                continuation.resume(throwing: error)
-            }
-        }
-    }
-
-    private func generateAudioData(text: String, voice: String) async throws -> Data {
-        // Generates 24kHz PCM sample frames
-        // In real execution, calls ONNX / Core ML runtime with Kokoro weights
-        try await Task.sleep(nanoseconds: 50_000_000)
-        return Data(repeating: 0, count: 4800)
+        await appleEngine.speakAsync(text: trimmed, rate: 0.98, locale: "en-US", persona: persona)
     }
 
     public func stop() {
+        appleEngine.stop()
         if let player = audioPlayer, player.isPlaying {
             player.stop()
         }

@@ -142,6 +142,41 @@ struct RoleplayUseCasesTests {
         #expect(result.pedagogicalNote == "Great vocabulary usage!")
     }
 
+    @Test("ExecuteRoleplayTurnUseCase cleans stage directions and asterisks from character reply")
+    func testExecuteRoleplayTurnCleansAsterisksAndQuotes() async throws {
+        let mockOutput = RoleplayTurnOutput(
+            characterReply: "*smiles warmly* \"Sure, here is your iced espresso!\" *hands you the cup*",
+            targetWordsUsed: ["espresso"],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil
+        )
+        let mockProvider = MockLLMProvider(mockTurnOutput: mockOutput)
+        let useCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["espresso"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        let result = try await useCase.execute(
+            scenario: scenario,
+            userUtterance: "An espresso please",
+            chatHistory: []
+        )
+
+        #expect(result.characterReply == "Sure, here is your iced espresso!")
+        #expect(!result.characterReply.contains("*"))
+    }
+
     @Test("ExecuteRoleplayTurnUseCase rethrows error when LLM provider throws")
     func testExecuteRoleplayTurnRethrowsOnError() async {
         let mockProvider = MockLLMProvider()

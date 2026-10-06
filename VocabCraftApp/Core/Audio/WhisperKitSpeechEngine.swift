@@ -12,9 +12,11 @@ public final class WhisperKitSpeechEngine {
 
     private let modelManager: OnDemandAIModelManager
     private var audioBuffers: [AVAudioPCMBuffer] = []
+    private var simulatedTranscript: String?
 
-    public init(modelManager: OnDemandAIModelManager = .shared) {
+    public init(modelManager: OnDemandAIModelManager = .shared, simulatedTranscript: String? = nil) {
         self.modelManager = modelManager
+        self.simulatedTranscript = simulatedTranscript
     }
 
     public func ingest(buffer: AVAudioPCMBuffer) {
@@ -30,9 +32,12 @@ public final class WhisperKitSpeechEngine {
 
     public func transcribeBufferedAudio() async throws -> String {
         guard !audioBuffers.isEmpty else { return "" }
-        // Core ML inference over collected 16kHz PCM audio buffers
-        try await Task.sleep(nanoseconds: 30_000_000)
         clearBuffer()
-        return "I would like to practice vocabulary"
+        if let simulated = simulatedTranscript {
+            return simulated
+        }
+        // In uncompiled mode without CoreML Whisper pipeline, return empty string
+        // so that the primary live transcript from SFSpeechRecognizer is safely preserved.
+        return ""
     }
 }

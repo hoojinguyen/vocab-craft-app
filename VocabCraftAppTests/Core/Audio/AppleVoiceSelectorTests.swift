@@ -94,9 +94,18 @@ struct AppleVoiceSelectorTests {
             return
         }
 
-        // Place en-US voice first in the array to ensure ordering doesn't bias result
         let resolved = AppleVoiceSelector.resolveBestVoice(for: "en-GB", availableVoices: [usVoice, gbVoice])
         #expect(resolved?.language == "en-GB")
         #expect(resolved?.identifier == gbVoice.identifier)
+    }
+
+    @Test("Verify voice resolver selects appropriate voice based on persona")
+    func test_resolveBestVoice_withPersona() {
+        AppleVoiceSelector.clearCache()
+        let femaleVoice = AppleVoiceSelector.resolveBestVoice(for: "en-US", persona: .friendlyFemale)
+        let maleVoice = AppleVoiceSelector.resolveBestVoice(for: "en-US", persona: .friendlyMale)
+
+        #expect(femaleVoice != nil)
+        #expect(maleVoice != nil)
     }
 }
