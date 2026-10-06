@@ -7,8 +7,10 @@ public struct RoleplayVoiceCallView: View {
     @State private var viewModel: RoleplayVoiceCallViewModel
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
+    @Environment(\.appContainer) private var appContainer
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isLivePulsing: Bool = false
+    @State private var showVoicePicker: Bool = false
 
     public init(viewModel: RoleplayVoiceCallViewModel, onDismiss: @escaping () -> Void) {
         self._viewModel = State(initialValue: viewModel)
@@ -52,6 +54,12 @@ public struct RoleplayVoiceCallView: View {
             }
         } message: {
             Text(AppStrings.AIAssistant.discardConfirmMessage)
+        }
+        .sheet(isPresented: $showVoicePicker) {
+            RoleplayVoicePickerSheet(
+                store: appContainer.userSettingsStore,
+                ttsService: appContainer.ttsService
+            )
         }
     }
 
@@ -105,7 +113,18 @@ public struct RoleplayVoiceCallView: View {
 
             Spacer()
 
-            liveIndicatorBadge
+            HStack(spacing: theme.spacing.xs) {
+                CraftIconButton(
+                    symbol: .audio,
+                    size: .sm,
+                    variant: .ghost,
+                    accessibilityLabelKey: AppStrings.AIAssistant.selectVoiceTitle
+                ) {
+                    showVoicePicker = true
+                }
+
+                liveIndicatorBadge
+            }
         }
     }
 

@@ -66,4 +66,27 @@ final class SettingsViewModelTests: XCTestCase {
         await viewModel.resetSRSProgress()
         XCTAssertTrue(mockUseCase.didCallReset)
     }
+
+    func testRoleplayVoicePreviewExecution() {
+        let vm = makeSUT()
+        XCTAssertFalse(vm.isPlayingRoleplayAudio)
+
+        vm.playRoleplayVoicePreview()
+        XCTAssertTrue(vm.isPlayingRoleplayAudio)
+
+        vm.stopRoleplayVoicePreview()
+        XCTAssertFalse(vm.isPlayingRoleplayAudio)
+    }
+
+    func testToggleRoleplayVoicePreview() {
+        let vm = makeSUT()
+        XCTAssertFalse(vm.isPlayingRoleplayAudio)
+
+        vm.playRoleplayVoicePreview()
+        XCTAssertTrue(vm.isPlayingRoleplayAudio)
+
+        // Calling again toggles and stops playback
+        vm.playRoleplayVoicePreview()
+        XCTAssertFalse(vm.isPlayingRoleplayAudio)
+    }
 }

@@ -33,6 +33,15 @@ final class SettingsLocalizationTests: XCTestCase {
         "app.settings.audio.speed": ("Tốc độ đọc", "Speech Speed"),
         "app.settings.audio.test_tts": ("Nghe thử phát âm mẫu", "Test Speech Pronunciation"),
         "app.settings.audio.playing_preview": ("Đang phát âm thanh mẫu...", "Playing sample audio..."),
+        "app.settings.voice.section_title": ("Giọng đọc Role Play", "Role Play Voice"),
+        "app.settings.voice.current_profile": ("Giọng đang dùng", "Active Voice"),
+        "app.settings.voice.auto_persona": ("Tự động (Theo tính cách nhân vật)", "Automatic (Character Persona)"),
+        "app.settings.voice.preview_button": ("Nghe thử", "Play Preview"),
+        "app.settings.voice.previewing": ("Đang phát...", "Playing..."),
+        "app.settings.voice.speed": ("Tốc độ đọc", "Voice Speed"),
+        "app.settings.voice.pitch": ("Cao độ âm sắc", "Voice Pitch"),
+        "app.settings.voice.quality_apple": ("Thiết bị - Tự nhiên", "Device Enhanced"),
+        "app.settings.voice.quality_gemini": ("Cloud - Siêu thực", "Cloud Studio Neural"),
         "app.settings.section.appearance": ("GIAO DIỆN & TRẢI NGHIỆM", "APPEARANCE & EXPERIENCE"),
         "app.settings.appearance.theme_mode": ("Chế độ giao diện", "Appearance Mode"),
         "app.settings.appearance.theme_dark": ("Tối", "Dark"),
@@ -90,6 +99,15 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.settings.audio.speed",
             "app.settings.audio.test_tts",
             "app.settings.audio.playing_preview",
+            "app.settings.voice.section_title",
+            "app.settings.voice.current_profile",
+            "app.settings.voice.auto_persona",
+            "app.settings.voice.preview_button",
+            "app.settings.voice.previewing",
+            "app.settings.voice.speed",
+            "app.settings.voice.pitch",
+            "app.settings.voice.quality_apple",
+            "app.settings.voice.quality_gemini",
             "app.settings.section.appearance",
             "app.settings.appearance.theme_mode",
             "app.settings.appearance.theme_dark",
@@ -120,7 +138,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.profile.badge_oxford_pioneer"
         ]
 
-        XCTAssertEqual(keys.count, 53, "There must be exactly 53 required keys for Settings and Profile")
+        XCTAssertEqual(keys.count, 62, "There must be exactly 62 required keys for Settings, Voice and Profile")
 
         for key in keys {
             XCTAssertNotNil(expectedSettingsKeys[key], "Key \(key) should be present in expected dictionary")
@@ -200,6 +218,15 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertEqual(AppStrings.Settings.themeLightText, "Light")
         XCTAssertEqual(AppStrings.Settings.themeSystemText, "System")
         XCTAssertEqual(AppStrings.Settings.sectionDataStorageText, "Data & Storage")
+        XCTAssertEqual(AppStrings.Settings.voiceSectionTitleText, "Role Play Voice")
+        XCTAssertEqual(AppStrings.Settings.voiceCurrentProfileText, "Active Voice")
+        XCTAssertEqual(AppStrings.Settings.voiceAutoPersonaText, "Automatic (Character Persona)")
+        XCTAssertEqual(AppStrings.Settings.voicePreviewButtonText, "Play Preview")
+        XCTAssertEqual(AppStrings.Settings.voicePreviewingText, "Playing...")
+        XCTAssertEqual(AppStrings.Settings.voiceSpeedText, "Voice Speed")
+        XCTAssertEqual(AppStrings.Settings.voicePitchText, "Voice Pitch")
+        XCTAssertEqual(AppStrings.Settings.voiceQualityAppleText, "Device Enhanced")
+        XCTAssertEqual(AppStrings.Settings.voiceQualityGeminiText, "Cloud Studio Neural")
 
         // LocalizedStringKey accessors
         XCTAssertNotNil(AppStrings.Settings.title)
@@ -228,6 +255,15 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.speechSpeed)
         XCTAssertNotNil(AppStrings.Settings.testTTS)
         XCTAssertNotNil(AppStrings.Settings.playingPreview)
+        XCTAssertNotNil(AppStrings.Settings.voiceSectionTitle)
+        XCTAssertNotNil(AppStrings.Settings.voiceCurrentProfile)
+        XCTAssertNotNil(AppStrings.Settings.voiceAutoPersona)
+        XCTAssertNotNil(AppStrings.Settings.voicePreviewButton)
+        XCTAssertNotNil(AppStrings.Settings.voicePreviewing)
+        XCTAssertNotNil(AppStrings.Settings.voiceSpeed)
+        XCTAssertNotNil(AppStrings.Settings.voicePitch)
+        XCTAssertNotNil(AppStrings.Settings.voiceQualityApple)
+        XCTAssertNotNil(AppStrings.Settings.voiceQualityGemini)
         XCTAssertNotNil(AppStrings.Settings.sectionAppearance)
         XCTAssertNotNil(AppStrings.Settings.appearanceMode)
         XCTAssertNotNil(AppStrings.Settings.themeDark)

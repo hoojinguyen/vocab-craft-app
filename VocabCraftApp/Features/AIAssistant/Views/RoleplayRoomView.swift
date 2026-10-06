@@ -6,7 +6,9 @@ public struct RoleplayRoomView: View {
     @State private var viewModel: RoleplayRoomViewModel
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
+    @Environment(\.appContainer) private var appContainer
     @State private var showDiscardAlert = false
+    @State private var showVoicePicker = false
     @State private var selectedWordTooltip: String?
     @State private var hideDownloadBanner = false
     private var modelManager = OnDemandAIModelManager.shared
@@ -83,6 +85,12 @@ public struct RoleplayRoomView: View {
             }
         }
         #endif
+        .sheet(isPresented: $showVoicePicker) {
+            RoleplayVoicePickerSheet(
+                store: appContainer.userSettingsStore,
+                ttsService: appContainer.ttsService
+            )
+        }
     }
 
     private var headerBar: some View {
@@ -110,12 +118,23 @@ public struct RoleplayRoomView: View {
 
             Spacer()
 
-            CraftButton(
-                AppStrings.AIAssistant.actionFinishSession,
-                variant: .secondary,
-                size: .sm
-            ) {
-                Task { await viewModel.finishSession() }
+            HStack(spacing: theme.spacing.xs) {
+                CraftIconButton(
+                    symbol: .audio,
+                    size: .md,
+                    variant: .subtle,
+                    accessibilityLabelKey: AppStrings.AIAssistant.selectVoiceTitle
+                ) {
+                    showVoicePicker = true
+                }
+
+                CraftButton(
+                    AppStrings.AIAssistant.actionFinishSession,
+                    variant: .secondary,
+                    size: .sm
+                ) {
+                    Task { await viewModel.finishSession() }
+                }
             }
         }
         .padding(.horizontal, theme.spacing.base)

@@ -5,11 +5,13 @@ import SwiftUI
 public final class SettingsViewModel {
     public var store: UserSettingsStore
     public var isPlayingAudio: Bool = false
+    public var isPlayingRoleplayAudio: Bool = false
     public var cacheSizeString: String = "12.4 MB"
-    private let ttsService: TextToSpeechProtocol
+    public let ttsService: TextToSpeechProtocol
     private let resetProgressUseCase: ResetUserProgressUseCaseProtocol?
 
     private var audioTask: Task<Void, Never>?
+    private var roleplayAudioTask: Task<Void, Never>?
 
     public init(
         store: UserSettingsStore,
@@ -33,6 +35,32 @@ public final class SettingsViewModel {
             guard !Task.isCancelled else { return }
             self.isPlayingAudio = false
         }
+    }
+
+    public func playRoleplayVoicePreview() {
+        if isPlayingRoleplayAudio {
+            stopRoleplayVoicePreview()
+            return
+        }
+        roleplayAudioTask?.cancel()
+        isPlayingRoleplayAudio = true
+        let profile = RoleplayVoiceProfileCatalog.profile(for: store.roleplayVoiceId)
+            ?? RoleplayVoiceProfileCatalog.defaultProfile
+        roleplayAudioTask = Task {
+            await ttsService.previewVoice(
+                profile: profile,
+                rate: store.roleplaySpeechRate,
+                pitch: store.roleplaySpeechPitch
+            )
+            guard !Task.isCancelled else { return }
+            self.isPlayingRoleplayAudio = false
+        }
+    }
+
+    public func stopRoleplayVoicePreview() {
+        roleplayAudioTask?.cancel()
+        ttsService.stop()
+        isPlayingRoleplayAudio = false
     }
 
     public func clearCache() {

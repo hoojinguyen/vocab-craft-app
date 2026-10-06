@@ -50,6 +50,14 @@ struct AIAssistantLocalizationTests {
             vi: "Nhập tin nhắn...",
             en: "Type a message..."
         ),
+        "app.ai_assistant.room.suggestions_header": (
+            vi: "Gợi ý trả lời",
+            en: "Suggested Responses"
+        ),
+        "app.ai_assistant.room.voice_picker_title": (
+            vi: "Chọn giọng đọc AI",
+            en: "Select AI Voice"
+        ),
         "app.ai_assistant.summary.congratulations": (
             vi: "Hoàn thành buổi đàm thoại!",
             en: "Roleplay Completed!"

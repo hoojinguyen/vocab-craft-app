@@ -324,6 +324,26 @@ extension AppStrings {
         public static var testTTS: LocalizedStringKey { "app.settings.audio.test_tts" }
         public static var playingPreview: LocalizedStringKey { "app.settings.audio.playing_preview" }
 
+        // Roleplay Voice
+        public static var voiceSectionTitle: LocalizedStringKey { "app.settings.voice.section_title" }
+        public static var voiceSectionTitleText: String { String(localized: "app.settings.voice.section_title", defaultValue: "Role Play Voice", bundle: .module) }
+        public static var voiceCurrentProfile: LocalizedStringKey { "app.settings.voice.current_profile" }
+        public static var voiceCurrentProfileText: String { String(localized: "app.settings.voice.current_profile", defaultValue: "Active Voice", bundle: .module) }
+        public static var voiceAutoPersona: LocalizedStringKey { "app.settings.voice.auto_persona" }
+        public static var voiceAutoPersonaText: String { String(localized: "app.settings.voice.auto_persona", defaultValue: "Automatic (Character Persona)", bundle: .module) }
+        public static var voicePreviewButton: LocalizedStringKey { "app.settings.voice.preview_button" }
+        public static var voicePreviewButtonText: String { String(localized: "app.settings.voice.preview_button", defaultValue: "Play Preview", bundle: .module) }
+        public static var voicePreviewing: LocalizedStringKey { "app.settings.voice.previewing" }
+        public static var voicePreviewingText: String { String(localized: "app.settings.voice.previewing", defaultValue: "Playing...", bundle: .module) }
+        public static var voiceSpeed: LocalizedStringKey { "app.settings.voice.speed" }
+        public static var voiceSpeedText: String { String(localized: "app.settings.voice.speed", defaultValue: "Voice Speed", bundle: .module) }
+        public static var voicePitch: LocalizedStringKey { "app.settings.voice.pitch" }
+        public static var voicePitchText: String { String(localized: "app.settings.voice.pitch", defaultValue: "Voice Pitch", bundle: .module) }
+        public static var voiceQualityApple: LocalizedStringKey { "app.settings.voice.quality_apple" }
+        public static var voiceQualityAppleText: String { String(localized: "app.settings.voice.quality_apple", defaultValue: "Device Enhanced", bundle: .module) }
+        public static var voiceQualityGemini: LocalizedStringKey { "app.settings.voice.quality_gemini" }
+        public static var voiceQualityGeminiText: String { String(localized: "app.settings.voice.quality_gemini", defaultValue: "Cloud Studio Neural", bundle: .module) }
+
         // Appearance Section
         public static var sectionAppearance: LocalizedStringKey { "app.settings.section.appearance" }
         public static var appearanceMode: LocalizedStringKey { "app.settings.appearance.theme_mode" }
@@ -506,6 +526,12 @@ extension AppStrings {
         public static var inputPlaceholderText: String { String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module) }
         public static var audioPlayButton: LocalizedStringKey { "app.ai_assistant.room.play_audio" }
         public static var audioPlayButtonText: String { String(localized: "app.ai_assistant.room.play_audio", defaultValue: "Play dialogue audio", bundle: .module) }
+        public static var suggestionsHeader: LocalizedStringKey { "app.ai_assistant.room.suggestions_header" }
+        public static var suggestionsHeaderText: String { String(localized: "app.ai_assistant.room.suggestions_header", defaultValue: "Suggested Responses", bundle: .module) }
+        public static var voicePickerTitle: LocalizedStringKey { "app.ai_assistant.room.voice_picker_title" }
+        public static var voicePickerTitleText: String { String(localized: "app.ai_assistant.room.voice_picker_title", defaultValue: "Select AI Voice", bundle: .module) }
+        public static var selectVoiceTitle: LocalizedStringKey { voicePickerTitle }
+        public static var selectVoiceTitleText: String { voicePickerTitleText }
 
         // Topics
         public static var topicAll: LocalizedStringKey { "app.ai_assistant.topic.all" }

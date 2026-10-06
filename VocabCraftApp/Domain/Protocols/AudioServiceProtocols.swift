@@ -24,10 +24,19 @@ public protocol TextToSpeechProtocol: AnyObject, Sendable {
     func speakAsync(text: String, context: SpeechContext, rate: Float) async
     func stop()
     func prewarm()
+    func previewVoice(profile: RoleplayVoiceProfile, rate: Double, pitch: Double) async
 }
 
 public extension TextToSpeechProtocol {
     func prewarm() {}
+
+    func previewVoice(profile: RoleplayVoiceProfile, rate: Double, pitch: Double) async {
+        await speakAsync(text: profile.sampleText, rate: Float(rate), locale: profile.locale)
+    }
+
+    func previewVoice(profile: RoleplayVoiceProfile) async {
+        await previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+    }
 
     func speak(text: String) {
         speak(text: text, rate: 0.5, locale: "en-US")

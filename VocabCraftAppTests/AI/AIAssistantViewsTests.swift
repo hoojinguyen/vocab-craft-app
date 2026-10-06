@@ -599,4 +599,54 @@ struct AIAssistantViewsTests {
         #expect(vm.isSuggestionsVisible)
         _ = view.body
     }
+
+    @Test @MainActor
+    func test_roleplayVoicePickerSheet_renderingAndSelection() async {
+        let defaults = UserDefaults(suiteName: "test_roleplayVoicePickerSheet_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        let tts = MockTextToSpeechService()
+        let sheet = RoleplayVoicePickerSheet(store: store, ttsService: tts)
+        _ = sheet.body
+
+        #expect(store.roleplayVoiceId == "systemAuto")
+        #expect(RoleplayVoiceProfileCatalog.allProfiles.count >= 10)
+
+        // Select a cloud neural profile
+        let neuralProfile = RoleplayVoiceProfileCatalog.allProfiles.first { $0.engine == .geminiNeural }
+        #expect(neuralProfile != nil)
+        if let neuralProfile {
+            store.roleplayVoiceId = neuralProfile.id
+            #expect(store.roleplayVoiceId == neuralProfile.id)
+        }
+        _ = sheet.body
+    }
+
+    @Test @MainActor
+    func test_settingsRoleplayVoiceCard_rendering() async {
+        let defaults = UserDefaults(suiteName: "test_settingsRoleplayVoiceCard_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        let tts = MockTextToSpeechService()
+        var previewPlayed = false
+
+        let card = SettingsRoleplayVoiceCard(
+            store: store,
+            ttsService: tts,
+            isPlayingPreview: false,
+            onPlayPreview: {
+                previewPlayed = true
+            }
+        )
+        _ = card.body
+
+        card.onPlayPreview()
+        #expect(previewPlayed)
+
+        let playingCard = SettingsRoleplayVoiceCard(
+            store: store,
+            ttsService: tts,
+            isPlayingPreview: true,
+            onPlayPreview: {}
+        )
+        _ = playingCard.body
+    }
 }

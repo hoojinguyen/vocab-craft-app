@@ -1276,6 +1276,40 @@
         }
       }
     },
+    "app.ai_assistant.room.suggestions_header": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggested Responses"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gợi ý trả lời"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.voice_picker_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select AI Voice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn giọng đọc AI"
+          }
+        }
+      }
+    },
     "app.ai_assistant.scenario.cafe.desc": {
       "extractionState": "manual",
       "localizations": {
@@ -7103,6 +7137,159 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cài đặt"
+          }
+        }
+      }
+    },
+    "app.settings.voice.auto_persona": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic (Character Persona)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tự động (Theo tính cách nhân vật)"
+          }
+        }
+      }
+    },
+    "app.settings.voice.current_profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Voice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giọng đang dùng"
+          }
+        }
+      }
+    },
+    "app.settings.voice.pitch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Pitch"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cao độ âm sắc"
+          }
+        }
+      }
+    },
+    "app.settings.voice.preview_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play Preview"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe thử"
+          }
+        }
+      }
+    },
+    "app.settings.voice.previewing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playing..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang phát..."
+          }
+        }
+      }
+    },
+    "app.settings.voice.quality_apple": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Enhanced"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thiết bị - Tự nhiên"
+          }
+        }
+      }
+    },
+    "app.settings.voice.quality_gemini": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud Studio Neural"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud - Siêu thực"
+          }
+        }
+      }
+    },
+    "app.settings.voice.section_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Role Play Voice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giọng đọc Role Play"
+          }
+        }
+      }
+    },
+    "app.settings.voice.speed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Speed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tốc độ đọc"
           }
         }
       }
