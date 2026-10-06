@@ -309,4 +309,53 @@ struct RoleplayViewModelsTests {
         #expect(fallbackMsg.characterName == "Barista")
         #expect(!vm.isSending)
     }
+
+    @Test("RoleplayRoomViewModel initializes with starter suggestions and updates on turn completion")
+    @MainActor
+    func testSuggestedResponsesLifecycle() async throws {
+        let scenario = RoleplayScenario(
+            id: "cafe",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Emma",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["latte"],
+            iconSymbol: "cup",
+            starterSuggestions: ["I'd like a latte, please.", "What coffee do you have?"]
+        )
+
+        let mockOutput = RoleplayTurnOutput(
+            characterReply: "Sure, whole or oat milk?",
+            targetWordsUsed: ["latte"],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil,
+            suggestedResponses: ["Whole milk please.", "Oat milk, thanks!"]
+        )
+        let mockLLM = MockLLMProvider(mockTurnOutput: mockOutput)
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let viewModel = RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase
+        )
+
+        #expect(viewModel.suggestedResponses == scenario.starterSuggestions)
+        #expect(viewModel.isSuggestionsVisible)
+
+        await viewModel.sendMessage("I want a latte")
+
+        #expect(viewModel.suggestedResponses == ["Whole milk please.", "Oat milk, thanks!"])
+
+        viewModel.selectSuggestion("Whole milk please.")
+        #expect(viewModel.inputText == "Whole milk please.")
+
+        viewModel.toggleSuggestionsVisibility()
+        #expect(!viewModel.isSuggestionsVisible)
+    }
 }

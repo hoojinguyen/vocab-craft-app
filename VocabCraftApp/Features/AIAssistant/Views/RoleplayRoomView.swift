@@ -54,16 +54,8 @@ public struct RoleplayRoomView: View {
                 // Dialogue Stream
                 dialogueStream
 
-                // Sentence Starter Chips Bar
-                SentenceStarterChipsBar(
-                    prompts: viewModel.scenario.starterSuggestions
-                ) { prompt in
-                    if viewModel.inputText.isEmpty {
-                        viewModel.inputText = prompt
-                    } else {
-                        viewModel.inputText += " " + prompt
-                    }
-                }
+                // Suggested Response Chips Bar
+                suggestedChipsBar
 
                 // Bottom Control Bar
                 bottomInputBar
@@ -277,6 +269,42 @@ public struct RoleplayRoomView: View {
             RoundedRectangle(cornerRadius: theme.radii.md)
                 .stroke(theme.colors.borderDefault, lineWidth: 1)
         )
+    }
+
+    @ViewBuilder
+    private var suggestedChipsBar: some View {
+        if viewModel.isSuggestionsVisible && !viewModel.suggestedResponses.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: theme.spacing.xs) {
+                    ForEach(viewModel.suggestedResponses, id: \.self) { suggestion in
+                        Button {
+                            withAnimation(theme.animations.springSnappy) {
+                                viewModel.selectSuggestion(suggestion)
+                            }
+                        } label: {
+                            HStack(spacing: theme.spacing.xxs) {
+                                CraftIcon(.sparkles, size: .sm, color: theme.colors.brandPrimary)
+                                Text(suggestion)
+                                    .font(theme.typography.bodyMedium)
+                                    .foregroundStyle(theme.colors.textPrimary)
+                            }
+                            .padding(.horizontal, theme.spacing.sm)
+                            .padding(.vertical, theme.spacing.xs)
+                            .background(theme.colors.surfaceCard)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(theme.colors.borderDefault, lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, theme.spacing.base)
+                .padding(.vertical, theme.spacing.xxs)
+            }
+            .background(theme.colors.canvasBackground)
+        }
     }
 
     private var bottomInputBar: some View {

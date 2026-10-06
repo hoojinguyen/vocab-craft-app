@@ -37,6 +37,8 @@ public final class RoleplayRoomViewModel: Identifiable {
     public var inputText: String = ""
     public var isRecording: Bool = false
     public var sessionSummary: RoleplaySessionSummary?
+    public var suggestedResponses: [String] = []
+    public var isSuggestionsVisible: Bool = true
 
     private let executeTurnUseCase: ExecuteRoleplayTurnUseCase
     private let completeSessionUseCase: CompleteRoleplaySessionUseCase
@@ -54,6 +56,7 @@ public final class RoleplayRoomViewModel: Identifiable {
         self.executeTurnUseCase = executeTurnUseCase
         self.completeSessionUseCase = completeSessionUseCase
         self.ttsService = ttsService
+        self.suggestedResponses = scenario.starterSuggestions
 
         // Setup initial greeting
         let greeting = DisplayChatMessage(
@@ -120,6 +123,10 @@ public final class RoleplayRoomViewModel: Identifiable {
             for word in output.targetWordsUsed {
                 masteredWords.insert(word)
             }
+
+            if !output.suggestedResponses.isEmpty {
+                self.suggestedResponses = output.suggestedResponses
+            }
         } catch {
             let fallbackMsg = DisplayChatMessage(
                 isUser: false,
@@ -128,6 +135,14 @@ public final class RoleplayRoomViewModel: Identifiable {
             )
             messages.append(fallbackMsg)
         }
+    }
+
+    public func selectSuggestion(_ text: String) {
+        self.inputText = text
+    }
+
+    public func toggleSuggestionsVisibility() {
+        self.isSuggestionsVisible.toggle()
     }
 
     public func finishSession() async {

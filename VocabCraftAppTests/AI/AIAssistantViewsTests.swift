@@ -556,4 +556,47 @@ struct AIAssistantViewsTests {
         _ = view.body
         #expect(!dismissed)
     }
+
+    @Test @MainActor
+    func test_roleplayRoomView_suggestedChipsBarRenderingAndSelection() async {
+        let scenario = RoleplayScenario(
+            id: "test-cafe",
+            titleKey: "app.ai_assistant.scenario.cafe.title",
+            descriptionKey: "app.ai_assistant.scenario.cafe.desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Alex",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Welcome! What can I get started for you?",
+            targetWordIds: ["latte"],
+            iconSymbol: "cup.and.saucer",
+            starterSuggestions: ["I'd like a latte, please.", "What coffee do you have?"]
+        )
+        let executeTurnUseCase = ExecuteRoleplayTurnUseCase(llmProvider: MockLLMProvider())
+        let completeSessionUseCase = CompleteRoleplaySessionUseCase()
+        let vm = RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: executeTurnUseCase,
+            completeSessionUseCase: completeSessionUseCase
+        )
+
+        let view = RoleplayRoomView(viewModel: vm, onDismiss: {})
+        _ = view.body
+
+        #expect(vm.suggestedResponses == scenario.starterSuggestions)
+        #expect(vm.isSuggestionsVisible)
+
+        vm.selectSuggestion(scenario.starterSuggestions[0])
+        #expect(vm.inputText == scenario.starterSuggestions[0])
+        _ = view.body
+
+        vm.toggleSuggestionsVisibility()
+        #expect(!vm.isSuggestionsVisible)
+        _ = view.body
+
+        vm.toggleSuggestionsVisibility()
+        #expect(vm.isSuggestionsVisible)
+        _ = view.body
+    }
 }
