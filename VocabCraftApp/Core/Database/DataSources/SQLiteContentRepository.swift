@@ -63,6 +63,25 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         Int(sqlite3_column_int(stmt, index))
     }
 
+    private func columnInt64(_ stmt: OpaquePointer?, _ index: Int32) -> Int64 {
+        sqlite3_column_int64(stmt, index)
+    }
+
+    private func parseWord(stmt: OpaquePointer?, stageId: String = "N/A") -> TopicWordDTO {
+        TopicWordDTO(
+            id: columnInt64(stmt, 0),
+            stageId: stageId,
+            lemma: columnString(stmt, 1),
+            phonetic: columnString(stmt, 6),
+            pos: columnString(stmt, 2),
+            cefrLevel: columnString(stmt, 5),
+            definitionVi: columnString(stmt, 4),
+            definitionEn: columnString(stmt, 3),
+            exampleEn: "",
+            exampleVi: ""
+        )
+    }
+
     // MARK: - VocabularyDataSourceProtocol
 
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
@@ -95,7 +114,57 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         }
     }
 
-    public func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] { [] }
-    public func searchWords(query: String) async throws -> [TopicWordDTO] { [] }
-    public func fetchWordById(id: Int64) async throws -> TopicWordDTO? { nil }
+    public func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] {
+        let sql = """
+        SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+        FROM senses s
+        JOIN lesson_senses ls ON ls.sense_id = s.id
+        JOIN entries e ON s.entry_id = e.id
+        WHERE ls.lesson_id = ?
+        ORDER BY ls.sort_order;
+        """
+        let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        return try query(sql, bind: { stmt in
+            sqlite3_bind_text(stmt, 1, stageId, -1, sqliteTransient)
+        }) { [self] stmt in
+            parseWord(stmt: stmt, stageId: stageId)
+        }
+    }
+
+    public func searchWords(query queryText: String) async throws -> [TopicWordDTO] {
+        let sql = """
+        SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+        FROM senses s
+        JOIN entries e ON s.entry_id = e.id
+        WHERE e.headword LIKE ? OR s.definition_en LIKE ? OR s.definition_vi LIKE ?
+        LIMIT 50;
+        """
+        let pattern = "%\(queryText)%"
+        let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        return try query(sql, bind: { stmt in
+            sqlite3_bind_text(stmt, 1, pattern, -1, sqliteTransient)
+            sqlite3_bind_text(stmt, 2, pattern, -1, sqliteTransient)
+            sqlite3_bind_text(stmt, 3, pattern, -1, sqliteTransient)
+        }) { [self] stmt in
+            parseWord(stmt: stmt)
+        }
+    }
+
+    public func fetchWordById(id: Int64) async throws -> TopicWordDTO? {
+        let sql = """
+        SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+        FROM senses s
+        JOIN entries e ON s.entry_id = e.id
+        WHERE s.rowid = ?;
+        """
+        let results = try query(sql, bind: { stmt in
+            sqlite3_bind_int64(stmt, 1, id)
+        }) { [self] stmt in
+            parseWord(stmt: stmt)
+        }
+        return results.first
+    }
 }
