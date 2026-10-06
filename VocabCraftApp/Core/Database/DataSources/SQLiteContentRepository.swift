@@ -16,6 +16,25 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         }
     }
 
+    // MARK: - Migration
+
+    public static func readContentVersion(at url: URL) -> Int? {
+        var db: OpaquePointer?
+        let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX
+        guard sqlite3_open_v2(url.path, &db, flags, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_close(db) }
+        
+        var stmt: OpaquePointer?
+        let sql = "SELECT content_version FROM dataset_metadata LIMIT 1;"
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_finalize(stmt) }
+        
+        if sqlite3_step(stmt) == SQLITE_ROW {
+            return Int(sqlite3_column_int(stmt, 0))
+        }
+        return nil
+    }
+
     // MARK: - Query Helpers
 
     private func query<T>(
