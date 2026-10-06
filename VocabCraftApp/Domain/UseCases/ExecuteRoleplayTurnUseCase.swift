@@ -66,13 +66,23 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
 
         CONVERSATION & BREVITY RULES (CRITICAL):
         - `characterReply`: Strictly 1 to 2 short sentences, maximum 25 words total. Speak naturally as in real life dialogue.
-        - NEVER include asterisks, roleplay action descriptions, facial expressions, or stage directions (e.g. do NOT write *smiles*, *nods*, or *laughs*). Spoken dialogue only!
-        - Keep the exchange interactive and dynamic: ask a short follow-up or react briefly so the conversation flows back and forth quickly.
+        - NEVER include asterisks, stage directions, or facial descriptions (*smiles*, *nods*). Spoken dialogue only!
+        - Keep the interaction flowing naturally with a quick prompt or conversational response.
+
+        REFINEMENT RULES:
+        - `refinementSuggestion`: Only provide an improved sentence if the user's message has clear grammatical errors, awkward word choice, or unnatural phrasing.
+        - If the user's sentence is already natural and grammatically correct English, RETURN NULL. Never rephrase a correct sentence.
+        - When provided, keep the improved sentence natural and concise (under 12 words).
+
+        SUGGESTED RESPONSES RULES:
+        - `suggestedResponses`: Generate exactly 2 to 3 distinct, natural candidate responses (3 to 7 words each) following these branches:
+          1. Target Word: A response naturally using one of the target words: \(scenario.targetWordIds.joined(separator: ", ")).
+          2. Inquiry/Question: A natural polite question or request continuing the conversation.
+          3. Casual Reaction: A colloquial remark or response.
+
         - `targetWordsUsed`: list of target words the user actually used correctly in their message.
-        - `refinementSuggestion`: if the user's sentence could be phrased more naturally by a native speaker, provide a concise improved sentence (max 15 words); otherwise null.
-        - `pedagogicalNote`: very brief praise or tip (under 8 words); otherwise null.
-        - `suggestedResponses`: array of 2-3 short, natural spoken phrases (3-7 words each) that the user can say next, demonstrating natural usage of target vocabulary.
-        - `isConcluded`: boolean, false unless the roleplay interaction is fully finished naturally.
+        - `pedagogicalNote`: brief praise or tip (under 8 words); otherwise null.
+        - `isConcluded`: boolean, false unless the interaction has reached a natural conclusion.
 
         Return JSON conforming to RoleplayTurnOutput schema.
         """

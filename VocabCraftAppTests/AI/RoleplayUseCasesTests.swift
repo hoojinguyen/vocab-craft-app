@@ -242,6 +242,80 @@ struct RoleplayUseCasesTests {
         #expect(!result.targetWordsUsed.contains("tea"))
     }
 
+    @Test("ExecuteRoleplayTurnUseCase prompt formats 3-branch suggestions instructions")
+    func testPromptSpecifiesThreeBranchSuggestions() async throws {
+        let mockOutput = RoleplayTurnOutput(
+            characterReply: "What kind of coffee do you enjoy?",
+            targetWordsUsed: [],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil,
+            suggestedResponses: [
+                "I'd like an espresso, please.",
+                "What beans do you recommend?",
+                "Just something warm, thanks!"
+            ]
+        )
+        let mockProvider = MockLLMProvider(mockTurnOutput: mockOutput)
+        let useCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["espresso"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        let result = try await useCase.execute(
+            scenario: scenario,
+            userUtterance: "Good morning!",
+            chatHistory: []
+        )
+
+        #expect(result.suggestedResponses.count == 3)
+        #expect(result.refinementSuggestion == nil)
+    }
+
+    @Test("ExecuteRoleplayTurnUseCase system prompt contains 3-branch and refinement guidelines")
+    func testSystemPromptContainsThreeBranchAndRefinementGuidelines() async throws {
+        let spyProvider = RoleplayPromptRecordingLLMProvider()
+        let useCase = ExecuteRoleplayTurnUseCase(llmProvider: spyProvider)
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["espresso", "cappuccino"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        _ = try await useCase.execute(
+            scenario: scenario,
+            userUtterance: "Good morning!",
+            chatHistory: []
+        )
+
+        let prompt = spyProvider.capturedSystemPrompt ?? ""
+        #expect(prompt.contains("REFINEMENT RULES:"))
+        #expect(prompt.contains("RETURN NULL. Never rephrase a correct sentence."))
+        #expect(prompt.contains("SUGGESTED RESPONSES RULES:"))
+        #expect(prompt.contains("1. Target Word: A response naturally using one of the target words: espresso, cappuccino."))
+        #expect(prompt.contains("2. Inquiry/Question: A natural polite question or request continuing the conversation."))
+        #expect(prompt.contains("3. Casual Reaction: A colloquial remark or response."))
+    }
+
     // MARK: - CompleteRoleplaySessionUseCase Tests
 
     @Test("CompleteRoleplaySessionUseCase calculates fluency and mastery")
@@ -327,5 +401,31 @@ struct RoleplayUseCasesTests {
         #expect(progress != nil)
         #expect(progress?.masteryLevel == 1)
         #expect(progress?.sourceDeckId == "cafe-order")
+    }
+}
+
+// MARK: - Prompt Recording Helper
+
+private final class RoleplayPromptRecordingLLMProvider: LLMProviderProtocol, @unchecked Sendable {
+    let providerIdentifier: String = "prompt-recording-mock"
+    var capturedSystemPrompt: String?
+
+    func sendStructuredMessage<T: Decodable & Sendable>(
+        messages: [LLMChatMessage],
+        systemPrompt: String,
+        responseSchema: T.Type
+    ) async throws -> T {
+        self.capturedSystemPrompt = systemPrompt
+        let output = RoleplayTurnOutput(
+            characterReply: "Welcome!",
+            targetWordsUsed: [],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil,
+            suggestedResponses: ["I want coffee."]
+        )
+        if let typed = output as? T {
+            return typed
+        }
+        fatalError("Unsupported schema")
     }
 }
