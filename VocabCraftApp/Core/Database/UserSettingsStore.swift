@@ -55,6 +55,24 @@ public final class UserSettingsStore {
         }
     }
 
+    public var roleplayVoiceId: String {
+        didSet {
+            defaults.set(roleplayVoiceId, forKey: "roleplay_voice_id")
+        }
+    }
+
+    public var roleplaySpeechRate: Double {
+        didSet {
+            defaults.set(roleplaySpeechRate, forKey: "roleplay_speech_rate")
+        }
+    }
+
+    public var roleplaySpeechPitch: Double {
+        didSet {
+            defaults.set(roleplaySpeechPitch, forKey: "roleplay_speech_pitch")
+        }
+    }
+
     public var geminiApiKey: String {
         didSet {
             defaults.set(geminiApiKey, forKey: "gemini_api_key")
@@ -237,6 +255,17 @@ public final class UserSettingsStore {
         self.hasCompletedOnboarding = completedOnboarding
         self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"
         self.assessedCefrLevel = defaults.string(forKey: "assessed_cefr_level") ?? "A1"
+        self.roleplayVoiceId = defaults.string(forKey: "roleplay_voice_id") ?? "systemAuto"
+        let savedRate = defaults.double(forKey: "roleplay_speech_rate")
+        self.roleplaySpeechRate = savedRate > 0 ? savedRate : 1.0
+        let savedPitch = defaults.double(forKey: "roleplay_speech_pitch")
+        self.roleplaySpeechPitch = savedPitch > 0 ? savedPitch : 1.0
+    }
+
+    public func resetAllSettings() {
+        roleplayVoiceId = "systemAuto"
+        roleplaySpeechRate = 1.0
+        roleplaySpeechPitch = 1.0
     }
 }
 

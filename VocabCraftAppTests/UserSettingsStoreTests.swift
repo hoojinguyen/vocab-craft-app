@@ -1,6 +1,9 @@
 import CraftUIKit
 import Foundation
 @testable import VocabCraftApp
+#if canImport(Testing)
+import Testing
+#endif
 #if canImport(XCTest)
 import XCTest
 #endif
@@ -19,6 +22,9 @@ final class UserSettingsStoreTests: XCTestCase {
         defaults.removeObject(forKey: "tts_speed")
         defaults.removeObject(forKey: "is_haptics_enabled")
         defaults.removeObject(forKey: "is_sound_effects_enabled")
+        defaults.removeObject(forKey: "roleplay_voice_id")
+        defaults.removeObject(forKey: "roleplay_speech_rate")
+        defaults.removeObject(forKey: "roleplay_speech_pitch")
     }
 
     func testDefaultUserSettingsValues() {
@@ -209,4 +215,71 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testRoleplayVoiceSettingsPersistenceXCTest() {
+        let suiteName = "test_roleplay_voice_xctest_\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Failed to create UserDefaults suite")
+            return
+        }
+        let store = UserSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.roleplayVoiceId, "systemAuto")
+        XCTAssertEqual(store.roleplaySpeechRate, 1.0)
+        XCTAssertEqual(store.roleplaySpeechPitch, 1.0)
+
+        store.roleplayVoiceId = "apple-daniel"
+        store.roleplaySpeechRate = 1.15
+        store.roleplaySpeechPitch = 0.95
+
+        let reloadedStore = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloadedStore.roleplayVoiceId, "apple-daniel")
+        XCTAssertEqual(reloadedStore.roleplaySpeechRate, 1.15, accuracy: 0.001)
+        XCTAssertEqual(reloadedStore.roleplaySpeechPitch, 0.95, accuracy: 0.001)
+
+        defaults.removePersistentDomain(forName: suiteName)
+    }
 }
+
+#if canImport(Testing)
+@Suite("UserSettingsStore Roleplay Voice Tests")
+@MainActor
+struct UserSettingsStoreRoleplayVoiceTests {
+    @Test("Verify roleplay voice settings persistence and defaults")
+    func testRoleplayVoiceSettingsPersistence() {
+        let suiteName = "test_roleplay_voice_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let store = UserSettingsStore(defaults: defaults)
+
+        #expect(store.roleplayVoiceId == "systemAuto")
+        #expect(store.roleplaySpeechRate == 1.0)
+        #expect(store.roleplaySpeechPitch == 1.0)
+
+        store.roleplayVoiceId = "apple-daniel"
+        store.roleplaySpeechRate = 1.15
+        store.roleplaySpeechPitch = 0.95
+
+        let reloadedStore = UserSettingsStore(defaults: defaults)
+        #expect(reloadedStore.roleplayVoiceId == "apple-daniel")
+        #expect(abs(reloadedStore.roleplaySpeechRate - 1.15) < 0.001)
+        #expect(abs(reloadedStore.roleplaySpeechPitch - 0.95) < 0.001)
+    }
+
+    @Test("Verify resetAllSettings resets roleplay voice settings to defaults")
+    func testResetAllSettingsResetsRoleplayVoice() {
+        let suiteName = "test_reset_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        let store = UserSettingsStore(defaults: defaults)
+
+        store.roleplayVoiceId = "gemini-aoede"
+        store.roleplaySpeechRate = 1.2
+        store.roleplaySpeechPitch = 0.8
+
+        store.resetAllSettings()
+
+        #expect(store.roleplayVoiceId == "systemAuto")
+        #expect(store.roleplaySpeechRate == 1.0)
+        #expect(store.roleplaySpeechPitch == 1.0)
+    }
+}
+#endif
