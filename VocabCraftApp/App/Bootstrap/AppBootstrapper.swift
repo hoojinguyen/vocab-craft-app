@@ -22,14 +22,14 @@ public final class AppBootstrapper {
     private let arguments: [String]
     private let containerProvider: (() throws -> ModelContainer)?
     private let resetProvider: (() throws -> ModelContainer)?
-    private let dataSourceProvider: (() throws -> BundledVocabularyDataSource)?
+    private let dataSourceProvider: (() throws -> VocabularyDataSourceProtocol)?
 
     public init(
         inMemoryOnly: Bool = false,
         arguments: [String] = ProcessInfo.processInfo.arguments,
         containerProvider: (() throws -> ModelContainer)? = nil,
         resetProvider: (() throws -> ModelContainer)? = nil,
-        dataSourceProvider: (() throws -> BundledVocabularyDataSource)? = nil
+        dataSourceProvider: (() throws -> VocabularyDataSourceProtocol)? = nil
     ) {
         self.inMemoryOnly = inMemoryOnly
         self.arguments = arguments
@@ -57,13 +57,12 @@ public final class AppBootstrapper {
                 try? modelContainer.mainContext.save()
             }
 
-            let dataSource: BundledVocabularyDataSource
+            let dataSource: VocabularyDataSourceProtocol
             if let dataSourceProvider {
                 dataSource = try dataSourceProvider()
             } else {
-                dataSource = BundledVocabularyDataSource()
+                dataSource = AppContainer.getProductionDataSource()
             }
-            try dataSource.validateCatalog()
 
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
@@ -98,7 +97,7 @@ public final class AppBootstrapper {
             }
             self.container = newContainer
 
-            let dataSource = BundledVocabularyDataSource()
+            let dataSource = AppContainer.getProductionDataSource()
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
                 modelContainer: newContainer,
