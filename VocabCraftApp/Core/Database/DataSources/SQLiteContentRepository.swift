@@ -82,6 +82,30 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
         )
     }
 
+    // MARK: - Mappers
+
+    private func mapIconKeyToSFSymbol(_ key: String) -> String {
+        switch key {
+        case "graduation_cap": return "graduationcap.fill"
+        case "book_open": return "book.fill"
+        case "bookmark": return "bookmark.fill"
+        case "sparkles": return "sparkles"
+        case "compass": return "safari.fill"
+        default: return "star.fill"
+        }
+    }
+
+    private func mapThemeKeyToHex(_ key: String) -> String {
+        switch key {
+        case "forest_green": return "#34C759"
+        case "sunset_amber": return "#FF9500"
+        case "ocean_blue": return "#007AFF"
+        case "slate_gray": return "#8E8E93"
+        case "royal_purple": return "#AF52DE"
+        default: return "#007AFF"
+        }
+    }
+
     // MARK: - VocabularyDataSourceProtocol
 
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
@@ -90,8 +114,8 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
             TopicDeckDTO(
                 id: columnString(stmt, 0),
                 title: columnString(stmt, 1),
-                iconName: columnString(stmt, 2),
-                badgeColorHex: columnString(stmt, 3),
+                iconName: mapIconKeyToSFSymbol(columnString(stmt, 2)),
+                badgeColorHex: mapThemeKeyToHex(columnString(stmt, 3)),
                 cefrLevel: "A1",
                 sortOrder: columnInt(stmt, 4)
             )
@@ -108,7 +132,7 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
                 id: columnString(stmt, 0),
                 deckId: columnString(stmt, 1),
                 title: columnString(stmt, 2),
-                iconName: columnString(stmt, 3),
+                iconName: mapIconKeyToSFSymbol(columnString(stmt, 3)),
                 sortOrder: columnInt(stmt, 4)
             )
         }
