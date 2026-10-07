@@ -778,6 +778,8 @@ extension AppStrings {
         public static var statusNeedsKeyText: String { String(localized: "app.ai.pack.status.needs_key", defaultValue: "API Key Required", bundle: .module) }
         public static var statusNeedsDownload: LocalizedStringKey { "app.ai.pack.status.needs_download" }
         public static var statusNeedsDownloadText: String { String(localized: "app.ai.pack.status.needs_download", defaultValue: "Download Required", bundle: .module) }
+        public static let statusUnavailable: LocalizedStringKey = "app.ai.pack.status.unavailable"
+        public static var statusUnavailableText: String { String(localized: "app.ai.pack.status.unavailable", defaultValue: "Unavailable", bundle: .module) }
     }
 }
 

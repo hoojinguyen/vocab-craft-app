@@ -294,7 +294,7 @@ public struct AIAssistantHubView: View {
             case .needsDownload, .partiallyReady:
                 return (AppStrings.AIPack.statusNeedsDownload, .primary)
             case .unavailable:
-                return (AppStrings.AIPack.statusNeedsKey, .neutral)
+                return (AppStrings.AIPack.statusUnavailable, .neutral)
             }
         }()
 

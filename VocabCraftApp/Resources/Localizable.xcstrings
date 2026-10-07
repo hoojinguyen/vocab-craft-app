@@ -749,6 +749,23 @@
         }
       }
     },
+    "app.ai.pack.status.unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không khả dụng"
+          }
+        }
+      }
+    },
     "app.ai.summary.action_reflex": {
       "extractionState": "manual",
       "localizations": {

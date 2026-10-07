@@ -815,4 +815,40 @@ struct TurnBasedVoiceConversationEngineTests {
         #expect(mockTTS.lastSpokenContext == .conversation(persona: .friendlyMale, locale: "en-US"))
         #expect(mockTTS.lastSpokenRate == 1.0)
     }
+
+    @Test("If TTS synthesis throws during concluding turn, engine stays in .error state and does not auto-conclude")
+    @MainActor
+    func testTTSErrorDuringConcludingTurnDoesNotAutoConclude() async {
+        let scenario = makeTestScenario()
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "All set! Have a wonderful day!",
+            targetWordsUsed: ["espresso"],
+            isConcluded: true
+        ))
+        let failingTTS = MockTTSEngine()
+        failingTTS.shouldThrowError = true
+        let mockSTT = MockSTTEngine()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            llmProvider: mockLLM,
+            ttsEngine: failingTTS,
+            sttEngine: mockSTT
+        )
+
+        var didCallAutoConclude = false
+        engine.onSessionAutoConcluded = { _ in
+            didCallAutoConclude = true
+        }
+
+        await engine.processUserUtterance("Can I get an espresso?")
+
+        #expect(!didCallAutoConclude)
+        #expect(engine.state != .ended)
+        if case .error(let error) = engine.state {
+            #expect(engine.activeError == error)
+        } else {
+            Issue.record("Expected state to be .error but was \(engine.state)")
+        }
+    }
 }

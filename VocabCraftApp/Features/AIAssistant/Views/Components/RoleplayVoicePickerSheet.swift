@@ -92,7 +92,7 @@ public struct RoleplayVoicePickerSheet: View {
         let profiles = RoleplayVoiceProfileCatalog.allProfiles.filter { $0.engine == .kokoroNeural }
 
         if profiles.isEmpty { return AnyView(EmptyView()) }
-        
+
         return AnyView(VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.voiceQualityKokoro)
 

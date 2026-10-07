@@ -544,6 +544,7 @@ struct AIAssistantLocalizationTests {
             "app.ai.pack.status.ready",
             "app.ai.pack.status.needs_key",
             "app.ai.pack.status.needs_download",
+            "app.ai.pack.status.unavailable",
             "app.ai.error.api_key_required",
             "app.ai.error.download_required",
             "app.ai.error.device_not_supported",
@@ -560,6 +561,7 @@ struct AIAssistantLocalizationTests {
             #expect(!viString.isEmpty && viString != key, "Missing or untranslated VI for key: \(key)")
             assertLocalizationExists(key: key)
         }
+        #expect(AppStrings.AIPack.statusUnavailableText == "Unavailable")
     }
 
     nonisolated(unsafe) private static let catalogStrings: [String: Any]? = {

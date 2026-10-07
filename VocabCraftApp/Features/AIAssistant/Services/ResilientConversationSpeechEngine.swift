@@ -428,6 +428,7 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
             if isConcluded {
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
                 guard self.state != .ended else { return }
+                if case .error = self.state { return }
                 let summary = await self.endCall()
                 self.onSessionAutoConcluded?(summary)
             }

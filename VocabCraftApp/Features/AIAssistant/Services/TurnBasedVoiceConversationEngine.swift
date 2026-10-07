@@ -395,6 +395,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             if isConcluded {
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
                 guard state != .ended else { return }
+                if case .error = state { return }
                 let summary = await endCall()
                 onSessionAutoConcluded?(summary)
             }
