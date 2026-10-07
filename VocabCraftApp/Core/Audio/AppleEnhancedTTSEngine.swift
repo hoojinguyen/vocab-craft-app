@@ -118,7 +118,9 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         currentUtterance = utterance
         onFinishedCallback = onFinished
 
-        let isTesting = NSClassFromString("XCTestCase") != nil
+        let isTesting = NSClassFromString("XCTestCase") != nil ||
+            ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil ||
+            ProcessInfo.processInfo.environment["XCTestBundlePath"] != nil
         if isTesting { return }
         synthesizer.speak(utterance)
     }
@@ -148,7 +150,9 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         isSpeaking = true
         currentUtterance = utterance
 
-        let isTesting = NSClassFromString("XCTestCase") != nil
+        let isTesting = NSClassFromString("XCTestCase") != nil ||
+            ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil ||
+            ProcessInfo.processInfo.environment["XCTestBundlePath"] != nil
         if isTesting {
             isSpeaking = false
             currentUtterance = nil

@@ -127,6 +127,11 @@ public enum AppleVoiceSelector: Sendable {
         return candidatePool.first ?? matchingVoices.first ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
+    public static func selectVoice(locale: String, gender: AVSpeechSynthesisVoiceGender) -> AVSpeechSynthesisVoice? {
+        let persona: VoicePersona = (gender == .male) ? .friendlyMale : .friendlyFemale
+        return resolveBestVoice(for: locale, persona: persona)
+    }
+
     public static func clearCache() {
         lock.lock()
         defer { lock.unlock() }

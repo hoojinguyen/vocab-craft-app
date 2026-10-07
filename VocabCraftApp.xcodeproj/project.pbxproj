@@ -109,6 +109,11 @@
 		30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */; };
 		3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */; };
 		30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */; };
+		3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */; };
+		3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */; };
+		30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */; };
+		3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */; };
+		3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */; };
 		300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */; };
 		300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
@@ -263,6 +268,7 @@
 		3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */; };
 		300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */; };
 		30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */; };
+		30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */; };
 		30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */; };
 		30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */; };
 		30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */; };
@@ -511,6 +517,11 @@
 		2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "STTEngineProtocol.swift"; sourceTree = "<group>"; };
 		2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineProtocol.swift"; sourceTree = "<group>"; };
 		2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConfiguration.swift"; sourceTree = "<group>"; };
+		2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleSTTEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSTTEngineAdapter.swift"; sourceTree = "<group>"; };
 		200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteRoleplaySessionUseCase.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCase.swift"; sourceTree = "<group>"; };
@@ -648,6 +659,7 @@
 		2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayViewModelsTests.swift"; sourceTree = "<group>"; };
 		200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceCallViewModelTests.swift"; sourceTree = "<group>"; };
 		2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackDomainModelTests.swift"; sourceTree = "<group>"; };
+		20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineAdapterTests.swift"; sourceTree = "<group>"; };
 		20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalogTests.swift"; sourceTree = "<group>"; };
 		20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionServiceTests.swift"; sourceTree = "<group>"; };
 		20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
@@ -995,10 +1007,31 @@
 			isa = PBXGroup;
 			children = (
 				4000A0E6120D8624D72A /* AI */,
+				4000A57F181DD4A46E83 /* Audio */,
 				40009A7A10F832BFCD13 /* Local */,
 				40001FE94D3B22BA736B /* Repositories */,
 			);
 			path = "Data";
+			sourceTree = "<group>";
+		};
+		4000A57F181DD4A46E83 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				400079DDF01423D3D7CA /* Engines */,
+			);
+			path = "Audio";
+			sourceTree = "<group>";
+		};
+		400079DDF01423D3D7CA /* Engines */ = {
+			isa = PBXGroup;
+			children = (
+				2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */,
+				2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */,
+				20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */,
+				2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */,
+				2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */,
+			);
+			path = "Engines";
 			sourceTree = "<group>";
 		};
 		4000A0E6120D8624D72A /* AI */ = {
@@ -1686,6 +1719,7 @@
 				2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */,
 				200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */,
 				2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */,
+				20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */,
 				20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */,
 				20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */,
 				20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */,
@@ -2158,6 +2192,11 @@
 				30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */,
 				3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */,
 				30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */,
+				3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */,
+				3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */,
+				30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */,
+				3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */,
+				3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */,
 				300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */,
 				300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
@@ -2320,6 +2359,7 @@
 				3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */,
 				300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */,
 				30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */,
+				30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */,
 				30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */,
 				30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */,
 				30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */,

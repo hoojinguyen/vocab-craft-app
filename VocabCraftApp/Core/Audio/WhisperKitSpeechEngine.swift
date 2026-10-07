@@ -40,4 +40,17 @@ public final class WhisperKitSpeechEngine {
         // so that the primary live transcript from SFSpeechRecognizer is safely preserved.
         return ""
     }
+
+    public func startListening(
+        onResult: @escaping (String) -> Void,
+        onError: @escaping (Error) -> Void
+    ) {
+        if let simulated = simulatedTranscript {
+            onResult(simulated)
+        }
+    }
+
+    public func stopListening() {
+        clearBuffer()
+    }
 }
