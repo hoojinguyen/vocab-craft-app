@@ -69,7 +69,7 @@ public final class AppContainer {
         self.userProgressRepository = resolvedUserProgressRepo
 
         let resolvedDataSource: VocabularyDataSourceProtocol = vocabularyDataSource
-            ?? BundledVocabularyDataSource()
+            ?? Self.getProductionDataSource()
         self.vocabularyDataSource = resolvedDataSource
 
         let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
@@ -329,6 +329,46 @@ public final class AppContainer {
     public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
         let engine = makeResilientConversationSpeechEngine(for: scenario)
         return RoleplayVoiceCallViewModel(engine: engine, ttsService: ttsService)
+    }
+
+    public static func getProductionDataSource() -> VocabularyDataSourceProtocol {
+        do {
+            let fileManager = FileManager.default
+            let appSupport = try fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            
+            // We use a stable directory now, instead of v5/v6.
+            let dir = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
+            try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+            let dest = dir.appendingPathComponent("vocab_content.sqlite")
+
+            let src = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
+                ?? Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite", subdirectory: "Content")
+            
+            if let src {
+                let bundleVersion = SQLiteContentRepository.readContentVersion(at: src) ?? 0
+                let savedVersion = UserDefaults.standard.integer(forKey: "current_content_version")
+                
+                let shouldCopy = !fileManager.fileExists(atPath: dest.path) || bundleVersion > savedVersion
+                
+                if shouldCopy {
+                    if fileManager.fileExists(atPath: dest.path) {
+                        try fileManager.removeItem(at: dest)
+                    }
+                    try fileManager.copyItem(at: src, to: dest)
+                    UserDefaults.standard.set(bundleVersion, forKey: "current_content_version")
+                }
+            }
+            
+            return try SQLiteContentRepository(url: dest)
+        } catch {
+            print("Failed to initialize SQLite content: \(error)")
+            return BundledVocabularyDataSource() // Safe fallback
+        }
     }
 
     public static var mock: AppContainer {

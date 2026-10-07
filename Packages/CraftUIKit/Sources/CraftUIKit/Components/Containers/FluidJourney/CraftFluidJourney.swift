@@ -97,7 +97,6 @@ public struct CraftFluidJourney: View {
     @State private var selectedNodeForDetail: LessonNodeModel?
     @State private var pendingLessonToStart: LessonNodeModel?
     @State private var isDrawerPresented: Bool = false
-    @State private var drawerExpandedSectionIds: Set<String> = []
     @State private var hasScrolledToActive: Bool = false
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
     @State private var tracksUserTabBarScroll: Bool = false
@@ -497,9 +496,6 @@ extension CraftFluidJourney {
                 onTap: {
                     // Parent-owned expansion state: survives sheet rebuilds and
                     // guarantees the drawer re-renders on every toggle.
-                    if let dockedId = currentlyDockedSection?.id {
-                        drawerExpandedSectionIds = [dockedId]
-                    }
                     isDrawerPresented = true
                 }
             )
@@ -511,12 +507,12 @@ extension CraftFluidJourney {
 
     @ViewBuilder
     func curriculumDrawerSheet(scrollProxy: ScrollViewProxy) -> some View {
+        let activeId = currentlyDockedSection?.id ?? sections.first?.id ?? ""
         CraftUnitDrawerSheet(
             sections: sections,
             deckTitle: resolvedDeckTitle,
             deckSubtitle: resolvedDeckSubtitle,
-            activeSectionId: currentlyDockedSection?.id ?? sections.first?.id ?? "",
-            expandedSectionIds: $drawerExpandedSectionIds,
+            activeSectionId: activeId,
             onAdjustPlan: onAdjustPlan,
             onSelectLesson: { sectionId, nodeId in
                 handleLessonSelection(sectionId: sectionId, nodeId: nodeId, scrollProxy: scrollProxy)
@@ -525,6 +521,7 @@ extension CraftFluidJourney {
                 isDrawerPresented = false
             }
         )
+        .id(activeId) // Forces recreation of internal @State when the docked section changes
     }
 
     @ViewBuilder
@@ -669,8 +666,17 @@ extension CraftFluidJourney {
         onSelectLesson?(sectionId, nodeId)
 
         Task { @MainActor in
+            // Wait for drawer dismissal to complete
             try? await Task.sleep(for: .milliseconds(350))
             guard !Task.isCancelled else { return }
+            
+            // Step 1: Scroll to the section to force LazyVStack to render the section's nodes
+            scrollProxy.scrollTo(sectionId, anchor: .top)
+            
+            // Step 2: Yield a tiny bit of time for layout, then scroll to exact node
+            try? await Task.sleep(for: .milliseconds(50))
+            guard !Task.isCancelled else { return }
+
             let isFirstNode = sections.first?.nodes.first?.id == nodeId
             withAnimation(reduceMotion ? nil : .smooth(duration: 0.5)) {
                 if isFirstNode {

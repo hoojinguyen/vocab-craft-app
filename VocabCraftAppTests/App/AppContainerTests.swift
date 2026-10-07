@@ -10,7 +10,17 @@ struct AppContainerTests {
     @Test @MainActor
     func appContainerProvidesBundledVocabularyDataSourceByDefault() {
         let container = AppContainer()
-        #expect(container.vocabularyDataSource is BundledVocabularyDataSource)
+        let isProductionSource = container.vocabularyDataSource is SQLiteContentRepository
+            || container.vocabularyDataSource is BundledVocabularyDataSource
+        #expect(isProductionSource)
+    }
+
+    @Test @MainActor
+    func appContainerGetProductionDataSourceReturnsValidDataSource() {
+        let dataSource = AppContainer.getProductionDataSource()
+        let isProductionSource = dataSource is SQLiteContentRepository
+            || dataSource is BundledVocabularyDataSource
+        #expect(isProductionSource)
     }
 
     @Test @MainActor
@@ -50,6 +60,17 @@ struct AppContainerTests {
     }
 
     @Test @MainActor
+    func appContainerAllowsSQLiteContentRepositoryInjection() throws {
+        let tempUrl = FileManager.default.temporaryDirectory.appendingPathComponent("test_\(UUID().uuidString).sqlite")
+        FileManager.default.createFile(atPath: tempUrl.path, contents: Data())
+        defer { try? FileManager.default.removeItem(at: tempUrl) }
+
+        let sqliteRepo = try SQLiteContentRepository(url: tempUrl)
+        let container = AppContainer(vocabularyDataSource: sqliteRepo)
+        #expect(container.vocabularyDataSource is SQLiteContentRepository)
+    }
+
+    @Test @MainActor
     func appContainerMockModeUsesMockVocabularyRepository() {
         let container = AppContainer.mock
         #expect(container.vocabularyRepository is MockVocabularyRepository)
@@ -61,7 +82,9 @@ struct AppContainerTests {
         let bootstrapper = AppBootstrapper(inMemoryOnly: true)
         bootstrapper.bootstrap()
         #expect(bootstrapper.state == .ready)
-        #expect(bootstrapper.appContainer?.vocabularyDataSource is BundledVocabularyDataSource)
+        let isProductionSource = bootstrapper.appContainer?.vocabularyDataSource is SQLiteContentRepository
+            || bootstrapper.appContainer?.vocabularyDataSource is BundledVocabularyDataSource
+        #expect(isProductionSource)
         #expect(bootstrapper.appContainer?.vocabularyRepository is VocabularyRepositoryImpl)
     }
     #endif

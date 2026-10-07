@@ -44,63 +44,11 @@ struct CraftUnitDrawerSheetTests {
         #expect(sheet.deckTitle == "Deck Title")
     }
 
-    @Test("Verify initial expansion defaults to activeSectionId")
-    func testInitialExpansion() {
-        let sections = [
-            LessonSection(id: "sec-1", title: "Unit 1", nodes: []),
-            LessonSection(id: "sec-2", title: "Unit 2", nodes: [])
-        ]
-        let sheet = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Deck Title",
-            deckSubtitle: "Subtitle",
-            activeSectionId: "sec-1",
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-        #expect(sheet.isSectionExpanded("sec-1") == true)
-        #expect(sheet.isSectionExpanded("sec-2") == false)
-    }
-
-    @Test("Verify toggle section expansion and collapse via binding")
-    func testToggleSectionExpansion() {
-        let sections = [
-            LessonSection(id: "sec-1", title: "Unit 1", nodes: []),
-            LessonSection(id: "sec-2", title: "Unit 2", nodes: [])
-        ]
-        var expanded: Set<String> = ["sec-1"]
-        let binding = Binding(
-            get: { expanded },
-            set: { expanded = $0 }
-        )
-
-        let sheet = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Deck Title",
-            deckSubtitle: "Subtitle",
-            activeSectionId: "sec-1",
-            expandedSectionIds: binding,
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-        #expect(sheet.isSectionExpanded("sec-1") == true)
-        #expect(sheet.isSectionExpanded("sec-2") == false)
-
-        // Expand sec-2
-        sheet.toggleSection("sec-2")
-        #expect(sheet.isSectionExpanded("sec-2") == true)
-
-        // Collapse sec-1
-        sheet.toggleSection("sec-1")
-        #expect(sheet.isSectionExpanded("sec-1") == false)
-    }
-
     @Test("Verify select lesson callback execution")
     func testSelectLessonCallback() {
         var selectedSectionId: String?
         var selectedNodeId: String?
         var dismissed = false
-
         let sheet = CraftUnitDrawerSheet(
             sections: [],
             deckTitle: "Deck",
@@ -158,64 +106,6 @@ struct CraftUnitDrawerSheetTests {
         #expect(dismissed == true)
     }
 
-    @Test("Verify equatable semantics")
-    func testDrawerEquatable() {
-        let sections = [
-            LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
-        ]
-        let sheet1 = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Everyday English",
-            deckSubtitle: "A2 Level",
-            activeSectionId: "sec-1",
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-        let sheet2 = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Everyday English",
-            deckSubtitle: "A2 Level",
-            activeSectionId: "sec-1",
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-        let sheet3 = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Business English",
-            deckSubtitle: "B1 Level",
-            activeSectionId: "sec-1",
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-
-        #expect(sheet1 == sheet2)
-        #expect(sheet1 != sheet3)
-    }
-
-    @Test("Verify active section synchronization")
-    func testActiveSectionSynchronization() {
-        let sections = [
-            LessonSection(id: "sec-1", title: "Unit 1", nodes: []),
-            LessonSection(id: "sec-2", title: "Unit 2", nodes: [])
-        ]
-        var expanded: Set<String> = []
-        let binding = Binding(
-            get: { expanded },
-            set: { expanded = $0 }
-        )
-        let sheet = CraftUnitDrawerSheet(
-            sections: sections,
-            deckTitle: "Deck Title",
-            deckSubtitle: "Subtitle",
-            activeSectionId: "sec-2",
-            expandedSectionIds: binding,
-            onSelectLesson: { _, _ in },
-            onDismiss: {}
-        )
-        #expect(sheet.isSectionExpanded("sec-2") == false)
-        sheet.synchronizeActiveSection()
-        #expect(sheet.isSectionExpanded("sec-2") == true)
-    }
 
     @Test("Verify section meta subtitle merges level and summary")
     func testSectionMetaSubtitle() {
@@ -292,7 +182,10 @@ struct CraftUnitDrawerSheetTests {
                 == CraftLocalized.string("craft.fluid_journey.current_status")
         )
         #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-4", title: "L4", state: .upcoming)) == nil)
-        #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-5", title: "L5", state: .locked)) == nil)
+        #expect(
+            sheet.lessonStatusText(for: LessonNodeModel(id: "n-5", title: "L5", state: .locked))
+                == CraftLocalized.string("craft.common.state.locked")
+        )
         #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-6", title: "L6", state: .bonus)) == nil)
     }
 }

@@ -4,7 +4,7 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
     public let id: String
     public let title: String
     public let iconName: String
-    public let badgeColorHex: String
+    public let themeKey: String
     public let cefrLevel: String
     public let sortOrder: Int
     public let stages: [SubTopicStageDTO]
@@ -13,7 +13,7 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         id: String,
         title: String,
         iconName: String,
-        badgeColorHex: String,
+        themeKey: String,
         cefrLevel: String,
         sortOrder: Int,
         stages: [SubTopicStageDTO] = []
@@ -21,14 +21,14 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         self.id = id
         self.title = title
         self.iconName = iconName
-        self.badgeColorHex = badgeColorHex
+        self.themeKey = themeKey
         self.cefrLevel = cefrLevel
         self.sortOrder = sortOrder
         self.stages = stages
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, iconName, badgeColorHex, cefrLevel, sortOrder, stages
+        case id, title, iconName, themeKey, badgeColorHex, cefrLevel, sortOrder, stages
     }
 
     public init(from decoder: Decoder) throws {
@@ -36,10 +36,29 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.title = try container.decode(String.self, forKey: .title)
         self.iconName = try container.decode(String.self, forKey: .iconName)
-        self.badgeColorHex = try container.decode(String.self, forKey: .badgeColorHex)
+        
+        if let theme = try container.decodeIfPresent(String.self, forKey: .themeKey) {
+            self.themeKey = theme
+        } else if let legacyColor = try container.decodeIfPresent(String.self, forKey: .badgeColorHex) {
+            self.themeKey = legacyColor
+        } else {
+            self.themeKey = ""
+        }
+        
         self.cefrLevel = try container.decode(String.self, forKey: .cefrLevel)
         self.sortOrder = try container.decode(Int.self, forKey: .sortOrder)
         self.stages = try container.decodeIfPresent([SubTopicStageDTO].self, forKey: .stages) ?? []
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(title, forKey: .title)
+        try container.encode(iconName, forKey: .iconName)
+        try container.encode(themeKey, forKey: .themeKey)
+        try container.encode(cefrLevel, forKey: .cefrLevel)
+        try container.encode(sortOrder, forKey: .sortOrder)
+        try container.encode(stages, forKey: .stages)
     }
 }
 
