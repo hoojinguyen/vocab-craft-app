@@ -22,7 +22,7 @@ extension VoiceCallState {
             return .listening
         case .thinking:
             return .thinking
-        case .ended:
+        case .ended, .error:
             return .ended
         }
     }

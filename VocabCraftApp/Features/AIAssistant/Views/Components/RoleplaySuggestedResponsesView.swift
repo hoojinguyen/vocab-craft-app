@@ -26,7 +26,7 @@ public struct RoleplaySuggestedResponsesView: View {
         .onChange(of: viewModel.state) { _, newState in
             if viewModel.isHintsExpanded {
                 switch newState {
-                case .thinking, .speaking, .ended:
+                case .thinking, .speaking, .ended, .error:
                     withAnimation(theme.animations.springSnappy) {
                         viewModel.isHintsExpanded = false
                     }

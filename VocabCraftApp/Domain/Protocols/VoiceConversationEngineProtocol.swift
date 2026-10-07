@@ -6,6 +6,7 @@ public enum VoiceCallState: Equatable, Sendable {
     case speaking(characterText: String)
     case listening(liveTranscript: String)
     case thinking
+    case error(AIPackError)
     case ended
 }
 

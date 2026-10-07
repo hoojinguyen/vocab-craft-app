@@ -92,6 +92,9 @@
 		30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */; };
 		3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AD0A35CB0657E32D /* ReflexMode.swift */; };
 		300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
+		30007403F29B34041E95A32B /* AIPackIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */; };
+		3000F14985BAD08A1975736D /* AIPackStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E5BC1EC58874B9542179 /* AIPackStatus.swift */; };
+		3000A0539DD76FFCBD777559 /* AIPackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C2115BC9DEF96ECF538 /* AIPackError.swift */; };
 		30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */; };
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
 		3000DA7148B88C17BFA9 /* LLMProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */; };
@@ -103,6 +106,10 @@
 		3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */; };
 		3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */; };
 		3000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */; };
+		3000BBFD6D7A3A43440E9D69 /* AIPackProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */; };
+		30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */; };
+		3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */; };
+		30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */; };
 		300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */; };
 		300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
@@ -256,6 +263,7 @@
 		300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */; };
 		3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */; };
 		300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */; };
+		30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */; };
 		30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */; };
 		30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */; };
 		30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */; };
@@ -487,6 +495,9 @@
 		20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
 		2000AD0A35CB0657E32D /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
 		200065DD5844D92B1800 /* UserStageProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStageProgressData.swift"; sourceTree = "<group>"; };
+		2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackIdentifier.swift"; sourceTree = "<group>"; };
+		2000E5BC1EC58874B9542179 /* AIPackStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackStatus.swift"; sourceTree = "<group>"; };
+		20002C2115BC9DEF96ECF538 /* AIPackError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackError.swift"; sourceTree = "<group>"; };
 		20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicy.swift"; sourceTree = "<group>"; };
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
 		2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LLMProviderProtocol.swift"; sourceTree = "<group>"; };
@@ -498,6 +509,10 @@
 		2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserRoadmapSettingsProtocol.swift"; sourceTree = "<group>"; };
 		2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationEngineProtocol.swift"; sourceTree = "<group>"; };
+		2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackProtocol.swift"; sourceTree = "<group>"; };
+		2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "STTEngineProtocol.swift"; sourceTree = "<group>"; };
+		2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineProtocol.swift"; sourceTree = "<group>"; };
+		2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConfiguration.swift"; sourceTree = "<group>"; };
 		200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteRoleplaySessionUseCase.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCase.swift"; sourceTree = "<group>"; };
@@ -634,6 +649,7 @@
 		200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayViewModelsTests.swift"; sourceTree = "<group>"; };
 		200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceCallViewModelTests.swift"; sourceTree = "<group>"; };
+		2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackDomainModelTests.swift"; sourceTree = "<group>"; };
 		20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalogTests.swift"; sourceTree = "<group>"; };
 		20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionServiceTests.swift"; sourceTree = "<group>"; };
 		20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
@@ -1075,6 +1091,9 @@
 		4000260E29F35C2EBCD5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */,
+				2000E5BC1EC58874B9542179 /* AIPackStatus.swift */,
+				20002C2115BC9DEF96ECF538 /* AIPackError.swift */,
 				200097262FBD5E9DE745 /* LearningPathCurriculum.swift */,
 				2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */,
 				4000107F161429117498 /* Reflex */,
@@ -1103,6 +1122,7 @@
 		40008F48FF4076AEA27E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */,
 				2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */,
@@ -1111,7 +1131,10 @@
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
 				2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */,
+				2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */,
+				2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
+				2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */,
 				2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */,
 			);
 			path = "Protocols";
@@ -1665,6 +1688,7 @@
 				200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */,
 				2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */,
 				200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */,
+				2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */,
 				20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */,
 				20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */,
 				20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */,
@@ -2120,6 +2144,9 @@
 				30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */,
 				3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */,
 				300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */,
+				30007403F29B34041E95A32B /* AIPackIdentifier.swift in Sources */,
+				3000F14985BAD08A1975736D /* AIPackStatus.swift in Sources */,
+				3000A0539DD76FFCBD777559 /* AIPackError.swift in Sources */,
 				30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */,
 				30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */,
 				3000DA7148B88C17BFA9 /* LLMProviderProtocol.swift in Sources */,
@@ -2131,6 +2158,10 @@
 				3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
 				3000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift in Sources */,
+				3000BBFD6D7A3A43440E9D69 /* AIPackProtocol.swift in Sources */,
+				30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */,
+				3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */,
+				30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */,
 				300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */,
 				300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
@@ -2292,6 +2323,7 @@
 				300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */,
 				3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */,
 				300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */,
+				30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */,
 				30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */,
 				30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */,
 				30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */,

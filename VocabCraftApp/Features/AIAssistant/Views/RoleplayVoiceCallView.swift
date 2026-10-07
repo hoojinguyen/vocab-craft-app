@@ -358,7 +358,7 @@ public struct RoleplayVoiceCallView: View {
                         .frame(maxWidth: .infinity)
                         .lineLimit(2)
 
-                case .idle, .ended:
+                case .idle, .ended, .error:
                     EmptyView()
                 }
             }
@@ -378,6 +378,7 @@ public struct RoleplayVoiceCallView: View {
         case .speaking: return AppStrings.AIAssistant.stateSpeaking
         case .listening: return AppStrings.AIAssistant.stateListening
         case .thinking: return AppStrings.AIAssistant.stateThinking
+        case .error(let error): return LocalizedStringKey(error.localizedKey)
         case .ended: return AppStrings.AIAssistant.stateEnded
         }
     }

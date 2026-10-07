@@ -9,11 +9,14 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
     public let sortOrder: Int
     public let stages: [SubTopicStageDTO]
 
+    public var badgeColorHex: String { themeKey }
+
     public init(
         id: String,
         title: String,
         iconName: String,
-        themeKey: String,
+        themeKey: String = "",
+        badgeColorHex: String? = nil,
         cefrLevel: String,
         sortOrder: Int,
         stages: [SubTopicStageDTO] = []
@@ -21,7 +24,7 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         self.id = id
         self.title = title
         self.iconName = iconName
-        self.themeKey = themeKey
+        self.themeKey = badgeColorHex ?? themeKey
         self.cefrLevel = cefrLevel
         self.sortOrder = sortOrder
         self.stages = stages
@@ -36,7 +39,7 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.title = try container.decode(String.self, forKey: .title)
         self.iconName = try container.decode(String.self, forKey: .iconName)
-        
+
         if let theme = try container.decodeIfPresent(String.self, forKey: .themeKey) {
             self.themeKey = theme
         } else if let legacyColor = try container.decodeIfPresent(String.self, forKey: .badgeColorHex) {
@@ -44,7 +47,7 @@ public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
         } else {
             self.themeKey = ""
         }
-        
+
         self.cefrLevel = try container.decode(String.self, forKey: .cefrLevel)
         self.sortOrder = try container.decode(Int.self, forKey: .sortOrder)
         self.stages = try container.decodeIfPresent([SubTopicStageDTO].self, forKey: .stages) ?? []

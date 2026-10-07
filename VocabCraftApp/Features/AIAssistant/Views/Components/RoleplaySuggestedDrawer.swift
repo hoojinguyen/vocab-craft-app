@@ -139,7 +139,7 @@ public struct RoleplaySuggestedDrawer: View {
     public func handleStateChange(_ newState: VoiceCallState) {
         if viewModel.isHintsExpanded {
             switch newState {
-            case .thinking, .speaking, .ended:
+            case .thinking, .speaking, .ended, .error:
                 viewModel.isHintsExpanded = false
             case .idle, .listening:
                 break
