@@ -262,6 +262,10 @@ public final class UserSettingsStore {
         self.roleplaySpeechPitch = savedPitch > 0 ? savedPitch : 1.0
     }
 
+    public convenience init(userDefaults: UserDefaults) {
+        self.init(defaults: userDefaults)
+    }
+
     public func resetAllSettings() {
         roleplayVoiceId = "systemAuto"
         roleplaySpeechRate = 1.0
