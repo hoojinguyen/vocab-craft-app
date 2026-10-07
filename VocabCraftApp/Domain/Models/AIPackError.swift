@@ -24,3 +24,26 @@ public enum AIPackError: Error, Sendable, Equatable {
         }
     }
 }
+
+extension AIPackError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .apiKeyRequired(let providerName):
+            return "API key required for \(providerName)"
+        case .downloadRequired(let packName, let sizeDescription):
+            return "Download required for \(packName) (\(sizeDescription))"
+        case .deviceNotSupported(let reason):
+            return reason
+        case .noPackAvailable:
+            return "No AI pack available"
+        case .llmFailed(_, let underlyingMessage):
+            return underlyingMessage
+        case .ttsFailed(_, let underlyingMessage):
+            return underlyingMessage
+        case .sttFailed(_, let underlyingMessage):
+            return underlyingMessage
+        case .networkUnavailable:
+            return "Network unavailable"
+        }
+    }
+}

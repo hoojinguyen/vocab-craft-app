@@ -86,4 +86,24 @@ public struct RoleplayScenario: Identifiable, Codable, Sendable, Equatable {
         }
         return .friendlyFemale
     }
+
+    public static var cafeMock: RoleplayScenario {
+        RoleplayScenarioCatalog.standardScenarios.first ?? RoleplayScenario(
+            id: "scenario_cafe",
+            titleKey: "test_title",
+            descriptionKey: "test_desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Alex",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Welcome to The Daily Roast! What can I get for you?",
+            targetWordIds: ["espresso", "croissant"],
+            iconSymbol: "cup.and.saucer.fill",
+            starterSuggestions: [
+                "I would like an espresso, please.",
+                "Do you have fresh croissants?"
+            ]
+        )
+    }
 }

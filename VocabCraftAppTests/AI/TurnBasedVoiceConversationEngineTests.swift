@@ -2,8 +2,141 @@ import Foundation
 import Testing
 @testable import VocabCraftApp
 
+final class MockTTSEngine: TTSEngineProtocol, @unchecked Sendable {
+    let engineName: String = "Mock TTS"
+    var isReady: Bool = true
+    var shouldThrowError: Bool = false
+    var synthesizedCount: Int = 0
+    var lastSynthesizedText: String?
+    var lastVoice: VoiceConfiguration?
+
+    func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+        if shouldThrowError {
+            throw AIPackError.ttsFailed(packName: "Mock TTS", underlyingMessage: "TTS synthesis failed")
+        }
+        synthesizedCount += 1
+        lastSynthesizedText = text
+        lastVoice = voice
+    }
+
+    func stop() {}
+}
+
+final class MockSTTEngine: STTEngineProtocol, @unchecked Sendable {
+    let engineName: String = "Mock STT"
+    var isReady: Bool = true
+    var continuation: AsyncThrowingStream<String, Error>.Continuation?
+    var isListening: Bool = false
+
+    func startRecognition(locale: String) -> AsyncThrowingStream<String, Error> {
+        isListening = true
+        return AsyncThrowingStream { continuation in
+            self.continuation = continuation
+            continuation.onTermination = { [weak self] _ in
+                self?.isListening = false
+            }
+        }
+    }
+
+    func simulateResult(_ text: String) {
+        continuation?.yield(text)
+    }
+
+    func simulateError(_ error: Error) {
+        continuation?.finish(throwing: error)
+    }
+
+    func stopRecognition() {
+        isListening = false
+        continuation?.finish()
+        continuation = nil
+    }
+}
+
 @Suite("TurnBasedVoiceConversationEngine Tests", .serialized)
 struct TurnBasedVoiceConversationEngineTests {
+    @Test("TurnBasedVoiceConversationEngine enters .error state without silent fallback on LLM error")
+    @MainActor
+    func testNoSilentFallbackOnLLMError() async {
+        let failingLLM = MockLLMProvider()
+        failingLLM.shouldThrowError = true
+        let mockTTS = MockTTSEngine()
+        let mockSTT = MockSTTEngine()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: RoleplayScenario.cafeMock,
+            llmProvider: failingLLM,
+            ttsEngine: mockTTS,
+            sttEngine: mockSTT
+        )
+
+        await engine.processUserUtterance("I would like a coffee")
+
+        if case .error = engine.state {
+            #expect(mockTTS.synthesizedCount == 0) // Did NOT attempt TTS on error
+        } else {
+            Issue.record("Expected state to be .error but was \(engine.state)")
+        }
+    }
+
+    @Test("TurnBasedVoiceConversationEngine enters .error state without silent fallback on TTS error")
+    @MainActor
+    func testNoSilentFallbackOnTTSError() async {
+        let mockLLM = MockLLMProvider()
+        let failingTTS = MockTTSEngine()
+        failingTTS.shouldThrowError = true
+        let mockSTT = MockSTTEngine()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: RoleplayScenario.cafeMock,
+            llmProvider: mockLLM,
+            ttsEngine: failingTTS,
+            sttEngine: mockSTT
+        )
+
+        await engine.startCall()
+
+        if case .error(let error) = engine.state {
+            #expect(engine.activeError == error)
+            #expect(!mockSTT.isListening)
+        } else {
+            Issue.record("Expected state to be .error but was \(engine.state)")
+        }
+    }
+
+    @Test("TurnBasedVoiceConversationEngine enters .error state without silent fallback on STT error")
+    @MainActor
+    func testNoSilentFallbackOnSTTError() async {
+        let mockLLM = MockLLMProvider()
+        let mockTTS = MockTTSEngine()
+        let failingSTT = MockSTTEngine()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: RoleplayScenario.cafeMock,
+            llmProvider: mockLLM,
+            ttsEngine: mockTTS,
+            sttEngine: failingSTT
+        )
+
+        engine.startListening()
+        for _ in 0..<10 {
+            if failingSTT.isListening { break }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        let testError = NSError(domain: "STTTest", code: 42, userInfo: [NSLocalizedDescriptionKey: "Mic stream interrupted"])
+        failingSTT.simulateError(testError)
+        for _ in 0..<10 {
+            if case .error = engine.state { break }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        if case .error(let error) = engine.state {
+            #expect(engine.activeError == error)
+        } else {
+            Issue.record("Expected state to be .error but was \(engine.state)")
+        }
+    }
+
     private func makeTestScenario() -> RoleplayScenario {
         RoleplayScenario(
             id: "scenario_test",
@@ -366,32 +499,31 @@ struct TurnBasedVoiceConversationEngineTests {
         #expect(summary.scenarioId == scenario.id)
     }
 
-    @Test("Turn error catches gracefully and reactivates speech recognition")
+    @Test("Turn error transitions directly to .error state without silent reactivation")
     @MainActor
-    func turnErrorReactivatesListening() async {
+    func turnErrorTransitionsToErrorState() async {
         let scenario = makeTestScenario()
-        let mockTTS = MockTextToSpeechService()
-        let mockSpeech = MockSpeechRecognitionService()
+        let mockTTS = MockTTSEngine()
+        let mockSTT = MockSTTEngine()
         let mockLLM = MockLLMProvider()
         mockLLM.shouldThrowError = true
-        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
-        let completeUseCase = CompleteRoleplaySessionUseCase()
 
         let engine = TurnBasedVoiceConversationEngine(
             scenario: scenario,
-            ttsService: mockTTS,
-            speechService: mockSpeech,
-            executeTurnUseCase: executeUseCase,
-            completeSessionUseCase: completeUseCase
+            llmProvider: mockLLM,
+            ttsEngine: mockTTS,
+            sttEngine: mockSTT
         )
 
         engine.startListening()
-        #expect(mockSpeech.isListening)
-
         await engine.processUserUtterance("Trigger error utterance")
 
-        #expect(engine.state == .listening(liveTranscript: ""))
-        #expect(mockSpeech.isListening)
+        if case .error(let error) = engine.state {
+            #expect(engine.activeError == error)
+            #expect(mockTTS.synthesizedCount == 0)
+        } else {
+            Issue.record("Expected state to be .error but was \(engine.state)")
+        }
     }
 
     @Test("End call during thinking state prevents resurrecting call to speaking")

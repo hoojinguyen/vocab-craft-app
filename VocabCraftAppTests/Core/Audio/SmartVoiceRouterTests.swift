@@ -93,7 +93,7 @@ struct SmartVoiceRouterTests {
         #expect(mockGemini.lastApiKey == "valid-api-key")
     }
 
-    @Test("Verify conversation context falls back to Apple engine when Gemini throws error")
+    @Test("Verify conversation context does not fall back to Apple engine when Gemini throws error")
     @MainActor
     func test_conversationRouting_fallsBackToAppleWhenGeminiFails() async {
         let coordinator = AudioSessionCoordinator()
@@ -111,7 +111,7 @@ struct SmartVoiceRouterTests {
 
         await service.speakAsync(text: "This request will fail in Gemini", context: .conversation(persona: .authoritativeMale), rate: 1.0)
         #expect(!service.isSpeaking)
-        #expect(service.lastActiveEngine == .apple)
+        #expect(service.lastActiveEngine == .gemini)
         #expect(mockGemini.synthesizeCallCount == 1)
     }
 

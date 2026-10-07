@@ -431,10 +431,15 @@ public final class ResilientConversationSpeechEngine: VoiceConversationEnginePro
                 let summary = await self.endCall()
                 self.onSessionAutoConcluded?(summary)
             }
+        } catch let error as AIPackError {
+            Self.logger.error("Execute roleplay turn error: \(error.localizedDescription)")
+            guard state == .thinking else { return }
+            self.state = .error(error)
         } catch {
             Self.logger.error("Execute roleplay turn error: \(error.localizedDescription)")
             guard state == .thinking else { return }
-            startListening()
+            let wrapped = AIPackError.llmFailed(packName: "Active Provider", underlyingMessage: error.localizedDescription)
+            self.state = .error(wrapped)
         }
     }
 
