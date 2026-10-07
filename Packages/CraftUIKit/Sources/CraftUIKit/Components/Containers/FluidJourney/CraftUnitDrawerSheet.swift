@@ -11,7 +11,7 @@ import SwiftUI
 ///   respecting `@Environment(\.accessibilityReduceMotion)`.
 /// - Tapping any sub-lesson executes `onSelectLesson(sectionId, nodeId)` and closes the sheet.
 /// - Full VoiceOver accessibility support and 100% token-based styling via `CraftUIKit`.
-public struct CraftUnitDrawerSheet: View, Equatable {
+public struct CraftUnitDrawerSheet: View {
     // MARK: - Properties
 
     /// The list of curriculum lesson sections displayed in the drawer.
@@ -43,18 +43,7 @@ public struct CraftUnitDrawerSheet: View, Equatable {
 
     // MARK: - State
 
-    @State private var internalExpandedSectionIds: Set<String>
-    private let customExpandedSectionIds: Binding<Set<String>>?
-
-    var currentExpandedSectionIds: Set<String> {
-        get {
-            customExpandedSectionIds?.wrappedValue ?? internalExpandedSectionIds
-        }
-        nonmutating set {
-            customExpandedSectionIds?.wrappedValue = newValue
-            internalExpandedSectionIds = newValue
-        }
-    }
+    @State private var expandedSectionIds: Set<String>
 
     // MARK: - Initializers
 
@@ -65,7 +54,6 @@ public struct CraftUnitDrawerSheet: View, Equatable {
     ///   - deckTitle: Main deck title.
     ///   - deckSubtitle: Deck subtitle.
     ///   - activeSectionId: The active section identifier (expanded by default).
-    ///   - expandedSectionIds: Optional external binding controlling expanded section IDs.
     ///   - onAdjustPlan: Optional closure invoked on adjust plan tap.
     ///   - onSelectLesson: Closure invoked when a lesson is tapped.
     ///   - onDismiss: Closure invoked when sheet is dismissed.
@@ -74,7 +62,6 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         deckTitle: String,
         deckSubtitle: String,
         activeSectionId: String,
-        expandedSectionIds: Binding<Set<String>>? = nil,
         onAdjustPlan: (@MainActor @Sendable () -> Void)? = nil,
         onSelectLesson: @escaping @MainActor @Sendable (String, String) -> Void,
         onDismiss: @escaping @MainActor @Sendable () -> Void
@@ -83,57 +70,26 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         self.deckTitle = deckTitle
         self.deckSubtitle = deckSubtitle
         self.activeSectionId = activeSectionId
-        self.customExpandedSectionIds = expandedSectionIds
         self.onAdjustPlan = onAdjustPlan
         self.onSelectLesson = onSelectLesson
         self.onDismiss = onDismiss
-        self._internalExpandedSectionIds = State(initialValue: [activeSectionId])
-    }
-
-    /// Convenience initializer supporting omission of `onAdjustPlan` and `expandedSectionIds`.
-    public init(
-        sections: [LessonSection],
-        deckTitle: String,
-        deckSubtitle: String,
-        activeSectionId: String,
-        onSelectLesson: @escaping @MainActor @Sendable (String, String) -> Void,
-        onDismiss: @escaping @MainActor @Sendable () -> Void
-    ) {
-        self.init(
-            sections: sections,
-            deckTitle: deckTitle,
-            deckSubtitle: deckSubtitle,
-            activeSectionId: activeSectionId,
-            expandedSectionIds: nil,
-            onAdjustPlan: nil,
-            onSelectLesson: onSelectLesson,
-            onDismiss: onDismiss
-        )
-    }
-
-    // MARK: - Equatable Conformance
-
-    public nonisolated static func == (lhs: CraftUnitDrawerSheet, rhs: CraftUnitDrawerSheet) -> Bool {
-        lhs.sections == rhs.sections &&
-        lhs.deckTitle == rhs.deckTitle &&
-        lhs.deckSubtitle == rhs.deckSubtitle &&
-        lhs.activeSectionId == rhs.activeSectionId
+        self._expandedSectionIds = State(initialValue: [activeSectionId])
     }
 
     // MARK: - Public Actions & Queries
 
     /// Checks whether the section with the given identifier is currently expanded.
     public func isSectionExpanded(_ sectionId: String) -> Bool {
-        currentExpandedSectionIds.contains(sectionId)
+        expandedSectionIds.contains(sectionId)
     }
 
     /// Synchronizes the active section into expanded sections if not already present.
     public func synchronizeActiveSection() {
         guard !activeSectionId.isEmpty else { return }
-        var updated = currentExpandedSectionIds
+        var updated = expandedSectionIds
         if !updated.contains(activeSectionId) {
             updated.insert(activeSectionId)
-            currentExpandedSectionIds = updated
+            expandedSectionIds = updated
         }
     }
 
@@ -146,13 +102,13 @@ public struct CraftUnitDrawerSheet: View, Equatable {
     /// Toggles the expanded state of a section with spring animation.
     public func toggleSection(_ sectionId: String) {
         let action = {
-            var updated = currentExpandedSectionIds
+            var updated = expandedSectionIds
             if updated.contains(sectionId) {
                 updated.remove(sectionId)
             } else {
                 updated.insert(sectionId)
             }
-            currentExpandedSectionIds = updated
+            expandedSectionIds = updated
         }
 
         if reduceMotion {
@@ -184,7 +140,9 @@ public struct CraftUnitDrawerSheet: View, Equatable {
             return CraftLocalized.string("craft.fluid_journey.completed_status", locale: locale)
         case .active, .inProgress:
             return CraftLocalized.string("craft.fluid_journey.current_status", locale: locale)
-        case .bonus, .locked, .upcoming:
+        case .locked:
+            return CraftLocalized.string("craft.common.state.locked", locale: locale)
+        case .bonus, .upcoming:
             return nil
         }
     }
@@ -320,7 +278,7 @@ private extension CraftUnitDrawerSheet {
     }
 
     func sectionAccordionCard(for section: LessonSection) -> some View {
-        let isExpanded = currentExpandedSectionIds.contains(section.id)
+        let isExpanded = expandedSectionIds.contains(section.id)
         let isActive = section.id == activeSectionId
         let cardShape = RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous)
 
@@ -434,7 +392,6 @@ private extension CraftUnitDrawerSheet {
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.98))
-        .disabled(node.state == .locked)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(lessonAccessibilityLabel(for: node))
         .accessibilityHint(CraftLocalized.string("craft.fluid_journey.select_unit_hint", locale: locale))
