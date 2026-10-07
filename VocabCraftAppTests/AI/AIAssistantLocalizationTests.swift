@@ -438,6 +438,7 @@ struct AIAssistantLocalizationTests {
             URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()
                 .deletingLastPathComponent()
+                .deletingLastPathComponent()
                 .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
         ]
         guard let catalogUrl = potentialUrls.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
@@ -533,6 +534,34 @@ struct AIAssistantLocalizationTests {
         }
     }
 
+    @Test("Verify AI pack localization keys exist in English and Vietnamese")
+    func testAIPackLocalizationKeys() {
+        let keys = [
+            "app.ai.error.alert_title",
+            "app.ai.error.retry_action",
+            "app.ai.error.change_pack_action",
+            "app.ai.error.end_call_action",
+            "app.ai.pack.status.ready",
+            "app.ai.pack.status.needs_key",
+            "app.ai.pack.status.needs_download",
+            "app.ai.error.api_key_required",
+            "app.ai.error.download_required",
+            "app.ai.error.device_not_supported",
+            "app.ai.error.no_pack_available",
+            "app.ai.error.llm_failed",
+            "app.ai.error.tts_failed",
+            "app.ai.error.stt_failed",
+            "app.ai.error.network_unavailable"
+        ]
+        for key in keys {
+            let enString = String(localized: String.LocalizationValue(key), locale: Locale(identifier: "en"))
+            let viString = String(localized: String.LocalizationValue(key), locale: Locale(identifier: "vi"))
+            #expect(!enString.isEmpty && enString != key, "Missing or untranslated EN for key: \(key)")
+            #expect(!viString.isEmpty && viString != key, "Missing or untranslated VI for key: \(key)")
+            assertLocalizationExists(key: key)
+        }
+    }
+
     nonisolated(unsafe) private static let catalogStrings: [String: Any]? = {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
@@ -567,6 +596,10 @@ struct AIAssistantLocalizationTests {
 }
 
 private extension String {
+    init(localized value: String.LocalizationValue, locale: Locale) {
+        self.init(localized: value, bundle: .main, locale: locale)
+    }
+
     init(localized value: String.LocalizationValue, bundle: Bundle, locale: Locale) {
         let mirror = Mirror(reflecting: value)
         let key = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""

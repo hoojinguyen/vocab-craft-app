@@ -55,6 +55,31 @@ public struct RoleplayVoiceCallView: View {
         } message: {
             Text(AppStrings.AIAssistant.discardConfirmMessage)
         }
+        .alert(
+            Text(LocalizedStringKey("app.ai.error.alert_title")),
+            isPresented: Binding(
+                get: {
+                    if case .error = viewModel.engine.state { return true }
+                    return false
+                },
+                set: { _ in }
+            )
+        ) {
+            Button(LocalizedStringKey("app.ai.error.retry_action")) {
+                viewModel.engine.retryListening()
+            }
+            Button(LocalizedStringKey("app.ai.error.change_pack_action")) {
+                // Dismiss and route to Settings
+                onDismiss()
+            }
+            Button(LocalizedStringKey("app.ai.error.end_call_action"), role: .cancel) {
+                Task { await viewModel.endCall() }
+            }
+        } message: {
+            if case .error(let err) = viewModel.engine.state {
+                Text(LocalizedStringKey(err.localizedKey))
+            }
+        }
         .sheet(isPresented: $showVoicePicker) {
             RoleplayVoicePickerSheet(
                 store: appContainer.userSettingsStore,

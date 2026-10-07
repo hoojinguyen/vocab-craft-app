@@ -39,9 +39,7 @@ public struct AIAssistantHubView: View {
                         enableScrollFade: false
                     ) {
                         HStack(spacing: theme.spacing.xs) {
-                            EngineStatusPill(isCloudConfigured: settingsStore.isGeminiApiKeyConfigured) {
-                                showConfigSheet = true
-                            }
+                            activePackPill
 
                             CraftIconButton(
                                 symbol: .settings,
@@ -274,5 +272,56 @@ public struct AIAssistantHubView: View {
         #else
         activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
         #endif
+    }
+
+    private var activePack: (any AIPackProtocol)? {
+        let registry = appContainer.aiPackRegistry
+        return registry.pack(for: registry.activePackId)
+    }
+
+    private var activePackPill: some View {
+        let pack = activePack
+        let displayName = pack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
+        let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
+            guard let status = pack?.status else {
+                return (AppStrings.AIPack.statusReady, .neutral)
+            }
+            switch status {
+            case .ready:
+                return (AppStrings.AIPack.statusReady, .success)
+            case .needsApiKey:
+                return (AppStrings.AIPack.statusNeedsKey, .warning)
+            case .needsDownload, .partiallyReady:
+                return (AppStrings.AIPack.statusNeedsDownload, .primary)
+            case .unavailable:
+                return (AppStrings.AIPack.statusNeedsKey, .neutral)
+            }
+        }()
+
+        return Button {
+            showConfigSheet = true
+        } label: {
+            HStack(spacing: theme.spacing.xxs) {
+                Text(verbatim: displayName)
+                    .font(theme.typography.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(theme.colors.textPrimary)
+
+                CraftBadge(
+                    statusKey,
+                    variant: .subtle,
+                    tone: tone,
+                    size: .sm
+                )
+            }
+            .padding(.horizontal, theme.spacing.xs)
+            .padding(.vertical, theme.spacing.xxs)
+            .background(theme.colors.surfaceCard)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityAddTraits(.isButton)
     }
 }

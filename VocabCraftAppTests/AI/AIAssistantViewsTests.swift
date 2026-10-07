@@ -621,4 +621,26 @@ struct AIAssistantViewsTests {
         _ = sheet.body
     }
 
+    @Test @MainActor
+    func test_roleplayVoiceCallView_rendersErrorState() {
+        let scenario = makeSampleScenario()
+        let engine = MockVoiceConversationEngine(scenario: scenario)
+        engine.state = .error(.networkUnavailable)
+        let vm = RoleplayVoiceCallViewModel(engine: engine)
+        var dismissed = false
+        let view = RoleplayVoiceCallView(viewModel: vm, onDismiss: { dismissed = true })
+        _ = view.body
+        #expect(vm.activeError == .networkUnavailable)
+        #expect(!dismissed)
+    }
+
+    @Test @MainActor
+    func test_aiAssistantHubView_rendersWithActivePackPill() async {
+        let container = AppContainer()
+        let vm = container.makeAIAssistantHubViewModel()
+        let view = AIAssistantHubView(viewModel: vm)
+        _ = view.body
+        let activePack = container.aiPackRegistry.pack(for: container.aiPackRegistry.activePackId)
+        #expect(activePack != nil)
+    }
 }

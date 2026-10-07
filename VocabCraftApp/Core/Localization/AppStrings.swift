@@ -761,6 +761,24 @@ extension AppStrings {
         public static var statusDownloadingText: String { String(localized: "app.ai.model_download.status_downloading", defaultValue: "Downloading...", bundle: .module) }
         public static func statusSize(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_size", defaultValue: "~%lldMB", bundle: .module), sizeMB) }
     }
+
+    // MARK: - AI Pack & Error Strings
+    public enum AIPack {
+        public static var alertTitle: LocalizedStringKey { "app.ai.error.alert_title" }
+        public static var alertTitleText: String { String(localized: "app.ai.error.alert_title", defaultValue: "AI Service Issue", bundle: .module) }
+        public static var retryAction: LocalizedStringKey { "app.ai.error.retry_action" }
+        public static var retryActionText: String { String(localized: "app.ai.error.retry_action", defaultValue: "Retry", bundle: .module) }
+        public static var changePackAction: LocalizedStringKey { "app.ai.error.change_pack_action" }
+        public static var changePackActionText: String { String(localized: "app.ai.error.change_pack_action", defaultValue: "Change AI Pack", bundle: .module) }
+        public static var endCallAction: LocalizedStringKey { "app.ai.error.end_call_action" }
+        public static var endCallActionText: String { String(localized: "app.ai.error.end_call_action", defaultValue: "End Call", bundle: .module) }
+        public static var statusReady: LocalizedStringKey { "app.ai.pack.status.ready" }
+        public static var statusReadyText: String { String(localized: "app.ai.pack.status.ready", defaultValue: "Ready", bundle: .module) }
+        public static var statusNeedsKey: LocalizedStringKey { "app.ai.pack.status.needs_key" }
+        public static var statusNeedsKeyText: String { String(localized: "app.ai.pack.status.needs_key", defaultValue: "API Key Required", bundle: .module) }
+        public static var statusNeedsDownload: LocalizedStringKey { "app.ai.pack.status.needs_download" }
+        public static var statusNeedsDownloadText: String { String(localized: "app.ai.pack.status.needs_download", defaultValue: "Download Required", bundle: .module) }
+    }
 }
 
 extension AppStrings.Settings {
