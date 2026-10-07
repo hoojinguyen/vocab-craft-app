@@ -2,9 +2,9 @@ import Foundation
 import SpeechKit
 
 public final class ExecuteRoleplayTurnUseCase: Sendable {
-    private let llmProvider: LLMProviderProtocol
+    private let llmProvider: any LLMProviderProtocol
 
-    public init(llmProvider: LLMProviderProtocol) {
+    public init(llmProvider: any LLMProviderProtocol) {
         self.llmProvider = llmProvider
     }
 

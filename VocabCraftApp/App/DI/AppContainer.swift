@@ -41,6 +41,7 @@ public final class AppContainer {
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
     public let appRouter: AppRouter
+    public let aiPackRegistry: AIPackRegistry
 
     public init(
         modelContainer: ModelContainer? = nil,
@@ -58,7 +59,8 @@ public final class AppContainer {
         audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
-        appRouter: AppRouter? = nil
+        appRouter: AppRouter? = nil,
+        aiPackRegistry: AIPackRegistry? = nil
     ) {
         self.useSampleData = useSampleData
         self.modelContainer = modelContainer
@@ -95,6 +97,22 @@ public final class AppContainer {
         let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
+
+        if let aiPackRegistry {
+            self.aiPackRegistry = aiPackRegistry
+        } else {
+            let applePack = AppleDefaultPack()
+            let offlinePack = OfflineAIPack(
+                isKokoroReady: { false },
+                isWhisperReady: { false }
+            )
+            let geminiPack = GeminiCloudPack(settingsStore: effectiveUserSettingsStore)
+
+            self.aiPackRegistry = AIPackRegistry(
+                packs: [applePack, offlinePack, geminiPack],
+                settingsStore: effectiveUserSettingsStore
+            )
+        }
 
         let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
             ?? AudioSessionCoordinator()
@@ -264,18 +282,8 @@ public final class AppContainer {
 
     // MARK: - AI Assistant Factories
 
-    public var llmProvider: LLMProviderProtocol {
-        if userSettingsStore.isGroqApiKeyConfigured {
-            return GroqLLMProvider(
-                apiKey: userSettingsStore.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-            )
-        }
-        if userSettingsStore.isGeminiApiKeyConfigured {
-            return GeminiLLMProvider(
-                apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-            )
-        }
-        return IntelligentMockLLMProvider()
+    public var llmProvider: any LLMProviderProtocol {
+        (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
     }
 
     public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
@@ -283,7 +291,8 @@ public final class AppContainer {
     }
 
     public func makeExecuteRoleplayTurnUseCase() -> ExecuteRoleplayTurnUseCase {
-        ExecuteRoleplayTurnUseCase(llmProvider: llmProvider)
+        let llm = (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
+        return ExecuteRoleplayTurnUseCase(llmProvider: llm)
     }
 
     public func makeCompleteRoleplaySessionUseCase() -> CompleteRoleplaySessionUseCase {
@@ -322,7 +331,17 @@ public final class AppContainer {
 
     @MainActor
     public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
-        let engine = makeResilientConversationSpeechEngine(for: scenario)
+        let llm = (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
+        let tts = (try? aiPackRegistry.resolveActiveTTS()) ?? AppleTTSEngineAdapter()
+        let stt = (try? aiPackRegistry.resolveActiveSTT()) ?? AppleSTTEngineAdapter()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            llmProvider: llm,
+            ttsEngine: tts,
+            sttEngine: stt,
+            audioSessionCoordinator: audioSessionCoordinator
+        )
         return RoleplayVoiceCallViewModel(engine: engine, ttsService: ttsService)
     }
 

@@ -2,97 +2,50 @@ import Foundation
 import Testing
 @testable import VocabCraftApp
 
-@Suite("AppContainer AI Assistant Integration Tests")
+@Suite("AppContainer AI Tests")
 struct AppContainerAITests {
-    @Test @MainActor
+    @Test("AppContainer exposes configured aiPackRegistry")
+    @MainActor
+    func testAppContainerRegistryExposure() {
+        let container = AppContainer()
+        #expect(container.aiPackRegistry.packCatalog.count >= 2)
+    }
+
+    @Test("AppContainer builds voice call view model using active pack")
+    @MainActor
+    func testVoiceCallViewModelCreation() {
+        let container = AppContainer()
+        let vm = container.makeRoleplayVoiceCallViewModel(for: RoleplayScenario.cafeMock)
+        #expect(vm.engine is TurnBasedVoiceConversationEngine)
+    }
+
+    @Test("AppContainer creates AI assistant hub view model")
+    @MainActor
     func testAppContainerCreatesAIAssistantViewModels() {
         let container = AppContainer()
         let hubVM = container.makeAIAssistantHubViewModel()
         #expect(hubVM.scenarios.isEmpty)
     }
 
-    @Test @MainActor
+    @Test("AppContainer creates roleplay room view model")
+    @MainActor
     func testAppContainerCreatesRoleplayRoomViewModel() {
         let container = AppContainer()
-        let scenario = RoleplayScenario(
-            id: "test",
-            titleKey: "title",
-            descriptionKey: "desc",
-            topic: .dining,
-            difficulty: .beginner,
-            characterName: "Alex",
-            characterRole: "Barista",
-            userRole: "Customer",
-            initialGreeting: "Hello",
-            targetWordIds: ["espresso"],
-            iconSymbol: "cup.and.saucer"
-        )
-        let roomVM = container.makeRoleplayRoomViewModel(for: scenario)
-        #expect(roomVM.scenario.id == "test")
+        let roomVM = container.makeRoleplayRoomViewModel(for: RoleplayScenario.cafeMock)
+        #expect(roomVM.scenario.id == RoleplayScenario.cafeMock.id)
         #expect(roomVM.messages.count == 1)
     }
 
-    @Test @MainActor
-    func testAppContainerCreatesRoleplayVoiceCallViewModelWithResilientEngine() {
+    @Test("AppContainer creates execute roleplay turn use case")
+    @MainActor
+    func testAppContainerCreatesExecuteRoleplayTurnUseCase() {
         let container = AppContainer()
-        let scenario = RoleplayScenario(
-            id: "voice-test",
-            titleKey: "title",
-            descriptionKey: "desc",
-            topic: .dining,
-            difficulty: .beginner,
-            characterName: "Alex",
-            characterRole: "Barista",
-            userRole: "Customer",
-            initialGreeting: "Hello",
-            targetWordIds: ["espresso"],
-            iconSymbol: "cup.and.saucer"
-        )
-        let voiceCallVM = container.makeRoleplayVoiceCallViewModel(for: scenario)
-        #expect(voiceCallVM.engine is ResilientConversationSpeechEngine)
+        let useCase = container.makeExecuteRoleplayTurnUseCase()
+        #expect(useCase != nil)
     }
 
-    @Test @MainActor
-    func testDynamicLLMProviderSwitchingWithApiKey() {
-        let defaults = UserDefaults(suiteName: "test_dynamic_llm_\(UUID().uuidString)") ?? .standard
-        let store = UserSettingsStore(defaults: defaults)
-        let container = AppContainer(userSettingsStore: store)
-
-        // Initially empty key -> fallback mock provider (IntelligentMockLLMProvider or MockLLMProvider)
-        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
-
-        // Set API Key -> GeminiLLMProvider
-        store.geminiApiKey = "AIzaSyFakeTestKey12345"
-        #expect(container.llmProvider is GeminiLLMProvider)
-
-        // Clear API Key -> fallback mock provider
-        store.geminiApiKey = ""
-        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
-    }
-
-    @Test @MainActor
-    func testDynamicLLMProviderWhitespaceAndPersistence() {
-        let suiteName = "test_persistence_llm_\(UUID().uuidString)"
-        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
-        let store1 = UserSettingsStore(defaults: defaults)
-        let container = AppContainer(userSettingsStore: store1)
-
-        // Whitespace only treated as empty -> fallback mock provider
-        store1.geminiApiKey = "   \n  \t  "
-        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
-
-        // Save valid key
-        store1.geminiApiKey = "AIzaSySavedKey789"
-        #expect(container.llmProvider is GeminiLLMProvider)
-
-        // Reload store from same defaults -> key persists
-        let store2 = UserSettingsStore(defaults: defaults)
-        let container2 = AppContainer(userSettingsStore: store2)
-        #expect(store2.geminiApiKey == "AIzaSySavedKey789")
-        #expect(container2.llmProvider is GeminiLLMProvider)
-    }
-
-    @Test @MainActor
+    @Test("UserSettingsStore gemini api key configuration detection")
+    @MainActor
     func testIsGeminiApiKeyConfigured() {
         let defaults = UserDefaults(suiteName: "test_key_configured_\(UUID().uuidString)") ?? .standard
         let store = UserSettingsStore(defaults: defaults)

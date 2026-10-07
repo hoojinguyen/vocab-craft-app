@@ -38,6 +38,17 @@ public final class RoleplayVoiceCallViewModel: Identifiable {
     public var isSubtitlesVisible: Bool { engine.isSubtitlesVisible }
     public var suggestedResponses: [String] { engine.suggestedResponses }
     public var audioLevel: Float { engine.audioLevel }
+    public var audioErrorMessage: String? { engine.audioErrorMessage }
+    public var activeError: AIPackError? {
+        if case .error(let err) = engine.state {
+            return err
+        }
+        return nil
+    }
+
+    public func retryListening() {
+        engine.retryListening()
+    }
 
     public func startCall() async {
         await engine.startCall()
