@@ -62,7 +62,6 @@
 		30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C2292A121D4AD48 /* GroqLLMProvider.swift */; };
 		300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */; };
 		3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ACE33830E9547D1A /* MockLLMProvider.swift */; };
-		30001092B6F33D9A8CBA /* ResilientLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */; };
 		3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */; };
 		30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */; };
 		3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */; };
@@ -465,7 +464,6 @@
 		20002C2292A121D4AD48 /* GroqLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GroqLLMProvider.swift"; sourceTree = "<group>"; };
 		200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProvider.swift"; sourceTree = "<group>"; };
 		2000ACE33830E9547D1A /* MockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockLLMProvider.swift"; sourceTree = "<group>"; };
-		20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientLLMProvider.swift"; sourceTree = "<group>"; };
 		2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenarioCatalog.swift"; sourceTree = "<group>"; };
 		20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalog.swift"; sourceTree = "<group>"; };
 		2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor+Mutations.swift"; sourceTree = "<group>"; };
@@ -1010,7 +1008,6 @@
 				20002C2292A121D4AD48 /* GroqLLMProvider.swift */,
 				200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */,
 				2000ACE33830E9547D1A /* MockLLMProvider.swift */,
-				20001092B6F33D9A8CBA /* ResilientLLMProvider.swift */,
 				2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */,
 				20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */,
 			);
@@ -2114,7 +2111,6 @@
 				30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */,
 				300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */,
 				3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */,
-				30001092B6F33D9A8CBA /* ResilientLLMProvider.swift in Sources */,
 				3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */,
 				30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */,
 				3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */,

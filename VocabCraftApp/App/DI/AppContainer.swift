@@ -265,22 +265,17 @@ public final class AppContainer {
     // MARK: - AI Assistant Factories
 
     public var llmProvider: LLMProviderProtocol {
-        let mock = IntelligentMockLLMProvider()
-        let gemini: (any LLMProviderProtocol)? = userSettingsStore.isGeminiApiKeyConfigured
-            ? GeminiLLMProvider(
-                apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
-                fallbackProvider: mock
-            )
-            : nil
-        let baseFallback = gemini ?? mock
-
         if userSettingsStore.isGroqApiKeyConfigured {
             return GroqLLMProvider(
-                apiKey: userSettingsStore.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines),
-                fallbackProvider: baseFallback
+                apiKey: userSettingsStore.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             )
         }
-        return baseFallback
+        if userSettingsStore.isGeminiApiKeyConfigured {
+            return GeminiLLMProvider(
+                apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        }
+        return IntelligentMockLLMProvider()
     }
 
     public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
@@ -340,7 +335,7 @@ public final class AppContainer {
                 appropriateFor: nil,
                 create: true
             )
-            
+
             // We use a stable directory now, instead of v5/v6.
             let dir = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
             try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -348,13 +343,13 @@ public final class AppContainer {
 
             let src = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
                 ?? Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite", subdirectory: "Content")
-            
+
             if let src {
                 let bundleVersion = SQLiteContentRepository.readContentVersion(at: src) ?? 0
                 let savedVersion = UserDefaults.standard.integer(forKey: "current_content_version")
-                
+
                 let shouldCopy = !fileManager.fileExists(atPath: dest.path) || bundleVersion > savedVersion
-                
+
                 if shouldCopy {
                     if fileManager.fileExists(atPath: dest.path) {
                         try fileManager.removeItem(at: dest)
@@ -363,7 +358,7 @@ public final class AppContainer {
                     UserDefaults.standard.set(bundleVersion, forKey: "current_content_version")
                 }
             }
-            
+
             return try SQLiteContentRepository(url: dest)
         } catch {
             print("Failed to initialize SQLite content: \(error)")

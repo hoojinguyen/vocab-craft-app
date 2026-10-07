@@ -71,8 +71,8 @@ struct GroqLLMProviderTests {
         #expect(GroqLLMProvider.defaultModels.contains("llama-3.3-70b-versatile"))
     }
 
-    @Test("GroqLLMProvider falls back to fallback provider on HTTP 429 rate limit")
-    func testFallbackOnRateLimit() async throws {
+    @Test("GroqLLMProvider throws apiError on HTTP 429 rate limit without fallback")
+    func testRateLimitThrowsWithoutFallback() async {
         let (session, mockId) = MockURLProtocol.register { request in
             let response = HTTPURLResponse(
                 url: request.url!,
@@ -84,15 +84,14 @@ struct GroqLLMProviderTests {
         }
         defer { MockURLProtocol.unregister(id: mockId) }
 
-        let mockFallback = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(characterReply: "Fallback invoked", targetWordsUsed: []))
-        let provider = GroqLLMProvider(apiKey: "gsk_test_key", session: session, fallbackProvider: mockFallback)
+        let provider = GroqLLMProvider(apiKey: "gsk_test_key", session: session)
 
-        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
-            messages: [LLMChatMessage(role: .user, content: "Hi")],
-            systemPrompt: "Prompt",
-            responseSchema: RoleplayTurnOutput.self
-        )
-
-        #expect(output.characterReply == "Fallback invoked")
+        await #expect(throws: GroqError.self) {
+            let _: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "Hi")],
+                systemPrompt: "Prompt",
+                responseSchema: RoleplayTurnOutput.self
+            )
+        }
     }
 }

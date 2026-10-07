@@ -84,6 +84,18 @@ struct LLMProviderTests {
         }
     }
 
+    @Test("GeminiLLMProvider throws missingApiKey immediately without fallback")
+    func testGeminiThrowsMissingApiKeyWithoutFallback() async {
+        let provider = GeminiLLMProvider(apiKey: "")
+        await #expect(throws: GeminiError.self) {
+            let _: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "hi")],
+                systemPrompt: "sys",
+                responseSchema: RoleplayTurnOutput.self
+            )
+        }
+    }
+
     @Test("GeminiLLMProvider successfully parses valid Gemini response")
     func testGeminiProviderSuccess() async throws {
         let (session, mockId) = MockURLProtocol.register { request in
@@ -176,24 +188,23 @@ struct LLMProviderTests {
         #expect(result.characterReply == "Hello from secondary!")
     }
 
-    @Test("GeminiLLMProvider gracefully falls back to offline provider when all models fail")
-    func testGeminiProviderOfflineFallback() async throws {
+    @Test("GeminiLLMProvider throws error when all models fail without fallback")
+    func testGeminiThrowsWhenAllModelsFailWithoutFallback() async {
         let (session, mockId) = MockURLProtocol.register { request in
             let response = HTTPURLResponse(url: request.url!, statusCode: 500, httpVersion: nil, headerFields: nil)!
             return (response, Data("Error".utf8))
         }
         defer { MockURLProtocol.unregister(id: mockId) }
 
-        let mockFallback = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(characterReply: "Fallback speech!", targetWordsUsed: []))
-        let provider = GeminiLLMProvider(apiKey: "fake-key", session: session, fallbackProvider: mockFallback)
+        let provider = GeminiLLMProvider(apiKey: "fake-key", session: session)
 
-        let result: RoleplayTurnOutput = try await provider.sendStructuredMessage(
-            messages: [LLMChatMessage(role: .user, content: "Hello")],
-            systemPrompt: "Server",
-            responseSchema: RoleplayTurnOutput.self
-        )
-
-        #expect(result.characterReply == "Fallback speech!")
+        await #expect(throws: GeminiError.self) {
+            let _: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "Hello")],
+                systemPrompt: "Server",
+                responseSchema: RoleplayTurnOutput.self
+            )
+        }
     }
 
     @Test("GeminiLLMProvider throws apiError on non-200 HTTP status")

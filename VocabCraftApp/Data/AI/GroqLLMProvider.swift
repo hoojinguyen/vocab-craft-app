@@ -24,7 +24,6 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
     private let apiKey: String
     private let session: URLSession
     private let models: [String]
-    private let fallbackProvider: (any LLMProviderProtocol)?
 
     public static let defaultModels: [String] = [
         "llama-3.1-8b-instant",
@@ -34,13 +33,11 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
     public init(
         apiKey: String,
         session: URLSession = .shared,
-        models: [String] = defaultModels,
-        fallbackProvider: (any LLMProviderProtocol)? = nil
+        models: [String] = defaultModels
     ) {
         self.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         self.session = session
         self.models = models.isEmpty ? Self.defaultModels : models
-        self.fallbackProvider = fallbackProvider
     }
 
     public func sendStructuredMessage<T: Decodable & Sendable>(
@@ -49,14 +46,7 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
         responseSchema: T.Type
     ) async throws -> T {
         guard !apiKey.isEmpty else {
-            Self.logger.warning("Groq API key is empty, checking fallback")
-            if let fallback = fallbackProvider {
-                return try await fallback.sendStructuredMessage(
-                    messages: messages,
-                    systemPrompt: systemPrompt,
-                    responseSchema: responseSchema
-                )
-            }
+            Self.logger.warning("Groq API key is empty")
             throw GroqError.missingApiKey
         }
 
@@ -70,15 +60,6 @@ public final class GroqLLMProvider: LLMProviderProtocol, Sendable {
                 lastError = error
                 Self.logger.warning("Groq model \(model) failed: \(error.localizedDescription), trying next")
             }
-        }
-
-        if let fallback = fallbackProvider {
-            Self.logger.notice("All Groq models failed, falling back to backup provider")
-            return try await fallback.sendStructuredMessage(
-                messages: messages,
-                systemPrompt: systemPrompt,
-                responseSchema: responseSchema
-            )
         }
 
         if let lastError = lastError as? GroqError {

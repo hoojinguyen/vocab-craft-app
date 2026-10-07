@@ -26,7 +26,6 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
     private let apiKey: String
     private let session: URLSession
     private let models: [String]
-    private let fallbackProvider: (any LLMProviderProtocol)?
 
     public static let defaultModels: [String] = [
         "gemini-flash-lite-latest",
@@ -34,23 +33,20 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         "gemini-flash-latest"
     ]
 
-    /// Initializes a Gemini LLM provider with API key, optional URLSession, candidate models, and fallback provider.
+    /// Initializes a Gemini LLM provider with API key, optional URLSession, and candidate models.
     ///
     /// - Parameters:
     ///   - apiKey: Google Gemini API key string.
     ///   - session: URLSession instance for networking (defaults to .shared).
     ///   - models: List of candidate model IDs in preference order.
-    ///   - fallbackProvider: Optional fallback LLM provider if Gemini API fails or is unreachable.
     public init(
         apiKey: String,
         session: URLSession = .shared,
-        models: [String] = defaultModels,
-        fallbackProvider: (any LLMProviderProtocol)? = nil
+        models: [String] = defaultModels
     ) {
         self.apiKey = apiKey
         self.session = session
         self.models = models.isEmpty ? Self.defaultModels : models
-        self.fallbackProvider = fallbackProvider
     }
 
     public func sendStructuredMessage<T: Decodable & Sendable>(
@@ -60,14 +56,6 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
     ) async throws -> T {
         guard !apiKey.isEmpty else {
             Self.logger.error("Gemini API key is missing or empty")
-            if let fallback = fallbackProvider {
-                Self.logger.notice("Falling back to offline fallback provider due to missing API key")
-                return try await fallback.sendStructuredMessage(
-                    messages: messages,
-                    systemPrompt: systemPrompt,
-                    responseSchema: responseSchema
-                )
-            }
             throw GeminiError.missingApiKey
         }
 
@@ -81,15 +69,6 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
                 lastError = error
                 Self.logger.warning("Gemini model \(modelName) failed: \(error.localizedDescription), trying next model if available")
             }
-        }
-
-        if let fallback = fallbackProvider {
-            Self.logger.notice("All Gemini models failed, gracefully falling back to fallback provider")
-            return try await fallback.sendStructuredMessage(
-                messages: messages,
-                systemPrompt: systemPrompt,
-                responseSchema: responseSchema
-            )
         }
 
         if let lastError = lastError as? GeminiError {
