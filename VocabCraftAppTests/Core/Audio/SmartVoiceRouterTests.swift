@@ -309,4 +309,61 @@ struct SmartVoiceRouterTests {
         #expect(tts.lastActiveEngine == .gemini)
         #expect(mockGemini.lastPersona == .friendlyMale)
     }
+
+    @Test("TextToSpeechService previewVoice routes to Kokoro Neural for Nova profile when ready")
+    @MainActor
+    func testPreviewVoiceKokoroNovaWhenReady() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = true
+        let tts = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            kokoroEngine: mockKokoro
+        )
+
+        let profile = RoleplayVoiceProfileCatalog.profile(for: "kokoro-friendly-female")!
+        await tts.previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+        #expect(tts.lastActiveEngine == .kokoro)
+        #expect(mockKokoro.synthesizeCallCount == 1)
+        #expect(mockKokoro.lastPersona == .friendlyFemale)
+        #expect(mockKokoro.lastSynthesizedText == profile.sampleText)
+    }
+
+    @Test("TextToSpeechService previewVoice routes to Kokoro Neural for Orion profile when ready")
+    @MainActor
+    func testPreviewVoiceKokoroOrionWhenReady() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = true
+        let tts = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            kokoroEngine: mockKokoro
+        )
+
+        let profile = RoleplayVoiceProfileCatalog.profile(for: "kokoro-authoritative-male")!
+        await tts.previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+        #expect(tts.lastActiveEngine == .kokoro)
+        #expect(mockKokoro.synthesizeCallCount == 1)
+        #expect(mockKokoro.lastPersona == .authoritativeMale)
+        #expect(mockKokoro.lastSynthesizedText == profile.sampleText)
+    }
+
+    @Test("TextToSpeechService previewVoice falls back to Apple for Kokoro profile when not ready")
+    @MainActor
+    func testPreviewVoiceKokoroWhenNotReadyFallsBackToApple() async {
+        let coordinator = AudioSessionCoordinator()
+        let mockKokoro = MockKokoroAudioEngine()
+        mockKokoro.isReady = false
+        let appleEngine = AppleEnhancedTTSEngine()
+        let tts = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            appleEngine: appleEngine,
+            kokoroEngine: mockKokoro
+        )
+
+        let profile = RoleplayVoiceProfileCatalog.profile(for: "kokoro-friendly-female")!
+        await tts.previewVoice(profile: profile, rate: 1.0, pitch: 1.0)
+        #expect(tts.lastActiveEngine == .apple)
+        #expect(mockKokoro.synthesizeCallCount == 0)
+    }
 }

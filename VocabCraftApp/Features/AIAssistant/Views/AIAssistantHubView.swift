@@ -6,11 +6,23 @@ import CraftUIKit
 import SwiftUI
 
 public struct AIAssistantHubView: View {
+    private enum ActiveAIDestination: Identifiable {
+        case room(RoleplayRoomViewModel)
+        case voiceCall(RoleplayVoiceCallViewModel)
+        case summary(RoleplaySessionSummary)
+
+        nonisolated var id: String {
+            switch self {
+            case .room(let vm): return "room-\(ObjectIdentifier(vm))"
+            case .voiceCall(let vm): return "voice-\(ObjectIdentifier(vm))"
+            case .summary(let summary): return "summary-\(summary.id)"
+            }
+        }
+    }
+
     @State private var viewModel: AIAssistantHubViewModel
-    @State private var activeRoomViewModel: RoleplayRoomViewModel?
-    @State private var activeVoiceCallViewModel: RoleplayVoiceCallViewModel?
+    @State private var activeDestination: ActiveAIDestination?
     @State private var showPermissionDeniedAlert: Bool = false
-    @State private var sampleSummary: RoleplaySessionSummary?
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
@@ -50,7 +62,7 @@ public struct AIAssistantHubView: View {
                                     startVoiceCall(for: daily)
                                 },
                                 onStartChat: {
-                                    activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: daily)
+                                    activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: daily))
                                 }
                             )
                         }
@@ -70,18 +82,18 @@ public struct AIAssistantHubView: View {
             if viewModel.scenarios.isEmpty {
                 await viewModel.loadScenarios()
             }
-            #if DEBUG
             let args = ProcessInfo.processInfo.arguments
             if args.contains("-test-ai-room") {
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
-                    activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
+                    activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: scenario))
                 }
             } else if args.contains("-test-ai-voice") {
+                try? await Task.sleep(for: .milliseconds(300))
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
                     startVoiceCall(for: scenario)
                 }
             } else if args.contains("-test-ai-summary") {
-                sampleSummary = RoleplaySessionSummary(
+                activeDestination = .summary(RoleplaySessionSummary(
                     scenarioId: "cafe_ordering",
                     totalTurns: 6,
                     targetWordsAttempted: ["beverage", "pastry", "complimentary"],
@@ -94,40 +106,46 @@ public struct AIAssistantHubView: View {
                             refinedNativeSentence: "I'd like a hot coffee, please."
                         )
                     ]
-                )
-            }
-            #endif
-        }
-        .sheet(item: $sampleSummary) { summary in
-            RoleplaySummaryView(summary: summary) {
-                sampleSummary = nil
+                ))
             }
         }
         #if os(iOS)
-        .fullScreenCover(item: $activeRoomViewModel) { roomViewModel in
-            RoleplayRoomView(
-                viewModel: roomViewModel,
-                onDismiss: { activeRoomViewModel = nil }
-            )
-        }
-        .fullScreenCover(item: $activeVoiceCallViewModel) { voiceCallViewModel in
-            RoleplayVoiceCallView(
-                viewModel: voiceCallViewModel,
-                onDismiss: { activeVoiceCallViewModel = nil }
-            )
+        .fullScreenCover(item: $activeDestination) { destination in
+            switch destination {
+            case .room(let roomViewModel):
+                RoleplayRoomView(
+                    viewModel: roomViewModel,
+                    onDismiss: { activeDestination = nil }
+                )
+            case .voiceCall(let voiceCallViewModel):
+                RoleplayVoiceCallView(
+                    viewModel: voiceCallViewModel,
+                    onDismiss: { activeDestination = nil }
+                )
+            case .summary(let summary):
+                RoleplaySummaryView(summary: summary) {
+                    activeDestination = nil
+                }
+            }
         }
         #else
-        .sheet(item: $activeRoomViewModel) { roomViewModel in
-            RoleplayRoomView(
-                viewModel: roomViewModel,
-                onDismiss: { activeRoomViewModel = nil }
-            )
-        }
-        .sheet(item: $activeVoiceCallViewModel) { voiceCallViewModel in
-            RoleplayVoiceCallView(
-                viewModel: voiceCallViewModel,
-                onDismiss: { activeVoiceCallViewModel = nil }
-            )
+        .sheet(item: $activeDestination) { destination in
+            switch destination {
+            case .room(let roomViewModel):
+                RoleplayRoomView(
+                    viewModel: roomViewModel,
+                    onDismiss: { activeDestination = nil }
+                )
+            case .voiceCall(let voiceCallViewModel):
+                RoleplayVoiceCallView(
+                    viewModel: voiceCallViewModel,
+                    onDismiss: { activeDestination = nil }
+                )
+            case .summary(let summary):
+                RoleplaySummaryView(summary: summary) {
+                    activeDestination = nil
+                }
+            }
         }
         #endif
         .alert(
@@ -210,7 +228,7 @@ public struct AIAssistantHubView: View {
                         startVoiceCall(for: scenario)
                     },
                     onStartText: {
-                        activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
+                        activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: scenario))
                     }
                 )
             }
@@ -220,7 +238,7 @@ public struct AIAssistantHubView: View {
     private func startVoiceCall(for scenario: RoleplayScenario) {
         #if os(iOS)
         #if targetEnvironment(simulator)
-        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
+        activeDestination = .voiceCall(appContainer.makeRoleplayVoiceCallViewModel(for: scenario))
         #else
         let speechStatus = SFSpeechRecognizer.authorizationStatus()
         let micPermission = AVAudioApplication.shared.recordPermission
@@ -246,15 +264,15 @@ public struct AIAssistantHubView: View {
                     showPermissionDeniedAlert = true
                     return
                 }
-                activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
+                activeDestination = .voiceCall(appContainer.makeRoleplayVoiceCallViewModel(for: scenario))
             }
             return
         }
 
-        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
+        activeDestination = .voiceCall(appContainer.makeRoleplayVoiceCallViewModel(for: scenario))
         #endif
         #else
-        activeVoiceCallViewModel = appContainer.makeRoleplayVoiceCallViewModel(for: scenario)
+        activeDestination = .voiceCall(appContainer.makeRoleplayVoiceCallViewModel(for: scenario))
         #endif
     }
 

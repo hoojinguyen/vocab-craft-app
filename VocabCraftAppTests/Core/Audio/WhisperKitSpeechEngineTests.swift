@@ -40,4 +40,21 @@ struct WhisperKitSpeechEngineTests {
         let defaultTranscript = try await defaultEngine.transcribeBufferedAudio()
         #expect(defaultTranscript.isEmpty)
     }
+
+    @Test("WhisperKit engine starts listening and yields simulated transcript")
+    @MainActor
+    func testStartListeningWithSimulatedTranscript() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+        let simulatedEngine = WhisperKitSpeechEngine(modelManager: manager, simulatedTranscript: "Good morning")
+
+        var received: String?
+        simulatedEngine.startListening(
+            onResult: { text in received = text },
+            onError: { _ in }
+        )
+        simulatedEngine.stopListening()
+
+        #expect(received == "Good morning")
+    }
 }

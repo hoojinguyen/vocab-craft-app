@@ -110,6 +110,8 @@ struct ConcreteAIPackTests {
         #expect(tts.engineName == "Kokoro Neural TTS")
         let stt = try pack.makeSTTEngine()
         #expect(stt.engineName == "WhisperKit On-Device STT")
+        let llm = try pack.makeLLMProvider()
+        #expect(llm.providerIdentifier == "intelligent_mock")
     }
 
     @Test("AppleDefaultPack provides default configuration and system engines")

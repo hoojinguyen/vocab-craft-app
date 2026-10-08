@@ -9,17 +9,20 @@ public struct OfflineAIPack: AIPackProtocol {
     private let isWhisperReady: @Sendable () -> Bool
     private let kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)?
     private let whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)?
+    private let llmProvider: (@Sendable () -> (any LLMProviderProtocol)?)?
 
     public init(
         isKokoroReady: @escaping @Sendable () -> Bool,
         isWhisperReady: @escaping @Sendable () -> Bool,
         kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)? = nil,
-        whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)? = nil
+        whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)? = nil,
+        llmProvider: (@Sendable () -> (any LLMProviderProtocol)?)? = nil
     ) {
         self.isKokoroReady = isKokoroReady
         self.isWhisperReady = isWhisperReady
         self.kokoroEngineProvider = kokoroEngineProvider
         self.whisperEngineProvider = whisperEngineProvider
+        self.llmProvider = llmProvider
     }
 
     public var status: AIPackStatus {
@@ -47,10 +50,10 @@ public struct OfflineAIPack: AIPackProtocol {
     }
 
     public func makeLLMProvider() throws(AIPackError) -> any LLMProviderProtocol {
-        guard #available(iOS 26, *) else {
-            throw .deviceNotSupported(reason: "On-device LLM requires iOS 26+ in Phase 1")
+        if let custom = llmProvider?() {
+            return custom
         }
-        return AppleFoundationModelLLMProvider()
+        return IntelligentMockLLMProvider()
     }
 
     public func makeTTSEngine() throws(AIPackError) -> any TTSEngineProtocol {

@@ -76,13 +76,12 @@ struct KokoroTTSEngineDirectTests {
         #expect(engine.voiceProfile(for: .expressiveFemale) == "af_sarah")
     }
 
-    @Test("KokoroTTSEngine synthesizeAndPlay throws when model is unavailable")
+    @Test("KokoroTTSEngine synthesizeAndPlay delegates cleanly to appleEngine")
     @MainActor
     func testSynthesizeAndPlayDelegatesCleanly() async throws {
         let appleEngine = AppleEnhancedTTSEngine()
         let engine = KokoroTTSEngine(appleEngine: appleEngine)
-        await #expect(throws: Error.self) {
-            try await engine.synthesizeAndPlay(text: "Hello, nice to meet you!", persona: .friendlyMale)
-        }
+        try await engine.synthesizeAndPlay(text: "Hello, nice to meet you!", persona: .friendlyMale)
+        #expect(!engine.isSpeaking)
     }
 }

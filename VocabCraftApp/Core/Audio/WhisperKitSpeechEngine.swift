@@ -11,11 +11,26 @@ public final class WhisperKitSpeechEngine {
     }
 
     private let modelManager: OnDemandAIModelManager
+    private let recognitionService: SpeechRecognitionService
     private var audioBuffers: [AVAudioPCMBuffer] = []
     private var simulatedTranscript: String?
 
-    public init(modelManager: OnDemandAIModelManager = .shared, simulatedTranscript: String? = nil) {
+    public init(
+        modelManager: OnDemandAIModelManager = .shared,
+        simulatedTranscript: String? = nil
+    ) {
         self.modelManager = modelManager
+        self.recognitionService = SpeechRecognitionService(locale: "en-US")
+        self.simulatedTranscript = simulatedTranscript
+    }
+
+    public init(
+        modelManager: OnDemandAIModelManager,
+        recognitionService: SpeechRecognitionService,
+        simulatedTranscript: String? = nil
+    ) {
+        self.modelManager = modelManager
+        self.recognitionService = recognitionService
         self.simulatedTranscript = simulatedTranscript
     }
 
@@ -47,10 +62,13 @@ public final class WhisperKitSpeechEngine {
     ) {
         if let simulated = simulatedTranscript {
             onResult(simulated)
+            return
         }
+        recognitionService.startListening(onResult: onResult, onError: onError)
     }
 
     public func stopListening() {
         clearBuffer()
+        recognitionService.stopListening()
     }
 }
