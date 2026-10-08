@@ -772,6 +772,16 @@ extension AppStrings {
         public static var kokoroTitleText: String { String(localized: "app.ai.model.kokoro_title", defaultValue: "Kokoro Neural Voice", bundle: .module) }
         public static var kokoroDesc: LocalizedStringKey { "app.ai.model.kokoro_desc" }
         public static var kokoroDescText: String { String(localized: "app.ai.model.kokoro_desc", defaultValue: "Studio-quality on-device neural voice (85MB)", bundle: .module) }
+        public static var llamaTitle: LocalizedStringKey { "app.ai.model.llama_title" }
+        public static var llamaTitleText: String { String(localized: "app.ai.model.llama_title", defaultValue: "Llama 3.2 1B Reasoning Model", bundle: .module) }
+        public static var llamaDesc: LocalizedStringKey { "app.ai.model.llama_desc" }
+        public static var llamaDescText: String { String(localized: "app.ai.model.llama_desc", defaultValue: "On-device 4-bit neural language model (~740MB)", bundle: .module) }
+        public static var offlineDownloadAllTitle: LocalizedStringKey { AIPack.offlineDownloadAllTitle }
+        public static var offlineDownloadAllTitleText: String { AIPack.offlineDownloadAllTitleText }
+        public static var offlineDownloadAllDesc: LocalizedStringKey { AIPack.offlineDownloadAllDesc }
+        public static var offlineDownloadAllDescText: String { AIPack.offlineDownloadAllDescText }
+        public static var offlineDownloadAllAction: LocalizedStringKey { AIPack.offlineDownloadAllAction }
+        public static var offlineDownloadAllActionText: String { AIPack.offlineDownloadAllActionText }
     }
 
     // MARK: - AI Pack & Error Strings
@@ -780,6 +790,22 @@ extension AppStrings {
         public static var kokoroTitleText: String { AIModelDownload.kokoroTitleText }
         public static var kokoroDesc: LocalizedStringKey { AIModelDownload.kokoroDesc }
         public static var kokoroDescText: String { AIModelDownload.kokoroDescText }
+        public static var llamaTitle: LocalizedStringKey { AIModelDownload.llamaTitle }
+        public static var llamaTitleText: String { AIModelDownload.llamaTitleText }
+        public static var llamaDesc: LocalizedStringKey { AIModelDownload.llamaDesc }
+        public static var llamaDescText: String { AIModelDownload.llamaDescText }
+        public static var offlineDownloadAllTitle: LocalizedStringKey { "app.ai.pack.offline.download_all_title" }
+        public static var offlineDownloadAllTitleText: String { String(localized: "app.ai.pack.offline.download_all_title", defaultValue: "Complete Offline AI Pack", bundle: .module) }
+        public static var offlineDownloadAllDesc: LocalizedStringKey { "app.ai.pack.offline.download_all_desc" }
+        public static var offlineDownloadAllDescText: String {
+            String(
+                localized: "app.ai.pack.offline.download_all_desc",
+                defaultValue: "All-in-one private on-device intelligence: Llama 3.2 (LLM), Kokoro (TTS), and WhisperKit (STT). ~975MB total.",
+                bundle: .module
+            )
+        }
+        public static var offlineDownloadAllAction: LocalizedStringKey { "app.ai.pack.offline.download_all_action" }
+        public static var offlineDownloadAllActionText: String { String(localized: "app.ai.pack.offline.download_all_action", defaultValue: "Download Complete Pack (~975MB)", bundle: .module) }
         public static var alertTitle: LocalizedStringKey { "app.ai.error.alert_title" }
         public static var alertTitleText: String { String(localized: "app.ai.error.alert_title", defaultValue: "AI Service Issue", bundle: .module) }
         public static var retryAction: LocalizedStringKey { "app.ai.error.retry_action" }
@@ -829,4 +855,8 @@ extension AppStrings {
     public static var kokoroTitleText: String { AIModelDownload.kokoroTitleText }
     public static var kokoroDesc: LocalizedStringKey { AIModelDownload.kokoroDesc }
     public static var kokoroDescText: String { AIModelDownload.kokoroDescText }
+    public static var llamaTitle: LocalizedStringKey { AIModelDownload.llamaTitle }
+    public static var llamaTitleText: String { AIModelDownload.llamaTitleText }
+    public static var llamaDesc: LocalizedStringKey { AIModelDownload.llamaDesc }
+    public static var llamaDescText: String { AIModelDownload.llamaDescText }
 }

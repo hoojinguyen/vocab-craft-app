@@ -613,6 +613,40 @@
         }
       }
     },
+    "app.ai.model.llama_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-device 4-bit neural language model (~740MB)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô hình ngôn ngữ nơ-ron 4-bit trên thiết bị (~740MB)"
+          }
+        }
+      }
+    },
+    "app.ai.model.llama_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llama 3.2 1B Reasoning Model"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô Hình Lập Luận Llama 3.2 1B"
+          }
+        }
+      }
+    },
     "app.ai.model_download.banner_desc": {
       "extractionState": "manual",
       "localizations": {
@@ -847,6 +881,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mô hình ngoại tuyến"
+          }
+        }
+      }
+    },
+    "app.ai.pack.offline.download_all_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Complete Pack (~975MB)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Trọn Bộ Gói AI (~975MB)"
+          }
+        }
+      }
+    },
+    "app.ai.pack.offline.download_all_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All-in-one private on-device intelligence: Llama 3.2 (LLM), Kokoro (TTS), and WhisperKit (STT). ~975MB total."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trí tuệ nhân tạo toàn diện hoàn toàn trên thiết bị: Llama 3.2 (LLM), Kokoro (TTS) và WhisperKit (STT). Tổng dung lượng ~975MB."
+          }
+        }
+      }
+    },
+    "app.ai.pack.offline.download_all_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete Offline AI Pack"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trọn Bộ Gói AI Ngoại Tuyến"
           }
         }
       }

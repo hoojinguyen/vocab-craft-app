@@ -366,23 +366,110 @@ public struct AIConfigSheet: View {
             CraftHaptics.shared.warning()
         }
     }
+}
 
-    private var offlineModelsSection: some View {
+// MARK: - Offline Models & Actions
+
+extension AIConfigSheet {
+    var offlineModelsSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.sm) {
             Text(AppStrings.AIPack.modelsSection)
                 .font(theme.typography.titleMedium)
                 .fontWeight(.bold)
                 .foregroundStyle(theme.colors.textPrimary)
 
-            Text(AppStrings.AIModelDownload.bannerDesc)
-                .font(theme.typography.caption)
+            Text(AppStrings.AIPack.offlineDownloadAllDesc)
+                .font(theme.typography.bodyMedium)
                 .foregroundStyle(theme.colors.textSecondary)
 
+            // Unified Full Pack Card
+            CraftCard(
+                style: .elevated,
+                cornerRadius: theme.radii.lg,
+                padding: theme.spacing.md
+            ) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                            Text(AppStrings.AIPack.offlineDownloadAllTitle)
+                                .font(theme.typography.label)
+                                .fontWeight(.bold)
+                                .foregroundStyle(theme.colors.textPrimary)
+
+                            Text(modelManager.isFullOfflinePackReady()
+                                 ? AppStrings.AIPack.statusReady
+                                 : AppStrings.AIPack.statusNeedsDownload)
+                                .font(theme.typography.caption)
+                                .foregroundStyle(modelManager.isFullOfflinePackReady()
+                                                 ? theme.colors.statusSuccess
+                                                 : theme.colors.textSecondary)
+                        }
+
+                        Spacer()
+
+                        if modelManager.isFullOfflinePackReady() {
+                            CraftBadge(
+                                AppStrings.AIPack.statusReady,
+                                symbol: .check,
+                                variant: .subtle,
+                                tone: .success,
+                                size: .sm
+                            )
+                        } else if case .downloading = modelManager.fullOfflinePackState {
+                            CraftBadge(
+                                AppStrings.AIModelDownload.statusDownloading,
+                                symbol: .sparkles,
+                                variant: .subtle,
+                                tone: .primary,
+                                size: .sm
+                            )
+                        }
+                    }
+
+                    if case .downloading = modelManager.fullOfflinePackState {
+                        VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                            CraftProgressBar(progress: modelManager.fullOfflinePackProgress, height: 6)
+                            HStack {
+                                Text(AppStrings.AIModelDownload.statusDownloading)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.textSecondary)
+                                Spacer()
+                                Text(modelManager.fullOfflinePackProgress, format: .percent.precision(.fractionLength(0)))
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.textMuted)
+                            }
+                        }
+                    } else if modelManager.isFullOfflinePackReady() {
+                        CraftButton(
+                            AppStrings.Settings.modelsFreeSpace,
+                            variant: .outline,
+                            size: .sm,
+                            isFullWidth: true
+                        ) {
+                            modelManager.deleteFullOfflinePack()
+                            appContainer.aiPackRegistry.revalidateActivePack()
+                        }
+                    } else {
+                        CraftButton(
+                            AppStrings.AIPack.offlineDownloadAllAction,
+                            variant: .primary,
+                            size: .md,
+                            isFullWidth: true
+                        ) {
+                            modelManager.startFullOfflinePackDownload()
+                        }
+                    }
+                }
+            }
+
+            // Breakdown indicators for Kokoro, Whisper, and Llama
             CraftCard(style: .outlined, padding: theme.spacing.none) {
                 VStack(spacing: theme.spacing.none) {
                     modelRow(type: .kokoro)
                     CraftDivider()
                     modelRow(type: .whisper)
+                    CraftDivider()
+                    modelRow(type: .llama)
                 }
             }
         }
@@ -397,7 +484,7 @@ public struct AIConfigSheet: View {
         let state = modelManager.state(for: type)
 
         CraftListRow(
-            title: LocalizedStringKey(type.displayName),
+            title: modelTitle(for: type),
             subtitle: LocalizedStringKey(modelSubtitle(for: type, state: state))
         ) {
             if isReady {
@@ -424,12 +511,20 @@ public struct AIConfigSheet: View {
                     variant: .secondary,
                     size: .sm
                 ) {
-                    let remoteURL = type == .kokoro
-                        ? URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
-                        : URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
-                    modelManager.startDownload(for: type, remoteURL: remoteURL)
+                    modelManager.startDownload(for: type)
                 }
             }
+        }
+    }
+
+    private func modelTitle(for type: AIModelType) -> LocalizedStringKey {
+        switch type {
+        case .kokoro:
+            return AppStrings.AIPack.kokoroTitle
+        case .whisper:
+            return LocalizedStringKey(type.displayName)
+        case .llama:
+            return AppStrings.AIPack.llamaTitle
         }
     }
 

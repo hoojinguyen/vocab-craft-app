@@ -521,6 +521,27 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIModelDownload.kokoroDescText == "Studio-quality on-device neural voice (85MB)")
     }
 
+    @Test("Offline pack and Llama model localization keys exist in both en and vi")
+    func testOfflinePackAndLlamaLocalizationKeys() throws {
+        let keys = [
+            "app.ai.pack.offline.download_all_title",
+            "app.ai.pack.offline.download_all_desc",
+            "app.ai.pack.offline.download_all_action",
+            "app.ai.model.llama_title",
+            "app.ai.model.llama_desc"
+        ]
+        for key in keys {
+            #expect(hasTranslation(key: key, locale: "en"), "Missing English translation for \(key)")
+            #expect(hasTranslation(key: key, locale: "vi"), "Missing Vietnamese translation for \(key)")
+        }
+
+        #expect(AppStrings.AIPack.offlineDownloadAllTitleText == "Complete Offline AI Pack")
+        #expect(AppStrings.AIPack.offlineDownloadAllDescText == "All-in-one private on-device intelligence: Llama 3.2 (LLM), Kokoro (TTS), and WhisperKit (STT). ~975MB total.")
+        #expect(AppStrings.AIPack.offlineDownloadAllActionText == "Download Complete Pack (~975MB)")
+        #expect(AppStrings.AIModelDownload.llamaTitleText == "Llama 3.2 1B Reasoning Model")
+        #expect(AppStrings.AIModelDownload.llamaDescText == "On-device 4-bit neural language model (~740MB)")
+    }
+
     @Test("Verify Warm Companion string keys exist in English and Vietnamese")
     func test_warmCompanion_stringKeys_existInEnglishAndVietnamese() {
         let keys = [
