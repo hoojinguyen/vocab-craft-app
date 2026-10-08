@@ -9,11 +9,11 @@ public struct AIAssistantHubView: View {
     @State private var viewModel: AIAssistantHubViewModel
     @State private var activeRoomViewModel: RoleplayRoomViewModel?
     @State private var activeVoiceCallViewModel: RoleplayVoiceCallViewModel?
-    @State private var showConfigSheet: Bool = false
     @State private var showPermissionDeniedAlert: Bool = false
     @State private var sampleSummary: RoleplaySessionSummary?
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
+    @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
     @Environment(\.openURL) private var openURL
 
@@ -38,18 +38,7 @@ public struct AIAssistantHubView: View {
                         alignment: .leading,
                         enableScrollFade: false
                     ) {
-                        HStack(spacing: theme.spacing.xs) {
-                            activePackPill
-
-                            CraftIconButton(
-                                symbol: .settings,
-                                size: .md,
-                                variant: .subtle,
-                                accessibilityLabelKey: AppStrings.AIAssistant.configureApiKey
-                            ) {
-                                showConfigSheet = true
-                            }
-                        }
+                        activePackPill
                     }
 
                     VStack(spacing: theme.spacing.lg) {
@@ -83,9 +72,7 @@ public struct AIAssistantHubView: View {
             }
             #if DEBUG
             let args = ProcessInfo.processInfo.arguments
-            if args.contains("-test-ai-config") {
-                showConfigSheet = true
-            } else if args.contains("-test-ai-room") {
+            if args.contains("-test-ai-room") {
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
                     activeRoomViewModel = appContainer.makeRoleplayRoomViewModel(for: scenario)
                 }
@@ -115,9 +102,6 @@ public struct AIAssistantHubView: View {
             RoleplaySummaryView(summary: summary) {
                 sampleSummary = nil
             }
-        }
-        .sheet(isPresented: $showConfigSheet) {
-            AIConfigSheet(store: settingsStore)
         }
         #if os(iOS)
         .fullScreenCover(item: $activeRoomViewModel) { roomViewModel in
@@ -298,7 +282,7 @@ public struct AIAssistantHubView: View {
         }()
 
         return Button {
-            showConfigSheet = true
+            appRouter.navigateToSettings()
         } label: {
             CraftBadge(
                 statusKey,

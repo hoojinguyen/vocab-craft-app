@@ -753,6 +753,8 @@ extension AppStrings {
                 bundle: .module
             )
         }
+        public static var actionDownload: LocalizedStringKey { "app.ai.model_download.action_download" }
+        public static var actionDownloadText: String { String(localized: "app.ai.model_download.action_download", defaultValue: "Download", bundle: .module) }
         public static var btnDownload: LocalizedStringKey { "app.ai.model_download.btn_download" }
         public static var btnDownloadText: String { String(localized: "app.ai.model_download.btn_download", defaultValue: "Download AI Pack (~190MB)", bundle: .module) }
         public static var btnLater: LocalizedStringKey { "app.ai.model_download.btn_later" }

@@ -8,6 +8,7 @@ public struct AIConfigSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appContainer) private var appContainer
     @Bindable public var store: UserSettingsStore
+    @Bindable private var modelManager = OnDemandAIModelManager.shared
     public let onDismiss: () -> Void
 
     @State private var geminiApiKey: String
@@ -210,20 +211,23 @@ public struct AIConfigSheet: View {
                                     .foregroundStyle(theme.colors.textSecondary)
                             }
                         }
-
-                        // Save Button
-                        CraftButton(
-                            AppStrings.Common.save,
-                            variant: .primary,
-                            size: .lg,
-                            isFullWidth: true
-                        ) {
-                            save()
-                            onDismiss()
-                            dismiss()
-                        }
-                        .padding(.top, theme.spacing.xs)
                     }
+
+                    // Section 3: Offline On-Device Models
+                    offlineModelsSection
+
+                    // Save Button
+                    CraftButton(
+                        AppStrings.Common.save,
+                        variant: .primary,
+                        size: .lg,
+                        isFullWidth: true
+                    ) {
+                        save()
+                        onDismiss()
+                        dismiss()
+                    }
+                    .padding(.top, theme.spacing.xs)
 
                     Spacer(minLength: theme.spacing.xl)
                 }
@@ -356,6 +360,80 @@ public struct AIConfigSheet: View {
             selectionError = error
             showSelectionErrorAlert = true
             CraftHaptics.shared.warning()
+        }
+    }
+
+    private var offlineModelsSection: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.sm) {
+            Text(AppStrings.AIPack.modelsSection)
+                .font(theme.typography.titleMedium)
+                .fontWeight(.bold)
+                .foregroundStyle(theme.colors.textPrimary)
+
+            Text(AppStrings.AIModelDownload.bannerDesc)
+                .font(theme.typography.caption)
+                .foregroundStyle(theme.colors.textSecondary)
+
+            CraftCard(style: .outlined, padding: theme.spacing.none) {
+                VStack(spacing: theme.spacing.none) {
+                    modelRow(type: .kokoro)
+                    CraftDivider()
+                    modelRow(type: .whisper)
+                }
+            }
+        }
+        .onAppear {
+            modelManager.refreshStatus()
+        }
+    }
+
+    @ViewBuilder
+    private func modelRow(type: AIModelType) -> some View {
+        let isReady = modelManager.isModelReady(type)
+        let state = modelManager.state(for: type)
+
+        CraftListRow(
+            title: LocalizedStringKey(type.displayName),
+            subtitle: LocalizedStringKey(modelSubtitle(for: type, state: state))
+        ) {
+            if isReady {
+                CraftButton(
+                    AppStrings.Settings.modelsFreeSpace,
+                    variant: .ghost,
+                    size: .sm
+                ) {
+                    try? modelManager.deleteModel(type)
+                    appContainer.aiPackRegistry.revalidateActivePack()
+                }
+                .tint(theme.colors.statusDanger)
+            } else if case .downloading(let progress) = state {
+                HStack(spacing: theme.spacing.xs) {
+                    CraftProgressBar(progress: progress, height: 4)
+                        .frame(width: theme.spacing.xxl)
+                    Text(progress, format: .percent.precision(.fractionLength(0)))
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textMuted)
+                }
+            } else {
+                CraftButton(
+                    AppStrings.AIModelDownload.actionDownload,
+                    variant: .secondary,
+                    size: .sm
+                ) {
+                    let remoteURL = type == .kokoro
+                        ? URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
+                        : URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+                    modelManager.startDownload(for: type, remoteURL: remoteURL)
+                }
+            }
+        }
+    }
+
+    private func modelSubtitle(for type: AIModelType, state: AIModelDownloadState) -> String {
+        switch state {
+        case .ready: return AppStrings.AIModelDownload.statusReady(type.estimatedSizeMB)
+        case .downloading: return AppStrings.AIModelDownload.statusDownloadingText
+        default: return AppStrings.AIModelDownload.statusSize(type.estimatedSizeMB)
         }
     }
 

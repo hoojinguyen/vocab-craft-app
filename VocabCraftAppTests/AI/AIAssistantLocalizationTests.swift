@@ -522,6 +522,7 @@ struct AIAssistantLocalizationTests {
             "app.ai.model_download.banner_title",
             "app.ai.model_download.banner_desc",
             "app.ai.model_download.btn_download",
+            "app.ai.model_download.action_download",
             "app.ai.model_download.btn_later",
             "app.ai.model_download.status_ready",
             "app.ai.model_download.status_downloading",

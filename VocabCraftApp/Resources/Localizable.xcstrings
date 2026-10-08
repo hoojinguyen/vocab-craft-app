@@ -613,6 +613,23 @@
         }
       }
     },
+    "app.ai.model_download.action_download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải về"
+          }
+        }
+      }
+    },
     "app.ai.model_download.btn_download": {
       "extractionState": "manual",
       "localizations": {

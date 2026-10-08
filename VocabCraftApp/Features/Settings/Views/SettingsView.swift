@@ -1,4 +1,3 @@
-// swiftlint:disable file_length
 import CraftUIKit
 import SwiftUI
 
@@ -30,9 +29,6 @@ public struct SettingsView: View {
 
                     // 4. AI Configuration Section
                     aiSection
-
-                    // 4.1 On-Device Models
-                    onDeviceModelsSection
 
                     // 5. Appearance & Feedback Section
                     appearanceSection
@@ -120,13 +116,6 @@ public struct SettingsView: View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionAI)
             SettingsAICard(store: viewModel.store)
-        }
-    }
-
-    private var onDeviceModelsSection: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            sectionHeader(AppStrings.Settings.modelsTitle)
-            SettingsOnDeviceModelsCard()
         }
     }
 
@@ -415,11 +404,6 @@ public struct SettingsAICard: View {
     @Bindable public var store: UserSettingsStore
 
     @State private var showConfigSheet: Bool = false
-    @State private var isGeminiSecure: Bool = true
-    @State private var isGroqSecure: Bool = true
-
-    @FocusState private var isGeminiFieldFocused: Bool
-    @FocusState private var isGroqFieldFocused: Bool
 
     public init(store: UserSettingsStore) {
         self.store = store
@@ -427,206 +411,39 @@ public struct SettingsAICard: View {
 
     public var body: some View {
         CraftCard(style: .outlined, padding: 0) {
-            VStack(spacing: 0) {
-                // Active AI Pack
-                Button {
-                    showConfigSheet = true
-                } label: {
-                    let activePack = appContainer.aiPackRegistry.activePack
-                    let displayName = activePack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
-                    let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
-                        guard let status = activePack?.status else {
-                            return (AppStrings.AIPack.statusReady, .neutral)
-                        }
-                        return statusBadgeInfo(for: status)
-                    }()
-
-                    CraftListRow(
-                        title: AppStrings.AIPack.activePackTitle,
-                        subtitle: LocalizedStringKey(stringLiteral: displayName)
-                    ) {
-                        HStack(spacing: theme.spacing.xs) {
-                            CraftBadge(
-                                statusKey,
-                                variant: .subtle,
-                                tone: tone,
-                                size: .sm
-                            )
-
-                            CraftIcon(
-                                .chevronRight,
-                                size: .sm,
-                                color: theme.colors.textMuted
-                            )
-                        }
+            Button {
+                showConfigSheet = true
+            } label: {
+                let activePack = appContainer.aiPackRegistry.activePack
+                let displayName = activePack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
+                let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
+                    guard let status = activePack?.status else {
+                        return (AppStrings.AIPack.statusReady, .neutral)
                     }
-                }
-                .buttonStyle(.plain)
+                    return statusBadgeInfo(for: status)
+                }()
 
-                CraftDivider()
-
-                // Gemini Key
                 CraftListRow(
-                    title: AppStrings.Settings.aiGeminiKeyTitle
+                    title: AppStrings.AIPack.activePackTitle,
+                    subtitle: LocalizedStringKey(stringLiteral: displayName)
                 ) {
-                    CraftBadge(
-                        store.isGeminiApiKeyConfigured
-                            ? AppStrings.AIPack.statusReady
-                            : AppStrings.AIPack.statusNeedsKey,
-                        symbol: store.isGeminiApiKeyConfigured ? .check : .sparkles,
-                        variant: .subtle,
-                        tone: store.isGeminiApiKeyConfigured ? .success : .warning,
-                        size: .sm
-                    )
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack(spacing: theme.spacing.xs) {
-                        Group {
-                            if isGeminiSecure {
-                                SecureField(
-                                    AppStrings.Settings.aiGeminiKeyPlaceholder,
-                                    text: $store.geminiApiKey
-                                )
-                            } else {
-                                TextField(
-                                    AppStrings.Settings.aiGeminiKeyPlaceholder,
-                                    text: $store.geminiApiKey
-                                )
-                            }
-                        }
-                        .focused($isGeminiFieldFocused)
-                        .onSubmit {
-                            store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                        }
-                        .font(theme.typography.bodyMedium)
-                        .foregroundStyle(theme.colors.textPrimary)
-                        .tint(theme.colors.brandPrimary)
-                        .autocorrectionDisabled()
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        #endif
+                        CraftBadge(
+                            statusKey,
+                            variant: .subtle,
+                            tone: tone,
+                            size: .sm
+                        )
 
-                        if !store.geminiApiKey.isEmpty {
-                            CraftIconButton(
-                                symbol: .clear,
-                                size: .sm,
-                                variant: .ghost,
-                                accessibilityLabelKey: AppStrings.Settings.aiClearKey
-                            ) {
-                                store.geminiApiKey = ""
-                            }
-                        }
-
-                        CraftIconButton(
-                            symbol: isGeminiSecure ? .eye : .eyeSlash,
+                        CraftIcon(
+                            .chevronRight,
                             size: .sm,
-                            variant: .ghost,
-                            accessibilityLabelKey: isGeminiSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
-                        ) {
-                            isGeminiSecure.toggle()
-                        }
+                            color: theme.colors.textMuted
+                        )
                     }
-                    .padding(.horizontal, theme.spacing.sm)
-                    .padding(.vertical, theme.spacing.xs)
-                    .background(theme.colors.surfaceSubtle)
-                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                    .onChange(of: isGeminiFieldFocused) { _, isFocused in
-                        if !isFocused {
-                            store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                        }
-                    }
-
-                    Text(AppStrings.Settings.aiGeminiHelpText)
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textSecondary)
                 }
-                .padding(theme.spacing.md)
-
-                CraftDivider()
-
-                // Groq Key
-                CraftListRow(
-                    title: AppStrings.Settings.aiGroqKeyTitle
-                ) {
-                    CraftBadge(
-                        store.isGroqApiKeyConfigured
-                            ? AppStrings.Settings.aiGroqStatusActive
-                            : AppStrings.AIPack.statusNeedsKey,
-                        symbol: store.isGroqApiKeyConfigured ? .check : .sparkles,
-                        variant: .subtle,
-                        tone: store.isGroqApiKeyConfigured ? .success : .neutral,
-                        size: .sm
-                    )
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack(spacing: theme.spacing.xs) {
-                        Group {
-                            if isGroqSecure {
-                                SecureField(
-                                    AppStrings.Settings.aiGroqKeyPlaceholder,
-                                    text: $store.groqApiKey
-                                )
-                            } else {
-                                TextField(
-                                    AppStrings.Settings.aiGroqKeyPlaceholder,
-                                    text: $store.groqApiKey
-                                )
-                            }
-                        }
-                        .focused($isGroqFieldFocused)
-                        .onSubmit {
-                            store.groqApiKey = store.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                        }
-                        .font(theme.typography.bodyMedium)
-                        .foregroundStyle(theme.colors.textPrimary)
-                        .tint(theme.colors.brandPrimary)
-                        .autocorrectionDisabled()
-                        #if os(iOS)
-                        .textInputAutocapitalization(.never)
-                        #endif
-
-                        if !store.groqApiKey.isEmpty {
-                            CraftIconButton(
-                                symbol: .clear,
-                                size: .sm,
-                                variant: .ghost,
-                                accessibilityLabelKey: AppStrings.Settings.aiClearKey
-                            ) {
-                                store.groqApiKey = ""
-                            }
-                        }
-
-                        CraftIconButton(
-                            symbol: isGroqSecure ? .eye : .eyeSlash,
-                            size: .sm,
-                            variant: .ghost,
-                            accessibilityLabelKey: isGroqSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
-                        ) {
-                            isGroqSecure.toggle()
-                        }
-                    }
-                    .padding(.horizontal, theme.spacing.sm)
-                    .padding(.vertical, theme.spacing.xs)
-                    .background(theme.colors.surfaceSubtle)
-                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                    .onChange(of: isGroqFieldFocused) { _, isFocused in
-                        if !isFocused {
-                            store.groqApiKey = store.groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                        }
-                    }
-
-                    Text(AppStrings.Settings.aiGroqHelpText)
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textSecondary)
-                }
-                .padding(theme.spacing.md)
             }
+            .buttonStyle(.plain)
         }
         .sheet(isPresented: $showConfigSheet) {
             AIConfigSheet(store: store)
@@ -806,72 +623,5 @@ private struct SettingsAboutCard: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "v\(version) (Build \(build))"
-    }
-}
-
-private struct SettingsOnDeviceModelsCard: View {
-    @Environment(\.craftTheme) private var theme
-    @Bindable private var modelManager = OnDemandAIModelManager.shared
-
-    var body: some View {
-        CraftCard(style: .outlined, padding: theme.spacing.none) {
-            VStack(spacing: theme.spacing.none) {
-                modelRow(type: .kokoro)
-                CraftDivider()
-                modelRow(type: .whisper)
-            }
-        }
-        .onAppear {
-            modelManager.refreshStatus()
-        }
-    }
-
-    @ViewBuilder
-    private func modelRow(type: AIModelType) -> some View {
-        let isReady = modelManager.isModelReady(type)
-        let state = modelManager.state(for: type)
-
-        CraftListRow(
-            title: LocalizedStringKey(type.displayName),
-            subtitle: LocalizedStringKey(subtitle(for: type, state: state))
-        ) {
-            if isReady {
-                CraftButton(
-                    AppStrings.Settings.modelsFreeSpace,
-                    variant: .ghost,
-                    size: .sm
-                ) {
-                    try? modelManager.deleteModel(type)
-                }
-                .tint(theme.colors.statusDanger)
-            } else if case .downloading(let progress) = state {
-                HStack(spacing: theme.spacing.xs) {
-                    CraftProgressBar(progress: progress, height: 4)
-                        .frame(width: theme.spacing.xxl)
-                    Text(progress, format: .percent.precision(.fractionLength(0)))
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textMuted)
-                }
-            } else {
-                CraftButton(
-                    AppStrings.AIModelDownload.btnDownload,
-                    variant: .secondary,
-                    size: .sm
-                ) {
-                    let remoteURL = type == .kokoro
-                        ? URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
-                        : URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
-                    modelManager.startDownload(for: type, remoteURL: remoteURL)
-                }
-            }
-        }
-    }
-
-    private func subtitle(for type: AIModelType, state: AIModelDownloadState) -> String {
-        switch state {
-        case .ready: return AppStrings.AIModelDownload.statusReady(type.estimatedSizeMB)
-        case .downloading: return AppStrings.AIModelDownload.statusDownloadingText
-        default: return AppStrings.AIModelDownload.statusSize(type.estimatedSizeMB)
-        }
     }
 }
