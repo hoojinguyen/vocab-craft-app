@@ -62,24 +62,69 @@ struct ConcreteAIPackTests {
         UserDefaults.standard.removePersistentDomain(forName: suiteName)
     }
 
+    @Test("OfflineAIPack reports needsDownload with ~975MB when any model is missing")
+    func testOfflineAIPackCombinedStatus() {
+        let missingLlama = OfflineAIPack(
+            isKokoroReady: { true },
+            isWhisperReady: { true },
+            isLlamaReady: { false }
+        )
+        #expect(missingLlama.status == .needsDownload(sizeDescription: "~975MB"))
+
+        let missingKokoro = OfflineAIPack(
+            isKokoroReady: { false },
+            isWhisperReady: { true },
+            isLlamaReady: { true }
+        )
+        #expect(missingKokoro.status == .needsDownload(sizeDescription: "~975MB"))
+
+        let missingWhisper = OfflineAIPack(
+            isKokoroReady: { true },
+            isWhisperReady: { false },
+            isLlamaReady: { true }
+        )
+        #expect(missingWhisper.status == .needsDownload(sizeDescription: "~975MB"))
+
+        let allReady = OfflineAIPack(
+            isKokoroReady: { true },
+            isWhisperReady: { true },
+            isLlamaReady: { true }
+        )
+        #expect(allReady.status == .ready)
+    }
+
+    @Test("OfflineAIPack makeLLMProvider throws downloadRequired when Llama is not downloaded")
+    func testOfflineAIPackLLMThrowsWhenNotDownloaded() {
+        let pack = OfflineAIPack(
+            isKokoroReady: { true },
+            isWhisperReady: { true },
+            isLlamaReady: { false }
+        )
+        #expect(throws: AIPackError.downloadRequired(packName: "Llama 3.2 1B", sizeDescription: "~740MB")) {
+            try pack.makeLLMProvider()
+        }
+    }
+
     @Test("OfflineAIPack reports needsDownload when models are not downloaded")
     func testOfflinePackNeedsDownload() {
         let pack = OfflineAIPack(
             isKokoroReady: { false },
-            isWhisperReady: { false }
+            isWhisperReady: { false },
+            isLlamaReady: { false }
         )
-        if case .needsDownload = pack.status {
-            // Success
+        if case .needsDownload(let size) = pack.status {
+            #expect(size == "~975MB")
         } else {
             Issue.record("Expected .needsDownload status for OfflineAIPack")
         }
     }
 
-    @Test("OfflineAIPack reports ready when both models are ready")
+    @Test("OfflineAIPack reports ready when all models are ready")
     func testOfflinePackReady() {
         let pack = OfflineAIPack(
             isKokoroReady: { true },
-            isWhisperReady: { true }
+            isWhisperReady: { true },
+            isLlamaReady: { true }
         )
         #expect(pack.status == .ready)
         #expect(pack.identifier == .offlineAI)
@@ -90,7 +135,8 @@ struct ConcreteAIPackTests {
     func testOfflineAIPackSupportedVoices() {
         let pack = OfflineAIPack(
             isKokoroReady: { true },
-            isWhisperReady: { true }
+            isWhisperReady: { true },
+            isLlamaReady: { true }
         )
         let voices = pack.supportedVoices
         #expect(voices.count == 4)
@@ -126,7 +172,8 @@ struct ConcreteAIPackTests {
     func testOfflinePackThrowsWhenEnginesNotDownloaded() {
         let pack = OfflineAIPack(
             isKokoroReady: { false },
-            isWhisperReady: { false }
+            isWhisperReady: { false },
+            isLlamaReady: { false }
         )
         #expect(throws: AIPackError.downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")) {
             try pack.makeTTSEngine()
@@ -134,20 +181,102 @@ struct ConcreteAIPackTests {
         #expect(throws: AIPackError.downloadRequired(packName: "WhisperKit", sizeDescription: "~150MB")) {
             try pack.makeSTTEngine()
         }
+        #expect(throws: AIPackError.downloadRequired(packName: "Llama 3.2 1B", sizeDescription: "~740MB")) {
+            try pack.makeLLMProvider()
+        }
     }
 
     @Test("OfflineAIPack provides working engines when models are downloaded")
     func testOfflinePackProvidesEnginesWhenReady() throws {
         let pack = OfflineAIPack(
             isKokoroReady: { true },
-            isWhisperReady: { true }
+            isWhisperReady: { true },
+            isLlamaReady: { true }
         )
         let tts = try pack.makeTTSEngine()
         #expect(tts.engineName == "Kokoro Neural TTS")
         let stt = try pack.makeSTTEngine()
         #expect(stt.engineName == "WhisperKit On-Device STT")
         let llm = try pack.makeLLMProvider()
-        #expect(llm.providerIdentifier == "intelligent_mock")
+        #expect(llm.providerIdentifier == "llama-3.2-1b-local")
+    }
+
+    @Test("LlamaLocalLLMProvider throws downloadRequired when not ready")
+    func testLlamaLocalLLMProviderThrowsDownloadRequiredWhenNotReady() async {
+        let provider = LlamaLocalLLMProvider(isReadyProvider: { false })
+        do {
+            let _: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "hi")],
+                systemPrompt: "sys",
+                responseSchema: RoleplayTurnOutput.self
+            )
+            Issue.record("Expected sendStructuredMessage to throw downloadRequired")
+        } catch let error as AIPackError {
+            #expect(error == .downloadRequired(packName: "Llama 3.2 1B", sizeDescription: "~740MB"))
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
+    }
+
+    @Test("LlamaLocalLLMProvider decodes structured response when worker succeeds")
+    func testLlamaLocalLLMProviderDecodesValidResponse() async throws {
+        let worker = LlamaInferenceWorker(bypassInferenceForTesting: true)
+        let provider = LlamaLocalLLMProvider(worker: worker, isReadyProvider: { true })
+        let result: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: [LLMChatMessage(role: .user, content: "Can I have an espresso?")],
+            systemPrompt: "You are a barista",
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(!result.characterReply.isEmpty)
+        #expect(!result.isConcluded)
+    }
+
+    @Test("LlamaLocalLLMProvider rethrows CancellationError untouched")
+    func testLlamaLocalLLMProviderRethrowsCancellation() async {
+        let task = Task {
+            let worker = LlamaInferenceWorker(bypassInferenceForTesting: true)
+            let provider = LlamaLocalLLMProvider(worker: worker, isReadyProvider: { true })
+            try Task.checkCancellation()
+            let _: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "hi")],
+                systemPrompt: "sys",
+                responseSchema: RoleplayTurnOutput.self
+            )
+        }
+        task.cancel()
+        do {
+            _ = try await task.value
+            Issue.record("Expected task to throw CancellationError")
+        } catch is CancellationError {
+            // Success: CancellationError propagated directly
+        } catch {
+            Issue.record("Expected CancellationError but got \(error)")
+        }
+    }
+
+    @Test("LlamaLocalLLMProvider wraps non-AIPack errors into llmFailed")
+    func testLlamaLocalLLMProviderWrapsGenericError() async {
+        let worker = LlamaInferenceWorker(bypassInferenceForTesting: true)
+        let provider = LlamaLocalLLMProvider(worker: worker, isReadyProvider: { true })
+        struct UnmatchedSchema: Decodable, Sendable {
+            let requiredMissingField: Int
+        }
+        do {
+            let _: UnmatchedSchema = try await provider.sendStructuredMessage(
+                messages: [LLMChatMessage(role: .user, content: "hi")],
+                systemPrompt: "sys",
+                responseSchema: UnmatchedSchema.self
+            )
+            Issue.record("Expected sendStructuredMessage to throw llmFailed")
+        } catch let error as AIPackError {
+            if case .llmFailed(let packName, _) = error {
+                #expect(packName == "Offline AI Pack")
+            } else {
+                Issue.record("Expected .llmFailed, got \(error)")
+            }
+        } catch {
+            Issue.record("Unexpected error type: \(error)")
+        }
     }
 
     @Test("AppleDefaultPack provides default configuration and system engines")

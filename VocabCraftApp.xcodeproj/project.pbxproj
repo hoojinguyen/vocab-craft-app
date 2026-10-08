@@ -61,6 +61,7 @@
 		3000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift */; };
 		30003498E286D20C1EBC /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
 		3000C503297AA6AEC4DE /* GeminiLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */; };
+		3000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */; };
 		30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C2292A121D4AD48 /* GroqLLMProvider.swift */; };
 		300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */; };
 		3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ACE33830E9547D1A /* MockLLMProvider.swift */; };
@@ -479,6 +480,7 @@
 		2000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationSchedulerProtocol.swift"; sourceTree = "<group>"; };
 		20003498E286D20C1EBC /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngine.swift"; sourceTree = "<group>"; };
 		2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiLLMProvider.swift"; sourceTree = "<group>"; };
+		2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaLocalLLMProvider.swift"; sourceTree = "<group>"; };
 		20002C2292A121D4AD48 /* GroqLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GroqLLMProvider.swift"; sourceTree = "<group>"; };
 		200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProvider.swift"; sourceTree = "<group>"; };
 		2000ACE33830E9547D1A /* MockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockLLMProvider.swift"; sourceTree = "<group>"; };
@@ -1081,6 +1083,7 @@
 			children = (
 				2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */,
 				2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */,
+				2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */,
 				20002C2292A121D4AD48 /* GroqLLMProvider.swift */,
 				200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */,
 				2000ACE33830E9547D1A /* MockLLMProvider.swift */,
@@ -2190,6 +2193,7 @@
 				3000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
 				3000C503297AA6AEC4DE /* GeminiLLMProvider.swift in Sources */,
+				3000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift in Sources */,
 				30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */,
 				300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */,
 				3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */,

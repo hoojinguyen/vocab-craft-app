@@ -58,14 +58,14 @@ public actor LlamaInferenceWorker {
 
     /// Verifies if model file exists and passes minimum file size integrity threshold.
     public var isModelReady: Bool {
+        if bypassInferenceForTesting || runtimeWrapper != nil {
+            return true
+        }
         let modelFile = modelURL.appendingPathComponent(Self.requiredModelFileName)
         guard FileManager.default.fileExists(atPath: modelFile.path),
               let attributes = try? FileManager.default.attributesOfItem(atPath: modelFile.path),
               let fileSize = attributes[.size] as? Int64 else {
             return false
-        }
-        if bypassInferenceForTesting {
-            return fileSize > 0
         }
         return fileSize > Self.minSizeBytes
     }

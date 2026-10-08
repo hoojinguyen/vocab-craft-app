@@ -3,35 +3,42 @@ import Foundation
 public struct OfflineAIPack: AIPackProtocol {
     public let identifier: AIPackIdentifier = .offlineAI
     public let displayName: String = "Offline AI Pack"
-    public let packDescription: String = "High-quality neural models (Kokoro TTS & WhisperKit STT) running fully on-device"
+    public let packDescription: String = "High-quality neural models (Kokoro TTS, WhisperKit STT & Llama 3.2 LLM) running fully on-device"
 
     private let isKokoroReady: @Sendable () -> Bool
     private let isWhisperReady: @Sendable () -> Bool
+    private let isLlamaReady: @Sendable () -> Bool
     private let kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)?
     private let whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)?
     private let llmProvider: (@Sendable () -> (any LLMProviderProtocol)?)?
+    private let llamaWorkerProvider: (@Sendable () -> LlamaInferenceWorker?)?
 
     public init(
         isKokoroReady: @escaping @Sendable () -> Bool,
         isWhisperReady: @escaping @Sendable () -> Bool,
+        isLlamaReady: (@Sendable () -> Bool)? = nil,
         kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)? = nil,
         whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)? = nil,
-        llmProvider: (@Sendable () -> (any LLMProviderProtocol)?)? = nil
+        llmProvider: (@Sendable () -> (any LLMProviderProtocol)?)? = nil,
+        llamaWorkerProvider: (@Sendable () -> LlamaInferenceWorker?)? = nil
     ) {
         self.isKokoroReady = isKokoroReady
         self.isWhisperReady = isWhisperReady
+        self.isLlamaReady = isLlamaReady ?? { false }
         self.kokoroEngineProvider = kokoroEngineProvider
         self.whisperEngineProvider = whisperEngineProvider
         self.llmProvider = llmProvider
+        self.llamaWorkerProvider = llamaWorkerProvider
     }
 
     public var status: AIPackStatus {
         let kokoro = isKokoroReady()
         let whisper = isWhisperReady()
-        if kokoro && whisper {
+        let llama = isLlamaReady()
+        if kokoro && whisper && llama {
             return .ready
         }
-        return .needsDownload(sizeDescription: "~500MB")
+        return .needsDownload(sizeDescription: "~975MB")
     }
 
     public var supportedVoices: [VoiceProfile] {
@@ -71,7 +78,14 @@ public struct OfflineAIPack: AIPackProtocol {
         if let custom = llmProvider?() {
             return custom
         }
-        return IntelligentMockLLMProvider()
+        guard isLlamaReady() else {
+            throw .downloadRequired(packName: "Llama 3.2 1B", sizeDescription: "~740MB")
+        }
+        let worker = llamaWorkerProvider?()
+        return LlamaLocalLLMProvider(
+            worker: worker,
+            isReadyProvider: isLlamaReady
+        )
     }
 
     public func makeTTSEngine() throws(AIPackError) -> any TTSEngineProtocol {

@@ -148,7 +148,7 @@ struct AIPackRegistryTests {
         let store = UserSettingsStore(userDefaults: defaults)
         store.geminiApiKey = "key"
         let geminiPack = GeminiCloudPack(settingsStore: store)
-        let offlinePack = OfflineAIPack(isKokoroReady: { true }, isWhisperReady: { true })
+        let offlinePack = OfflineAIPack(isKokoroReady: { true }, isWhisperReady: { true }, isLlamaReady: { true })
         let registry = AIPackRegistry(packs: [geminiPack, offlinePack], settingsStore: store)
 
         let catalog = registry.packCatalog

@@ -174,6 +174,17 @@ public final class AppContainer {
                         OnDemandAIModelManager.shared.isModelReady(.whisper)
                     }
                 }
+            },
+            isLlamaReady: {
+                if Thread.isMainThread {
+                    return MainActor.assumeIsolated {
+                        OnDemandAIModelManager.shared.isModelReady(.llama)
+                    }
+                } else {
+                    return DispatchQueue.main.sync {
+                        OnDemandAIModelManager.shared.isModelReady(.llama)
+                    }
+                }
             }
         )
         let geminiPack = GeminiCloudPack(settingsStore: settingsStore)
