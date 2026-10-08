@@ -7,13 +7,19 @@ public struct OfflineAIPack: AIPackProtocol {
 
     private let isKokoroReady: @Sendable () -> Bool
     private let isWhisperReady: @Sendable () -> Bool
+    private let kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)?
+    private let whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)?
 
     public init(
         isKokoroReady: @escaping @Sendable () -> Bool,
-        isWhisperReady: @escaping @Sendable () -> Bool
+        isWhisperReady: @escaping @Sendable () -> Bool,
+        kokoroEngineProvider: (@Sendable () -> KokoroTTSEngine?)? = nil,
+        whisperEngineProvider: (@Sendable () -> WhisperKitSpeechEngine?)? = nil
     ) {
         self.isKokoroReady = isKokoroReady
         self.isWhisperReady = isWhisperReady
+        self.kokoroEngineProvider = kokoroEngineProvider
+        self.whisperEngineProvider = whisperEngineProvider
     }
 
     public var status: AIPackStatus {
@@ -51,13 +57,29 @@ public struct OfflineAIPack: AIPackProtocol {
         guard isKokoroReady() else {
             throw .downloadRequired(packName: "Kokoro TTS", sizeDescription: "~350MB")
         }
-        return KokoroTTSEngineAdapter(isReadyProvider: isKokoroReady)
+        let engine: KokoroTTSEngine?
+        if let customProvider = kokoroEngineProvider {
+            engine = customProvider()
+        } else if Thread.isMainThread {
+            engine = MainActor.assumeIsolated { KokoroTTSEngine() }
+        } else {
+            engine = DispatchQueue.main.sync { KokoroTTSEngine() }
+        }
+        return KokoroTTSEngineAdapter(underlyingEngine: engine, isReadyProvider: isKokoroReady)
     }
 
     public func makeSTTEngine() throws(AIPackError) -> any STTEngineProtocol {
         guard isWhisperReady() else {
             throw .downloadRequired(packName: "WhisperKit", sizeDescription: "~150MB")
         }
-        return WhisperKitSTTEngineAdapter(isReadyProvider: isWhisperReady)
+        let engine: WhisperKitSpeechEngine?
+        if let customProvider = whisperEngineProvider {
+            engine = customProvider()
+        } else if Thread.isMainThread {
+            engine = MainActor.assumeIsolated { WhisperKitSpeechEngine() }
+        } else {
+            engine = DispatchQueue.main.sync { WhisperKitSpeechEngine() }
+        }
+        return WhisperKitSTTEngineAdapter(underlyingEngine: engine, isReadyProvider: isWhisperReady)
     }
 }

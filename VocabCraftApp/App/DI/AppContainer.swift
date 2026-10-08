@@ -98,21 +98,7 @@ public final class AppContainer {
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
 
-        if let aiPackRegistry {
-            self.aiPackRegistry = aiPackRegistry
-        } else {
-            let applePack = AppleDefaultPack()
-            let offlinePack = OfflineAIPack(
-                isKokoroReady: { false },
-                isWhisperReady: { false }
-            )
-            let geminiPack = GeminiCloudPack(settingsStore: effectiveUserSettingsStore)
-
-            self.aiPackRegistry = AIPackRegistry(
-                packs: [applePack, offlinePack, geminiPack],
-                settingsStore: effectiveUserSettingsStore
-            )
-        }
+        self.aiPackRegistry = aiPackRegistry ?? Self.makeDefaultAIPackRegistry(settingsStore: effectiveUserSettingsStore)
 
         let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
             ?? AudioSessionCoordinator()
@@ -161,6 +147,40 @@ public final class AppContainer {
             dataSource: resolvedDataSource,
             stageRepo: resolvedStageRepo,
             userSettings: effectiveUserSettingsStore
+        )
+    }
+
+    private static func makeDefaultAIPackRegistry(settingsStore: UserSettingsStore) -> AIPackRegistry {
+        let applePack = AppleDefaultPack()
+        let offlinePack = OfflineAIPack(
+            isKokoroReady: {
+                if Thread.isMainThread {
+                    return MainActor.assumeIsolated {
+                        OnDemandAIModelManager.shared.isModelReady(.kokoro)
+                    }
+                } else {
+                    return DispatchQueue.main.sync {
+                        OnDemandAIModelManager.shared.isModelReady(.kokoro)
+                    }
+                }
+            },
+            isWhisperReady: {
+                if Thread.isMainThread {
+                    return MainActor.assumeIsolated {
+                        OnDemandAIModelManager.shared.isModelReady(.whisper)
+                    }
+                } else {
+                    return DispatchQueue.main.sync {
+                        OnDemandAIModelManager.shared.isModelReady(.whisper)
+                    }
+                }
+            }
+        )
+        let geminiPack = GeminiCloudPack(settingsStore: settingsStore)
+
+        return AIPackRegistry(
+            packs: [applePack, offlinePack, geminiPack],
+            settingsStore: settingsStore
         )
     }
 

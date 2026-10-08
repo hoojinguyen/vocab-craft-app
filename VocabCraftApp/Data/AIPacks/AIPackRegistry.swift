@@ -31,6 +31,7 @@ public final class AIPackRegistry {
     private let settingsStore: UserSettingsStore
     public private(set) var activePackId: AIPackIdentifier
     public private(set) var activePackIssue: AIPackError?
+    public private(set) var revision: Int = 0
 
     public init(packs: [any AIPackProtocol], settingsStore: UserSettingsStore) {
         var packMap: [AIPackIdentifier: any AIPackProtocol] = [:]
@@ -43,6 +44,16 @@ public final class AIPackRegistry {
         let saved = AIPackIdentifier(rawValue: settingsStore.selectedAIPackId) ?? .geminiCloud
         self.activePackId = saved
         self.revalidateActivePack()
+
+        NotificationCenter.default.addObserver(
+            forName: .onDemandAIModelStatusDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.revalidateActivePack()
+            }
+        }
     }
 
     public var activePack: (any AIPackProtocol)? {
@@ -50,7 +61,8 @@ public final class AIPackRegistry {
     }
 
     public var packCatalog: [AIPackEntry] {
-        packs.values.map { pack in
+        _ = revision
+        return packs.values.map { pack in
             AIPackEntry(
                 identifier: pack.identifier,
                 displayName: pack.displayName,
@@ -116,6 +128,7 @@ public final class AIPackRegistry {
     }
 
     public func revalidateActivePack() {
+        revision += 1
         guard let pack = packs[activePackId] else {
             activePackIssue = .noPackAvailable
             return

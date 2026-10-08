@@ -82,7 +82,15 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
     }
 
     public func isModelReady(_ type: AIModelType) -> Bool {
-        state(for: type) == .ready
+        if state(for: type) == .ready { return true }
+        let dir = modelURL(for: type)
+        if FileManager.default.fileExists(atPath: dir.path),
+           let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
+           !contents.isEmpty {
+            updateState(.ready, for: type)
+            return true
+        }
+        return false
     }
 
     public func modelURL(for type: AIModelType) -> URL {
@@ -124,6 +132,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         case .kokoro: kokoroState = newState
         case .whisper: whisperState = newState
         }
+        NotificationCenter.default.post(name: .onDemandAIModelStatusDidChange, object: nil)
     }
 
     public nonisolated func urlSession(
@@ -177,4 +186,8 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
             }
         }
     }
+}
+
+extension Notification.Name {
+    public static let onDemandAIModelStatusDidChange = Notification.Name("OnDemandAIModelStatusDidChangeNotification")
 }

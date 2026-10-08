@@ -262,6 +262,10 @@ public struct AIConfigSheet: View {
                     Text(LocalizedStringKey(error.localizedKey))
                 }
             }
+            .onAppear {
+                modelManager.refreshStatus()
+                appContainer.aiPackRegistry.revalidateActivePack()
+            }
         }
     }
 

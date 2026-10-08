@@ -61,4 +61,21 @@ struct AppContainerAITests {
         store.geminiApiKey = ""
         #expect(!store.isGeminiApiKeyConfigured)
     }
+
+    @Test("Offline AI Pack status in AppContainer reflects model readiness")
+    @MainActor
+    func testOfflinePackReadinessInAppContainer() {
+        let container = AppContainer()
+        let offlineEntry = container.aiPackRegistry.packCatalog.first { $0.identifier == .offlineAI }
+        #expect(offlineEntry != nil)
+
+        let kokoroReady = OnDemandAIModelManager.shared.isModelReady(.kokoro)
+        let whisperReady = OnDemandAIModelManager.shared.isModelReady(.whisper)
+
+        if kokoroReady && whisperReady {
+            #expect(offlineEntry?.status == .ready)
+        } else {
+            #expect(offlineEntry?.status == .needsDownload(sizeDescription: "~500MB"))
+        }
+    }
 }
