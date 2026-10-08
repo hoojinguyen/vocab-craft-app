@@ -243,6 +243,7 @@ private struct SettingsAudioCard: View {
     let onPlayPreview: () -> Void
 
     @State private var showVoicePicker: Bool = false
+    @State private var showDownloadPromptAlert: Bool = false
 
     private var currentProfile: RoleplayVoiceProfile {
         RoleplayVoiceProfileCatalog.profile(for: store.roleplayVoiceId)
@@ -371,7 +372,13 @@ private struct SettingsAudioCard: View {
                     iconColor: theme.colors.brandPrimary,
                     iconBackgroundColor: theme.colors.surfaceSubtle,
                     showChevron: !isPlayingPreview,
-                    action: onPlayPreview
+                    action: {
+                        if currentProfile.engine == .kokoroNeural && !OnDemandAIModelManager.shared.isModelReady(.kokoro) {
+                            showDownloadPromptAlert = true
+                        } else {
+                            onPlayPreview()
+                        }
+                    }
                 ) {
                     if isPlayingPreview {
                         CraftWaveformView(
@@ -393,6 +400,15 @@ private struct SettingsAudioCard: View {
         }
         .sheet(isPresented: $showVoicePicker) {
             RoleplayVoicePickerSheet(store: store, ttsService: ttsService)
+        }
+        .alert(
+            AppStrings.Settings.voicePreviewNeedsDownload,
+            isPresented: $showDownloadPromptAlert
+        ) {
+            Button(AppStrings.Settings.voicePreviewDownloadAction) {
+                OnDemandAIModelManager.shared.startDownload(for: .kokoro)
+            }
+            Button(AppStrings.Common.cancel, role: .cancel) {}
         }
     }
 }

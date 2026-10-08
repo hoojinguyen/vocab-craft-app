@@ -495,6 +495,32 @@ struct AIAssistantLocalizationTests {
         #expect(viTranslation != nil && !(viTranslation?.isEmpty ?? true), "Missing VI localization for key: \(key)")
     }
 
+    private func hasTranslation(key: String, locale: String) -> Bool {
+        guard let value = AIAssistantLocalizationTests.lookupCatalog(key: key, language: locale) else {
+            return false
+        }
+        return !value.isEmpty
+    }
+
+    @Test("Kokoro preview and model localization keys exist in both en and vi")
+    func testKokoroLocalizationKeys() throws {
+        let keys = [
+            "app.settings.voice.preview_needs_download",
+            "app.settings.voice.preview_download_action",
+            "app.ai.model.kokoro_title",
+            "app.ai.model.kokoro_desc"
+        ]
+        for key in keys {
+            #expect(hasTranslation(key: key, locale: "en"), "Missing English translation for \(key)")
+            #expect(hasTranslation(key: key, locale: "vi"), "Missing Vietnamese translation for \(key)")
+        }
+
+        #expect(AppStrings.Settings.voicePreviewNeedsDownloadText == "Model download is required to preview this voice.")
+        #expect(AppStrings.Settings.voicePreviewDownloadActionText == "Download Model")
+        #expect(AppStrings.AIModelDownload.kokoroTitleText == "Kokoro Neural Voice")
+        #expect(AppStrings.AIModelDownload.kokoroDescText == "Studio-quality on-device neural voice (85MB)")
+    }
+
     @Test("Verify Warm Companion string keys exist in English and Vietnamese")
     func test_warmCompanion_stringKeys_existInEnglishAndVietnamese() {
         let keys = [

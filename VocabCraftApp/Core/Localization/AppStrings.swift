@@ -335,6 +335,10 @@ extension AppStrings {
         public static var voicePreviewButtonText: String { String(localized: "app.settings.voice.preview_button", defaultValue: "Play Preview", bundle: .module) }
         public static var voicePreviewing: LocalizedStringKey { "app.settings.voice.previewing" }
         public static var voicePreviewingText: String { String(localized: "app.settings.voice.previewing", defaultValue: "Playing...", bundle: .module) }
+        public static var voicePreviewNeedsDownload: LocalizedStringKey { "app.settings.voice.preview_needs_download" }
+        public static var voicePreviewNeedsDownloadText: String { String(localized: "app.settings.voice.preview_needs_download", defaultValue: "Model download is required to preview this voice.", bundle: .module) }
+        public static var voicePreviewDownloadAction: LocalizedStringKey { "app.settings.voice.preview_download_action" }
+        public static var voicePreviewDownloadActionText: String { String(localized: "app.settings.voice.preview_download_action", defaultValue: "Download Model", bundle: .module) }
         public static var voiceSpeed: LocalizedStringKey { "app.settings.voice.speed" }
         public static var voiceSpeedText: String { String(localized: "app.settings.voice.speed", defaultValue: "Voice Speed", bundle: .module) }
         public static var voicePitch: LocalizedStringKey { "app.settings.voice.pitch" }
@@ -764,10 +768,18 @@ extension AppStrings {
         public static var statusDownloading: LocalizedStringKey { "app.ai.model_download.status_downloading" }
         public static var statusDownloadingText: String { String(localized: "app.ai.model_download.status_downloading", defaultValue: "Downloading...", bundle: .module) }
         public static func statusSize(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_size", defaultValue: "~%lldMB", bundle: .module), sizeMB) }
+        public static var kokoroTitle: LocalizedStringKey { "app.ai.model.kokoro_title" }
+        public static var kokoroTitleText: String { String(localized: "app.ai.model.kokoro_title", defaultValue: "Kokoro Neural Voice", bundle: .module) }
+        public static var kokoroDesc: LocalizedStringKey { "app.ai.model.kokoro_desc" }
+        public static var kokoroDescText: String { String(localized: "app.ai.model.kokoro_desc", defaultValue: "Studio-quality on-device neural voice (85MB)", bundle: .module) }
     }
 
     // MARK: - AI Pack & Error Strings
     public enum AIPack {
+        public static var kokoroTitle: LocalizedStringKey { AIModelDownload.kokoroTitle }
+        public static var kokoroTitleText: String { AIModelDownload.kokoroTitleText }
+        public static var kokoroDesc: LocalizedStringKey { AIModelDownload.kokoroDesc }
+        public static var kokoroDescText: String { AIModelDownload.kokoroDescText }
         public static var alertTitle: LocalizedStringKey { "app.ai.error.alert_title" }
         public static var alertTitleText: String { String(localized: "app.ai.error.alert_title", defaultValue: "AI Service Issue", bundle: .module) }
         public static var retryAction: LocalizedStringKey { "app.ai.error.retry_action" }
@@ -810,4 +822,11 @@ extension AppStrings.Settings {
     public static var modelsTitleText: String { String(localized: "app.settings.models.title", defaultValue: "On-Device AI Models", bundle: .module) }
     public static var modelsFreeSpace: LocalizedStringKey { "app.settings.models.free_space" }
     public static var modelsFreeSpaceText: String { String(localized: "app.settings.models.free_space", defaultValue: "Free up storage", bundle: .module) }
+}
+
+extension AppStrings {
+    public static var kokoroTitle: LocalizedStringKey { AIModelDownload.kokoroTitle }
+    public static var kokoroTitleText: String { AIModelDownload.kokoroTitleText }
+    public static var kokoroDesc: LocalizedStringKey { AIModelDownload.kokoroDesc }
+    public static var kokoroDescText: String { AIModelDownload.kokoroDescText }
 }

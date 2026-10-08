@@ -579,6 +579,40 @@
         }
       }
     },
+    "app.ai.model.kokoro_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Studio-quality on-device neural voice (85MB)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giọng nói nơ-ron chất lượng cao trên thiết bị (85MB)"
+          }
+        }
+      }
+    },
+    "app.ai.model.kokoro_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kokoro Neural Voice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giọng Đọc Nơ-ron Kokoro"
+          }
+        }
+      }
+    },
     "app.ai.model_download.banner_desc": {
       "extractionState": "manual",
       "localizations": {
@@ -7647,6 +7681,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cao độ âm sắc"
+          }
+        }
+      }
+    },
+    "app.settings.voice.preview_download_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Model"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Mô Hình"
+          }
+        }
+      }
+    },
+    "app.settings.voice.preview_needs_download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model download is required to preview this voice."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần tải mô hình để nghe thử giọng nói này."
           }
         }
       }

@@ -12,6 +12,7 @@ public struct RoleplayVoicePickerSheet: View {
 
     @State private var previewingProfileId: String?
     @State private var previewTask: Task<Void, Never>?
+    @State private var showDownloadPromptAlert: Bool = false
 
     public init(
         store: UserSettingsStore,
@@ -50,6 +51,15 @@ public struct RoleplayVoicePickerSheet: View {
                         dismiss()
                     }
                 }
+            }
+            .alert(
+                AppStrings.Settings.voicePreviewNeedsDownload,
+                isPresented: $showDownloadPromptAlert
+            ) {
+                Button(AppStrings.Settings.voicePreviewDownloadAction) {
+                    OnDemandAIModelManager.shared.startDownload(for: .kokoro)
+                }
+                Button(AppStrings.Common.cancel, role: .cancel) {}
             }
             .onDisappear {
                 stopPlayback()
@@ -212,6 +222,11 @@ public struct RoleplayVoicePickerSheet: View {
     }
 
     private func handlePreview(for profile: RoleplayVoiceProfile) {
+        if profile.engine == .kokoroNeural && !OnDemandAIModelManager.shared.isModelReady(.kokoro) {
+            showDownloadPromptAlert = true
+            return
+        }
+
         if previewingProfileId == profile.id {
             stopPlayback()
         } else {

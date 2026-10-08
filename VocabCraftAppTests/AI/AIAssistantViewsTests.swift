@@ -618,6 +618,14 @@ struct AIAssistantViewsTests {
             store.roleplayVoiceId = neuralProfile.id
             #expect(store.roleplayVoiceId == neuralProfile.id)
         }
+
+        // Verify Kokoro on-device neural profile exists and can be selected
+        let kokoroProfile = RoleplayVoiceProfileCatalog.allProfiles.first { $0.engine == .kokoroNeural }
+        #expect(kokoroProfile != nil)
+        if let kokoroProfile {
+            store.roleplayVoiceId = kokoroProfile.id
+            #expect(store.roleplayVoiceId == kokoroProfile.id)
+        }
         _ = sheet.body
     }
 
