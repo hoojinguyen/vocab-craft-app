@@ -169,11 +169,11 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         task.resume()
     }
 
-    public func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
+    public nonisolated func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
         try Self.extractArchive(at: sourceURL, to: destinationURL)
     }
 
-    public static func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
+    public nonisolated static func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
         let fileManager = FileManager.default
         guard fileManager.fileExists(atPath: sourceURL.path) else {
             throw AIModelExtractionError.fileNotFound(sourceURL)
@@ -232,7 +232,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         applyBackupExclusion(to: destinationURL)
     }
 
-    private static func executeTarExtraction(from sourcePath: String, to destinationPath: String) throws {
+    private nonisolated static func executeTarExtraction(from sourcePath: String, to destinationPath: String) throws {
         var pid: pid_t = 0
         let args = ["/usr/bin/tar", "-xf", sourcePath, "-C", destinationPath]
         var cArgs = args.map { strdup($0) }
@@ -259,7 +259,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         }
     }
 
-    public static func applyBackupExclusion(to url: URL) {
+    public nonisolated static func applyBackupExclusion(to url: URL) {
         var resourceValues = URLResourceValues()
         resourceValues.isExcludedFromBackup = true
         var targetUrl = url
@@ -306,30 +306,62 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
             return
         }
 
-        Task { @MainActor in
-            guard let (type, _) = self.downloadTasks.first(where: { $0.value == downloadTask }) else {
+        Task {
+            let (targetType, destURL) = await MainActor.run { () -> (AIModelType?, URL?) in
+                guard let (type, _) = self.downloadTasks.first(where: { $0.value == downloadTask }) else {
+                    return (nil, nil)
+                }
+                return (type, self.modelURL(for: type))
+            }
+
+            guard let type = targetType, let dest = destURL else {
                 try? FileManager.default.removeItem(at: safeTempLocation)
                 return
             }
-            let dest = self.modelURL(for: type)
+
+            defer {
+                Task { @MainActor in
+                    self.downloadTasks.removeValue(forKey: type)
+                }
+            }
+
             do {
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.createDirectory(at: dest, withIntermediateDirectories: true)
-                try self.extractArchive(at: safeTempLocation, to: dest)
+                try Self.extractArchive(at: safeTempLocation, to: dest)
                 try? FileManager.default.removeItem(at: safeTempLocation)
 
                 Self.applyBackupExclusion(to: dest)
 
-                if self.isModelReady(type) {
-                    self.updateState(.ready, for: type)
-                } else {
-                    self.updateState(.error("Model integrity check failed after extraction"), for: type)
+                await MainActor.run {
+                    if self.isModelReady(type) {
+                        self.updateState(.ready, for: type)
+                    } else {
+                        self.updateState(.error("Model integrity check failed after extraction"), for: type)
+                    }
                 }
-                self.downloadTasks.removeValue(forKey: type)
             } catch {
-                self.updateState(.error(error.localizedDescription), for: type)
                 try? FileManager.default.removeItem(at: safeTempLocation)
+                await MainActor.run {
+                    self.updateState(.error(error.localizedDescription), for: type)
+                }
             }
+        }
+    }
+
+    public nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
+        guard let error = error else { return }
+        Task { @MainActor in
+            guard let (type, _) = self.downloadTasks.first(where: { $0.value == task }) else {
+                return
+            }
+            self.downloadTasks.removeValue(forKey: type)
+            self.updateState(.error(error.localizedDescription), for: type)
+            Self.logger.error("Download failed for \(type.rawValue): \(error.localizedDescription)")
         }
     }
 }

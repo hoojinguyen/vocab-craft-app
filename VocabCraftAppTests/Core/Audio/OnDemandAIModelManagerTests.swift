@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import Testing
 @testable import VocabCraftApp
@@ -85,6 +86,69 @@ struct OnDemandAIModelManagerTests {
         #expect(values.isExcludedFromBackup == true)
     }
 
+    @Test("extractArchive unpacks valid tar archive and validates model readiness")
+    @MainActor
+    func testExtractArchiveTarArchive() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let srcDir = tempDir.appendingPathComponent("raw_files")
+        let tarFile = tempDir.appendingPathComponent("kokoro.tar")
+        let destDir = tempDir.appendingPathComponent("kokoro")
+        try FileManager.default.createDirectory(at: srcDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let required = ["model.onnx", "voices.bin", "tokens.txt", "espeak-ng-data"]
+        for file in required {
+            let path = srcDir.appendingPathComponent(file)
+            if file == "espeak-ng-data" {
+                try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
+                let sampleDict = path.appendingPathComponent("dict")
+                try "sample-phonemes".write(to: sampleDict, atomically: true, encoding: .utf8)
+            } else {
+                try "dummy-content".write(to: path, atomically: true, encoding: .utf8)
+            }
+        }
+
+        try createTarArchive(from: srcDir, archiveURL: tarFile)
+        #expect(FileManager.default.fileExists(atPath: tarFile.path))
+
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+        try manager.extractArchive(at: tarFile, to: destDir)
+
+        #expect(manager.isModelReady(.kokoro))
+        let values = try destDir.resourceValues(forKeys: [.isExcludedFromBackupKey])
+        #expect(values.isExcludedFromBackup == true)
+    }
+
+    @Test("extractArchive throws when archive is corrupt or invalid")
+    @MainActor
+    func testExtractArchiveThrowsOnCorruptArchive() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let corruptFile = tempDir.appendingPathComponent("invalid.tar.bz2")
+        let destDir = tempDir.appendingPathComponent("dest")
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        try "not a valid tar or bz2 archive".write(to: corruptFile, atomically: true, encoding: .utf8)
+
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+        #expect(throws: Error.self) {
+            try manager.extractArchive(at: corruptFile, to: destDir)
+        }
+    }
+
+    @Test("extractArchive throws when source file does not exist")
+    @MainActor
+    func testExtractArchiveThrowsWhenSourceNotFound() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let nonExistentFile = tempDir.appendingPathComponent("missing.tar.bz2")
+        let destDir = tempDir.appendingPathComponent("dest")
+
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+        #expect(throws: Error.self) {
+            try manager.extractArchive(at: nonExistentFile, to: destDir)
+        }
+    }
+
     @Test("Kokoro model type has expected remote URL and estimated size")
     func testKokoroModelTypeMetadata() {
         let type = AIModelType.kokoro
@@ -110,5 +174,31 @@ struct OnDemandAIModelManagerTests {
         try manager.deleteModel(.whisper)
         #expect(manager.state(for: .whisper) == .notDownloaded)
         #expect(!manager.isModelReady(.whisper))
+    }
+
+    private func createTarArchive(from sourceDir: URL, archiveURL: URL) throws {
+        var pid: pid_t = 0
+        let args = ["/usr/bin/tar", "-cf", archiveURL.path, "-C", sourceDir.path, "."]
+        var cArgs = args.map { strdup($0) }
+        cArgs.append(nil)
+        defer {
+            for ptr in cArgs where ptr != nil {
+                free(ptr)
+            }
+        }
+
+        let spawnStatus = cArgs.withUnsafeMutableBufferPointer { buffer in
+            posix_spawn(&pid, "/usr/bin/tar", nil, nil, buffer.baseAddress, nil)
+        }
+        guard spawnStatus == 0 else {
+            throw NSError(domain: "TarTest", code: Int(spawnStatus))
+        }
+
+        var exitStatus: Int32 = 0
+        waitpid(pid, &exitStatus, 0)
+        let code = (exitStatus >> 8) & 0xff
+        guard code == 0 else {
+            throw NSError(domain: "TarTest", code: Int(code))
+        }
     }
 }
