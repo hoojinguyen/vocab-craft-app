@@ -5,19 +5,26 @@ import os
 public enum AIModelType: String, CaseIterable, Sendable {
     case kokoro
     case whisper
+    case llama
 
     public var displayName: String {
         switch self {
         case .kokoro: return "Kokoro Neural Voice"
         case .whisper: return "WhisperKit Speech Recognition"
+        case .llama: return "Llama 3.2 1B Neural LLM"
+        }
+    }
+
+    public var sizeMB: Int {
+        switch self {
+        case .kokoro: return 85
+        case .whisper: return 48
+        case .llama: return 740
         }
     }
 
     public var estimatedSizeMB: Int {
-        switch self {
-        case .kokoro: return 85
-        case .whisper: return 48
-        }
+        sizeMB
     }
 
     public var defaultRemoteURL: URL {
@@ -26,6 +33,8 @@ public enum AIModelType: String, CaseIterable, Sendable {
             return URL(string: "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-en-v0_19.tar.bz2")!
         case .whisper:
             return URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+        case .llama:
+            return URL(string: "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf")!
         }
     }
 
@@ -64,6 +73,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
 
     public private(set) var kokoroState: AIModelDownloadState = .notDownloaded
     public private(set) var whisperState: AIModelDownloadState = .notDownloaded
+    public private(set) var llamaState: AIModelDownloadState = .notDownloaded
 
     @ObservationIgnored
     private let modelsDirectory: URL
@@ -102,6 +112,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         switch type {
         case .kokoro: return kokoroState
         case .whisper: return whisperState
+        case .llama: return llamaState
         }
     }
 
@@ -128,6 +139,19 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
                 return true
             } else {
                 if whisperState == .ready { updateState(.notDownloaded, for: .whisper) }
+                return false
+            }
+        case .llama:
+            let modelFile = dir.appendingPathComponent("model.gguf")
+            let minSizeBytes: Int64 = 700 * 1024 * 1024
+            if FileManager.default.fileExists(atPath: modelFile.path),
+               let attributes = try? FileManager.default.attributesOfItem(atPath: modelFile.path),
+               let fileSize = attributes[.size] as? Int64,
+               fileSize > minSizeBytes {
+                if llamaState != .ready { updateState(.ready, for: .llama) }
+                return true
+            } else {
+                if llamaState == .ready { updateState(.notDownloaded, for: .llama) }
                 return false
             }
         }
@@ -270,8 +294,90 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         switch type {
         case .kokoro: kokoroState = newState
         case .whisper: whisperState = newState
+        case .llama: llamaState = newState
         }
         NotificationCenter.default.post(name: .onDemandAIModelStatusDidChange, object: nil)
+    }
+
+    // MARK: - Unified Full Offline Pack Coordinator
+
+    public var fullOfflinePackProgress: Double {
+        let kokoroWeight = 0.09
+        let whisperWeight = 0.15
+        let llamaWeight = 0.76
+
+        let progressFor: (AIModelType, AIModelDownloadState) -> Double = { type, state in
+            if self.isModelReady(type) {
+                return 1.0
+            }
+            if case .downloading(let downloadProgress) = state {
+                return max(0.0, min(1.0, downloadProgress))
+            }
+            return 0.0
+        }
+
+        let total = (progressFor(.kokoro, kokoroState) * kokoroWeight)
+            + (progressFor(.whisper, whisperState) * whisperWeight)
+            + (progressFor(.llama, llamaState) * llamaWeight)
+
+        return min(1.0, max(0.0, total))
+    }
+
+    public var fullOfflinePackState: AIModelDownloadState {
+        if isFullOfflinePackReady() {
+            return .ready
+        }
+        let states = [kokoroState, whisperState, llamaState]
+        if states.contains(where: {
+            if case .downloading = $0 { return true }
+            return false
+        }) {
+            return .downloading(progress: fullOfflinePackProgress)
+        }
+        if let errorState = states.first(where: {
+            if case .error = $0 { return true }
+            return false
+        }) {
+            return errorState
+        }
+        return .notDownloaded
+    }
+
+    public func isFullOfflinePackReady() -> Bool {
+        isModelReady(.kokoro) && isModelReady(.whisper) && isModelReady(.llama)
+    }
+
+    public func startFullOfflinePackDownload() {
+        for type in AIModelType.allCases where !isModelReady(type) {
+            startDownload(for: type)
+        }
+    }
+
+    public func cancelDownload(for type: AIModelType) {
+        if let task = downloadTasks[type] {
+            task.cancel()
+            downloadTasks.removeValue(forKey: type)
+        }
+        if case .downloading = state(for: type) {
+            updateState(.notDownloaded, for: type)
+        }
+    }
+
+    public func cancelFullOfflinePackDownload() {
+        for type in AIModelType.allCases {
+            cancelDownload(for: type)
+        }
+    }
+
+    public func deleteFullOfflinePack() {
+        cancelFullOfflinePackDownload()
+        for type in AIModelType.allCases {
+            do {
+                try deleteModel(type)
+            } catch {
+                Self.logger.error("Failed to delete model \(type.rawValue): \(error.localizedDescription)")
+            }
+        }
     }
 
     public nonisolated func urlSession(
@@ -328,7 +434,20 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
             do {
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.createDirectory(at: dest, withIntermediateDirectories: true)
-                try Self.extractArchive(at: safeTempLocation, to: dest)
+                if type == .llama {
+                    let targetModelFile = dest.appendingPathComponent("model.gguf")
+                    var isDir: ObjCBool = false
+                    if FileManager.default.fileExists(atPath: safeTempLocation.path, isDirectory: &isDir), isDir.boolValue {
+                        let nestedModel = safeTempLocation.appendingPathComponent("model.gguf")
+                        if FileManager.default.fileExists(atPath: nestedModel.path) {
+                            try FileManager.default.moveItem(at: nestedModel, to: targetModelFile)
+                        }
+                    } else {
+                        try FileManager.default.moveItem(at: safeTempLocation, to: targetModelFile)
+                    }
+                } else {
+                    try Self.extractArchive(at: safeTempLocation, to: dest)
+                }
                 try? FileManager.default.removeItem(at: safeTempLocation)
 
                 Self.applyBackupExclusion(to: dest)

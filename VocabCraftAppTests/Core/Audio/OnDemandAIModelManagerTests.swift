@@ -201,4 +201,76 @@ struct OnDemandAIModelManagerTests {
             throw NSError(domain: "TarTest", code: Int(code))
         }
     }
+
+    @Test("Llama model type configuration, directory URL, and size check")
+    @MainActor
+    func testLlamaModelConfiguration() {
+        let manager = OnDemandAIModelManager.shared
+        #expect(AIModelType.llama.rawValue == "llama")
+        #expect(AIModelType.llama.displayName == "Llama 3.2 1B Neural LLM")
+        #expect(AIModelType.llama.sizeMB == 740)
+        let url = manager.modelURL(for: .llama)
+        #expect(url.lastPathComponent == "llama")
+    }
+
+    @Test("Unified full offline pack readiness and progress")
+    @MainActor
+    func testFullOfflinePackReadinessAndProgress() {
+        let manager = OnDemandAIModelManager.shared
+        // Initially not ready if files don't exist
+        #expect(!manager.isFullOfflinePackReady() || manager.isModelReady(.llama))
+        #expect(manager.fullOfflinePackProgress >= 0.0 && manager.fullOfflinePackProgress <= 1.0)
+    }
+
+    @Test("Llama model readiness strictly enforces >700MB file size threshold")
+    @MainActor
+    func testLlamaModelReadinessWithFileSizeThreshold() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let llamaDir = tempDir.appendingPathComponent("llama")
+        try FileManager.default.createDirectory(at: llamaDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+
+        // 1. Missing model.gguf
+        #expect(!manager.isModelReady(.llama))
+
+        // 2. Truncated model.gguf (< 700MB)
+        let modelFile = llamaDir.appendingPathComponent("model.gguf")
+        try "dummy-small-content".write(to: modelFile, atomically: true, encoding: .utf8)
+        #expect(!manager.isModelReady(.llama))
+
+        // 3. Exactly 700MB or less (699MB)
+        let handle = try FileHandle(forWritingTo: modelFile)
+        try handle.truncate(atOffset: UInt64(699 * 1024 * 1024))
+        try handle.close()
+        #expect(!manager.isModelReady(.llama))
+
+        // 4. Valid model.gguf (> 700MB, e.g. 740MB)
+        let validHandle = try FileHandle(forWritingTo: modelFile)
+        try validHandle.truncate(atOffset: UInt64(740 * 1024 * 1024))
+        try validHandle.close()
+        #expect(manager.isModelReady(.llama))
+        #expect(manager.state(for: .llama) == .ready)
+    }
+
+    @Test("Unified pack coordinator handles lifecycle methods cleanly")
+    @MainActor
+    func testUnifiedPackCoordinatorLifecycle() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
+        #expect(!manager.isFullOfflinePackReady())
+        #expect(manager.fullOfflinePackState == .notDownloaded)
+
+        // Cancellation on idle does not crash
+        manager.cancelFullOfflinePackDownload()
+        #expect(manager.fullOfflinePackState == .notDownloaded)
+
+        // Deletion cleans all directories
+        manager.deleteFullOfflinePack()
+        #expect(manager.fullOfflinePackState == .notDownloaded)
+    }
 }
