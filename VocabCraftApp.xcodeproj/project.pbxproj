@@ -20,6 +20,7 @@
 		300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200055B1F504DEAD204D /* AudioSessionCoordinator.swift */; };
 		30007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */; };
 		30008AE0923C4D6FC0CF /* KokoroTTSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */; };
+		3000B91A4F82C10D49AE /* KokoroInferenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */; };
 		3000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */; };
 		300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */; };
 		300049AF2BDE00D00A1A /* OnDemandAIModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */; };
@@ -435,6 +436,7 @@
 		200055B1F504DEAD204D /* AudioSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinator.swift"; sourceTree = "<group>"; };
 		20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiAudioSpeechEngine.swift"; sourceTree = "<group>"; };
 		20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroTTSEngine.swift"; sourceTree = "<group>"; };
+		2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroInferenceWorker.swift"; sourceTree = "<group>"; };
 		2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPerformanceDiagnostics.swift"; sourceTree = "<group>"; };
 		200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
 		200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDemandAIModelManager.swift"; sourceTree = "<group>"; };
@@ -901,6 +903,7 @@
 				200055B1F504DEAD204D /* AudioSessionCoordinator.swift */,
 				20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */,
 				20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */,
+				2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */,
 				2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */,
 				200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */,
 				200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */,
@@ -2132,6 +2135,7 @@
 				300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */,
 				30007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift in Sources */,
 				30008AE0923C4D6FC0CF /* KokoroTTSEngine.swift in Sources */,
+				3000B91A4F82C10D49AE /* KokoroInferenceWorker.swift in Sources */,
 				3000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift in Sources */,
 				300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */,
 				300049AF2BDE00D00A1A /* OnDemandAIModelManager.swift in Sources */,
