@@ -281,7 +281,6 @@ public struct AIAssistantHubView: View {
 
     private var activePackPill: some View {
         let pack = activePack
-        let displayName = pack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
         let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
             guard let status = pack?.status else {
                 return (AppStrings.AIPack.statusReady, .neutral)
@@ -301,27 +300,15 @@ public struct AIAssistantHubView: View {
         return Button {
             showConfigSheet = true
         } label: {
-            HStack(spacing: theme.spacing.xxs) {
-                Text(verbatim: displayName)
-                    .font(theme.typography.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(theme.colors.textPrimary)
-
-                CraftBadge(
-                    statusKey,
-                    variant: .subtle,
-                    tone: tone,
-                    size: .sm
-                )
-            }
-            .padding(.horizontal, theme.spacing.xs)
-            .padding(.vertical, theme.spacing.xxs)
-            .background(theme.colors.surfaceCard)
-            .clipShape(Capsule())
+            CraftBadge(
+                statusKey,
+                symbol: .sparkles,
+                variant: .subtle,
+                tone: tone,
+                size: .sm
+            )
         }
         .buttonStyle(.plain)
-        .frame(minHeight: 44)
-        .contentShape(Rectangle())
         .accessibilityAddTraits(.isButton)
     }
 }

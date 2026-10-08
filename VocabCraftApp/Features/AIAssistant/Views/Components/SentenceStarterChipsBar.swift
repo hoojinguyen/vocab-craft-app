@@ -39,6 +39,7 @@ public struct SentenceStarterChipsBar: View {
                                     .font(theme.typography.bodyMedium)
                                     .foregroundStyle(theme.colors.textPrimary)
                                     .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
                             }
                             .padding(.horizontal, theme.spacing.sm)
                             .padding(.vertical, theme.spacing.xs)

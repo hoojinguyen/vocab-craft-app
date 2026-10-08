@@ -40,8 +40,8 @@ struct AppContainerAITests {
     @MainActor
     func testAppContainerCreatesExecuteRoleplayTurnUseCase() {
         let container = AppContainer()
-        let useCase = container.makeExecuteRoleplayTurnUseCase()
-        #expect(useCase != nil)
+        let useCase: ExecuteRoleplayTurnUseCase = container.makeExecuteRoleplayTurnUseCase()
+        #expect(type(of: useCase) == ExecuteRoleplayTurnUseCase.self)
     }
 
     @Test("UserSettingsStore gemini api key configuration detection")

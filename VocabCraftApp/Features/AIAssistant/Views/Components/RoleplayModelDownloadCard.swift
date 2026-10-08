@@ -12,16 +12,32 @@ public struct RoleplayModelDownloadCard: View {
     }
 
     public var body: some View {
-        CraftCard(style: .elevated, padding: theme.spacing.md) {
-            VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                Text(AppStrings.AIModelDownload.bannerTitle)
-                    .font(theme.typography.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textPrimary)
+        CraftCard(style: .elevated, padding: theme.spacing.sm) {
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(AppStrings.AIModelDownload.bannerTitle)
+                            .font(theme.typography.label)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
 
-                Text(AppStrings.AIModelDownload.bannerDesc)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textSecondary)
+                        Text(AppStrings.AIModelDownload.bannerDesc)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .lineLimit(2)
+                    }
+
+                    Spacer(minLength: theme.spacing.xs)
+
+                    CraftIconButton(
+                        symbol: .close,
+                        size: .sm,
+                        variant: .ghost,
+                        accessibilityLabelKey: AppStrings.Common.close
+                    ) {
+                        onDismiss()
+                    }
+                }
 
                 let kokoroState = modelManager.state(for: .kokoro)
                 let whisperState = modelManager.state(for: .whisper)
@@ -33,34 +49,22 @@ public struct RoleplayModelDownloadCard: View {
 
                 if isDownloading {
                     VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                        CraftProgressBar(progress: overallProgress, height: 6)
+                        CraftProgressBar(progress: overallProgress, height: 4)
                         Text(overallProgress, format: .percent.precision(.fractionLength(0)))
                             .font(theme.typography.caption)
                             .foregroundStyle(theme.colors.textMuted)
                     }
-                    .padding(.vertical, theme.spacing.xs)
-                }
-
-                HStack(spacing: theme.spacing.sm) {
-                    if !isDownloading {
-                        CraftButton(
-                            AppStrings.AIModelDownload.btnDownload,
-                            variant: .primary,
-                            size: .md
-                        ) {
-                            let kokoroURL = URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
-                            let whisperURL = URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
-                            modelManager.startDownload(for: .kokoro, remoteURL: kokoroURL)
-                            modelManager.startDownload(for: .whisper, remoteURL: whisperURL)
-                        }
-                    }
-
+                } else {
                     CraftButton(
-                        AppStrings.AIModelDownload.btnLater,
-                        variant: .ghost,
-                        size: .md
+                        AppStrings.AIModelDownload.btnDownload,
+                        variant: .primary,
+                        size: .sm,
+                        isFullWidth: true
                     ) {
-                        onDismiss()
+                        let kokoroURL = URL(string: "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.pth")!
+                        let whisperURL = URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+                        modelManager.startDownload(for: .kokoro, remoteURL: kokoroURL)
+                        modelManager.startDownload(for: .whisper, remoteURL: whisperURL)
                     }
                 }
             }

@@ -11,7 +11,14 @@ public final class AppRouter {
     public var pendingReflexBlitzConfig: ReflexBlitzDeepLinkConfig?
 
     public init(initialTab: TabItem = .home) {
-        self.selectedTab = initialTab
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-tab-ai") || args.contains("-test-ai-config") || args.contains("-test-ai-room") || args.contains("-test-ai-voice") || args.contains("-test-ai-summary") {
+            self.selectedTab = .aiAssistant
+        } else if args.contains("-tab-settings") {
+            self.selectedTab = .settings
+        } else {
+            self.selectedTab = initialTab
+        }
         self.navigationPath = NavigationPath()
     }
 

@@ -62,7 +62,54 @@ struct VocabCraftApp: App {
 
     @ViewBuilder
     private func contentView(for appContainer: AppContainer) -> some View {
-        if ProcessInfo.processInfo.arguments.contains("-show-catalog") {
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-show-roleplay-room") {
+            RoleplayRoomView(viewModel: appContainer.makeRoleplayRoomViewModel(for: RoleplayScenario.cafeMock), onDismiss: {})
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-voice-call") {
+            RoleplayVoiceCallView(viewModel: appContainer.makeRoleplayVoiceCallViewModel(for: RoleplayScenario.cafeMock), onDismiss: {})
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-roleplay-summary") {
+            RoleplaySummaryView(
+                summary: RoleplaySessionSummary(
+                    scenarioId: "scenario_cafe",
+                    totalTurns: 6,
+                    targetWordsAttempted: ["espresso", "croissant"],
+                    targetWordsMastered: ["espresso"],
+                    fluencyScore: 88,
+                    xpEarned: 25,
+                    refinements: [
+                        SentenceRefinementPair(
+                            originalUserSentence: "I want coffee espresso please.",
+                            refinedNativeSentence: "I'd like an espresso, please."
+                        )
+                    ]
+                ),
+                onDismiss: {}
+            )
+            .environment(\.appContainer, appContainer)
+            .environment(\.appRouter, appContainer.appRouter)
+            .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-ai-config") {
+            AIConfigSheet(store: appContainer.userSettingsStore)
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-ai-hub") {
+            AIAssistantHubView(viewModel: appContainer.makeAIAssistantHubViewModel())
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-settings") {
+            SettingsView(viewModel: appContainer.makeSettingsViewModel())
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-catalog") {
             CraftCatalogView()
         } else if !appContainer.userSettingsStore.hasCompletedOnboarding && !isFeedbackTestLaunch {
             OnboardingCoordinatorView(viewModel: appContainer.makeOnboardingViewModel())

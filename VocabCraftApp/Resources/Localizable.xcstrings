@@ -698,6 +698,159 @@
         }
       }
     },
+    "app.ai.pack.active": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active AI Pack"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gói AI đang dùng"
+          }
+        }
+      }
+    },
+    "app.ai.pack.active_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang chọn"
+          }
+        }
+      }
+    },
+    "app.ai.pack.apple_default_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private on-device AI powered by Apple Foundation Models & Speech."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trí tuệ nhân tạo riêng tư trên thiết bị từ Apple Foundation Models & Speech."
+          }
+        }
+      }
+    },
+    "app.ai.pack.gemini_cloud_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-accuracy cloud AI with Gemini 2.5 Flash and natural cloud voices."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI đám mây độ chính xác cao với Gemini 2.5 Flash và giọng nói đám mây."
+          }
+        }
+      }
+    },
+    "app.ai.pack.keys_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud API Keys"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khóa API đám mây"
+          }
+        }
+      }
+    },
+    "app.ai.pack.models_section": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline Models"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô hình ngoại tuyến"
+          }
+        }
+      }
+    },
+    "app.ai.pack.offline_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fully offline neural speech with Kokoro TTS and WhisperKit CoreML."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giọng nói nhân tạo ngoại tuyến hoàn toàn với Kokoro TTS và WhisperKit CoreML."
+          }
+        }
+      }
+    },
+    "app.ai.pack.section_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Packs"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các gói AI"
+          }
+        }
+      }
+    },
+    "app.ai.pack.select_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select AI Pack"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn gói AI"
+          }
+        }
+      }
+    },
     "app.ai.pack.status.needs_download": {
       "extractionState": "manual",
       "localizations": {
@@ -1544,6 +1697,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Từ vựng mục tiêu"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.send_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send message"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gửi tin nhắn"
           }
         }
       }

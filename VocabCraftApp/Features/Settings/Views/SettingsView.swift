@@ -411,8 +411,10 @@ private struct SettingsAudioCard: View {
 @MainActor
 public struct SettingsAICard: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.appContainer) private var appContainer
     @Bindable public var store: UserSettingsStore
 
+    @State private var showConfigSheet: Bool = false
     @State private var isGeminiSecure: Bool = true
     @State private var isGroqSecure: Bool = true
 
@@ -426,17 +428,54 @@ public struct SettingsAICard: View {
     public var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
+                // Active AI Pack
+                Button {
+                    showConfigSheet = true
+                } label: {
+                    let activePack = appContainer.aiPackRegistry.activePack
+                    let displayName = activePack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
+                    let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
+                        guard let status = activePack?.status else {
+                            return (AppStrings.AIPack.statusReady, .neutral)
+                        }
+                        return statusBadgeInfo(for: status)
+                    }()
+
+                    CraftListRow(
+                        title: AppStrings.AIPack.activePackTitle,
+                        subtitle: LocalizedStringKey(stringLiteral: displayName)
+                    ) {
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge(
+                                statusKey,
+                                variant: .subtle,
+                                tone: tone,
+                                size: .sm
+                            )
+
+                            CraftIcon(
+                                .chevronRight,
+                                size: .sm,
+                                color: theme.colors.textMuted
+                            )
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+
+                CraftDivider()
+
                 // Gemini Key
                 CraftListRow(
                     title: AppStrings.Settings.aiGeminiKeyTitle
                 ) {
                     CraftBadge(
                         store.isGeminiApiKeyConfigured
-                            ? AppStrings.Settings.aiGeminiActive
-                            : AppStrings.Settings.aiGeminiMock,
+                            ? AppStrings.AIPack.statusReady
+                            : AppStrings.AIPack.statusNeedsKey,
                         symbol: store.isGeminiApiKeyConfigured ? .check : .sparkles,
                         variant: .subtle,
-                        tone: store.isGeminiApiKeyConfigured ? .success : .neutral,
+                        tone: store.isGeminiApiKeyConfigured ? .success : .warning,
                         size: .sm
                     )
                 }
@@ -515,7 +554,7 @@ public struct SettingsAICard: View {
                     CraftBadge(
                         store.isGroqApiKeyConfigured
                             ? AppStrings.Settings.aiGroqStatusActive
-                            : AppStrings.Settings.aiGeminiMock,
+                            : AppStrings.AIPack.statusNeedsKey,
                         symbol: store.isGroqApiKeyConfigured ? .check : .sparkles,
                         variant: .subtle,
                         tone: store.isGroqApiKeyConfigured ? .success : .neutral,
@@ -588,6 +627,22 @@ public struct SettingsAICard: View {
                 }
                 .padding(theme.spacing.md)
             }
+        }
+        .sheet(isPresented: $showConfigSheet) {
+            AIConfigSheet(store: store)
+        }
+    }
+
+    private func statusBadgeInfo(for status: AIPackStatus) -> (LocalizedStringKey, CraftBadgeTone) {
+        switch status {
+        case .ready:
+            return (AppStrings.AIPack.statusReady, .success)
+        case .needsApiKey:
+            return (AppStrings.AIPack.statusNeedsKey, .warning)
+        case .needsDownload, .partiallyReady:
+            return (AppStrings.AIPack.statusNeedsDownload, .primary)
+        case .unavailable:
+            return (AppStrings.AIPack.statusUnavailable, .neutral)
         }
     }
 }

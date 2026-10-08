@@ -526,6 +526,8 @@ extension AppStrings {
         public static var fallbackReplyText: String { String(localized: "app.ai_assistant.room.fallback_reply", defaultValue: "I see! Please go on.", bundle: .module) }
         public static var inputPlaceholder: LocalizedStringKey { LocalizedStringKey("app.ai_assistant.room.input_placeholder") }
         public static var inputPlaceholderText: String { String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module) }
+        public static var sendMessage: LocalizedStringKey { "app.ai_assistant.room.send_message" }
+        public static var sendMessageText: String { String(localized: "app.ai_assistant.room.send_message", defaultValue: "Send message", bundle: .module) }
         public static var audioPlayButton: LocalizedStringKey { "app.ai_assistant.room.play_audio" }
         public static var audioPlayButtonText: String { String(localized: "app.ai_assistant.room.play_audio", defaultValue: "Play dialogue audio", bundle: .module) }
         public static var suggestionsHeader: LocalizedStringKey { "app.ai_assistant.room.suggestions_header" }
@@ -780,6 +782,24 @@ extension AppStrings {
         public static var statusNeedsDownloadText: String { String(localized: "app.ai.pack.status.needs_download", defaultValue: "Download Required", bundle: .module) }
         public static var statusUnavailable: LocalizedStringKey { "app.ai.pack.status.unavailable" }
         public static var statusUnavailableText: String { String(localized: "app.ai.pack.status.unavailable", defaultValue: "Unavailable", bundle: .module) }
+        public static var sectionTitle: LocalizedStringKey { "app.ai.pack.section_title" }
+        public static var sectionTitleText: String { String(localized: "app.ai.pack.section_title", defaultValue: "AI Packs", bundle: .module) }
+        public static var activePackTitle: LocalizedStringKey { "app.ai.pack.active" }
+        public static var activePackTitleText: String { String(localized: "app.ai.pack.active", defaultValue: "Active AI Pack", bundle: .module) }
+        public static var selectPackTitle: LocalizedStringKey { "app.ai.pack.select_title" }
+        public static var selectPackTitleText: String { String(localized: "app.ai.pack.select_title", defaultValue: "Select AI Pack", bundle: .module) }
+        public static var activeBadge: LocalizedStringKey { "app.ai.pack.active_badge" }
+        public static var activeBadgeText: String { String(localized: "app.ai.pack.active_badge", defaultValue: "Current", bundle: .module) }
+        public static var keysSection: LocalizedStringKey { "app.ai.pack.keys_section" }
+        public static var keysSectionText: String { String(localized: "app.ai.pack.keys_section", defaultValue: "Cloud API Keys", bundle: .module) }
+        public static var modelsSection: LocalizedStringKey { "app.ai.pack.models_section" }
+        public static var modelsSectionText: String { String(localized: "app.ai.pack.models_section", defaultValue: "Offline Models", bundle: .module) }
+        public static var appleDefaultDesc: LocalizedStringKey { "app.ai.pack.apple_default_desc" }
+        public static var appleDefaultDescText: String { String(localized: "app.ai.pack.apple_default_desc", defaultValue: "Private on-device AI powered by Apple Foundation Models & Speech.", bundle: .module) }
+        public static var offlineDesc: LocalizedStringKey { "app.ai.pack.offline_desc" }
+        public static var offlineDescText: String { String(localized: "app.ai.pack.offline_desc", defaultValue: "Fully offline neural speech with Kokoro TTS and WhisperKit CoreML.", bundle: .module) }
+        public static var geminiCloudDesc: LocalizedStringKey { "app.ai.pack.gemini_cloud_desc" }
+        public static var geminiCloudDescText: String { String(localized: "app.ai.pack.gemini_cloud_desc", defaultValue: "High-accuracy cloud AI with Gemini 2.5 Flash and natural cloud voices.", bundle: .module) }
     }
 }
 

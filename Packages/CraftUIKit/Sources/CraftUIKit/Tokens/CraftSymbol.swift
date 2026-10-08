@@ -18,6 +18,7 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case chevronLeft = "chevron.left"
     case chevronDown = "chevron.down"
     case chevronUp = "chevron.up"
+    case arrowUp = "arrow.up"
     case grid = "square.grid.2x2"
     case list = "list.bullet"
 

@@ -1,11 +1,12 @@
 import CraftUIKit
 import SwiftUI
 
-/// Modal sheet for viewing, updating, and clearing the Gemini and Groq API keys.
+/// Modal sheet for selecting active AI Pack and configuring cloud API keys.
 @MainActor
 public struct AIConfigSheet: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appContainer) private var appContainer
     @Bindable public var store: UserSettingsStore
     public let onDismiss: () -> Void
 
@@ -14,6 +15,9 @@ public struct AIConfigSheet: View {
 
     @State private var isGeminiSecure: Bool = true
     @State private var isGroqSecure: Bool = true
+
+    @State private var selectionError: AIPackError?
+    @State private var showSelectionErrorAlert: Bool = false
 
     public init(store: UserSettingsStore, onDismiss: @escaping () -> Void = {}) {
         self.store = store
@@ -26,179 +30,200 @@ public struct AIConfigSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: theme.spacing.lg) {
-                    // Status Badge & Description
+                    // Section 1: AI Packs
                     VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                        HStack {
-                            if store.isGeminiApiKeyConfigured {
-                                CraftBadge(
-                                    AppStrings.Settings.aiGeminiStatusConnected,
-                                    symbol: .check,
-                                    variant: .subtle,
-                                    tone: .success,
-                                    size: .md
-                                )
-                            } else {
-                                CraftBadge(
-                                    AppStrings.Settings.aiGeminiStatusMock,
-                                    symbol: .sparkles,
-                                    variant: .subtle,
-                                    tone: .neutral,
-                                    size: .md
-                                )
-                            }
+                        Text(AppStrings.AIPack.sectionTitle)
+                            .font(theme.typography.titleMedium)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
 
-                            if store.isGroqApiKeyConfigured {
-                                CraftBadge(
-                                    AppStrings.Settings.aiGroqStatusActive,
-                                    symbol: .check,
-                                    variant: .subtle,
-                                    tone: .success,
-                                    size: .md
-                                )
-                            }
-                            Spacer()
+                        ForEach(appContainer.aiPackRegistry.packCatalog) { entry in
+                            packSelectionCard(entry)
                         }
+                    }
+
+                    // Section 2: Cloud API Keys (for GeminiCloudPack)
+                    VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                        Text(AppStrings.AIPack.keysSection)
+                            .font(theme.typography.titleMedium)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
 
                         Text(AppStrings.AIAssistant.apiKeyBannerDesc)
                             .font(theme.typography.bodyMedium)
                             .foregroundStyle(theme.colors.textSecondary)
-                    }
-                    .padding(.horizontal, theme.spacing.xs)
 
-                    // Gemini Input Card
-                    CraftCard(style: .outlined, cornerRadius: theme.radii.lg, padding: theme.spacing.md) {
-                        VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                            Text(AppStrings.Settings.aiGeminiKeyTitle)
-                                .font(theme.typography.label)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.textPrimary)
+                        // Gemini Input Card
+                        CraftCard(style: .outlined, cornerRadius: theme.radii.lg, padding: theme.spacing.md) {
+                            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                                HStack {
+                                    Text(AppStrings.Settings.aiGeminiKeyTitle)
+                                        .font(theme.typography.label)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(theme.colors.textPrimary)
 
-                            HStack(spacing: theme.spacing.xs) {
-                                Group {
-                                    if isGeminiSecure {
-                                        SecureField(
-                                            AppStrings.Settings.aiGeminiKeyPlaceholder,
-                                            text: $geminiApiKey
+                                    Spacer()
+
+                                    if store.isGeminiApiKeyConfigured {
+                                        CraftBadge(
+                                            AppStrings.AIPack.statusReady,
+                                            symbol: .check,
+                                            variant: .subtle,
+                                            tone: .success,
+                                            size: .sm
                                         )
                                     } else {
-                                        TextField(
-                                            AppStrings.Settings.aiGeminiKeyPlaceholder,
-                                            text: $geminiApiKey
+                                        CraftBadge(
+                                            AppStrings.AIPack.statusNeedsKey,
+                                            symbol: .sparkles,
+                                            variant: .subtle,
+                                            tone: .warning,
+                                            size: .sm
                                         )
                                     }
                                 }
-                                .font(theme.typography.bodyMedium)
-                                .foregroundStyle(theme.colors.textPrimary)
-                                .tint(theme.colors.brandPrimary)
-                                .autocorrectionDisabled()
-                                #if os(iOS)
-                                .textInputAutocapitalization(.never)
-                                #endif
 
-                                if !geminiApiKey.isEmpty {
+                                HStack(spacing: theme.spacing.xs) {
+                                    Group {
+                                        if isGeminiSecure {
+                                            SecureField(
+                                                AppStrings.Settings.aiGeminiKeyPlaceholder,
+                                                text: $geminiApiKey
+                                            )
+                                        } else {
+                                            TextField(
+                                                AppStrings.Settings.aiGeminiKeyPlaceholder,
+                                                text: $geminiApiKey
+                                            )
+                                        }
+                                    }
+                                    .font(theme.typography.bodyMedium)
+                                    .foregroundStyle(theme.colors.textPrimary)
+                                    .tint(theme.colors.brandPrimary)
+                                    .autocorrectionDisabled()
+                                    #if os(iOS)
+                                    .textInputAutocapitalization(.never)
+                                    #endif
+
+                                    if !geminiApiKey.isEmpty {
+                                        CraftIconButton(
+                                            symbol: .clear,
+                                            size: .sm,
+                                            variant: .ghost,
+                                            accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                                        ) {
+                                            geminiApiKey = ""
+                                        }
+                                    }
+
                                     CraftIconButton(
-                                        symbol: .clear,
+                                        symbol: isGeminiSecure ? .eye : .eyeSlash,
                                         size: .sm,
                                         variant: .ghost,
-                                        accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                                        accessibilityLabelKey: isGeminiSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
                                     ) {
-                                        geminiApiKey = ""
+                                        isGeminiSecure.toggle()
                                     }
                                 }
+                                .padding(.horizontal, theme.spacing.sm)
+                                .padding(.vertical, theme.spacing.xs)
+                                .background(theme.colors.surfaceSubtle)
+                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
 
-                                CraftIconButton(
-                                    symbol: isGeminiSecure ? .eye : .eyeSlash,
-                                    size: .sm,
-                                    variant: .ghost,
-                                    accessibilityLabelKey: isGeminiSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
-                                ) {
-                                    isGeminiSecure.toggle()
-                                }
+                                Text(AppStrings.Settings.aiGeminiHelpText)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.textSecondary)
                             }
-                            .padding(.horizontal, theme.spacing.sm)
-                            .padding(.vertical, theme.spacing.xs)
-                            .background(theme.colors.surfaceSubtle)
-                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-
-                            Text(AppStrings.Settings.aiGeminiHelpText)
-                                .font(theme.typography.caption)
-                                .foregroundStyle(theme.colors.textSecondary)
                         }
-                    }
 
-                    // Groq Input Card
-                    CraftCard(style: .outlined, cornerRadius: theme.radii.lg, padding: theme.spacing.md) {
-                        VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                            Text(AppStrings.Settings.aiGroqKeyTitle)
-                                .font(theme.typography.label)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.textPrimary)
+                        // Groq Input Card
+                        CraftCard(style: .outlined, cornerRadius: theme.radii.lg, padding: theme.spacing.md) {
+                            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                                HStack {
+                                    Text(AppStrings.Settings.aiGroqKeyTitle)
+                                        .font(theme.typography.label)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(theme.colors.textPrimary)
 
-                            HStack(spacing: theme.spacing.xs) {
-                                Group {
-                                    if isGroqSecure {
-                                        SecureField(
-                                            AppStrings.Settings.aiGroqKeyPlaceholder,
-                                            text: $groqApiKey
-                                        )
-                                    } else {
-                                        TextField(
-                                            AppStrings.Settings.aiGroqKeyPlaceholder,
-                                            text: $groqApiKey
+                                    Spacer()
+
+                                    if store.isGroqApiKeyConfigured {
+                                        CraftBadge(
+                                            AppStrings.AIPack.statusReady,
+                                            symbol: .check,
+                                            variant: .subtle,
+                                            tone: .success,
+                                            size: .sm
                                         )
                                     }
                                 }
-                                .font(theme.typography.bodyMedium)
-                                .foregroundStyle(theme.colors.textPrimary)
-                                .tint(theme.colors.brandPrimary)
-                                .autocorrectionDisabled()
-                                #if os(iOS)
-                                .textInputAutocapitalization(.never)
-                                #endif
 
-                                if !groqApiKey.isEmpty {
+                                HStack(spacing: theme.spacing.xs) {
+                                    Group {
+                                        if isGroqSecure {
+                                            SecureField(
+                                                AppStrings.Settings.aiGroqKeyPlaceholder,
+                                                text: $groqApiKey
+                                            )
+                                        } else {
+                                            TextField(
+                                                AppStrings.Settings.aiGroqKeyPlaceholder,
+                                                text: $groqApiKey
+                                            )
+                                        }
+                                    }
+                                    .font(theme.typography.bodyMedium)
+                                    .foregroundStyle(theme.colors.textPrimary)
+                                    .tint(theme.colors.brandPrimary)
+                                    .autocorrectionDisabled()
+                                    #if os(iOS)
+                                    .textInputAutocapitalization(.never)
+                                    #endif
+
+                                    if !groqApiKey.isEmpty {
+                                        CraftIconButton(
+                                            symbol: .clear,
+                                            size: .sm,
+                                            variant: .ghost,
+                                            accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                                        ) {
+                                            groqApiKey = ""
+                                        }
+                                    }
+
                                     CraftIconButton(
-                                        symbol: .clear,
+                                        symbol: isGroqSecure ? .eye : .eyeSlash,
                                         size: .sm,
                                         variant: .ghost,
-                                        accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                                        accessibilityLabelKey: isGroqSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
                                     ) {
-                                        groqApiKey = ""
+                                        isGroqSecure.toggle()
                                     }
                                 }
+                                .padding(.horizontal, theme.spacing.sm)
+                                .padding(.vertical, theme.spacing.xs)
+                                .background(theme.colors.surfaceSubtle)
+                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
 
-                                CraftIconButton(
-                                    symbol: isGroqSecure ? .eye : .eyeSlash,
-                                    size: .sm,
-                                    variant: .ghost,
-                                    accessibilityLabelKey: isGroqSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
-                                ) {
-                                    isGroqSecure.toggle()
-                                }
+                                Text(AppStrings.Settings.aiGroqHelpText)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.textSecondary)
                             }
-                            .padding(.horizontal, theme.spacing.sm)
-                            .padding(.vertical, theme.spacing.xs)
-                            .background(theme.colors.surfaceSubtle)
-                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-
-                            Text(AppStrings.Settings.aiGroqHelpText)
-                                .font(theme.typography.caption)
-                                .foregroundStyle(theme.colors.textSecondary)
                         }
-                    }
 
-                    // Save Button
-                    CraftButton(
-                        AppStrings.Common.save,
-                        variant: .primary,
-                        size: .lg,
-                        isFullWidth: true
-                    ) {
-                        save()
-                        onDismiss()
-                        dismiss()
+                        // Save Button
+                        CraftButton(
+                            AppStrings.Common.save,
+                            variant: .primary,
+                            size: .lg,
+                            isFullWidth: true
+                        ) {
+                            save()
+                            onDismiss()
+                            dismiss()
+                        }
+                        .padding(.top, theme.spacing.xs)
                     }
-                    .padding(.top, theme.spacing.xs)
 
                     Spacer(minLength: theme.spacing.xl)
                 }
@@ -206,7 +231,7 @@ public struct AIConfigSheet: View {
                 .padding(.top, theme.spacing.base)
             }
             .background(theme.colors.canvasBackground.ignoresSafeArea())
-            .navigationTitle(AppStrings.AIAssistant.apiKeySheetTitle)
+            .navigationTitle(AppStrings.AIPack.selectPackTitle)
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -223,6 +248,114 @@ public struct AIConfigSheet: View {
                     }
                 }
             }
+            .alert(
+                AppStrings.AIPack.alertTitle,
+                isPresented: $showSelectionErrorAlert
+            ) {
+                Button(AppStrings.Common.confirm, role: .cancel) {}
+            } message: {
+                if let error = selectionError {
+                    Text(LocalizedStringKey(error.localizedKey))
+                }
+            }
+        }
+    }
+
+    private func packSelectionCard(_ entry: AIPackEntry) -> some View {
+        let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = statusBadgeInfo(for: entry.status)
+
+        return Button {
+            selectPack(entry)
+        } label: {
+            CraftCard(
+                style: entry.isActive ? .elevated : .outlined,
+                padding: theme.spacing.md
+            ) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftIcon(
+                            entry.isActive ? .check : .sparkles,
+                            size: .sm,
+                            color: entry.isActive ? theme.colors.brandPrimary : theme.colors.textMuted
+                        )
+
+                        Text(verbatim: entry.displayName)
+                            .font(theme.typography.label)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
+
+                        Spacer()
+
+                        CraftBadge(
+                            statusKey,
+                            variant: .subtle,
+                            tone: tone,
+                            size: .sm
+                        )
+                    }
+
+                    Text(localizedPackDescription(for: entry.identifier))
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textSecondary)
+                        .lineLimit(2)
+
+                    if entry.isActive {
+                        CraftBadge(
+                            AppStrings.AIPack.activeBadge,
+                            symbol: .check,
+                            variant: .solid,
+                            tone: .primary,
+                            size: .sm
+                        )
+                        .padding(.top, theme.spacing.xxs)
+                    }
+                }
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(
+                        entry.isActive ? theme.colors.brandPrimary : Color.clear,
+                        lineWidth: 2
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func statusBadgeInfo(for status: AIPackStatus) -> (LocalizedStringKey, CraftBadgeTone) {
+        switch status {
+        case .ready:
+            return (AppStrings.AIPack.statusReady, .success)
+        case .needsApiKey:
+            return (AppStrings.AIPack.statusNeedsKey, .warning)
+        case .needsDownload, .partiallyReady:
+            return (AppStrings.AIPack.statusNeedsDownload, .primary)
+        case .unavailable:
+            return (AppStrings.AIPack.statusUnavailable, .neutral)
+        }
+    }
+
+    private func localizedPackDescription(for identifier: AIPackIdentifier) -> LocalizedStringKey {
+        switch identifier {
+        case .appleDefault:
+            return AppStrings.AIPack.appleDefaultDesc
+        case .offlineAI:
+            return AppStrings.AIPack.offlineDesc
+        case .geminiCloud:
+            return AppStrings.AIPack.geminiCloudDesc
+        default:
+            return LocalizedStringKey(stringLiteral: "")
+        }
+    }
+
+    private func selectPack(_ entry: AIPackEntry) {
+        do {
+            try appContainer.aiPackRegistry.selectPack(entry.identifier)
+            CraftHaptics.shared.success()
+        } catch {
+            selectionError = error
+            showSelectionErrorAlert = true
+            CraftHaptics.shared.warning()
         }
     }
 
@@ -230,5 +363,6 @@ public struct AIConfigSheet: View {
         let keyToSave = key ?? geminiApiKey
         store.geminiApiKey = keyToSave.trimmingCharacters(in: .whitespacesAndNewlines)
         store.groqApiKey = groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        appContainer.aiPackRegistry.revalidateActivePack()
     }
 }

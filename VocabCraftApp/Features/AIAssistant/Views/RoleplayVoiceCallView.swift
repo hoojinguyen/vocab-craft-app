@@ -222,8 +222,11 @@ public struct RoleplayVoiceCallView: View {
             .padding(.horizontal, theme.spacing.sm)
             .padding(.vertical, theme.spacing.xs)
         }
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        .background(theme.colors.surfaceCard, in: Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(theme.colors.borderDefault.opacity(0.3), lineWidth: 1)
+        )
     }
 
     private var centerVoiceOrbStage: some View {
@@ -281,7 +284,7 @@ public struct RoleplayVoiceCallView: View {
     }
 
     private var bottomActionButtons: some View {
-        HStack(spacing: theme.spacing.lg) {
+        HStack(spacing: theme.spacing.xl) {
             // Subtitles toggle (Left)
             CraftIconButton(
                 symbol: Self.subtitlesSymbol(),
@@ -307,7 +310,7 @@ public struct RoleplayVoiceCallView: View {
             CraftIconButton(
                 symbol: Self.micSymbol(isMuted: viewModel.isMuted),
                 size: .lg,
-                variant: viewModel.isMuted ? .filled : .subtle,
+                variant: viewModel.isMuted ? .danger : .filled,
                 accessibilityLabelKey: Self.micAccessibilityKey(isMuted: viewModel.isMuted)
             ) {
                 viewModel.toggleMute()

@@ -45,6 +45,10 @@ public final class AIPackRegistry {
         self.revalidateActivePack()
     }
 
+    public var activePack: (any AIPackProtocol)? {
+        pack(for: activePackId)
+    }
+
     public var packCatalog: [AIPackEntry] {
         packs.values.map { pack in
             AIPackEntry(

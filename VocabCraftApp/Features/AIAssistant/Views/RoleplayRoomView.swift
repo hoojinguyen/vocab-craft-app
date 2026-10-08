@@ -306,6 +306,8 @@ public struct RoleplayRoomView: View {
                                 Text(suggestion)
                                     .font(theme.typography.bodyMedium)
                                     .foregroundStyle(theme.colors.textPrimary)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
                             }
                             .padding(.horizontal, theme.spacing.sm)
                             .padding(.vertical, theme.spacing.xs)
@@ -317,6 +319,7 @@ public struct RoleplayRoomView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .fixedSize(horizontal: true, vertical: false)
                     }
                 }
                 .padding(.horizontal, theme.spacing.base)
@@ -338,11 +341,11 @@ public struct RoleplayRoomView: View {
                 }
 
             CraftIconButton(
-                symbol: .check,
+                symbol: .arrowUp,
                 size: .md,
                 variant: .filled,
                 isLoading: viewModel.isSending,
-                accessibilityLabelKey: AppStrings.Common.confirm
+                accessibilityLabelKey: AppStrings.AIAssistant.sendMessage
             ) {
                 Task { await viewModel.sendMessage(viewModel.inputText) }
             }

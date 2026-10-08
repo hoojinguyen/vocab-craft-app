@@ -55,7 +55,7 @@ public struct ScenarioListCard: View {
                 .font(theme.typography.headline)
                 .fontWeight(.bold)
                 .foregroundStyle(theme.colors.textPrimary)
-                .lineLimit(1)
+                .lineLimit(2)
 
             if !scenario.characterRole.isEmpty {
                 Text(scenario.characterRole)
