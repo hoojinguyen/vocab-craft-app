@@ -59,7 +59,10 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
 
     public func synthesizeAndPlay(text: String, persona: VoicePersona) async throws {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else {
+            Self.logger.debug("KokoroTTSEngine: synthesizeAndPlay called with empty text, skipping synthesis")
+            return
+        }
 
         guard isReady else {
             throw AIPackError.downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")
@@ -71,7 +74,10 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
 
     public func synthesizeAndPlay(text: String, speaker: String) async throws {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else {
+            Self.logger.debug("KokoroTTSEngine: synthesizeAndPlay called with empty text, skipping synthesis")
+            return
+        }
 
         guard isReady else {
             throw AIPackError.downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")
@@ -93,6 +99,8 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
         let wavData: Data
         do {
             wavData = try await worker.generateAudioData(text: text, speakerId: speakerId, speed: speed)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch let packError as AIPackError {
             throw packError
         } catch {

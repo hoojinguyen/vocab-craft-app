@@ -44,6 +44,8 @@ public final class KokoroTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendabl
         }
         do {
             try await engine.synthesizeAndPlay(text: text, persona: persona)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch let packError as AIPackError {
             throw packError
         } catch {

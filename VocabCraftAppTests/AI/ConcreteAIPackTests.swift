@@ -243,6 +243,17 @@ struct ConcreteAIPackTests {
         } catch let error as AIPackError {
             #expect(error == .downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB"))
         }
+
+        // CancellationError rethrown directly without being wrapped into .ttsFailed
+        mock.errorToThrow = CancellationError()
+        do {
+            try await adapter.synthesizeAndPlay(text: "Cancel test", voice: VoiceConfiguration(gender: .female, style: .friendly))
+            Issue.record("Expected synthesizeAndPlay to throw CancellationError")
+        } catch is CancellationError {
+            // Success: CancellationError propagated directly
+        } catch {
+            Issue.record("Expected CancellationError but got \(error)")
+        }
     }
 }
 
