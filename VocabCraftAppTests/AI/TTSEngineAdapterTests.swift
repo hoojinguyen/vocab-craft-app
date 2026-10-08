@@ -26,7 +26,7 @@ struct TTSEngineAdapterTests {
             try await engine.synthesizeAndPlay(text: "Hello", voice: voice)
             Issue.record("Expected synthesizeAndPlay to throw when not ready")
         } catch let error as AIPackError {
-            #expect(error == .ttsFailed(packName: "Kokoro", underlyingMessage: "Model is not loaded"))
+            #expect(error == .downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB"))
         } catch {
             Issue.record("Unexpected error: \(error)")
         }

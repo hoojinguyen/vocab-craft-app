@@ -37,10 +37,28 @@ public struct OfflineAIPack: AIPackProtocol {
     public var supportedVoices: [VoiceProfile] {
         [
             VoiceProfile(
-                id: "kokoro-heart",
-                displayName: "Heart (Warm Female)",
+                id: "kokoro-nova",
+                displayName: "Nova (af_bella)",
                 voiceConfig: VoiceConfiguration(gender: .female, style: .friendly),
-                sampleText: "Hi! Ready to practice your conversation skills?"
+                sampleText: "Hello! I'm Nova, your AI practice partner."
+            ),
+            VoiceProfile(
+                id: "kokoro-orion",
+                displayName: "Orion (am_adam)",
+                voiceConfig: VoiceConfiguration(gender: .male, style: .friendly),
+                sampleText: "Hey there! Orion here, ready to help you practice."
+            ),
+            VoiceProfile(
+                id: "kokoro-sarah",
+                displayName: "Sarah (af_sarah)",
+                voiceConfig: VoiceConfiguration(gender: .female, style: .expressive),
+                sampleText: "Hi! I'm Sarah, excited to explore new vocabulary with you."
+            ),
+            VoiceProfile(
+                id: "kokoro-michael",
+                displayName: "Michael (am_michael)",
+                voiceConfig: VoiceConfiguration(gender: .male, style: .authoritative),
+                sampleText: "Greetings. Michael here, let's strengthen your language skills."
             )
         ]
     }
@@ -58,7 +76,7 @@ public struct OfflineAIPack: AIPackProtocol {
 
     public func makeTTSEngine() throws(AIPackError) -> any TTSEngineProtocol {
         guard isKokoroReady() else {
-            throw .downloadRequired(packName: "Kokoro TTS", sizeDescription: "~350MB")
+            throw .downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")
         }
         let engine: KokoroTTSEngine?
         if let customProvider = kokoroEngineProvider {
