@@ -15,9 +15,22 @@ public enum AIModelType: String, CaseIterable, Sendable {
 
     public var estimatedSizeMB: Int {
         switch self {
-        case .kokoro: return 145
+        case .kokoro: return 85
         case .whisper: return 48
         }
+    }
+
+    public var defaultRemoteURL: URL {
+        switch self {
+        case .kokoro:
+            return URL(string: "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-en-v0_19.tar.bz2")!
+        case .whisper:
+            return URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+        }
+    }
+
+    public var remoteURL: URL {
+        defaultRemoteURL
     }
 }
 
@@ -26,6 +39,20 @@ public enum AIModelDownloadState: Sendable, Equatable {
     case downloading(progress: Double)
     case ready
     case error(String)
+}
+
+public enum AIModelExtractionError: LocalizedError, Sendable {
+    case fileNotFound(URL)
+    case extractionFailed(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .fileNotFound(let url):
+            return "Archive file not found at: \(url.path)"
+        case .extractionFailed(let message):
+            return "Archive extraction failed: \(message)"
+        }
+    }
 }
 
 @MainActor
@@ -65,10 +92,7 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
     private func createDirectoryAndExcludeFromBackup() {
         do {
             try FileManager.default.createDirectory(at: modelsDirectory, withIntermediateDirectories: true)
-            var resourceValues = URLResourceValues()
-            resourceValues.isExcludedFromBackup = true
-            var targetUrl = modelsDirectory
-            try targetUrl.setResourceValues(resourceValues)
+            Self.applyBackupExclusion(to: modelsDirectory)
         } catch {
             Self.logger.error("Failed to create models directory: \(error.localizedDescription)")
         }
@@ -82,15 +106,31 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
     }
 
     public func isModelReady(_ type: AIModelType) -> Bool {
-        if state(for: type) == .ready { return true }
         let dir = modelURL(for: type)
-        if FileManager.default.fileExists(atPath: dir.path),
-           let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
-           !contents.isEmpty {
-            updateState(.ready, for: type)
-            return true
+        switch type {
+        case .kokoro:
+            let requiredFiles = ["model.onnx", "voices.bin", "tokens.txt", "espeak-ng-data"]
+            let isComplete = requiredFiles.allSatisfy {
+                FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path)
+            }
+            if isComplete {
+                if kokoroState != .ready { updateState(.ready, for: .kokoro) }
+                return true
+            } else {
+                if kokoroState == .ready { updateState(.notDownloaded, for: .kokoro) }
+                return false
+            }
+        case .whisper:
+            if FileManager.default.fileExists(atPath: dir.path),
+               let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
+               !contents.isEmpty {
+                if whisperState != .ready { updateState(.ready, for: .whisper) }
+                return true
+            } else {
+                if whisperState == .ready { updateState(.notDownloaded, for: .whisper) }
+                return false
+            }
         }
-        return false
     }
 
     public func modelURL(for type: AIModelType) -> URL {
@@ -99,13 +139,14 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
 
     public func refreshStatus() {
         for type in AIModelType.allCases {
-            let dir = modelURL(for: type)
-            if FileManager.default.fileExists(atPath: dir.path),
-               let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
-               !contents.isEmpty {
-                updateState(.ready, for: type)
+            if isModelReady(type) {
+                // isModelReady already called updateState(.ready, for: type) if complete
             } else {
-                updateState(.notDownloaded, for: type)
+                if case .downloading = state(for: type) {
+                    // Retain downloading state
+                } else {
+                    updateState(.notDownloaded, for: type)
+                }
             }
         }
     }
@@ -119,12 +160,110 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
         Self.logger.info("Deleted model: \(type.rawValue)")
     }
 
-    public func startDownload(for type: AIModelType, remoteURL: URL) {
+    public func startDownload(for type: AIModelType, remoteURL: URL? = nil) {
+        let targetURL = remoteURL ?? type.defaultRemoteURL
         guard state(for: type) != .ready else { return }
         updateState(.downloading(progress: 0.0), for: type)
-        let task = urlSession.downloadTask(with: remoteURL)
+        let task = urlSession.downloadTask(with: targetURL)
         downloadTasks[type] = task
         task.resume()
+    }
+
+    public func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
+        try Self.extractArchive(at: sourceURL, to: destinationURL)
+    }
+
+    public static func extractArchive(at sourceURL: URL, to destinationURL: URL) throws {
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: sourceURL.path) else {
+            throw AIModelExtractionError.fileNotFound(sourceURL)
+        }
+
+        try fileManager.createDirectory(at: destinationURL, withIntermediateDirectories: true)
+
+        var isDir: ObjCBool = false
+        if fileManager.fileExists(atPath: sourceURL.path, isDirectory: &isDir), isDir.boolValue {
+            let items = try fileManager.contentsOfDirectory(atPath: sourceURL.path)
+            for item in items {
+                let srcItem = sourceURL.appendingPathComponent(item)
+                let dstItem = destinationURL.appendingPathComponent(item)
+                if fileManager.fileExists(atPath: dstItem.path) {
+                    try fileManager.removeItem(at: dstItem)
+                }
+                try fileManager.copyItem(at: srcItem, to: dstItem)
+            }
+            applyBackupExclusion(to: destinationURL)
+            return
+        }
+
+        let tempExtractDir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try fileManager.createDirectory(at: tempExtractDir, withIntermediateDirectories: true)
+        defer {
+            try? fileManager.removeItem(at: tempExtractDir)
+        }
+
+        try executeTarExtraction(from: sourceURL.path, to: tempExtractDir.path)
+
+        let extractedItems = try fileManager.contentsOfDirectory(
+            at: tempExtractDir,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        )
+
+        let contentsSourceDir: URL
+        if extractedItems.count == 1,
+           let first = extractedItems.first,
+           (try? first.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true {
+            contentsSourceDir = first
+        } else {
+            contentsSourceDir = tempExtractDir
+        }
+
+        let itemsToMove = try fileManager.contentsOfDirectory(atPath: contentsSourceDir.path)
+        for item in itemsToMove {
+            let src = contentsSourceDir.appendingPathComponent(item)
+            let dst = destinationURL.appendingPathComponent(item)
+            if fileManager.fileExists(atPath: dst.path) {
+                try fileManager.removeItem(at: dst)
+            }
+            try fileManager.moveItem(at: src, to: dst)
+        }
+
+        applyBackupExclusion(to: destinationURL)
+    }
+
+    private static func executeTarExtraction(from sourcePath: String, to destinationPath: String) throws {
+        var pid: pid_t = 0
+        let args = ["/usr/bin/tar", "-xf", sourcePath, "-C", destinationPath]
+        var cArgs = args.map { strdup($0) }
+        cArgs.append(nil)
+        defer {
+            for ptr in cArgs where ptr != nil {
+                free(ptr)
+            }
+        }
+
+        let spawnStatus = cArgs.withUnsafeMutableBufferPointer { buffer in
+            posix_spawn(&pid, "/usr/bin/tar", nil, nil, buffer.baseAddress, nil)
+        }
+
+        guard spawnStatus == 0 else {
+            throw AIModelExtractionError.extractionFailed("posix_spawn failed with error code \(spawnStatus)")
+        }
+
+        var exitStatus: Int32 = 0
+        waitpid(pid, &exitStatus, 0)
+        let code = (exitStatus >> 8) & 0xff
+        guard code == 0 else {
+            throw AIModelExtractionError.extractionFailed("tar command failed with exit code \(code)")
+        }
+    }
+
+    public static func applyBackupExclusion(to url: URL) {
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        var targetUrl = url
+        try? targetUrl.setResourceValues(resourceValues)
     }
 
     private func updateState(_ newState: AIModelDownloadState, for type: AIModelType) {
@@ -176,9 +315,16 @@ public final class OnDemandAIModelManager: NSObject, URLSessionDownloadDelegate 
             do {
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.createDirectory(at: dest, withIntermediateDirectories: true)
-                let targetFile = dest.appendingPathComponent("model_archive.bin")
-                try FileManager.default.moveItem(at: safeTempLocation, to: targetFile)
-                self.updateState(.ready, for: type)
+                try self.extractArchive(at: safeTempLocation, to: dest)
+                try? FileManager.default.removeItem(at: safeTempLocation)
+
+                Self.applyBackupExclusion(to: dest)
+
+                if self.isModelReady(type) {
+                    self.updateState(.ready, for: type)
+                } else {
+                    self.updateState(.error("Model integrity check failed after extraction"), for: type)
+                }
                 self.downloadTasks.removeValue(forKey: type)
             } catch {
                 self.updateState(.error(error.localizedDescription), for: type)
