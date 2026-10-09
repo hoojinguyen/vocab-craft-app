@@ -400,10 +400,15 @@ extension AIConfigSheet {
                                 Text(AppStrings.AIPack.statusReady)
                                     .font(theme.typography.caption)
                                     .foregroundStyle(theme.colors.statusSuccess)
-                            } else if case .error = modelManager.fullOfflinePackState {
-                                Text(AppStrings.AIPack.statusDownloadFailed)
+                            } else if case .error(let msg) = modelManager.fullOfflinePackState {
+                                let trimmed = msg.trimmingCharacters(in: .whitespacesAndNewlines)
+                                let displayError = (!trimmed.isEmpty && trimmed != AppStrings.AIPack.statusDownloadFailedText)
+                                    ? "\(AppStrings.AIPack.statusDownloadFailedText): \(trimmed)"
+                                    : AppStrings.AIPack.statusDownloadFailedText
+                                Text(displayError)
                                     .font(theme.typography.caption)
                                     .foregroundStyle(theme.colors.statusDanger)
+                                    .lineLimit(2)
                             } else {
                                 Text(AppStrings.AIPack.statusNeedsDownload)
                                     .font(theme.typography.caption)
@@ -570,7 +575,12 @@ extension AIConfigSheet {
         switch state {
         case .ready: return AppStrings.AIModelDownload.statusReady(type.estimatedSizeMB)
         case .downloading: return AppStrings.AIModelDownload.statusDownloadingText
-        case .error: return AppStrings.AIModelDownload.statusErrorText
+        case .error(let message):
+            let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty && trimmed != AppStrings.AIModelDownload.statusErrorText {
+                return "\(AppStrings.AIModelDownload.statusErrorText) (\(trimmed))"
+            }
+            return AppStrings.AIModelDownload.statusErrorText
         default: return AppStrings.AIModelDownload.statusSize(type.estimatedSizeMB)
         }
     }

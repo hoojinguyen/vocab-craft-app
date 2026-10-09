@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Darwin
 import Foundation
 import Observation
@@ -19,7 +20,7 @@ public enum AIModelType: String, CaseIterable, Sendable {
     public var sizeMB: Int {
         switch self {
         case .kokoro: 85
-        case .whisper: 48
+        case .whisper: 150
         case .llama: 740
         }
     }
@@ -29,7 +30,7 @@ public enum AIModelType: String, CaseIterable, Sendable {
     public var defaultRemoteURL: URL {
         switch self {
         case .kokoro: URL(string: "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-en-v0_19.tar.bz2")!
-        case .whisper: URL(string: "https://huggingface.co/argmaxinc/whisperkit-coreml/resolve/main/openai_whisper-tiny.en/whisperkit.zip")!
+        case .whisper: URL(string: "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-tiny.en.tar.bz2")!
         case .llama: URL(string: "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf")!
         }
     }
@@ -111,60 +112,66 @@ public final class OnDemandAIModelManager: NSObject {
 
     public func isModelReady(_ type: AIModelType) -> Bool {
         let dir = modelURL(for: type)
+        let ready: Bool
         switch type {
-        case .kokoro:
-            let requiredFiles = ["model.onnx", "voices.bin", "tokens.txt", "espeak-ng-data"]
-            var isComplete = requiredFiles.allSatisfy { FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path) }
-            if !isComplete, FileManager.default.fileExists(atPath: dir.path) {
-                if let subItems = try? FileManager.default.contentsOfDirectory(
-                    at: dir, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles]
-                ) {
-                    for subItem in subItems {
-                        var isSubDir: ObjCBool = false
-                        if FileManager.default.fileExists(atPath: subItem.path, isDirectory: &isSubDir), isSubDir.boolValue {
-                            let subHasAll = requiredFiles.allSatisfy {
-                                FileManager.default.fileExists(atPath: subItem.appendingPathComponent($0).path)
-                            }
-                            if subHasAll {
-                                Self.flattenDirectory(from: subItem, to: dir)
-                                break
-                            }
+        case .kokoro: ready = isKokoroModelReady(at: dir)
+        case .whisper: ready = isWhisperModelReady(at: dir)
+        case .llama: ready = isLlamaModelReady(at: dir)
+        }
+        if ready {
+            if state(for: type) != .ready { updateState(.ready, for: type) }
+        } else {
+            if state(for: type) == .ready { updateState(.notDownloaded, for: type) }
+        }
+        return ready
+    }
+
+    private func isKokoroModelReady(at dir: URL) -> Bool {
+        let requiredFiles = ["model.onnx", "voices.bin", "tokens.txt", "espeak-ng-data"]
+        var isComplete = requiredFiles.allSatisfy { FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path) }
+        if !isComplete, FileManager.default.fileExists(atPath: dir.path) {
+            if let subItems = try? FileManager.default.contentsOfDirectory(
+                at: dir, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles]
+            ) {
+                for subItem in subItems {
+                    var isSubDir: ObjCBool = false
+                    if FileManager.default.fileExists(atPath: subItem.path, isDirectory: &isSubDir), isSubDir.boolValue {
+                        let subHasAll = requiredFiles.allSatisfy {
+                            FileManager.default.fileExists(atPath: subItem.appendingPathComponent($0).path)
+                        }
+                        if subHasAll {
+                            Self.flattenDirectory(from: subItem, to: dir)
+                            break
                         }
                     }
                 }
-                isComplete = requiredFiles.allSatisfy { FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path) }
             }
-            if isComplete {
-                if kokoroState != .ready { updateState(.ready, for: .kokoro) }
-                return true
-            } else {
-                if kokoroState == .ready { updateState(.notDownloaded, for: .kokoro) }
-                return false
-            }
-        case .whisper:
-            if FileManager.default.fileExists(atPath: dir.path),
-               let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path),
-               !contents.isEmpty {
-                if whisperState != .ready { updateState(.ready, for: .whisper) }
-                return true
-            } else {
-                if whisperState == .ready { updateState(.notDownloaded, for: .whisper) }
-                return false
-            }
-        case .llama:
-            let modelFile = dir.appendingPathComponent("model.gguf")
-            let minSizeBytes: Int64 = 700 * 1024 * 1024
-            if FileManager.default.fileExists(atPath: modelFile.path),
-               let attributes = try? FileManager.default.attributesOfItem(atPath: modelFile.path),
-               let fileSize = attributes[.size] as? Int64,
-               fileSize > minSizeBytes {
-                if llamaState != .ready { updateState(.ready, for: .llama) }
-                return true
-            } else {
-                if llamaState == .ready { updateState(.notDownloaded, for: .llama) }
-                return false
-            }
+            isComplete = requiredFiles.allSatisfy { FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path) }
         }
+        return isComplete
+    }
+
+    private func isWhisperModelReady(at dir: URL) -> Bool {
+        guard FileManager.default.fileExists(atPath: dir.path) else { return false }
+        if let subItems = try? FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles]
+        ), subItems.count == 1, (try? subItems.first?.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true,
+           let subDir = subItems.first {
+            Self.flattenDirectory(from: subDir, to: dir)
+        }
+        guard let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return false }
+        return !contents.isEmpty
+    }
+
+    private func isLlamaModelReady(at dir: URL) -> Bool {
+        let modelFile = dir.appendingPathComponent("model.gguf")
+        let minSizeBytes: Int64 = 700 * 1024 * 1024
+        guard FileManager.default.fileExists(atPath: modelFile.path),
+              let attributes = try? FileManager.default.attributesOfItem(atPath: modelFile.path),
+              let fileSize = attributes[.size] as? Int64 else {
+            return false
+        }
+        return fileSize > minSizeBytes
     }
 
     public func modelURL(for type: AIModelType) -> URL {
@@ -294,6 +301,18 @@ extension OnDemandAIModelManager: URLSessionDownloadDelegate {
     public nonisolated func urlSession(
         _ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL
     ) {
+        if let httpResponse = downloadTask.response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            let errorMsg = "Server returned HTTP \(httpResponse.statusCode)"
+            Self.logger.error("Download failed with HTTP \(httpResponse.statusCode)")
+            Task { @MainActor in
+                if let (type, _) = self.downloadTasks.first(where: { $0.value == downloadTask }) {
+                    self.downloadTasks.removeValue(forKey: type)
+                    self.updateState(.error(errorMsg), for: type)
+                }
+            }
+            return
+        }
+
         let tempUUID = UUID().uuidString
         let safeTempLocation = FileManager.default.temporaryDirectory.appendingPathComponent(tempUUID)
         do {

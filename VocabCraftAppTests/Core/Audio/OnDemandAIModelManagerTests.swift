@@ -157,6 +157,14 @@ struct OnDemandAIModelManagerTests {
         #expect(type.remoteURL == type.defaultRemoteURL)
     }
 
+    @Test("Whisper model type has expected remote URL and estimated size")
+    func testWhisperModelTypeMetadata() {
+        let type = AIModelType.whisper
+        #expect(type.estimatedSizeMB == 150)
+        #expect(type.defaultRemoteURL.absoluteString.contains("sherpa-onnx-whisper-tiny.en.tar.bz2"))
+        #expect(type.remoteURL == type.defaultRemoteURL)
+    }
+
     @Test("Model manager deletes model directory and resets state")
     @MainActor
     func testDeleteModel() throws {
