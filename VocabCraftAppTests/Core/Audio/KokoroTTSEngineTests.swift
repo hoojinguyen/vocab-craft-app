@@ -22,6 +22,42 @@ final class MockKokoroAudioEngine: KokoroAudioSynthesizing, @unchecked Sendable 
     }
 }
 
+final class MockSherpaOnnxOfflineTtsWrapper: SherpaOnnxOfflineTtsWrapper, @unchecked Sendable {
+    var generateCallCount = 0
+    var initializeCallCount = 0
+    var unloadCallCount = 0
+    var lastModelDirectory: URL?
+    var lastText: String?
+    var lastSpeakerId: Int?
+    var lastSpeed: Float?
+    var mockSamples: [Float] = KokoroInferenceWorker.synthesizeToneSamples(text: "MockAudio", speakerId: 0, speed: 1.0)
+    var shouldFailInitialize: Bool = false
+    var shouldFailGenerate: Bool = false
+
+    func initialize(modelDirectory: URL) throws {
+        initializeCallCount += 1
+        lastModelDirectory = modelDirectory
+        if shouldFailInitialize {
+            throw AIPackError.ttsFailed(packName: "Kokoro TTS", underlyingMessage: "Mock initialization failed")
+        }
+    }
+
+    func generate(text: String, speakerId: Int, speed: Float) throws -> [Float] {
+        generateCallCount += 1
+        lastText = text
+        lastSpeakerId = speakerId
+        lastSpeed = speed
+        if shouldFailGenerate {
+            throw AIPackError.ttsFailed(packName: "Kokoro TTS", underlyingMessage: "Mock generation failed")
+        }
+        return mockSamples
+    }
+
+    func unload() {
+        unloadCallCount += 1
+    }
+}
+
 @Suite("KokoroTTSEngine Router Tests")
 struct KokoroTTSEngineRouterTests {
     @Test("TextToSpeechService routes conversation to Kokoro engine when ready")
@@ -145,23 +181,107 @@ struct KokoroTTSEngineTests {
         #expect(player.numberOfChannels == 1)
     }
 
-    @Test("KokoroInferenceWorker generates synthesized tone samples when model is ready")
-    func testInferenceWorkerGenerateSamples() async throws {
+    @Test("KokoroInferenceWorker loads model and propagates errors cleanly")
+    func testWorkerLoadsModel() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let worker = KokoroInferenceWorker(modelDirectory: tempDir)
+        let isReady = await worker.isModelReady
+        #expect(!isReady)
+
+        await #expect(throws: AIPackError.self) {
+            try await worker.loadModelIfNeeded()
+        }
+    }
+
+    @Test("KokoroInferenceWorker default wrapper attempts Sherpa ONNX initialization")
+    func testWorkerDefaultsToSherpaKokoroTTSWrapper() async throws {
         let tempDir = try createReadyModelDirectory()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         let kokoroDir = tempDir.appendingPathComponent("kokoro")
+        // KokoroInferenceWorker without explicit ttsWrapper defaults to SherpaKokoroTTSWrapper
         let worker = KokoroInferenceWorker(modelDirectory: kokoroDir)
+        let isReady = await worker.isModelReady
+        #expect(isReady)
+
+        // Real SherpaKokoroTTSWrapper fails to parse dummy model files with sherpa-onnx runtime
+        await #expect(throws: AIPackError.self) {
+            try await worker.loadModelIfNeeded()
+        }
+    }
+
+    @Test("KokoroInferenceWorker delegates sample generation to ttsWrapper")
+    func testWorkerDelegatesToTTSWrapper() async throws {
+        let tempDir = try createReadyModelDirectory()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let kokoroDir = tempDir.appendingPathComponent("kokoro")
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        let worker = KokoroInferenceWorker(modelDirectory: kokoroDir, ttsWrapper: mockWrapper)
 
         let isReady = await worker.isModelReady
         #expect(isReady)
 
-        let samples = try await worker.generateSamples(text: "VocabCraft", speakerId: 0, speed: 1.0)
+        let samples = try await worker.generateSamples(text: "VocabCraft", speakerId: 1, speed: 1.2)
         #expect(!samples.isEmpty)
-        #expect(samples.count >= 240)
+        #expect(mockWrapper.generateCallCount == 1)
+        #expect(mockWrapper.lastText == "VocabCraft")
+        #expect(mockWrapper.lastSpeakerId == 1)
+        #expect(mockWrapper.lastSpeed == 1.2)
 
         let wavData = try await worker.generateAudioData(text: "VocabCraft", speakerId: 2, speed: 1.0)
         #expect(wavData.count > 44)
+        #expect(mockWrapper.generateCallCount == 2)
+    }
+
+    @Test("KokoroInferenceWorker unload delegates to ttsWrapper")
+    func testWorkerUnloadDelegatesToWrapper() async throws {
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        let worker = KokoroInferenceWorker(ttsWrapper: mockWrapper)
+        await worker.unload()
+        #expect(mockWrapper.unloadCallCount == 1)
+    }
+
+    @Test("KokoroInferenceWorker returns empty samples for blank text without loading")
+    func testWorkerBlankTextReturnsEmpty() async throws {
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        let worker = KokoroInferenceWorker(ttsWrapper: mockWrapper)
+        let samples = try await worker.generateSamples(text: "   ")
+        #expect(samples.isEmpty)
+        #expect(mockWrapper.generateCallCount == 0)
+    }
+
+    @Test("KokoroInferenceWorker throws ttsFailed when wrapper generation fails")
+    func testWorkerThrowsWhenWrapperFails() async throws {
+        let tempDir = try createReadyModelDirectory()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let kokoroDir = tempDir.appendingPathComponent("kokoro")
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        mockWrapper.shouldFailGenerate = true
+        let worker = KokoroInferenceWorker(modelDirectory: kokoroDir, ttsWrapper: mockWrapper)
+
+        await #expect(throws: AIPackError.self) {
+            _ = try await worker.generateSamples(text: "Test failure")
+        }
+    }
+
+    @Test("KokoroInferenceWorker fails fast when ttsWrapper fails to initialize")
+    func testWorkerInitializationFailurePropagatesError() async throws {
+        let tempDir = try createReadyModelDirectory()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let kokoroDir = tempDir.appendingPathComponent("kokoro")
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        mockWrapper.shouldFailInitialize = true
+        let worker = KokoroInferenceWorker(modelDirectory: kokoroDir, ttsWrapper: mockWrapper)
+
+        await #expect(throws: AIPackError.self) {
+            try await worker.loadModelIfNeeded()
+        }
     }
 
     @Test("KokoroInferenceWorker throws downloadRequired when model files are missing")
@@ -184,7 +304,10 @@ struct KokoroTTSEngineTests {
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
         let manager = OnDemandAIModelManager(modelsDirectory: tempDir)
-        let engine = KokoroTTSEngine(modelManager: manager)
+        let kokoroDir = tempDir.appendingPathComponent("kokoro")
+        let mockWrapper = MockSherpaOnnxOfflineTtsWrapper()
+        let worker = KokoroInferenceWorker(modelDirectory: kokoroDir, ttsWrapper: mockWrapper)
+        let engine = KokoroTTSEngine(modelManager: manager, worker: worker)
         #expect(engine.isReady)
 
         // Empty text is a no-op

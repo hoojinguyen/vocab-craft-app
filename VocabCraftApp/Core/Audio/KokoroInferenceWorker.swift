@@ -1,5 +1,6 @@
 import Foundation
 import os
+import SpeechKit
 
 /// Abstraction protocol for sherpa-onnx runtime synthesis.
 public protocol SherpaOnnxOfflineTtsWrapper: Sendable {
@@ -11,6 +12,8 @@ public protocol SherpaOnnxOfflineTtsWrapper: Sendable {
 public extension SherpaOnnxOfflineTtsWrapper {
     func unload() {}
 }
+
+extension SherpaKokoroTTSWrapper: SherpaOnnxOfflineTtsWrapper {}
 
 /// Background actor handling model loading and 24kHz PCM sample generation for Kokoro TTS.
 public actor KokoroInferenceWorker {
@@ -38,12 +41,11 @@ public actor KokoroInferenceWorker {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSTemporaryDirectory())
             self.modelDirectory = appSupport.appendingPathComponent("VocabCraft/AIModels/kokoro", isDirectory: true)
         }
-        self.ttsWrapper = ttsWrapper
+        self.ttsWrapper = ttsWrapper ?? SherpaKokoroTTSWrapper()
     }
 
     public var isModelReady: Bool {
-        if ttsWrapper != nil { return true }
-        return Self.requiredModelFiles.allSatisfy {
+        Self.requiredModelFiles.allSatisfy {
             FileManager.default.fileExists(atPath: modelDirectory.appendingPathComponent($0).path)
         }
     }
@@ -54,7 +56,14 @@ public actor KokoroInferenceWorker {
             throw AIPackError.downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")
         }
         if let wrapper = ttsWrapper {
-            try wrapper.initialize(modelDirectory: modelDirectory)
+            do {
+                try wrapper.initialize(modelDirectory: modelDirectory)
+            } catch let error as AIPackError {
+                throw error
+            } catch {
+                Self.logger.error("KokoroInferenceWorker failed to initialize TTS wrapper: \(error.localizedDescription)")
+                throw AIPackError.ttsFailed(packName: "Kokoro TTS", underlyingMessage: error.localizedDescription)
+            }
         }
         isInitialized = true
         Self.logger.info("KokoroInferenceWorker initialized successfully at \(self.modelDirectory.path)")
@@ -74,12 +83,17 @@ public actor KokoroInferenceWorker {
         try loadModelIfNeeded()
 
         if let wrapper = ttsWrapper {
-            return try wrapper.generate(text: trimmed, speakerId: speakerId, speed: speed)
+            do {
+                return try wrapper.generate(text: trimmed, speakerId: speakerId, speed: speed)
+            } catch let error as AIPackError {
+                throw error
+            } catch {
+                Self.logger.error("KokoroInferenceWorker synthesis failed: \(error.localizedDescription)")
+                throw AIPackError.ttsFailed(packName: "Kokoro TTS", underlyingMessage: error.localizedDescription)
+            }
         }
 
-        // In simulation, unit tests, or before C++ dynamic library linking,
-        // produce clean synthesized 24kHz PCM tone data so audio player verification works end-to-end.
-        return Self.synthesizeToneSamples(text: trimmed, speakerId: speakerId, speed: speed)
+        throw AIPackError.ttsFailed(packName: "Kokoro TTS", underlyingMessage: "No TTS wrapper available")
     }
 
     /// Generates standard 24kHz 16-bit mono WAV Data container for the synthesized text.
@@ -90,6 +104,7 @@ public actor KokoroInferenceWorker {
     }
 
     /// Produces clean synthesized 24kHz PCM tone data tailored to speaker characteristics.
+    /// Retained solely for audio pipeline unit test verification fixtures.
     public static func synthesizeToneSamples(text: String, speakerId: Int = 0, speed: Float = 1.0) -> [Float] {
         let rate = Double(sampleRate)
         let effectiveSpeed = max(0.5, Double(speed))
