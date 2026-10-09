@@ -88,4 +88,28 @@ struct TTSEngineAdapterTests {
             Issue.record("Unexpected error: \(error)")
         }
     }
+
+    @Test("AppleSTTEngineAdapter stopRecognition terminates active recognition session and stream")
+    @MainActor
+    func test_appleSTTEngineAdapter_stopRecognition_terminatesActiveSession() async throws {
+        let coordinator = AudioSessionCoordinator()
+        let adapter = AppleSTTEngineAdapter(coordinator: coordinator)
+        final class LevelBox: @unchecked Sendable {
+            var receivedLevel: Float = -1.0
+        }
+        let box = LevelBox()
+
+        let stream = adapter.startRecognition(locale: "en-US", onAudioLevel: { level in
+            box.receivedLevel = level
+        })
+
+        var iterator = stream.makeAsyncIterator()
+        // Stop recognition immediately
+        adapter.stopRecognition()
+
+        // Stream iteration should finish cleanly
+        let nextItem = try await iterator.next()
+        #expect(nextItem == nil)
+        #expect(box.receivedLevel == -1.0)
+    }
 }

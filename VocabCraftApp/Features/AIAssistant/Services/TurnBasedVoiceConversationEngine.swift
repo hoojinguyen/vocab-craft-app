@@ -42,12 +42,16 @@ private final class LegacySTTAdapter: STTEngineProtocol, @unchecked Sendable {
     }
 
     func startRecognition(locale: String) -> AsyncThrowingStream<String, Error> {
+        startRecognition(locale: locale, onAudioLevel: nil)
+    }
+
+    func startRecognition(locale: String, onAudioLevel: (@Sendable (Float) -> Void)?) -> AsyncThrowingStream<String, Error> {
         let box = self.box
         return AsyncThrowingStream { continuation in
             Task { @MainActor in
                 box.service.startListening(
                     onResult: { text in continuation.yield(text) },
-                    onAudioLevel: nil,
+                    onAudioLevel: onAudioLevel,
                     onError: { error in continuation.finish(throwing: error) }
                 )
             }
@@ -220,6 +224,47 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         }
     }
 
+    private func startLegacySpeechListening(speechService: any SpeechRecognitionProtocol) {
+        speechService.startListening(
+            onResult: { [weak self] transcript in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.handleTranscriptUpdate(transcript)
+                }
+            },
+            onAudioLevel: { [weak self] level in
+                if Thread.isMainThread {
+                    MainActor.assumeIsolated {
+                        self?.audioLevel = level
+                    }
+                } else {
+                    Task { @MainActor [weak self] in
+                        self?.audioLevel = level
+                    }
+                }
+            },
+            onError: { [weak self] error in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.audioLevel = 0.0
+                    if case .listening(let transcript) = self.state,
+                       !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        await self.processUserUtterance(transcript)
+                    } else {
+                        self.silenceDetector?.cancel()
+                        let packError = (error as? AIPackError) ?? .sttFailed(
+                            packName: "Speech Recognition",
+                            underlyingMessage: error.localizedDescription
+                        )
+                        self.activeError = packError
+                        self.audioErrorMessage = error.localizedDescription
+                        self.state = .error(packError)
+                    }
+                }
+            }
+        )
+    }
+
     public func startListening() {
         guard state != .ended else { return }
         audioLevel = 0.0
@@ -244,13 +289,15 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         silenceDetector?.arm()
 
         if let speechService = legacySpeechService {
-            speechService.startListening(
-                onResult: { [weak self] transcript in
-                    Task { @MainActor [weak self] in
-                        guard let self else { return }
-                        self.handleTranscriptUpdate(transcript)
-                    }
-                },
+            startLegacySpeechListening(speechService: speechService)
+            return
+        }
+
+        recognitionTask?.cancel()
+        recognitionTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let stream = self.sttEngine.startRecognition(
+                locale: "en-US",
                 onAudioLevel: { [weak self] level in
                     if Thread.isMainThread {
                         MainActor.assumeIsolated {
@@ -261,31 +308,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
                             self?.audioLevel = level
                         }
                     }
-                },
-                onError: { [weak self] error in
-                    Task { @MainActor [weak self] in
-                        guard let self else { return }
-                        self.audioLevel = 0.0
-                        if case .listening(let transcript) = self.state,
-                           !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            await self.processUserUtterance(transcript)
-                        } else {
-                            self.silenceDetector?.cancel()
-                            let packError = (error as? AIPackError) ?? .sttFailed(packName: "Speech Recognition", underlyingMessage: error.localizedDescription)
-                            self.activeError = packError
-                            self.audioErrorMessage = error.localizedDescription
-                            self.state = .error(packError)
-                        }
-                    }
                 }
             )
-            return
-        }
-
-        recognitionTask?.cancel()
-        recognitionTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            let stream = self.sttEngine.startRecognition(locale: "en-US")
             do {
                 for try await transcript in stream {
                     guard !Task.isCancelled else { break }
