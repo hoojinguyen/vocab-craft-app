@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SpeechKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17),
         .macOS(.v14)
@@ -13,12 +14,19 @@ let package = Package(
             targets: ["SpeechKit"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/k2-fsa/sherpa-onnx", exact: "1.13.8")
+    ],
     targets: [
         .target(
             name: "SpeechKit",
-            dependencies: [],
-            path: "Sources/SpeechKit"
+            dependencies: [
+                .product(name: "sherpa-onnx", package: "sherpa-onnx")
+            ],
+            path: "Sources/SpeechKit",
+            linkerSettings: [
+                .linkedLibrary("c++")
+            ]
         ),
         .testTarget(
             name: "SpeechKitTests",
