@@ -698,6 +698,23 @@
         }
       }
     },
+    "app.ai.model_download.action_retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử Lại"
+          }
+        }
+      }
+    },
     "app.ai.model_download.btn_download": {
       "extractionState": "manual",
       "localizations": {
@@ -745,6 +762,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đang tải..."
+          }
+        }
+      }
+    },
+    "app.ai.model_download.status_error": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Failed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Thất Bại"
           }
         }
       }
@@ -936,6 +970,23 @@
         }
       }
     },
+    "app.ai.pack.offline.download_remaining_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Remaining Pack (~%lldMB)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Gói Còn Lại (~%lldMB)"
+          }
+        }
+      }
+    },
     "app.ai.pack.offline_desc": {
       "extractionState": "manual",
       "localizations": {
@@ -983,6 +1034,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chọn gói AI"
+          }
+        }
+      }
+    },
+    "app.ai.pack.status.download_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download Failed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Thất Bại"
           }
         }
       }

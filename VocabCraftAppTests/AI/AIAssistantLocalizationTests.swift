@@ -502,6 +502,38 @@ struct AIAssistantLocalizationTests {
         return !value.isEmpty
     }
 
+    private func hasTranslation(for key: String, locale: String) -> Bool {
+        hasTranslation(key: key, locale: locale)
+    }
+
+    @Test("Verify offline pack error and remaining download localization keys in en and vi")
+    func testDownloadErrorAndRemainingLocalizationKeys() throws {
+        let keys = [
+            "app.ai.model_download.status_error",
+            "app.ai.model_download.action_retry",
+            "app.ai.pack.offline.download_remaining_action",
+            "app.ai.pack.status.download_failed"
+        ]
+        for key in keys {
+            #expect(hasTranslation(for: key, locale: "en"), "Missing English translation for \(key)")
+            #expect(hasTranslation(for: key, locale: "vi"), "Missing Vietnamese translation for \(key)")
+        }
+
+        #expect(AppStrings.AIModelDownload.statusErrorText == "Download Failed")
+        #expect(AppStrings.AIModelDownload.actionRetryText == "Retry")
+        #expect(AppStrings.AIPack.downloadRemainingActionText(85) == "Download Remaining Pack (~85MB)")
+        #expect(AppStrings.AIPack.statusDownloadFailedText == "Download Failed")
+
+        let errorKey: LocalizedStringKey? = AppStrings.AIModelDownload.statusError
+        let retryKey: LocalizedStringKey? = AppStrings.AIModelDownload.actionRetry
+        let remainingKey: LocalizedStringKey? = AppStrings.AIPack.downloadRemainingAction(85)
+        let failedKey: LocalizedStringKey? = AppStrings.AIPack.statusDownloadFailed
+        #expect(errorKey != nil)
+        #expect(retryKey != nil)
+        #expect(remainingKey != nil)
+        #expect(failedKey != nil)
+    }
+
     @Test("Kokoro preview and model localization keys exist in both en and vi")
     func testKokoroLocalizationKeys() throws {
         let keys = [

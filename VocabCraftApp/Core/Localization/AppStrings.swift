@@ -767,6 +767,10 @@ extension AppStrings {
         public static func statusReady(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_ready", defaultValue: "~%lldMB (Downloaded)", bundle: .module), sizeMB) }
         public static var statusDownloading: LocalizedStringKey { "app.ai.model_download.status_downloading" }
         public static var statusDownloadingText: String { String(localized: "app.ai.model_download.status_downloading", defaultValue: "Downloading...", bundle: .module) }
+        public static var statusError: LocalizedStringKey { "app.ai.model_download.status_error" }
+        public static var statusErrorText: String { String(localized: "app.ai.model_download.status_error", defaultValue: "Download Failed", bundle: .module) }
+        public static var actionRetry: LocalizedStringKey { "app.ai.model_download.action_retry" }
+        public static var actionRetryText: String { String(localized: "app.ai.model_download.action_retry", defaultValue: "Retry", bundle: .module) }
         public static func statusSize(_ sizeMB: Int) -> String { String(format: String(localized: "app.ai.model_download.status_size", defaultValue: "~%lldMB", bundle: .module), sizeMB) }
         public static var kokoroTitle: LocalizedStringKey { "app.ai.model.kokoro_title" }
         public static var kokoroTitleText: String { String(localized: "app.ai.model.kokoro_title", defaultValue: "Kokoro Neural Voice", bundle: .module) }
@@ -806,6 +810,12 @@ extension AppStrings {
         }
         public static var offlineDownloadAllAction: LocalizedStringKey { "app.ai.pack.offline.download_all_action" }
         public static var offlineDownloadAllActionText: String { String(localized: "app.ai.pack.offline.download_all_action", defaultValue: "Download Complete Pack (~975MB)", bundle: .module) }
+        public static func downloadRemainingAction(_ remainingMB: Int) -> LocalizedStringKey {
+            LocalizedStringKey(downloadRemainingActionText(remainingMB))
+        }
+        public static func downloadRemainingActionText(_ remainingMB: Int) -> String {
+            String(format: String(localized: "app.ai.pack.offline.download_remaining_action", defaultValue: "Download Remaining Pack (~%lldMB)", bundle: .module), remainingMB)
+        }
         public static var alertTitle: LocalizedStringKey { "app.ai.error.alert_title" }
         public static var alertTitleText: String { String(localized: "app.ai.error.alert_title", defaultValue: "AI Service Issue", bundle: .module) }
         public static var retryAction: LocalizedStringKey { "app.ai.error.retry_action" }
@@ -820,6 +830,8 @@ extension AppStrings {
         public static var statusNeedsKeyText: String { String(localized: "app.ai.pack.status.needs_key", defaultValue: "API Key Required", bundle: .module) }
         public static var statusNeedsDownload: LocalizedStringKey { "app.ai.pack.status.needs_download" }
         public static var statusNeedsDownloadText: String { String(localized: "app.ai.pack.status.needs_download", defaultValue: "Download Required", bundle: .module) }
+        public static var statusDownloadFailed: LocalizedStringKey { "app.ai.pack.status.download_failed" }
+        public static var statusDownloadFailedText: String { String(localized: "app.ai.pack.status.download_failed", defaultValue: "Download Failed", bundle: .module) }
         public static var statusUnavailable: LocalizedStringKey { "app.ai.pack.status.unavailable" }
         public static var statusUnavailableText: String { String(localized: "app.ai.pack.status.unavailable", defaultValue: "Unavailable", bundle: .module) }
         public static var sectionTitle: LocalizedStringKey { "app.ai.pack.section_title" }
