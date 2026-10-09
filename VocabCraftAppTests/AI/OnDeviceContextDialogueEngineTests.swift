@@ -54,4 +54,20 @@ struct OnDeviceContextDialogueEngineTests {
         let provider = try pack.makeLLMProvider()
         #expect(provider.providerIdentifier == "apple_intelligence_or_local")
     }
+
+    @Test("OnDeviceContextDialogueEngine generateTurn from messages and prompt handles multi-turn cafe order")
+    func test_contextDialogueEngine_generateTurn_fromMessagesAndSystemPrompt() async throws {
+        let engine = OnDeviceContextDialogueEngine()
+        let systemPrompt = "Target vocabulary for the user: beverage, pastry, complimentary. Scenario: cafe-order"
+        let messages = [
+            LLMChatMessage(role: .system, content: systemPrompt),
+            LLMChatMessage(role: .user, content: "I would like to order a fresh pastry and a hot beverage.")
+        ]
+
+        let output = try await engine.generateTurn(messages: messages, systemPrompt: systemPrompt)
+        #expect(!output.characterReply.isEmpty)
+        #expect(output.characterReply != "Hello! Welcome to our conversation. How can I help you today?")
+        #expect(output.targetWordsUsed.contains("pastry") || output.targetWordsUsed.contains("beverage"))
+        #expect(output.suggestedResponses.count == 3)
+    }
 }

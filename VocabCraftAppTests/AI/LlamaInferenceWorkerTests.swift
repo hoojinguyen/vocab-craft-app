@@ -113,4 +113,46 @@ struct LlamaInferenceWorkerTests {
             Issue.record("Expected CancellationError, got \(error)")
         }
     }
+
+    @Test("LlamaInferenceWorker generates contextual dialogue and progresses turns without repeating greeting")
+    func testWorkerGeneratesContextualDialogueWithoutRepeatingGreeting() async throws {
+        let worker = LlamaInferenceWorker(bypassInferenceForTesting: true)
+        let systemPrompt = """
+        You are Emma, a barista in a cafe.
+        Target vocabulary for the user: beverage, pastry, complimentary.
+        """
+
+        // Turn 1: User orders beverage and pastry (no mention of "latte" or "coffee")
+        let turn1Messages = [
+            LLMChatMessage(role: .system, content: systemPrompt),
+            LLMChatMessage(role: .user, content: "Hello Emma, I'd like to order a fresh beverage and a pastry.")
+        ]
+        let jsonTurn1 = try await worker.generateStructuredResponse(
+            messages: turn1Messages,
+            systemPrompt: systemPrompt
+        )
+        let outputTurn1 = try JSONDecoder().decode(RoleplayTurnOutput.self, from: Data(jsonTurn1.utf8))
+
+        // Must NOT return the static greeting
+        #expect(outputTurn1.characterReply != "Hello! Welcome to our conversation. How can I help you today?")
+        #expect(!outputTurn1.characterReply.isEmpty)
+        #expect(outputTurn1.targetWordsUsed.contains("beverage") || outputTurn1.targetWordsUsed.contains("pastry"))
+        #expect(outputTurn1.suggestedResponses.count == 3)
+
+        // Turn 2: User answers follow-up question
+        let turn2Messages = [
+            LLMChatMessage(role: .system, content: systemPrompt),
+            LLMChatMessage(role: .user, content: "Hello Emma, I'd like to order a fresh beverage and a pastry."),
+            LLMChatMessage(role: .model, content: outputTurn1.characterReply),
+            LLMChatMessage(role: .user, content: "I would prefer it hot, and please warm up the pastry.")
+        ]
+        let jsonTurn2 = try await worker.generateStructuredResponse(
+            messages: turn2Messages,
+            systemPrompt: systemPrompt
+        )
+        let outputTurn2 = try JSONDecoder().decode(RoleplayTurnOutput.self, from: Data(jsonTurn2.utf8))
+
+        #expect(outputTurn2.characterReply != "Hello! Welcome to our conversation. How can I help you today?")
+        #expect(outputTurn2.characterReply != outputTurn1.characterReply)
+    }
 }

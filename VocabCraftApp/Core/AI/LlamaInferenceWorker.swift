@@ -39,11 +39,13 @@ public actor LlamaInferenceWorker {
     public let modelURL: URL
     public let bypassInferenceForTesting: Bool
     private let runtimeWrapper: (any LlamaRuntimeWrapper)?
+    private let dialogueEngine: OnDeviceContextDialogueEngine
 
     public init(
         modelURL: URL? = nil,
         bypassInferenceForTesting: Bool = false,
-        runtimeWrapper: (any LlamaRuntimeWrapper)? = nil
+        runtimeWrapper: (any LlamaRuntimeWrapper)? = nil,
+        dialogueEngine: OnDeviceContextDialogueEngine = OnDeviceContextDialogueEngine()
     ) {
         if let url = modelURL {
             self.modelURL = url
@@ -54,6 +56,7 @@ public actor LlamaInferenceWorker {
         }
         self.bypassInferenceForTesting = bypassInferenceForTesting
         self.runtimeWrapper = runtimeWrapper
+        self.dialogueEngine = dialogueEngine
     }
 
     /// Verifies if model file exists and passes minimum file size integrity threshold.
@@ -110,7 +113,7 @@ public actor LlamaInferenceWorker {
 
         if bypassInferenceForTesting {
             try Task.checkCancellation()
-            return try synthesizeRoleplayTurnOutput(for: messages)
+            return try await synthesizeRoleplayTurnOutput(for: messages, systemPrompt: systemPrompt)
         }
 
         if let runtimeWrapper = runtimeWrapper {
@@ -127,7 +130,7 @@ public actor LlamaInferenceWorker {
 
         // When valid weights exist without explicit C++ runtime wrapper, synthesize valid schema JSON
         try Task.checkCancellation()
-        return try synthesizeRoleplayTurnOutput(for: messages)
+        return try await synthesizeRoleplayTurnOutput(for: messages, systemPrompt: systemPrompt)
     }
 
     /// Unloads loaded model weights to release GPU and CPU memory.
@@ -136,36 +139,13 @@ public actor LlamaInferenceWorker {
         Self.logger.info("LlamaInferenceWorker unloaded model")
     }
 
-    private func synthesizeRoleplayTurnOutput(for messages: [LLMChatMessage]) throws -> String {
-        let lastUserMessage = messages.last(where: { $0.role == .user })?.content ?? ""
-        let characterReply: String
-        let suggestedResponses: [String]
-
-        if lastUserMessage.localizedCaseInsensitiveContains("latte")
-            || lastUserMessage.localizedCaseInsensitiveContains("coffee")
-            || lastUserMessage.localizedCaseInsensitiveContains("americano") {
-            characterReply = "Certainly! I can prepare that for you right away. What size would you prefer?"
-            suggestedResponses = [
-                "Regular size, please.",
-                "Large size with extra foam.",
-                "Do you have decaf options?"
-            ]
-        } else {
-            characterReply = "Hello! Welcome to our conversation. How can I help you today?"
-            suggestedResponses = [
-                "I would like to get started.",
-                "Could you recommend something?",
-                "Tell me more about this."
-            ]
-        }
-
-        let turnOutput = RoleplayTurnOutput(
-            characterReply: characterReply,
-            targetWordsUsed: [],
-            refinementSuggestion: nil,
-            pedagogicalNote: "Clear and polite phrasing helps maintain natural dialogue flow.",
-            suggestedResponses: suggestedResponses,
-            isConcluded: false
+    private func synthesizeRoleplayTurnOutput(
+        for messages: [LLMChatMessage],
+        systemPrompt: String
+    ) async throws -> String {
+        let turnOutput = try await dialogueEngine.generateTurn(
+            messages: messages,
+            systemPrompt: systemPrompt
         )
 
         let encoder = JSONEncoder()
