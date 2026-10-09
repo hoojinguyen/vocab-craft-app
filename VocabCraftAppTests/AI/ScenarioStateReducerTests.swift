@@ -259,6 +259,21 @@ struct ScenarioStateReducerTests {
         #expect(step2WithMissing.characterReply.contains("amenities"))
         #expect(step2WithMissing.isConcluded == false)
 
+        // ID verification -> Key handover without missing words (intermediate reply does not contain terminal phrase)
+        let step2WithoutMissing = ScenarioStateReducer.reduce(
+            currentState: .travel(.idVerification),
+            intent: .generalStatement,
+            userUtterance: "Here is my passport",
+            userTurnCount: 2,
+            missingWords: [],
+            scenario: hotel
+        )
+        #expect(step2WithoutMissing.nextState == .travel(.keyHandover))
+        #expect(step2WithoutMissing.characterReply.contains("keycard"))
+        #expect(!step2WithoutMissing.characterReply.localizedCaseInsensitiveContains("enjoy your stay"))
+        #expect(!step2WithoutMissing.characterReply.localizedCaseInsensitiveContains("have a wonderful stay with us"))
+        #expect(step2WithoutMissing.isConcluded == false)
+
         // Key handover -> Completed
         let step3 = ScenarioStateReducer.reduce(
             currentState: .travel(.keyHandover),
@@ -370,10 +385,34 @@ struct ScenarioStateReducerTests {
         #expect(ScenarioStateReducer.inferCurrentState(from: completedHistory, topic: .dining) == .dining(.completed))
 
         let travelCompletedHistory = [
-            RoleplayMessage(sender: .character(name: "David"), text: "Here are your keys, enjoy your stay!"),
+            RoleplayMessage(sender: .character(name: "David"), text: "Here are your keys, have a wonderful stay with us!"),
             RoleplayMessage(sender: .user, text: "Thanks!")
         ]
         #expect(ScenarioStateReducer.inferCurrentState(from: travelCompletedHistory, topic: .travel) == .travel(.completed))
+
+        // Intermediate key handover AI message does not falsely classify as completed
+        let travelIntermediateHistory = [
+            RoleplayMessage(sender: .character(name: "David"), text: "Welcome!"),
+            RoleplayMessage(sender: .user, text: "Here is my passport"),
+            RoleplayMessage(sender: .character(name: "David"), text: "Thank you. Here is your keycard for room 402. Complimentary breakfast is served from 6:30 to 10 AM."),
+            RoleplayMessage(sender: .user, text: "Where is the elevator?")
+        ]
+        #expect(ScenarioStateReducer.inferCurrentState(from: travelIntermediateHistory, topic: .travel) == .travel(.keyHandover))
+
+        // Safety cap closures via phrase or turn cap count >= 6
+        let safetyCapPhraseHistory = [
+            RoleplayMessage(sender: .character(name: "Alex"), text: "It has been so wonderful chatting with you! I will get everything finalized for you now, have a fantastic day ahead!"),
+            RoleplayMessage(sender: .user, text: "Thanks!")
+        ]
+        #expect(ScenarioStateReducer.inferCurrentState(from: safetyCapPhraseHistory, topic: .dining) == .dining(.completed))
+
+        var sixTurnHistory: [RoleplayMessage] = []
+        for i in 1...6 {
+            sixTurnHistory.append(RoleplayMessage(sender: .character(name: "Alex"), text: "AI speech \(i)"))
+            sixTurnHistory.append(RoleplayMessage(sender: .user, text: "User utterance \(i)"))
+        }
+        #expect(ScenarioStateReducer.inferCurrentState(from: sixTurnHistory, topic: .dining) == .dining(.completed))
+        #expect(ScenarioStateReducer.inferCurrentState(from: sixTurnHistory, topic: .travel) == .travel(.completed))
 
         // History progress inference
         let oneTurnHistory = [

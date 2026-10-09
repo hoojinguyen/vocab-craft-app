@@ -31,6 +31,10 @@ public struct ScenarioStateReducer: Sendable {
             return initialGreetingState(for: topic)
         }
 
+        if userTurns.count >= maxSafetyTurns {
+            return completedState(for: topic)
+        }
+
         if hasCompletedCharacterMessage(in: history) {
             return completedState(for: topic)
         }
@@ -65,7 +69,8 @@ public struct ScenarioStateReducer: Sendable {
         }
 
         return lastAi.text.localizedCaseInsensitiveContains("have a wonderful day") ||
-               lastAi.text.localizedCaseInsensitiveContains("enjoy your stay") ||
+               lastAi.text.localizedCaseInsensitiveContains("have a wonderful stay with us") ||
+               lastAi.text.localizedCaseInsensitiveContains("have a fantastic day") ||
                lastAi.text.localizedCaseInsensitiveContains("follow up soon")
     }
 
@@ -329,7 +334,7 @@ public struct ScenarioStateReducer: Sendable {
             } else {
                 return ScenarioTurnResult(
                     nextState: .travel(.keyHandover),
-                    characterReply: "Thank you. Here is your keycard for room 402. Complimentary breakfast is served from 6:30 to 10 AM. Enjoy your stay!",
+                    characterReply: "Thank you. Here is your keycard for room 402. Complimentary breakfast is served from 6:30 to 10 AM.",
                     suggestedResponses: [
                         "Thank you, have a wonderful day!",
                         "Could you tell me where the elevator is?",
