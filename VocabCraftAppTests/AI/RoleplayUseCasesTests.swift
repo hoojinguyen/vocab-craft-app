@@ -29,6 +29,17 @@ struct RoleplayUseCasesTests {
         #expect(scenarios.contains(where: { $0.id == "job-interview" }))
     }
 
+    @Test("FetchRoleplayScenariosUseCase populates starterSuggestions for adaptive daily scenario")
+    func test_adaptiveDailyScenario_hasPopulatedStarterSuggestions() async throws {
+        let useCase = FetchRoleplayScenariosUseCase()
+        let scenarios = try await useCase.execute(userWeakWords: ["collaborate", "innovative"])
+
+        let daily = scenarios.first { $0.id == "daily-adaptive" }
+        let unwrapped = try #require(daily)
+        #expect(!unwrapped.starterSuggestions.isEmpty)
+        #expect(unwrapped.starterSuggestions.count >= 2)
+    }
+
     // MARK: - ExecuteRoleplayTurnUseCase Tests
 
     @Test("ExecuteRoleplayTurnUseCase matches target words and parses output")
