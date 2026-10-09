@@ -64,6 +64,10 @@ public final class AppBootstrapper {
                 dataSource = AppContainer.getProductionDataSource()
             }
 
+            if let bundled = dataSource as? BundledVocabularyDataSource {
+                try bundled.validateCatalog()
+            }
+
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
                 modelContainer: modelContainer,
