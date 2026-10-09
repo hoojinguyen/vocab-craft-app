@@ -71,11 +71,12 @@ struct AppContainerAITests {
 
         let kokoroReady = OnDemandAIModelManager.shared.isModelReady(.kokoro)
         let whisperReady = OnDemandAIModelManager.shared.isModelReady(.whisper)
+        let llamaReady = OnDemandAIModelManager.shared.isModelReady(.llama)
 
-        if kokoroReady && whisperReady {
+        if kokoroReady && whisperReady && llamaReady {
             #expect(offlineEntry?.status == .ready)
         } else {
-            #expect(offlineEntry?.status == .needsDownload(sizeDescription: "~500MB"))
+            #expect(offlineEntry?.status == .needsDownload(sizeDescription: "~975MB"))
         }
     }
 }

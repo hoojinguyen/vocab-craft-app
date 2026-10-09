@@ -5,8 +5,13 @@ public final class AppleTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable
     public let engineName: String = "Apple Enhanced TTS"
     public var isReady: Bool { true }
     private let engine: AppleEnhancedTTSEngine
+    private let coordinator: (any AudioSessionCoordinating)?
 
-    public init(engine: AppleEnhancedTTSEngine? = nil) {
+    public init(
+        engine: AppleEnhancedTTSEngine? = nil,
+        coordinator: (any AudioSessionCoordinating)? = nil
+    ) {
+        self.coordinator = coordinator
         if let engine {
             self.engine = engine
         } else if Thread.isMainThread {

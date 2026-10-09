@@ -362,9 +362,10 @@ public final class AppContainer {
 
     @MainActor
     public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
-        let llm = (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
-        let tts = (try? aiPackRegistry.resolveActiveTTS()) ?? AppleTTSEngineAdapter()
-        let stt = (try? aiPackRegistry.resolveActiveSTT()) ?? AppleSTTEngineAdapter()
+        let activePack = (try? aiPackRegistry.resolveActivePack()) ?? aiPackRegistry.pack(for: .appleDefault)
+        let llm = (try? activePack?.makeLLMProvider()) ?? IntelligentMockLLMProvider()
+        let tts = (try? activePack?.makeTTSEngine()) ?? AppleTTSEngineAdapter(coordinator: audioSessionCoordinator)
+        let stt = (try? activePack?.makeSTTEngine()) ?? AppleSTTEngineAdapter(coordinator: audioSessionCoordinator)
 
         let engine = TurnBasedVoiceConversationEngine(
             scenario: scenario,

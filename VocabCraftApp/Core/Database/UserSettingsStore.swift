@@ -94,7 +94,7 @@ public final class UserSettingsStore {
     }
 
     public var selectedAIPackId: String {
-        get { defaults.string(forKey: "selectedAIPackId") ?? AIPackIdentifier.geminiCloud.rawValue }
+        get { defaults.string(forKey: "selectedAIPackId") ?? AIPackIdentifier.appleDefault.rawValue }
         set { defaults.set(newValue, forKey: "selectedAIPackId") }
     }
 

@@ -41,8 +41,8 @@ public final class AIPackRegistry {
         self.packs = packMap
         self.settingsStore = settingsStore
 
-        let saved = AIPackIdentifier(rawValue: settingsStore.selectedAIPackId) ?? .geminiCloud
-        self.activePackId = saved
+        let saved = AIPackIdentifier(rawValue: settingsStore.selectedAIPackId) ?? .appleDefault
+        self.activePackId = packMap[saved] != nil ? saved : (packs.first?.identifier ?? saved)
         self.revalidateActivePack()
 
         NotificationCenter.default.addObserver(

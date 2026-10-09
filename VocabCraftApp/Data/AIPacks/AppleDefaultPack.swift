@@ -6,10 +6,7 @@ public struct AppleDefaultPack: AIPackProtocol {
     public let packDescription: String = "Built-in Apple system components (AVSpeech & Speech Recognition)"
 
     public var status: AIPackStatus {
-        if #available(iOS 26, *) {
-            return .ready
-        }
-        return .unavailable(reason: "Apple Foundation Models requires iOS 26+")
+        .ready
     }
 
     public var supportedVoices: [VoiceProfile] {

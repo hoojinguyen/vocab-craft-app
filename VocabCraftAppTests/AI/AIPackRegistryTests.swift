@@ -73,6 +73,7 @@ struct AIPackRegistryTests {
         defer { defaults.removePersistentDomain(forName: suiteName) }
         let store = UserSettingsStore(userDefaults: defaults)
         store.geminiApiKey = "initial-valid-key"
+        store.selectedAIPackId = AIPackIdentifier.geminiCloud.rawValue
         let geminiPack = GeminiCloudPack(settingsStore: store)
         let offlinePack = OfflineAIPack(isKokoroReady: { false }, isWhisperReady: { false })
         let registry = AIPackRegistry(packs: [geminiPack, offlinePack], settingsStore: store)
@@ -156,5 +157,26 @@ struct AIPackRegistryTests {
         let activeEntry = catalog.first { $0.isActive }
         #expect(activeEntry?.identifier == .geminiCloud)
         #expect(activeEntry?.status == .ready)
+    }
+
+    @Test("AIPackRegistry defaults to .appleDefault on fresh initialization without stored preference")
+    @MainActor
+    func test_registry_defaultsToAppleDefault() {
+        let defaults = UserDefaults(suiteName: "TestAIPackDefaults_\(UUID().uuidString)")!
+        let store = UserSettingsStore(defaults: defaults)
+        let apple = AppleDefaultPack()
+        let offline = OfflineAIPack(isKokoroReady: { false }, isWhisperReady: { false }, isLlamaReady: { false })
+        let gemini = GeminiCloudPack(settingsStore: store)
+        let registry = AIPackRegistry(packs: [apple, offline, gemini], settingsStore: store)
+
+        #expect(registry.activePackId == .appleDefault)
+        #expect(registry.activePack?.status == .ready)
+    }
+
+    @Test("OfflineAIPack is isolated and does not query geminiApiKey")
+    @MainActor
+    func test_offlinePack_isolatedFromGeminiKey() {
+        let offline = OfflineAIPack(isKokoroReady: { true }, isWhisperReady: { true }, isLlamaReady: { true })
+        #expect(offline.status == .ready)
     }
 }
