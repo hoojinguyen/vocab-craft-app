@@ -396,13 +396,19 @@ extension AIConfigSheet {
                                 .fontWeight(.bold)
                                 .foregroundStyle(theme.colors.textPrimary)
 
-                            Text(modelManager.isFullOfflinePackReady()
-                                 ? AppStrings.AIPack.statusReady
-                                 : AppStrings.AIPack.statusNeedsDownload)
-                                .font(theme.typography.caption)
-                                .foregroundStyle(modelManager.isFullOfflinePackReady()
-                                                 ? theme.colors.statusSuccess
-                                                 : theme.colors.textSecondary)
+                            if modelManager.isFullOfflinePackReady() {
+                                Text(AppStrings.AIPack.statusReady)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.statusSuccess)
+                            } else if case .error = modelManager.fullOfflinePackState {
+                                Text(AppStrings.AIPack.statusDownloadFailed)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.statusDanger)
+                            } else {
+                                Text(AppStrings.AIPack.statusNeedsDownload)
+                                    .font(theme.typography.caption)
+                                    .foregroundStyle(theme.colors.textSecondary)
+                            }
                         }
 
                         Spacer()
@@ -421,6 +427,14 @@ extension AIConfigSheet {
                                 symbol: .sparkles,
                                 variant: .subtle,
                                 tone: .primary,
+                                size: .sm
+                            )
+                        } else if case .error = modelManager.fullOfflinePackState {
+                            CraftBadge(
+                                AppStrings.AIPack.statusDownloadFailed,
+                                symbol: .alert,
+                                variant: .subtle,
+                                tone: .danger,
                                 size: .sm
                             )
                         }
@@ -449,9 +463,24 @@ extension AIConfigSheet {
                             modelManager.deleteFullOfflinePack()
                             appContainer.aiPackRegistry.revalidateActivePack()
                         }
-                    } else {
+                    } else if case .error = modelManager.fullOfflinePackState {
                         CraftButton(
-                            AppStrings.AIPack.offlineDownloadAllAction,
+                            AppStrings.AIPack.retryAction,
+                            variant: .outline,
+                            size: .md,
+                            isFullWidth: true
+                        ) {
+                            modelManager.startFullOfflinePackDownload()
+                        }
+                        .tint(theme.colors.statusDanger)
+                    } else {
+                        let remainingMB = modelManager.remainingOfflinePackSizeMB
+                        let actionTitle: LocalizedStringKey = (remainingMB < 975 && remainingMB > 0)
+                            ? AppStrings.AIPack.downloadRemainingAction(remainingMB)
+                            : AppStrings.AIPack.offlineDownloadAllAction
+
+                        CraftButton(
+                            actionTitle,
                             variant: .primary,
                             size: .md,
                             isFullWidth: true
@@ -505,6 +534,15 @@ extension AIConfigSheet {
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textMuted)
                 }
+            } else if case .error = state {
+                CraftButton(
+                    AppStrings.Common.retry,
+                    variant: .outline,
+                    size: .sm
+                ) {
+                    modelManager.startDownload(for: type)
+                }
+                .tint(theme.colors.statusDanger)
             } else {
                 CraftButton(
                     AppStrings.AIModelDownload.actionDownload,
@@ -532,6 +570,7 @@ extension AIConfigSheet {
         switch state {
         case .ready: return AppStrings.AIModelDownload.statusReady(type.estimatedSizeMB)
         case .downloading: return AppStrings.AIModelDownload.statusDownloadingText
+        case .error: return AppStrings.AIModelDownload.statusErrorText
         default: return AppStrings.AIModelDownload.statusSize(type.estimatedSizeMB)
         }
     }
@@ -542,4 +581,8 @@ extension AIConfigSheet {
         store.groqApiKey = groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         appContainer.aiPackRegistry.revalidateActivePack()
     }
+}
+
+private extension CraftSymbol {
+    static var alert: CraftSymbol { .danger }
 }
