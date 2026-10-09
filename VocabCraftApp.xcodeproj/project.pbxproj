@@ -118,6 +118,8 @@
 		3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */; };
 		3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */; };
 		3000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */; };
+		3000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */; };
+		3000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */; };
 		3000C041297AA6AEC403 /* AppleDefaultPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC403 /* AppleDefaultPack.swift */; };
 		3000C041297AA6AEC404 /* OfflineAIPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC404 /* OfflineAIPack.swift */; };
 		3000C041297AA6AEC405 /* GeminiCloudPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC405 /* GeminiCloudPack.swift */; };
@@ -280,6 +282,7 @@
 		3000C041297AA6AEC401 /* ConcreteAIPackTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */; };
 		3000C041297AA6AEC407 /* AIPackRegistryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC407 /* AIPackRegistryTests.swift */; };
 		3000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */; };
+		3000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */; };
 		30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */; };
 		30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */; };
 		30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */; };
@@ -537,6 +540,8 @@
 		2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleSTTEngineAdapter.swift"; sourceTree = "<group>"; };
 		2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSTTEngineAdapter.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleFoundationModelLLMProvider.swift"; sourceTree = "<group>"; };
+		2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngine.swift"; sourceTree = "<group>"; };
+		2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleIntelligenceOrLocalDialogueProvider.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC403 /* AppleDefaultPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleDefaultPack.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC404 /* OfflineAIPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OfflineAIPack.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC405 /* GeminiCloudPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiCloudPack.swift"; sourceTree = "<group>"; };
@@ -682,6 +687,7 @@
 		2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConcreteAIPackTests.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC407 /* AIPackRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackRegistryTests.swift"; sourceTree = "<group>"; };
 		2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaInferenceWorkerTests.swift"; sourceTree = "<group>"; };
+		2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngineTests.swift"; sourceTree = "<group>"; };
 		20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalogTests.swift"; sourceTree = "<group>"; };
 		20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionServiceTests.swift"; sourceTree = "<group>"; };
 		20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
@@ -1082,6 +1088,8 @@
 			isa = PBXGroup;
 			children = (
 				2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */,
+				2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */,
+				2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */,
 				2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */,
 				2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */,
 				20002C2292A121D4AD48 /* GroqLLMProvider.swift */,
@@ -1769,6 +1777,7 @@
 				2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */,
 				2000C041297AA6AEC407 /* AIPackRegistryTests.swift */,
 				2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */,
+				2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */,
 				20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */,
 				20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */,
 				20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */,
@@ -2250,6 +2259,8 @@
 				3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */,
 				3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */,
 				3000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift in Sources */,
+				3000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift in Sources */,
+				3000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */,
 				3000C041297AA6AEC403 /* AppleDefaultPack.swift in Sources */,
 				3000C041297AA6AEC404 /* OfflineAIPack.swift in Sources */,
 				3000C041297AA6AEC405 /* GeminiCloudPack.swift in Sources */,
@@ -2420,6 +2431,7 @@
 				3000C041297AA6AEC401 /* ConcreteAIPackTests.swift in Test Sources */,
 				3000C041297AA6AEC407 /* AIPackRegistryTests.swift in Test Sources */,
 				3000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift in Test Sources */,
+				3000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift in Test Sources */,
 				30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */,
 				30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */,
 				30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */,
