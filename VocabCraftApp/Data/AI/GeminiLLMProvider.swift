@@ -28,9 +28,9 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
     private let models: [String]
 
     public static let defaultModels: [String] = [
-        "gemini-flash-lite-latest",
-        "gemini-3.1-flash-lite",
-        "gemini-flash-latest"
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.0-flash"
     ]
 
     /// Initializes a Gemini LLM provider with API key, optional URLSession, and candidate models.

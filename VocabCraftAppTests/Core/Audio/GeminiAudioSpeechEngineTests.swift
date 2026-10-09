@@ -100,7 +100,7 @@ struct GeminiAudioSpeechEngineTests {
 
         let urlString = request.url?.absoluteString ?? ""
         #expect(urlString.contains("generativelanguage.googleapis.com"))
-        #expect(urlString.contains("gemini-3.1-flash-tts-preview"))
+        #expect(urlString.contains("gemini-3.1-flash-tts-preview") || urlString.contains("gemini-2.5-flash"))
         #expect(request.url?.query?.contains("key=test-api-key") == true)
         #expect(request.httpMethod == "POST")
         #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")

@@ -99,7 +99,7 @@ struct LLMProviderTests {
     @Test("GeminiLLMProvider successfully parses valid Gemini response")
     func testGeminiProviderSuccess() async throws {
         let (session, mockId) = MockURLProtocol.register { request in
-            #expect(request.url?.absoluteString.contains("gemini-flash-lite-latest") == true)
+            #expect(request.url?.absoluteString.contains("gemini-2.5-flash") == true)
             #expect(request.httpMethod == "POST")
             #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
             #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "fake-key")
@@ -152,8 +152,8 @@ struct LLMProviderTests {
         var requestedModels: [String] = []
         let (session, mockId) = MockURLProtocol.register { request in
             let urlString = request.url?.absoluteString ?? ""
-            if urlString.contains("gemini-flash-lite-latest") {
-                requestedModels.append("gemini-flash-lite-latest")
+            if urlString.contains("gemini-2.5-flash") {
+                requestedModels.append("gemini-2.5-flash")
                 let response = HTTPURLResponse(url: request.url!, statusCode: 503, httpVersion: nil, headerFields: nil)!
                 return (response, Data("Unavailable".utf8))
             } else {
@@ -183,7 +183,7 @@ struct LLMProviderTests {
             responseSchema: RoleplayTurnOutput.self
         )
 
-        #expect(requestedModels.contains("gemini-flash-lite-latest"))
+        #expect(requestedModels.contains("gemini-2.5-flash"))
         #expect(requestedModels.contains("secondary"))
         #expect(result.characterReply == "Hello from secondary!")
     }
@@ -266,6 +266,14 @@ struct LLMProviderTests {
         #expect(missing.errorDescription?.contains("not configured") == true)
         #expect(invalid.errorDescription?.contains("Invalid response") == true)
         #expect(api.errorDescription?.contains("404") == true)
+    }
+
+    @Test("GeminiLLMProvider default models use official Google Gemini 2.5 Flash endpoints")
+    func test_geminiDefaultModels_useOfficialEndpoints() {
+        let models = GeminiLLMProvider.defaultModels
+        #expect(models.contains("gemini-2.5-flash"))
+        #expect(!models.contains("gemini-flash-lite-latest"))
+        #expect(!models.contains("gemini-3.1-flash-lite"))
     }
 }
 
