@@ -38,6 +38,14 @@ struct OnDeviceContextDialogueEngineTests {
         #expect(!output.characterReply.isEmpty)
         #expect(output.targetWordsUsed.contains("pastry"))
         #expect(output.suggestedResponses.count == 3)
+        #expect(output.isConcluded == false)
+    }
+
+    @Test("OnDeviceContextDialogueEngine avoids false positives for short substrings")
+    func test_contextDialogueEngine_detectTargetWords_guardsShortWordSubstrings() {
+        let engine = OnDeviceContextDialogueEngine()
+        let detected = engine.detectTargetWords(in: "I love this warm scarf today", candidateWords: ["car"])
+        #expect(detected.isEmpty)
     }
 
     @Test("AppleDefaultPack makeLLMProvider returns working provider on all platforms without throwing")

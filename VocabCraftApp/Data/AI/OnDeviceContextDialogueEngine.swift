@@ -1,5 +1,4 @@
 import Foundation
-import SpeechKit
 
 /// An on-device adaptive dialogue engine providing contextual character responses,
 /// target vocabulary detection, and three distinct conversational branching suggestions.
@@ -22,7 +21,14 @@ public final class OnDeviceContextDialogueEngine: Sendable {
         let trimmedUtterance = userUtterance.trimmingCharacters(in: .whitespacesAndNewlines)
         let targetWordsUsed = detectTargetWords(in: trimmedUtterance, candidateWords: scenario.targetWordIds)
         let intent = classifyIntent(of: trimmedUtterance)
-        let userTurnCount = conversationHistory.filter { $0.sender == .user }.count + 1
+        let priorUserTurns: Int
+        if conversationHistory.last?.sender == .user &&
+            conversationHistory.last?.text.trimmingCharacters(in: .whitespacesAndNewlines) == trimmedUtterance {
+            priorUserTurns = max(0, conversationHistory.filter { $0.sender == .user }.count - 1)
+        } else {
+            priorUserTurns = conversationHistory.filter { $0.sender == .user }.count
+        }
+        let userTurnCount = priorUserTurns + 1
 
         let isConcluded = determineConclusion(
             intent: intent,
@@ -95,7 +101,7 @@ public final class OnDeviceContextDialogueEngine: Sendable {
                 }
             }
 
-            if lowercasedUtterance.contains(normalizedWord) {
+            if normalizedWord.count >= 4 && lowercasedUtterance.contains(normalizedWord) {
                 detected.insert(normalizedWord)
             }
         }

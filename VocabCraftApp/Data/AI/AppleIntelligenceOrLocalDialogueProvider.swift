@@ -23,7 +23,13 @@ public final class AppleIntelligenceOrLocalDialogueProvider: LLMProviderProtocol
             expectedWords: expectedWords
         )
 
-        let history = messages.compactMap { msg -> RoleplayMessage? in
+        // Extract prior messages, excluding the current user utterance being processed
+        var priorMessages = messages
+        if let lastIdx = priorMessages.lastIndex(where: { $0.role == .user }) {
+            priorMessages.remove(at: lastIdx)
+        }
+
+        let history = priorMessages.compactMap { msg -> RoleplayMessage? in
             switch msg.role {
             case .user:
                 return RoleplayMessage(sender: .user, text: msg.content)
