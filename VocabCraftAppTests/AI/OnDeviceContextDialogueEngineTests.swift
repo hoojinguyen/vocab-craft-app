@@ -70,4 +70,47 @@ struct OnDeviceContextDialogueEngineTests {
         #expect(output.targetWordsUsed.contains("pastry") || output.targetWordsUsed.contains("beverage"))
         #expect(output.suggestedResponses.count == 3)
     }
+
+    @Test("Dining FSM transitions naturally without premature billing on inquiry")
+    func testDiningFSMInquiryAndOrdering() async throws {
+        let engine = OnDeviceContextDialogueEngine()
+        let scenario = RoleplayScenario.cafeMock
+
+        // Turn 1: User asks about Wi-Fi
+        let output1 = try await engine.generateTurn(
+            scenario: scenario,
+            userUtterance: "Do you have free wifi here?",
+            conversationHistory: []
+        )
+        #expect(!output1.characterReply.contains("$6.50"))
+        #expect(output1.isConcluded == false)
+
+        // Turn 2: User orders beverage and pastry
+        let history1 = [
+            RoleplayMessage(sender: .character(name: "Emma"), text: output1.characterReply),
+            RoleplayMessage(sender: .user, text: "Do you have free wifi here?")
+        ]
+        let output2 = try await engine.generateTurn(
+            scenario: scenario,
+            userUtterance: "I'd like a hot beverage and a pastry please",
+            conversationHistory: history1
+        )
+        #expect(output2.targetWordsUsed.contains("beverage") || output2.targetWordsUsed.contains("pastry"))
+        #expect(output2.isConcluded == false)
+    }
+
+    @Test("Vietnamese utterance triggers pedagogical nudge with English suggested responses")
+    func testVietnamesePedagogicalNudgeIntegration() async throws {
+        let engine = OnDeviceContextDialogueEngine()
+        let scenario = RoleplayScenario.cafeMock
+
+        let output = try await engine.generateTurn(
+            scenario: scenario,
+            userUtterance: "Cho tôi một ly cà phê và bánh ngọt",
+            conversationHistory: []
+        )
+        #expect(output.characterReply.contains("I only speak English here"))
+        #expect(output.suggestedResponses.count == 3)
+        #expect(output.isConcluded == false)
+    }
 }
