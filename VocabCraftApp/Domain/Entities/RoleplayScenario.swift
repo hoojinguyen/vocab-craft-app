@@ -87,6 +87,21 @@ public struct RoleplayScenario: Identifiable, Codable, Sendable, Equatable {
         return .friendlyFemale
     }
 
+    /// Convenience property providing scenario title key as title
+    public var title: String {
+        titleKey
+    }
+
+    /// Convenience alias for targetWordIds
+    public var targetVocabulary: [String] {
+        targetWordIds
+    }
+
+    /// Convenience alias for topic-related target words
+    public var topicWords: [String] {
+        targetWordIds
+    }
+
     public static var cafeMock: RoleplayScenario {
         RoleplayScenarioCatalog.standardScenarios.first ?? RoleplayScenario(
             id: "scenario_cafe",

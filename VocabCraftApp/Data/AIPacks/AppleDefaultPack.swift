@@ -27,10 +27,7 @@ public struct AppleDefaultPack: AIPackProtocol {
     public init() {}
 
     public func makeLLMProvider() throws(AIPackError) -> any LLMProviderProtocol {
-        guard #available(iOS 26, *) else {
-            throw .deviceNotSupported(reason: "Apple Foundation Models requires iOS 26+")
-        }
-        return AppleFoundationModelLLMProvider()
+        AppleIntelligenceOrLocalDialogueProvider()
     }
 
     public func makeTTSEngine() throws(AIPackError) -> any TTSEngineProtocol {
