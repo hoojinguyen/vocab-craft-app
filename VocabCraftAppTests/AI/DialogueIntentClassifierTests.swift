@@ -87,4 +87,11 @@ struct DialogueIntentClassifierTests {
         let generalIntent = classifier.classify(utterance: "Sounds wonderful", scenario: RoleplayScenario.cafeMock)
         #expect(generalIntent == .generalStatement)
     }
+
+    @Test("Ensures words prefixed with greeting substrings like hiking do not classify as greeting")
+    func testGreetingWordBoundary() {
+        let classifier = DialogueIntentClassifier()
+        let hikingIntent = classifier.classify(utterance: "hiking in the mountains", scenario: RoleplayScenario.cafeMock)
+        #expect(hikingIntent != .greeting)
+    }
 }

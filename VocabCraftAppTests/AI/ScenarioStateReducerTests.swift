@@ -435,4 +435,16 @@ struct ScenarioStateReducerTests {
         #expect(ScenarioStateReducer.inferCurrentState(from: twoTurnHistory, topic: .interview) == .interview(.candidateQuestions))
         #expect(ScenarioStateReducer.inferCurrentState(from: twoTurnHistory, topic: .dailyLife) == .dailyLife(.closing))
     }
+
+    @Test("Inquiry turns do not prematurely advance dialogue state")
+    func testInquiryTurnDoesNotPrematurelyAdvanceState() {
+        let history = [
+            RoleplayMessage(sender: .character(name: "Alex"), text: "Welcome to Craft Cafe!"),
+            RoleplayMessage(sender: .user, text: "Do you have wifi?"),
+            RoleplayMessage(sender: .character(name: "Alex"), text: "Our Wi-Fi is CraftGuest with no password needed! What delicious drink can I get started for you while you connect?"),
+            RoleplayMessage(sender: .user, text: "I would like a hot latte, please.")
+        ]
+        let inferredState = ScenarioStateReducer.inferCurrentState(from: history, topic: .dining)
+        #expect(inferredState == .dining(.customizing))
+    }
 }

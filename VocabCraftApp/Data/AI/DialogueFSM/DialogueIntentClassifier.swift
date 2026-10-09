@@ -146,7 +146,9 @@ public struct DialogueIntentClassifier: Sendable {
 
     private func isGreetingPhrase(_ text: String) -> Bool {
         let greetings = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"]
-        return greetings.contains { text.hasPrefix($0) || text == $0 }
+        return greetings.contains {
+            text == $0 || text.hasPrefix($0 + " ") || text.hasPrefix($0 + ",") || text.hasPrefix($0 + "!")
+        }
     }
 
     private func isOutOfDomainQuestion(_ text: String) -> Bool {

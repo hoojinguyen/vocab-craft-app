@@ -113,4 +113,16 @@ struct OnDeviceContextDialogueEngineTests {
         #expect(output.suggestedResponses.count == 3)
         #expect(output.isConcluded == false)
     }
+
+    @Test("generateThreeBranchSuggestions returns standard farewells when isConcluded is true")
+    func test_contextDialogueEngine_generateThreeBranchSuggestions_whenConcluded() {
+        let engine = OnDeviceContextDialogueEngine()
+        let suggestions = engine.generateThreeBranchSuggestions(
+            scenario: .cafeMock,
+            targetWordsUsed: ["beverage", "pastry"],
+            userTurnCount: 3,
+            isConcluded: true
+        )
+        #expect(suggestions == ["Thank you so much, goodbye!", "Have a great day!", "See you next time!"])
+    }
 }

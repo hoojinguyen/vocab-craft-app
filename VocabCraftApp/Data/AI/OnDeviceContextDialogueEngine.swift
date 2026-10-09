@@ -258,6 +258,9 @@ extension OnDeviceContextDialogueEngine {
         userTurnCount: Int,
         isConcluded: Bool
     ) -> [String] {
+        if isConcluded {
+            return ["Thank you so much, goodbye!", "Have a great day!", "See you next time!"]
+        }
         let missingWords = scenario.targetWordIds.filter { word in
             !targetWordsUsed.contains { $0.caseInsensitiveCompare(word) == .orderedSame }
         }

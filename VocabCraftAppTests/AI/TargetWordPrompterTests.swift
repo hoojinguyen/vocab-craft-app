@@ -131,8 +131,24 @@ struct TargetWordPrompterTests {
 
         let dailyPrompt = TargetWordPrompter.generatePrompt(missingWords: ["Neighborhood"], scenario: dailyLifeScenario)
         #expect(dailyPrompt != nil)
-        #expect(dailyPrompt?.characterSpeech.localizedCaseInsensitiveContains("neighborhood") == true)
-        #expect(dailyPrompt?.suggestedResponse.localizedCaseInsensitiveContains("neighborhood") == true)
+        #expect(dailyPrompt?.characterSpeech == "What are your thoughts on neighborhood?")
+        #expect(dailyPrompt?.suggestedResponse == "I think neighborhood is very helpful.")
         #expect(dailyPrompt?.targetWord == "neighborhood")
+
+        let travelPrompt = TargetWordPrompter.generatePrompt(missingWords: ["LUGGAGE"], scenario: RoleplayScenario(
+            id: "travel-cap",
+            titleKey: "test",
+            descriptionKey: "test",
+            topic: .travel,
+            difficulty: .beginner,
+            characterName: "Agent",
+            characterRole: "Agent",
+            userRole: "Guest",
+            initialGreeting: "Hi",
+            targetWordIds: ["luggage"],
+            iconSymbol: "bag"
+        ))
+        #expect(travelPrompt?.characterSpeech == "Please let us know if you need assistance with luggage.")
+        #expect(travelPrompt?.suggestedResponse == "Thank you for the help with luggage.")
     }
 }

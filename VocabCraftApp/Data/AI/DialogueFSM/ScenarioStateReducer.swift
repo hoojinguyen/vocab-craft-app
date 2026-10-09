@@ -39,7 +39,18 @@ public struct ScenarioStateReducer: Sendable {
             return completedState(for: topic)
         }
 
-        return progressedState(for: topic, userTurnCount: userTurns.count)
+        let nonAdvancingTurns = history.filter { msg in
+            if case .character = msg.sender {
+                return msg.text.contains("CraftGuest") ||
+                       msg.text.contains("open until 9 PM") ||
+                       msg.text.contains("I only speak English here") ||
+                       msg.text.contains("restroom is right down")
+            }
+            return false
+        }.count
+        let effectiveCount = max(0, userTurns.count - nonAdvancingTurns)
+
+        return progressedState(for: topic, userTurnCount: effectiveCount)
     }
 
     private static func initialGreetingState(for topic: RoleplayTopic) -> ScenarioDialogueState {

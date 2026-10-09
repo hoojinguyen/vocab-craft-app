@@ -56,8 +56,8 @@ public struct TargetWordPrompter: Sendable {
             )
         default:
             return TargetWordPromptResult(
-                characterSpeech: "Would you like to try our \(targetWord) today?",
-                suggestedResponse: "Yes, tell me more about the \(targetWord).",
+                characterSpeech: "Would you like to try our \(normalized) today?",
+                suggestedResponse: "Yes, tell me more about the \(normalized).",
                 targetWord: normalized
             )
         }
@@ -85,8 +85,8 @@ public struct TargetWordPrompter: Sendable {
             )
         default:
             return TargetWordPromptResult(
-                characterSpeech: "Please let us know if you need assistance with \(targetWord).",
-                suggestedResponse: "Thank you for the help with \(targetWord).",
+                characterSpeech: "Please let us know if you need assistance with \(normalized).",
+                suggestedResponse: "Thank you for the help with \(normalized).",
                 targetWord: normalized
             )
         }
@@ -108,8 +108,8 @@ public struct TargetWordPrompter: Sendable {
             )
         default:
             return TargetWordPromptResult(
-                characterSpeech: "How do you view \(targetWord) in your daily work?",
-                suggestedResponse: "I value \(targetWord) in our project workflows.",
+                characterSpeech: "How do you view \(normalized) in your daily work?",
+                suggestedResponse: "I value \(normalized) in our project workflows.",
                 targetWord: normalized
             )
         }
@@ -117,8 +117,8 @@ public struct TargetWordPrompter: Sendable {
 
     private static func promptForDailyLife(targetWord: String, normalized: String) -> TargetWordPromptResult {
         TargetWordPromptResult(
-            characterSpeech: "What are your thoughts on \(targetWord)?",
-            suggestedResponse: "I think \(targetWord) is very helpful.",
+            characterSpeech: "What are your thoughts on \(normalized)?",
+            suggestedResponse: "I think \(normalized) is very helpful.",
             targetWord: normalized
         )
     }
