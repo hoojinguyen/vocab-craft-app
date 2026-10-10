@@ -181,6 +181,20 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertEqual(curriculum.activePath?.code, "essential-english-mastery")
     }
 
+    func testFetchLearningPathWithInvalidPathIdGracefullyDefaults() async throws {
+        let mockDataSource = MockVocabularyDataSource()
+        let mockStageRepo = MockStageProgressRepository()
+        let useCase = FetchLearningPathUseCase(
+            dataSource: mockDataSource,
+            stageRepo: mockStageRepo
+        )
+
+        let curriculum = try await useCase.execute(pathId: "invalid-path-id")
+        XCTAssertNotNil(curriculum.activePath)
+        XCTAssertEqual(curriculum.activePath?.code, "essential-english-mastery")
+        XCTAssertFalse(curriculum.decks.isEmpty)
+    }
+
     // MARK: - CompleteLessonUseCase Tests
 
     func test_completeLessonUseCase_persistsProgressAndReturnsSummary() async throws {

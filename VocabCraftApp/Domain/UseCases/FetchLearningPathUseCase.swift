@@ -18,10 +18,6 @@ public extension FetchLearningPathUseCaseProtocol {
     func execute(pathId: String?) async throws -> LearningPathCurriculum {
         try await execute(pathId: pathId, forceRefresh: false)
     }
-
-    func execute(pathId: String?, forceRefresh: Bool) async throws -> LearningPathCurriculum {
-        try await execute(forceRefresh: forceRefresh)
-    }
 }
 
 private struct StaticCurriculumData: Sendable {
