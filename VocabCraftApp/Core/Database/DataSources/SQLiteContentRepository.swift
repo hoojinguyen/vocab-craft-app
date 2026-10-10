@@ -96,8 +96,8 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
             cefrLevel: columnString(stmt, 5),
             definitionVi: columnString(stmt, 4),
             definitionEn: columnString(stmt, 3),
-            exampleEn: "",
-            exampleVi: ""
+            exampleEn: columnString(stmt, 7),
+            exampleVi: columnString(stmt, 8)
         )
     }
 
@@ -141,7 +141,9 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     public func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] {
         let sql = """
         SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
-               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa,
+               (SELECT ex.text_en FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_en,
+               (SELECT ex.text_vi FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_vi
         FROM senses s
         JOIN lesson_senses ls ON ls.sense_id = s.id
         JOIN entries e ON s.entry_id = e.id
@@ -159,7 +161,9 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     public func searchWords(query queryText: String) async throws -> [TopicWordDTO] {
         let sql = """
         SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
-               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa,
+               (SELECT ex.text_en FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_en,
+               (SELECT ex.text_vi FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_vi
         FROM senses s
         JOIN entries e ON s.entry_id = e.id
         WHERE e.headword LIKE ? OR s.definition_en LIKE ? OR s.definition_vi LIKE ?
@@ -179,7 +183,9 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     public func fetchWordById(id: Int64) async throws -> TopicWordDTO? {
         let sql = """
         SELECT s.rowid, e.headword, s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level,
-               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa
+               (SELECT p.ipa FROM pronunciations p WHERE p.sense_id = s.id LIMIT 1) as ipa,
+               (SELECT ex.text_en FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_en,
+               (SELECT ex.text_vi FROM examples ex WHERE ex.sense_id = s.id ORDER BY ex.sort_order LIMIT 1) as example_vi
         FROM senses s
         JOIN entries e ON s.entry_id = e.id
         WHERE s.rowid = ?;

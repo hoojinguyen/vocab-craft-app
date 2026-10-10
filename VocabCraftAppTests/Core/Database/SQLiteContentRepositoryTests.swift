@@ -93,6 +93,25 @@ final class SQLiteContentRepositoryTests: XCTestCase {
         XCTAssertTrue(emptyWords.isEmpty)
     }
 
+    func testFetchWordsReturnBilingualExamples() async throws {
+        let originalURL = try resolveBundledDatabaseURL()
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_vocab_content_examples.sqlite")
+        if FileManager.default.fileExists(atPath: tempURL.path) {
+            try FileManager.default.removeItem(at: tempURL)
+        }
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+
+        let repo = try SQLiteContentRepository(url: tempURL)
+        let words = try await repo.searchWords(query: "hello")
+        XCTAssertFalse(words.isEmpty)
+
+        guard let first = words.first else { return }
+        let fetched = try await repo.fetchWordById(id: first.id)
+        XCTAssertNotNil(fetched)
+        XCTAssertFalse(fetched?.exampleEn.isEmpty ?? true, "Expected exampleEn not to be empty")
+        XCTAssertFalse(fetched?.exampleVi.isEmpty ?? true, "Expected exampleVi not to be empty")
+    }
+
     private func resolveBundledDatabaseURL() throws -> URL {
         let testBundle = Bundle(for: type(of: self))
         if let url = testBundle.url(forResource: "vocab_content", withExtension: "sqlite") {
