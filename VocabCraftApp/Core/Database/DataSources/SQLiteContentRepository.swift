@@ -103,6 +103,64 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
 
     // MARK: - VocabularyDataSourceProtocol
 
+    public func fetchLearningPaths() async throws -> [LearningPathDTO] {
+        let sql = """
+        SELECT id, code, title_en, title_vi, description_en, description_vi,
+               goal_category, target_level_min, target_level_max, icon_key, theme_key, sort_order
+        FROM learning_paths
+        ORDER BY sort_order;
+        """
+        return try query(sql) { [self] stmt in
+            let descEn = columnString(stmt, 4)
+            let descVi = columnString(stmt, 5)
+            return LearningPathDTO(
+                id: columnString(stmt, 0),
+                code: columnString(stmt, 1),
+                titleEn: columnString(stmt, 2),
+                titleVi: columnString(stmt, 3),
+                descriptionEn: descEn.isEmpty ? nil : descEn,
+                descriptionVi: descVi.isEmpty ? nil : descVi,
+                goalCategory: columnString(stmt, 6),
+                targetLevelMin: columnString(stmt, 7),
+                targetLevelMax: columnString(stmt, 8),
+                iconKey: columnString(stmt, 9),
+                themeKey: columnString(stmt, 10),
+                sortOrder: columnInt(stmt, 11)
+            )
+        }
+    }
+
+    public func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {
+        let sql = """
+        SELECT d.id, d.title_en, d.icon_key, d.theme_key, pd.sort_order, d.ios_sf_symbol
+        FROM decks d
+        JOIN path_decks pd ON pd.deck_id = d.id
+        WHERE pd.path_id = ?
+        ORDER BY pd.sort_order;
+        """
+        let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        let decks = try query(sql, bind: { stmt in
+            sqlite3_bind_text(stmt, 1, pathId, -1, sqliteTransient)
+        }) { [self] stmt in
+            let sfSymbol = columnString(stmt, 5)
+            let finalIconName = sfSymbol.isEmpty ? "star.fill" : sfSymbol
+            return TopicDeckDTO(
+                id: columnString(stmt, 0),
+                title: columnString(stmt, 1),
+                iconName: finalIconName,
+                themeKey: columnString(stmt, 3),
+                cefrLevel: "A1",
+                sortOrder: columnInt(stmt, 4)
+            )
+        }
+
+        // Defensive fallback: if pathId is empty or no decks assigned, fallback to all decks
+        if decks.isEmpty {
+            return try await fetchTopicDecks()
+        }
+        return decks
+    }
+
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
         let sql = "SELECT id, title_en, icon_key, theme_key, sort_order, ios_sf_symbol FROM decks ORDER BY sort_order;"
         return try query(sql) { [self] stmt in

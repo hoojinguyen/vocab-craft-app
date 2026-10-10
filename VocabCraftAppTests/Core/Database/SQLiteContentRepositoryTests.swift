@@ -112,6 +112,31 @@ final class SQLiteContentRepositoryTests: XCTestCase {
         XCTAssertFalse(fetched?.exampleVi.isEmpty ?? true, "Expected exampleVi not to be empty")
     }
 
+    func testFetchLearningPathsAndPathDecks() async throws {
+        let originalURL = try resolveBundledDatabaseURL()
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_vocab_content_paths.sqlite")
+        if FileManager.default.fileExists(atPath: tempURL.path) {
+            try FileManager.default.removeItem(at: tempURL)
+        }
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+
+        let repo = try SQLiteContentRepository(url: tempURL)
+        let paths = try await repo.fetchLearningPaths()
+        XCTAssertFalse(paths.isEmpty)
+        guard let firstPath = paths.first else { return }
+        XCTAssertEqual(firstPath.code, "essential-english-mastery")
+        XCTAssertEqual(firstPath.titleEn, "Core Curriculum: Comprehensive English for Communication & Academics")
+        XCTAssertFalse(firstPath.titleEn.isEmpty)
+        XCTAssertFalse(firstPath.titleVi.isEmpty)
+
+        let pathDecks = try await repo.fetchTopicDecks(for: firstPath.id)
+        XCTAssertFalse(pathDecks.isEmpty)
+
+        // Test defensive fallback on unknown path id
+        let fallbackDecks = try await repo.fetchTopicDecks(for: "invalid-path-id")
+        XCTAssertFalse(fallbackDecks.isEmpty, "Unknown path id must fallback to all decks")
+    }
+
     private func resolveBundledDatabaseURL() throws -> URL {
         let testBundle = Bundle(for: type(of: self))
         if let url = testBundle.url(forResource: "vocab_content", withExtension: "sqlite") {
