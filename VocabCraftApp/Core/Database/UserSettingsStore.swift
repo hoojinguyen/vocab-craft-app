@@ -142,6 +142,11 @@ public final class UserSettingsStore {
         }
     }
 
+    public var selectedLearningPathId: String? {
+        get { defaults.string(forKey: "selected_learning_path_id") }
+        set { defaults.set(newValue, forKey: "selected_learning_path_id") }
+    }
+
     public var currentStreak: Int {
         didSet {
             defaults.set(currentStreak, forKey: "current_streak")
@@ -291,5 +296,9 @@ extension UserSettingsStore: UserRoadmapSettingsProtocol {
         self.assessedCefrLevel = cefrLevel
         self.dailyGoalCount = dailyGoalCount
         self.notificationTimeInterval = notificationTimeInterval
+    }
+
+    public func saveLearningPathPreference(pathId: String) {
+        self.selectedLearningPathId = pathId
     }
 }

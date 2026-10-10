@@ -1,19 +1,29 @@
 import Foundation
 
-/// Protocol abstracting user preferences persistence during roadmap initialization.
+@MainActor
 public protocol UserRoadmapSettingsProtocol: Sendable {
-    /// Saves user preferences chosen during onboarding/roadmap initialization.
-    ///
-    /// - Parameters:
-    ///   - deckId: The identifier of the selected goal deck.
-    ///   - cefrLevel: The assessed CEFR level.
-    ///   - dailyGoalCount: The target daily word goal count.
-    ///   - notificationTimeInterval: The daily reminder time interval in seconds from midnight.
-    @MainActor
+    var selectedGoalDeckId: String { get }
+    var assessedCefrLevel: String { get }
+    var dailyGoalCount: Int { get }
+    var notificationTimeInterval: Double { get }
+    var selectedLearningPathId: String? { get set }
     func saveRoadmapPreferences(
         deckId: String,
         cefrLevel: String,
         dailyGoalCount: Int,
         notificationTimeInterval: Double
     )
+    func saveLearningPathPreference(pathId: String)
+}
+
+public extension UserRoadmapSettingsProtocol {
+    var selectedGoalDeckId: String { "deck_daily" }
+    var assessedCefrLevel: String { "A1" }
+    var dailyGoalCount: Int { 15 }
+    var notificationTimeInterval: Double { 72000 }
+    var selectedLearningPathId: String? {
+        get { nil }
+        set { _ = newValue }
+    }
+    func saveLearningPathPreference(pathId: String) {}
 }

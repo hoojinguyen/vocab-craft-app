@@ -25,6 +25,7 @@ final class UserSettingsStoreTests: XCTestCase {
         defaults.removeObject(forKey: "roleplay_voice_id")
         defaults.removeObject(forKey: "roleplay_speech_rate")
         defaults.removeObject(forKey: "roleplay_speech_pitch")
+        defaults.removeObject(forKey: "selected_learning_path_id")
     }
 
     func testDefaultUserSettingsValues() {
@@ -236,6 +237,24 @@ final class UserSettingsStoreTests: XCTestCase {
         XCTAssertEqual(reloadedStore.roleplayVoiceId, "apple-daniel")
         XCTAssertEqual(reloadedStore.roleplaySpeechRate, 1.15, accuracy: 0.001)
         XCTAssertEqual(reloadedStore.roleplaySpeechPitch, 0.95, accuracy: 0.001)
+
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    func testSelectedLearningPathPersistence() {
+        let suiteName = "test_path_persistence_\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Failed to create UserDefaults suite")
+            return
+        }
+        let store = UserSettingsStore(userDefaults: defaults)
+
+        XCTAssertNil(store.selectedLearningPathId)
+        store.saveLearningPathPreference(pathId: "path-123")
+        XCTAssertEqual(store.selectedLearningPathId, "path-123")
+
+        let reloaded = UserSettingsStore(userDefaults: defaults)
+        XCTAssertEqual(reloaded.selectedLearningPathId, "path-123")
 
         defaults.removePersistentDomain(forName: suiteName)
     }
