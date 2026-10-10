@@ -179,6 +179,49 @@ public struct TopicWordDTO: Identifiable, Sendable, Equatable, Codable {
     }
 }
 
+public struct LearningPathDTO: Identifiable, Sendable, Equatable, Codable {
+    public let id: String
+    public let code: String
+    public let titleEn: String
+    public let titleVi: String
+    public let descriptionEn: String?
+    public let descriptionVi: String?
+    public let goalCategory: String
+    public let targetLevelMin: String
+    public let targetLevelMax: String
+    public let iconKey: String
+    public let themeKey: String
+    public let sortOrder: Int
+
+    public init(
+        id: String,
+        code: String,
+        titleEn: String,
+        titleVi: String,
+        descriptionEn: String? = nil,
+        descriptionVi: String? = nil,
+        goalCategory: String,
+        targetLevelMin: String,
+        targetLevelMax: String,
+        iconKey: String,
+        themeKey: String,
+        sortOrder: Int
+    ) {
+        self.id = id
+        self.code = code
+        self.titleEn = titleEn
+        self.titleVi = titleVi
+        self.descriptionEn = descriptionEn
+        self.descriptionVi = descriptionVi
+        self.goalCategory = goalCategory
+        self.targetLevelMin = targetLevelMin
+        self.targetLevelMax = targetLevelMax
+        self.iconKey = iconKey
+        self.themeKey = themeKey
+        self.sortOrder = sortOrder
+    }
+}
+
 public protocol VocabularyDataSourceProtocol: Sendable {
     func fetchTopicDecks() async throws -> [TopicDeckDTO]
     func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO]
@@ -187,9 +230,32 @@ public protocol VocabularyDataSourceProtocol: Sendable {
     func fetchWordById(id: Int64) async throws -> TopicWordDTO?
     func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO]
     func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO]
+    func fetchLearningPaths() async throws -> [LearningPathDTO]
+    func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO]
 }
 
 public extension VocabularyDataSourceProtocol {
+    func fetchLearningPaths() async throws -> [LearningPathDTO] {
+        [
+            LearningPathDTO(
+                id: "7147ba7e-0728-471d-97af-f3e2262a6d23",
+                code: "essential-english-mastery",
+                titleEn: "Core Curriculum: Comprehensive English",
+                titleVi: "Lộ Trình Cốt Lõi: Tiếng Anh Giao Tiếp",
+                goalCategory: "general",
+                targetLevelMin: "A1",
+                targetLevelMax: "C2",
+                iconKey: "compass",
+                themeKey: "ocean_blue",
+                sortOrder: 0
+            )
+        ]
+    }
+
+    func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {
+        try await fetchTopicDecks()
+    }
+
     func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
         guard !ids.isEmpty else { return [] }
         let idArray = Array(ids)

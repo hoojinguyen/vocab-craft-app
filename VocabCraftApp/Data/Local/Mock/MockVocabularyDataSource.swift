@@ -64,6 +64,14 @@ public struct MockVocabularyDataSource: VocabularyDataSourceProtocol, Sendable {
         )
     ]
 
+    public var decks: [TopicDeckDTO] {
+        Self.mockDecks
+    }
+
+    public var stages: [SubTopicStageDTO] {
+        Self.mockStages
+    }
+
     public static let mockDecks: [TopicDeckDTO] = [
         TopicDeckDTO(
             id: "deck_daily",
