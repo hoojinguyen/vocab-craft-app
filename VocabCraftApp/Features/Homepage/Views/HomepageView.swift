@@ -53,6 +53,7 @@ public struct HomepageView: View {
                         streakDays: viewModel.streakDays,
                         dailyWordsLearned: viewModel.dailyWordsLearned,
                         dailyWordsGoal: viewModel.dailyWordsGoal,
+                        activeLearningPath: viewModel.activeLearningPath,
                         onAvatarTap: {
                             CraftHaptics.shared.light()
                             appRouter.navigateToSettings()

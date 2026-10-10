@@ -11,11 +11,13 @@ import SwiftUI
 ///   3. User Profile Avatar: 36pt circular button with user initials.
 public struct HomeTopHeaderView: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.locale) private var locale
 
     public let userName: String
     public let streakDays: Int
     public let dailyWordsLearned: Int
     public let dailyWordsGoal: Int
+    public let activeLearningPath: LearningPathDTO?
     public var onAvatarTap: (() -> Void)?
     public var onStreakTap: (() -> Void)?
     public var onProgressTap: (() -> Void)?
@@ -25,6 +27,7 @@ public struct HomeTopHeaderView: View {
         streakDays: Int,
         dailyWordsLearned: Int,
         dailyWordsGoal: Int,
+        activeLearningPath: LearningPathDTO? = nil,
         onAvatarTap: (() -> Void)? = nil,
         onStreakTap: (() -> Void)? = nil,
         onProgressTap: (() -> Void)? = nil
@@ -33,6 +36,7 @@ public struct HomeTopHeaderView: View {
         self.streakDays = streakDays
         self.dailyWordsLearned = dailyWordsLearned
         self.dailyWordsGoal = dailyWordsGoal
+        self.activeLearningPath = activeLearningPath
         self.onAvatarTap = onAvatarTap
         self.onStreakTap = onStreakTap
         self.onProgressTap = onProgressTap
@@ -59,12 +63,18 @@ public struct HomeTopHeaderView: View {
     }
 
     public var body: some View {
-        CraftPageHeader(
-            AppStrings.Home.title,
-            alignment: .leading,
-            enableScrollFade: false
-        ) {
-            trailingActionsGroup
+        VStack(alignment: .leading, spacing: 0) {
+            CraftPageHeader(
+                AppStrings.Home.title,
+                alignment: .leading,
+                enableScrollFade: false
+            ) {
+                trailingActionsGroup
+            }
+
+            if let activeLearningPath {
+                ActiveJourneyBadge(path: activeLearningPath)
+            }
         }
     }
 
@@ -153,6 +163,62 @@ public struct HomeTopHeaderView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(userName)
         .accessibilityHint(AppStrings.Settings.profileActionViewText)
+    }
+}
+
+// MARK: - Active Journey Badge Subview
+
+private struct ActiveJourneyBadge: View {
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.locale) private var locale
+    let path: LearningPathDTO
+
+    var body: some View {
+        HStack(alignment: .center, spacing: theme.spacing.xs) {
+            CraftBadge(
+                AppStrings.Home.learningPathBadge,
+                symbol: CraftSymbol.sparkles,
+                variant: .subtle,
+                tone: .primary,
+                size: .sm
+            )
+
+            Text(subtitleText)
+                .font(theme.typography.caption)
+                .foregroundStyle(theme.colors.textSecondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.bottom, theme.spacing.xs)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(AppStrings.Home.learningPathBadgeText): \(subtitleText)")
+    }
+
+    private var subtitleText: String {
+        if let targetLevel = localizedLevels {
+            return "\(localizedTitle) • \(targetLevel)"
+        }
+        return localizedTitle
+    }
+
+    private var localizedTitle: String {
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return path.titleVi.isEmpty ? path.titleEn : path.titleVi
+        } else {
+            return path.titleEn.isEmpty ? path.titleVi : path.titleEn
+        }
+    }
+
+    private var localizedLevels: String? {
+        let min = path.targetLevelMin.trimmingCharacters(in: .whitespacesAndNewlines)
+        let max = path.targetLevelMax.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !min.isEmpty else { return nil }
+        if !max.isEmpty && min != max {
+            return AppStrings.Home.learningPathLevel("\(min) - \(max)")
+        } else {
+            return AppStrings.Home.learningPathLevel(min)
+        }
     }
 }
 

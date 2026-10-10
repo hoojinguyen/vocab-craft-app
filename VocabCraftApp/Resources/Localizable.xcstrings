@@ -2806,6 +2806,40 @@
         }
       }
     },
+    "app.home.learning_path.badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active Journey"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lộ trình hiện tại"
+          }
+        }
+      }
+    },
+    "app.home.learning_path.level_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trình độ %@"
+          }
+        }
+      }
+    },
     "app.home.node.checkpoint_objective_1_format": {
       "extractionState": "manual",
       "localizations": {

@@ -9,8 +9,26 @@ import XCTest
 #endif
 @testable import VocabCraftApp
 
+private func makeSampleLearningPath() -> LearningPathDTO {
+    LearningPathDTO(
+        id: "path_essential",
+        code: "essential-english-mastery",
+        titleEn: "Essential English Mastery",
+        titleVi: "Chinh Phục Tiếng Anh Toàn Diện",
+        descriptionEn: "From Zero to Hero",
+        descriptionVi: "Từ số 0 đến tự tin giao tiếp",
+        goalCategory: "general_communication",
+        targetLevelMin: "A1",
+        targetLevelMax: "B2",
+        iconKey: "sparkles",
+        themeKey: "emerald",
+        sortOrder: 1
+    )
+}
+
 private final class MockFetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, @unchecked Sendable {
     var stubbedCurriculum: LearningPathCurriculum = LearningPathCurriculum(
+        activePath: makeSampleLearningPath(),
         decks: [],
         stages: [],
         words: [],
@@ -18,9 +36,11 @@ private final class MockFetchLearningPathUseCase: FetchLearningPathUseCaseProtoc
     )
     var shouldThrowError: Error?
     var executeCallCount = 0
+    var lastRequestedPathId: String?
 
     func execute(pathId: String? = nil, forceRefresh: Bool = false) async throws -> LearningPathCurriculum {
         executeCallCount += 1
+        lastRequestedPathId = pathId
         if let error = shouldThrowError {
             throw error
         }
@@ -454,6 +474,42 @@ struct HomepageViewModelTestingTests {
         #expect(vm.sections[1].nodes[0].state == .locked)
         #expect(vm.sections[1].nodes[1].state == .locked)
     }
+
+    @Test("Verify loadLearningPath populates activeLearningPath")
+    @MainActor
+    func testHomepageViewModelLoadsActiveLearningPath() async throws {
+        let mockUseCase = MockFetchLearningPathUseCase()
+        let suite = "test_hp_vm_swift_testing_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(userDefaults: defaults)
+        let viewModel = HomepageViewModel(
+            fetchLearningPathUseCase: mockUseCase,
+            userSettings: settings
+        )
+
+        await viewModel.loadLearningPath()
+        #expect(viewModel.activeLearningPath != nil)
+        #expect(viewModel.activeLearningPath?.code == "essential-english-mastery")
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    @Test("Verify switchLearningPath persists preference and reloads curriculum")
+    @MainActor
+    func testHomepageViewModelSwitchLearningPath() async throws {
+        let mockUseCase = MockFetchLearningPathUseCase()
+        let suite = "test_hp_vm_switch_testing_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(userDefaults: defaults)
+        let viewModel = HomepageViewModel(
+            fetchLearningPathUseCase: mockUseCase,
+            userSettings: settings
+        )
+
+        await viewModel.switchLearningPath(to: "path_ielts")
+        #expect(settings.selectedLearningPathId == "path_ielts")
+        #expect(mockUseCase.lastRequestedPathId == "path_ielts")
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 #endif
 
@@ -714,6 +770,38 @@ final class HomepageViewModelTests: XCTestCase {
         settings.currentStreak = 5
         XCTAssertEqual(vm.streakDays, 5)
 
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testHomepageViewModelLoadsActiveLearningPath() async throws {
+        let mockUseCase = MockFetchLearningPathUseCase()
+        let suite = "test_hp_vm_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(userDefaults: defaults)
+        let viewModel = HomepageViewModel(
+            fetchLearningPathUseCase: mockUseCase,
+            userSettings: settings
+        )
+
+        await viewModel.loadLearningPath()
+        XCTAssertNotNil(viewModel.activeLearningPath)
+        XCTAssertEqual(viewModel.activeLearningPath?.code, "essential-english-mastery")
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testHomepageViewModelSwitchLearningPath() async throws {
+        let mockUseCase = MockFetchLearningPathUseCase()
+        let suite = "test_hp_vm_switch_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(userDefaults: defaults)
+        let viewModel = HomepageViewModel(
+            fetchLearningPathUseCase: mockUseCase,
+            userSettings: settings
+        )
+
+        await viewModel.switchLearningPath(to: "path_ielts")
+        XCTAssertEqual(settings.selectedLearningPathId, "path_ielts")
+        XCTAssertEqual(mockUseCase.lastRequestedPathId, "path_ielts")
         defaults.removePersistentDomain(forName: suite)
     }
 }

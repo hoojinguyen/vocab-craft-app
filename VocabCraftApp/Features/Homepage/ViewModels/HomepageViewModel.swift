@@ -42,6 +42,7 @@ public final class HomepageViewModel {
     }
 
     public var unreadNotifications: Bool
+    public private(set) var activeLearningPath: LearningPathDTO?
     public var sections: [LessonSection]
     public var selectedNode: LessonNodeModel?
     public var isDetailSheetPresented: Bool
@@ -76,6 +77,7 @@ public final class HomepageViewModel {
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettings: UserSettingsStore? = nil,
+        activeLearningPath: LearningPathDTO? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
         dailyWordsLearned: Int = 8,
@@ -86,6 +88,7 @@ public final class HomepageViewModel {
         self.fetchLearningPathUseCase = fetchLearningPathUseCase
         self.ttsService = ttsService
         self.userSettings = userSettings
+        self.activeLearningPath = activeLearningPath
         self.userName = userName
         self._streakDays = userSettings?.currentStreak ?? streakDays
         self._dailyWordsLearned = userSettings?.todayWordsLearned ?? dailyWordsLearned
@@ -112,12 +115,18 @@ public final class HomepageViewModel {
         isLoading = true
         errorMessage = nil
         do {
-            let curriculum = try await useCase.execute()
+            let curriculum = try await useCase.execute(pathId: userSettings?.selectedLearningPathId, forceRefresh: false)
+            self.activeLearningPath = curriculum.activePath
             self.sections = LearningPathDataMapper.map(curriculum: curriculum)
         } catch {
             self.errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    public func switchLearningPath(to pathId: String) async {
+        userSettings?.saveLearningPathPreference(pathId: pathId)
+        await loadLearningPath()
     }
 
     public func handleNodeTap(_ node: LessonNodeModel) {

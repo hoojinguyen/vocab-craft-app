@@ -13,7 +13,10 @@ struct HomeLocalizationTests {
         #expect(AppStrings.Home.titleText == "Home")
         #expect(AppStrings.Home.dailyGoalCount(completed: 8, goal: 10) == "8/10")
         #expect(AppStrings.Home.dailyGoalA11y(completed: 8, goal: 10) == "Daily Goal: 8 of 10 words completed")
+        #expect(AppStrings.Home.learningPathBadgeText == "Active Journey")
+        #expect(AppStrings.Home.learningPathLevel("A1 - B2") == "Level A1 - B2")
         let _: LocalizedStringKey = AppStrings.Home.title
+        let _: LocalizedStringKey = AppStrings.Home.learningPathBadge
     }
 
     @Test("Verifies header greeting and streak accessors in AppStrings.Home")
@@ -95,6 +98,8 @@ struct HomeLocalizationTests {
 
         let requiredHomeKeys = [
             "app.home.title",
+            "app.home.learning_path.badge",
+            "app.home.learning_path.level_format",
             "app.home.header.greeting_format",
             "app.home.header.daily_goal_format",
             "app.home.header.daily_goal_count_format",
@@ -117,7 +122,7 @@ struct HomeLocalizationTests {
             "app.home.node.locked_hint"
         ]
 
-        #expect(requiredHomeKeys.count == 21)
+        #expect(requiredHomeKeys.count == 23)
 
         for key in requiredHomeKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")

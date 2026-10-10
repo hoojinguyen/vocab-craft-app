@@ -628,6 +628,13 @@ extension AppStrings {
         public static var titleText: String {
             String(localized: "app.home.title", defaultValue: "Home", bundle: .module)
         }
+        public static var learningPathBadge: LocalizedStringKey { "app.home.learning_path.badge" }
+        public static var learningPathBadgeText: String {
+            String(localized: "app.home.learning_path.badge", defaultValue: "Active Journey", bundle: .module)
+        }
+        public static func learningPathLevel(_ level: String) -> String {
+            String(format: String(localized: "app.home.learning_path.level_format", defaultValue: "Level %@", bundle: .module), level)
+        }
         public static func dailyGoalCount(completed: Int, goal: Int) -> String {
             String(format: String(localized: "app.home.header.daily_goal_count_format", defaultValue: "%lld/%lld", bundle: .module), completed, goal)
         }
