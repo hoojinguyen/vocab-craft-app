@@ -1,13 +1,26 @@
 import Foundation
 
 public protocol FetchLearningPathUseCaseProtocol: Sendable {
-    func execute() async throws -> LearningPathCurriculum
+    func execute(pathId: String?, forceRefresh: Bool) async throws -> LearningPathCurriculum
     func execute(forceRefresh: Bool) async throws -> LearningPathCurriculum
+    func execute() async throws -> LearningPathCurriculum
 }
 
 public extension FetchLearningPathUseCaseProtocol {
     func execute() async throws -> LearningPathCurriculum {
-        try await execute(forceRefresh: false)
+        try await execute(pathId: nil, forceRefresh: false)
+    }
+
+    func execute(forceRefresh: Bool) async throws -> LearningPathCurriculum {
+        try await execute(pathId: nil, forceRefresh: forceRefresh)
+    }
+
+    func execute(pathId: String?) async throws -> LearningPathCurriculum {
+        try await execute(pathId: pathId, forceRefresh: false)
+    }
+
+    func execute(pathId: String?, forceRefresh: Bool) async throws -> LearningPathCurriculum {
+        try await execute(forceRefresh: forceRefresh)
     }
 }
 
@@ -18,48 +31,66 @@ private struct StaticCurriculumData: Sendable {
 }
 
 private actor StaticCurriculumCache {
-    private var data: StaticCurriculumData?
+    private var cache: [String: StaticCurriculumData] = [:]
 
-    func get() -> StaticCurriculumData? {
-        data
+    func get(pathId: String? = nil) -> StaticCurriculumData? {
+        let key = pathId ?? "__default__"
+        return cache[key]
     }
 
-    func set(_ newData: StaticCurriculumData) {
-        data = newData
+    func set(_ newData: StaticCurriculumData, pathId: String? = nil) {
+        let key = pathId ?? "__default__"
+        cache[key] = newData
     }
 
     func clear() {
-        data = nil
+        cache.removeAll()
     }
 }
 
 public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, Sendable {
     private let dataSource: VocabularyDataSourceProtocol
     private let stageRepo: StageProgressRepositoryProtocol
+    private let userSettings: (any UserRoadmapSettingsProtocol)?
     private let curriculumCache = StaticCurriculumCache()
 
     public init(
         dataSource: VocabularyDataSourceProtocol,
-        stageRepo: StageProgressRepositoryProtocol
+        stageRepo: StageProgressRepositoryProtocol,
+        userSettings: (any UserRoadmapSettingsProtocol)? = nil
     ) {
         self.dataSource = dataSource
         self.stageRepo = stageRepo
+        self.userSettings = userSettings
     }
 
-    public func execute(forceRefresh: Bool = false) async throws -> LearningPathCurriculum {
+    public func execute(pathId: String? = nil, forceRefresh: Bool = false) async throws -> LearningPathCurriculum {
         async let progressTask = stageRepo.fetchAllStageProgress()
 
+        let paths = (try? await dataSource.fetchLearningPaths()) ?? []
+        let targetId: String?
+        if let pathId {
+            targetId = pathId
+        } else if let userSettings {
+            targetId = await MainActor.run { userSettings.selectedLearningPathId }
+        } else {
+            targetId = nil
+        }
+        let activePath = paths.first(where: { $0.id == targetId }) ?? paths.first
+        let resolvedPathId = activePath?.id ?? targetId
+
         let staticData: StaticCurriculumData
-        if !forceRefresh, let cached = await curriculumCache.get() {
+        if !forceRefresh, let cached = await curriculumCache.get(pathId: resolvedPathId) {
             staticData = cached
         } else {
-            let loaded = try await loadStaticCurriculum()
-            await curriculumCache.set(loaded)
+            let loaded = try await loadStaticCurriculum(pathId: resolvedPathId)
+            await curriculumCache.set(loaded, pathId: resolvedPathId)
             staticData = loaded
         }
 
         let progressList = try await progressTask
         return LearningPathCurriculum(
+            activePath: activePath,
             decks: staticData.decks,
             stages: staticData.stages,
             words: staticData.words,
@@ -67,8 +98,13 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
         )
     }
 
-    private func loadStaticCurriculum() async throws -> StaticCurriculumData {
-        let decks = try await dataSource.fetchTopicDecks()
+    private func loadStaticCurriculum(pathId: String?) async throws -> StaticCurriculumData {
+        let decks: [TopicDeckDTO]
+        if let pathId {
+            decks = try await dataSource.fetchTopicDecks(for: pathId)
+        } else {
+            decks = try await dataSource.fetchTopicDecks()
+        }
 
         // Fetch all stages in parallel across decks
         let allStages: [SubTopicStageDTO] = try await withThrowingTaskGroup(of: [SubTopicStageDTO].self) { group in

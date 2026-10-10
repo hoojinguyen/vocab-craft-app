@@ -151,6 +151,36 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertEqual(updated.progressList.first?.score, 3)
     }
 
+    func testFetchLearningPathResolvesActivePath() async throws {
+        let mockDataSource = MockVocabularyDataSource()
+        let mockStageRepo = MockStageProgressRepository()
+        let useCase = FetchLearningPathUseCase(
+            dataSource: mockDataSource,
+            stageRepo: mockStageRepo
+        )
+
+        let curriculum = try await useCase.execute(pathId: "7147ba7e-0728-471d-97af-f3e2262a6d23")
+        XCTAssertNotNil(curriculum.activePath)
+        XCTAssertEqual(curriculum.activePath?.code, "essential-english-mastery")
+        XCTAssertFalse(curriculum.decks.isEmpty)
+    }
+
+    func testFetchLearningPathResolvesFromUserSettingsWhenPathIdNil() async throws {
+        let mockDataSource = MockVocabularyDataSource()
+        let mockStageRepo = MockStageProgressRepository()
+        let mockSettings = MockRoadmapSettings(selectedLearningPathId: "7147ba7e-0728-471d-97af-f3e2262a6d23")
+        let useCase = FetchLearningPathUseCase(
+            dataSource: mockDataSource,
+            stageRepo: mockStageRepo,
+            userSettings: mockSettings
+        )
+
+        let curriculum = try await useCase.execute()
+        XCTAssertNotNil(curriculum.activePath)
+        XCTAssertEqual(curriculum.activePath?.id, "7147ba7e-0728-471d-97af-f3e2262a6d23")
+        XCTAssertEqual(curriculum.activePath?.code, "essential-english-mastery")
+    }
+
     // MARK: - CompleteLessonUseCase Tests
 
     func test_completeLessonUseCase_persistsProgressAndReturnsSummary() async throws {
@@ -357,6 +387,15 @@ private final class SpyVocabularyDataSource: VocabularyDataSourceProtocol, @unch
     func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
         try await base.fetchAllWordsMap()
     }
+
+    func fetchLearningPaths() async throws -> [LearningPathDTO] {
+        try await base.fetchLearningPaths()
+    }
+
+    func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {
+        incrementTopicDecks()
+        return try await base.fetchTopicDecks(for: pathId)
+    }
 }
 
 @MainActor
@@ -403,5 +442,25 @@ private final class SpyStageProgressRepository: StageProgressRepositoryProtocol 
             score: score,
             progressFraction: progressFraction
         )
+    }
+}
+
+@MainActor
+private final class MockRoadmapSettings: UserRoadmapSettingsProtocol {
+    var selectedLearningPathId: String?
+
+    init(selectedLearningPathId: String? = nil) {
+        self.selectedLearningPathId = selectedLearningPathId
+    }
+
+    func saveRoadmapPreferences(
+        deckId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) {}
+
+    func saveLearningPathPreference(pathId: String) {
+        selectedLearningPathId = pathId
     }
 }

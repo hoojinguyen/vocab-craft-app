@@ -117,7 +117,8 @@ public final class AppContainer {
         // Learning Path Use Cases
         self.fetchLearningPathUseCase = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
             dataSource: resolvedDataSource,
-            stageRepo: resolvedStageRepo
+            stageRepo: resolvedStageRepo,
+            userSettings: effectiveUserSettingsStore
         )
         self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
             stageRepo: resolvedStageRepo,
