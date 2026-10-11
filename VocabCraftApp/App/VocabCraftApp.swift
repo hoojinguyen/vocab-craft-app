@@ -15,7 +15,9 @@ struct VocabCraftApp: App {
 
     private var isFeedbackTestLaunch: Bool {
         let args = ProcessInfo.processInfo.arguments
-        return args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct")
+        return args.contains("-test-lesson-feedback-incorrect")
+            || args.contains("-test-lesson-feedback-correct")
+            || args.contains("-test-lesson-discovery")
     }
 
     var body: some Scene {

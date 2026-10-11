@@ -255,6 +255,27 @@ public struct HomepageView: View {
 private extension HomepageView {
     func handleTestLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-test-lesson-discovery") {
+            Task {
+                try? await Task.sleep(for: .milliseconds(150))
+                let decks = (try? await appContainer.vocabularyDataSource.fetchTopicDecks()) ?? []
+                let firstDeck = decks.first?.id ?? "deck_daily"
+                let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: firstDeck)) ?? []
+                let firstStage = stages.first?.id ?? "stage_daily_1"
+                let words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: firstStage)) ?? []
+                guard !words.isEmpty else { return }
+                let vm = appContainer.makeLessonLearningViewModel(
+                    stageId: firstStage,
+                    deckId: firstDeck,
+                    words: words
+                )
+                await MainActor.run {
+                    self.activeLessonLearningVM = vm
+                }
+            }
+            return
+        }
+
         guard args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") else { return }
         let isCorrect = args.contains("-test-lesson-feedback-correct")
         Task {
