@@ -19,9 +19,9 @@ echo "📱 Found device: $DEVICE_ID"
 
 echo "🔨 Building $APP_NAME for device..."
 if command -v xcpretty &> /dev/null; then
-    xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "id=$DEVICE_ID" -derivedDataPath "$DERIVED_DATA" build | xcpretty
+    xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "id=$DEVICE_ID" -derivedDataPath "$DERIVED_DATA" -allowProvisioningUpdates -allowProvisioningDeviceRegistration build | xcpretty
 else
-    xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "id=$DEVICE_ID" -derivedDataPath "$DERIVED_DATA" build -quiet
+    xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "id=$DEVICE_ID" -derivedDataPath "$DERIVED_DATA" -allowProvisioningUpdates -allowProvisioningDeviceRegistration build -quiet
 fi
 
 APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphoneos/$APP_NAME.app"
