@@ -27,10 +27,7 @@ public enum TreasureClaimError: Error, LocalizedError, Sendable, Equatable {
     public var errorDescription: String? {
         switch self {
         case .checkpointIncomplete:
-            return String(
-                localized: "app.treasure.error.checkpoint_incomplete",
-                bundle: .module
-            )
+            return String(localized: "app.treasure.error.checkpoint_incomplete")
         }
     }
 }
