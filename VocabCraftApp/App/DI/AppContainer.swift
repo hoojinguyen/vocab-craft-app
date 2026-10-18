@@ -29,6 +29,7 @@ public final class AppContainer {
 
     public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
     public let completeLessonUseCase: CompleteLessonUseCaseProtocol
+    public let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol
 
     public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
@@ -52,6 +53,7 @@ public final class AppContainer {
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
+        claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
@@ -123,6 +125,9 @@ public final class AppContainer {
         self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
             stageRepo: resolvedStageRepo,
             progressRepo: resolvedUserProgressRepo
+        )
+        self.claimTreasureRewardUseCase = claimTreasureRewardUseCase ?? ClaimTreasureRewardUseCase(
+            stageRepo: resolvedStageRepo
         )
 
         // Personal Vault & Mixed Reflex Use Cases
@@ -204,6 +209,10 @@ public final class AppContainer {
 
     public func makeCompleteLessonUseCase() -> CompleteLessonUseCaseProtocol {
         completeLessonUseCase
+    }
+
+    public func makeClaimTreasureRewardUseCase() -> ClaimTreasureRewardUseCaseProtocol {
+        claimTreasureRewardUseCase
     }
 
     public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
