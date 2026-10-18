@@ -5,7 +5,14 @@ import Observation
 @Observable
 public final class OnboardingViewModel {
     public var currentStep: OnboardingStep = .goal
-    public var selectedDeckId: String = "deck_daily"
+    public var selectedPathId: String = "essential-english-mastery"
+    public var learningPaths: [LearningPathDTO] = []
+
+    public var selectedDeckId: String {
+        get { selectedPathId }
+        set { selectedPathId = newValue }
+    }
+
     public var selectedCefrLevel: String = "A1"
     public var selectedDailyWords: Int = 10
     public var selectedReminderInterval: Double = 72000 // 20:00
@@ -21,6 +28,7 @@ public final class OnboardingViewModel {
     private let notificationScheduler: (any NotificationSchedulerProtocol)?
     private let progressRepo: (any UserProgressRepositoryProtocol)?
     private let stageRepo: (any StageProgressRepositoryProtocol)?
+    private let dataSource: (any VocabularyDataSourceProtocol)?
     public private(set) var synthesisTask: Task<Void, Never>?
     public private(set) var notificationTask: Task<Void, Never>?
     public private(set) var completionTask: Task<Void, Never>?
@@ -35,13 +43,34 @@ public final class OnboardingViewModel {
         userSettings: UserSettingsStore,
         notificationScheduler: (any NotificationSchedulerProtocol)? = nil,
         progressRepo: (any UserProgressRepositoryProtocol)? = nil,
-        stageRepo: (any StageProgressRepositoryProtocol)? = nil
+        stageRepo: (any StageProgressRepositoryProtocol)? = nil,
+        dataSource: (any VocabularyDataSourceProtocol)? = nil
     ) {
         self.useCase = useCase
         self.userSettings = userSettings
         self.notificationScheduler = notificationScheduler
         self.progressRepo = progressRepo
         self.stageRepo = stageRepo
+        self.dataSource = dataSource
+        self.learningPaths = LearningPathSwitchSheet.fallbackPaths
+        self.selectedPathId = LearningPathSwitchSheet.fallbackPaths.first?.code ?? "essential-english-mastery"
+    }
+
+    public func loadLearningPaths() async {
+        guard let dataSource else { return }
+        do {
+            let fetched = try await dataSource.fetchLearningPaths()
+            if !fetched.isEmpty {
+                self.learningPaths = fetched.sorted { $0.sortOrder < $1.sortOrder }
+                if selectedPathId.isEmpty || selectedPathId == "deck_daily" {
+                    if let first = self.learningPaths.first {
+                        selectedPathId = first.code
+                    }
+                }
+            }
+        } catch {
+            // Keep fallbackPaths
+        }
     }
 
     public var canGoBack: Bool {
@@ -51,7 +80,7 @@ public final class OnboardingViewModel {
     public var canContinue: Bool {
         switch currentStep {
         case .goal:
-            return !selectedDeckId.isEmpty
+            return !selectedPathId.isEmpty
         case .proficiency:
             return !selectedCefrLevel.isEmpty
         case .habit:
@@ -110,6 +139,7 @@ public final class OnboardingViewModel {
         recordedWordIds.removeAll()
         isSynthesizing = false
         userSettings.selectedGoalDeckId = "deck_daily"
+        userSettings.saveLearningPathPreference(pathId: selectedPathId)
         userSettings.assessedCefrLevel = "A1"
         userSettings.dailyGoalCount = 10
         userSettings.notificationTimeInterval = 72000
@@ -166,7 +196,7 @@ public final class OnboardingViewModel {
 
         do {
             let result = try await useCase.execute(
-                deckId: selectedDeckId,
+                pathId: selectedPathId,
                 cefrLevel: selectedCefrLevel,
                 dailyGoalCount: selectedDailyWords,
                 notificationTimeInterval: selectedReminderInterval

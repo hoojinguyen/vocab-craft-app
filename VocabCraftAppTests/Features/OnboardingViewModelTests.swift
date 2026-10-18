@@ -6,9 +6,25 @@ import XCTest
 
 final class MockInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol, @unchecked Sendable {
     var invokedDeckId: String?
+    var invokedPathId: String?
     var invokedCefrLevel: String?
     var invokedDailyGoalCount: Int?
     var invokedNotificationTimeInterval: Double?
+
+    func execute(
+        pathId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) async throws -> RoadmapInitializationResult {
+        invokedPathId = pathId
+        return try await execute(
+            deckId: pathId,
+            cefrLevel: cefrLevel,
+            dailyGoalCount: dailyGoalCount,
+            notificationTimeInterval: notificationTimeInterval
+        )
+    }
 
     func execute(
         deckId: String,

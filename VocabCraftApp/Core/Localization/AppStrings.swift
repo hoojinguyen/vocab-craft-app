@@ -968,4 +968,11 @@ extension AppStrings {
             String(localized: "app.learning_path.switch_action", defaultValue: "Switch to this Path", bundle: .module)
         }
     }
+
+    // MARK: - Onboarding
+    public enum Onboarding {
+        public static var goalTitle: LocalizedStringKey { "app.onboarding.goal.title" }
+        public static var goalSubtitle: LocalizedStringKey { "app.onboarding.goal.subtitle" }
+        public static var `continue`: LocalizedStringKey { "app.onboarding.common.continue" }
+    }
 }

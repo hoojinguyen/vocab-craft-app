@@ -318,7 +318,8 @@ public final class AppContainer {
             userSettings: userSettingsStore,
             notificationScheduler: AppNotificationScheduler(),
             progressRepo: userProgressRepository,
-            stageRepo: stageProgressRepository
+            stageRepo: stageProgressRepository,
+            dataSource: vocabularyDataSource
         )
     }
 

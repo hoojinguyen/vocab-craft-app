@@ -56,6 +56,7 @@ struct LearningPathSwitchSheetTestingTests {
     }
 
     @Test("Verify fallbackPaths contains all 4 curated learning paths with correct codes")
+    @MainActor
     func testFallbackPathsIntegrity() {
         let paths = LearningPathSwitchSheet.fallbackPaths
         #expect(paths.count == 4)

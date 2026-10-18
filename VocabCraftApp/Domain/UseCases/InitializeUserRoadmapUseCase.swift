@@ -36,6 +36,31 @@ public protocol InitializeUserRoadmapUseCaseProtocol: Sendable {
         dailyGoalCount: Int,
         notificationTimeInterval: Double
     ) async throws -> RoadmapInitializationResult
+
+    @MainActor
+    func execute(
+        pathId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) async throws -> RoadmapInitializationResult
+}
+
+public extension InitializeUserRoadmapUseCaseProtocol {
+    @MainActor
+    func execute(
+        pathId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) async throws -> RoadmapInitializationResult {
+        try await execute(
+            deckId: pathId,
+            cefrLevel: cefrLevel,
+            dailyGoalCount: dailyGoalCount,
+            notificationTimeInterval: notificationTimeInterval
+        )
+    }
 }
 
 public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol, Sendable {
@@ -55,6 +80,37 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
 
     @MainActor
     public func execute(
+        pathId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) async throws -> RoadmapInitializationResult {
+        // 1. Resolve active learning path from SQLite/data source
+        let paths = (try? await dataSource.fetchLearningPaths()) ?? []
+        let matchedPath = paths.first(where: { $0.id == pathId || $0.code == pathId })
+        let resolvedPathId = matchedPath?.id ?? pathId
+
+        // 2. Fetch decks for this learning path and identify starting deck
+        let decks = (try? await dataSource.fetchTopicDecks(for: resolvedPathId)) ?? []
+        let targetDeck = decks.sorted { $0.sortOrder < $1.sortOrder }.first
+        let resolvedDeckId = targetDeck?.id ?? pathId
+
+        // 3. Execute roadmap initialization with the starting deck ID
+        let result = try await execute(
+            deckId: resolvedDeckId,
+            cefrLevel: cefrLevel,
+            dailyGoalCount: dailyGoalCount,
+            notificationTimeInterval: notificationTimeInterval
+        )
+
+        // 4. Save the selected learning path preference
+        userSettings.saveLearningPathPreference(pathId: pathId)
+
+        return result
+    }
+
+    @MainActor
+    public func execute(
         deckId: String,
         cefrLevel: String,
         dailyGoalCount: Int,
@@ -62,13 +118,24 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
     ) async throws -> RoadmapInitializationResult {
         // 1. Fetch stages for the target deck
         let stages = try await dataSource.fetchSubTopicStages(deckId: deckId)
+        if stages.isEmpty {
+            let paths = (try? await dataSource.fetchLearningPaths()) ?? []
+            if let matched = paths.first(where: { $0.id == deckId || $0.code == deckId }) {
+                return try await execute(
+                    pathId: matched.code,
+                    cefrLevel: cefrLevel,
+                    dailyGoalCount: dailyGoalCount,
+                    notificationTimeInterval: notificationTimeInterval
+                )
+            }
+        }
         let sortedStages = stages.sorted { $0.sortOrder < $1.sortOrder }
 
         guard let firstStage = sortedStages.first else {
             throw OnboardingDomainError.stageNotFound(deckId)
         }
 
-        let isAdvancedLevel = (cefrLevel == "B1" || cefrLevel == "B2" || cefrLevel == "C1")
+        let isAdvancedLevel = (cefrLevel == "B1" || cefrLevel == "B2" || cefrLevel == "C1" || cefrLevel == "C2")
         let startingStage: SubTopicStageDTO
 
         if isAdvancedLevel && sortedStages.count > 1 {

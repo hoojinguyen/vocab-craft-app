@@ -4,19 +4,7 @@ import SwiftUI
 public struct OnboardingGoalStepView: View {
     @Bindable var viewModel: OnboardingViewModel
     @Environment(\.craftTheme) private var theme
-
-    private struct GoalOptionItem: Identifiable {
-        let id: String
-        let titleKey: LocalizedStringKey
-        let descKey: LocalizedStringKey
-    }
-
-    private let goals: [GoalOptionItem] = [
-        GoalOptionItem(id: "deck_daily", titleKey: "app.onboarding.goal.daily", descKey: "app.onboarding.goal.daily_desc"),
-        GoalOptionItem(id: "deck_business", titleKey: "app.onboarding.goal.business", descKey: "app.onboarding.goal.business_desc"),
-        GoalOptionItem(id: "deck_academic", titleKey: "app.onboarding.goal.academic", descKey: "app.onboarding.goal.academic_desc"),
-        GoalOptionItem(id: "deck_tech", titleKey: "app.onboarding.goal.tech", descKey: "app.onboarding.goal.tech_desc")
-    ]
+    @Environment(\.locale) private var locale
 
     public init(viewModel: OnboardingViewModel) {
         self.viewModel = viewModel
@@ -25,11 +13,11 @@ public struct OnboardingGoalStepView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.lg) {
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                Text("app.onboarding.goal.title")
+                Text(AppStrings.Onboarding.goalTitle)
                     .font(theme.typography.titleLarge)
                     .foregroundStyle(theme.colors.textPrimary)
 
-                Text("app.onboarding.goal.subtitle")
+                Text(AppStrings.Onboarding.goalSubtitle)
                     .font(theme.typography.bodyMedium)
                     .foregroundStyle(theme.colors.textSecondary)
             }
@@ -37,17 +25,17 @@ public struct OnboardingGoalStepView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: theme.spacing.md) {
-                    ForEach(goals, id: \.id) { goal in
+                    ForEach(viewModel.learningPaths) { path in
                         CraftChoiceCard(
-                            prefix: nil as LocalizedStringKey?,
+                            prefix: nil as String?,
                             prefixStyle: .none,
-                            title: goal.titleKey,
-                            subtitle: goal.descKey,
-                            state: viewModel.selectedDeckId == goal.id ? .selected : .idle,
+                            title: localizedTitle(for: path),
+                            subtitle: localizedDescription(for: path),
+                            state: isSelected(path) ? .selected : .idle,
                             showsStatusIndicator: false,
                             action: {
                                 CraftHaptics.shared.selection()
-                                viewModel.selectedDeckId = goal.id
+                                viewModel.selectedPathId = path.code
                             }
                         )
                     }
@@ -59,7 +47,7 @@ public struct OnboardingGoalStepView: View {
             Spacer()
 
             CraftButton(
-                "app.onboarding.common.continue",
+                AppStrings.Onboarding.continue,
                 variant: .primary,
                 size: .lg,
                 isFullWidth: true
@@ -69,6 +57,33 @@ public struct OnboardingGoalStepView: View {
             .disabled(!viewModel.canContinue)
             .padding(.horizontal, theme.spacing.base)
             .padding(.bottom, theme.spacing.base)
+        }
+        .task {
+            await viewModel.loadLearningPaths()
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func isSelected(_ path: LearningPathDTO) -> Bool {
+        viewModel.selectedPathId == path.code || viewModel.selectedPathId == path.id
+    }
+
+    private func localizedTitle(for path: LearningPathDTO) -> String {
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return path.titleVi.isEmpty ? path.titleEn : path.titleVi
+        } else {
+            return path.titleEn.isEmpty ? path.titleVi : path.titleEn
+        }
+    }
+
+    private func localizedDescription(for path: LearningPathDTO) -> String? {
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return path.descriptionVi ?? path.descriptionEn
+        } else {
+            return path.descriptionEn ?? path.descriptionVi
         }
     }
 }

@@ -352,6 +352,7 @@
 		300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */; };
 		300037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */; };
 		30002A59BC7D855A5215 /* OnboardingViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002A59BC7D855A5215 /* OnboardingViewModelTests.swift */; };
+		3000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */; };
 		300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */; };
 		30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */; };
 		3000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift */; };
@@ -774,6 +775,7 @@
 		200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewsTests.swift"; sourceTree = "<group>"; };
 		200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingLocalizationTests.swift"; sourceTree = "<group>"; };
 		20002A59BC7D855A5215 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingViewModelTests.swift"; sourceTree = "<group>"; };
+		2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingRoadmapTests.swift"; sourceTree = "<group>"; };
 		200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
 		20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModelTests.swift"; sourceTree = "<group>"; };
 		2000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -1928,6 +1930,7 @@
 			children = (
 				40004A7D1798887BBCBC /* Homepage */,
 				400095848A6A5A497042 /* Lesson */,
+				4000A1B2C3D4E5F60010 /* Onboarding */,
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
 				200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */,
 				200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */,
@@ -1963,6 +1966,14 @@
 				2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */,
 			);
 			path = "Lesson";
+			sourceTree = "<group>";
+		};
+		4000A1B2C3D4E5F60010 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */,
+			);
+			path = "Onboarding";
 			sourceTree = "<group>";
 		};
 		4000E102CB9FECDF3753 /* Reflex */ = {
@@ -2568,6 +2579,7 @@
 				300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */,
 				300037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift in Test Sources */,
 				30002A59BC7D855A5215 /* OnboardingViewModelTests.swift in Test Sources */,
+				3000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift in Test Sources */,
 				300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */,
 				30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */,
 				3000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift in Test Sources */,
