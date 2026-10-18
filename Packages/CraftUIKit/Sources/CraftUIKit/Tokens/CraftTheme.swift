@@ -19,6 +19,10 @@ public protocol CraftTheme: Sendable {
 }
 
 public extension CraftTheme {
+    var radius: CraftRadiusTokens {
+        radii
+    }
+
     var depths: CraftDepthTokens {
         CraftDefaultDepthTokens()
     }

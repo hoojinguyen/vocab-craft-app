@@ -13,7 +13,7 @@ public struct TreasureClaimSheet: View {
     public let deckId: String
     public let onClaim: (@MainActor @Sendable () async throws -> TreasureRewardResult)?
     public let onClaimSuccess: (@MainActor @Sendable (TreasureRewardResult) -> Void)?
-    public let onDismiss: @Sendable () -> Void
+    public let onDismiss: @MainActor @Sendable () -> Void
 
     @Environment(\.craftTheme) private var theme
     @State private var isClaiming: Bool = false
@@ -25,7 +25,7 @@ public struct TreasureClaimSheet: View {
         deckId: String,
         onClaim: (@MainActor @Sendable () async throws -> TreasureRewardResult)? = nil,
         onClaimSuccess: (@MainActor @Sendable (TreasureRewardResult) -> Void)? = nil,
-        onDismiss: @escaping @Sendable () -> Void
+        onDismiss: @escaping @MainActor @Sendable () -> Void
     ) {
         self.node = node
         self.deckId = deckId
@@ -92,22 +92,22 @@ public struct TreasureClaimSheet: View {
     private var tactileChestIcon: some View {
         ZStack {
             // Bottom rim for tactile 3D depth
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: theme.radius.xl, style: .continuous)
                 .fill(theme.colors.accent.opacity(0.85))
                 .frame(width: 80, height: 80)
                 .offset(y: 4)
 
             // Top face with gradient and highlight stroke
             ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: theme.radius.xl, style: .continuous)
                     .fill(theme.gradients.accentShine)
 
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: theme.radius.xl, style: .continuous)
                     .stroke(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.40),
-                                Color.white.opacity(0.10),
+                                effectiveIconColor.opacity(0.40),
+                                effectiveIconColor.opacity(0.10),
                                 Color.clear
                             ],
                             startPoint: .top,
@@ -118,7 +118,7 @@ public struct TreasureClaimSheet: View {
 
                 Image(systemName: effectiveIconName)
                     .font(.system(size: 38, weight: .bold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(effectiveIconColor)
                     .shadow(color: theme.colors.accent.opacity(0.5), radius: 4, x: 0, y: 2)
             }
             .frame(width: 80, height: 80)
@@ -160,6 +160,10 @@ public struct TreasureClaimSheet: View {
             return "gift.fill"
         }
         return node.iconName
+    }
+
+    private var effectiveIconColor: Color {
+        theme.colors.textInverse
     }
 
     private var formattedXPReward: String {

@@ -71,7 +71,7 @@ public struct CraftFluidJourney: View {
     public let nodeIndexLookup: [String: Int]
 
     /// Optional custom builder for the lesson detail sheet.
-    public let detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)?
+    public let detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)?
 
     /// Optional custom builder for the empty state placeholder.
     public let emptyStateViewBuilder: (() -> AnyView)?
@@ -207,7 +207,7 @@ public extension CraftFluidJourney {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         externalScrollTrigger: Int = 0,
-        detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         calloutTextProvider: (@Sendable (LessonNodeModel, Int, Int) -> String)? = nil
     ) {
@@ -272,7 +272,7 @@ public extension CraftFluidJourney {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         externalScrollTrigger: Int = 0,
-        detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         calloutTextProvider: (@Sendable (LessonNodeModel, Int, Int) -> String)? = nil
     ) {

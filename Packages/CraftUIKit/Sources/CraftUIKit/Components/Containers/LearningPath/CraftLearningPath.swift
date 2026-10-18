@@ -28,7 +28,7 @@ public struct CraftLearningPath: View {
 
     // Customization hooks
     public let topHeaderBuilder: (() -> AnyView)?
-    public let detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)?
+    public let detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)?
     public let backgroundViewBuilder: (() -> AnyView)?
     public let emptyStateViewBuilder: (() -> AnyView)?
     public let stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)?
@@ -153,7 +153,7 @@ public struct CraftLearningPath: View {
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         topHeaderBuilder: (() -> AnyView)? = nil,
-        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil,
@@ -211,7 +211,7 @@ public struct CraftLearningPath: View {
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         topHeaderBuilder: (() -> AnyView)? = nil,
-        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor @Sendable (LessonNodeModel) -> Void, @escaping @MainActor @Sendable () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         connectorDotDiameter: CGFloat? = nil,

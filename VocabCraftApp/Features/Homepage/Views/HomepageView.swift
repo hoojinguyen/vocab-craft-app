@@ -114,36 +114,34 @@ public struct HomepageView: View {
                                 scrollToActive: true,
                                 externalScrollTrigger: scrollToActiveNonce,
                                 detailSheetBuilder: { node, onStart, onDismiss in
-                                    MainActor.assumeIsolated {
-                                        if node.kind == .treasureChest {
-                                            let deckId = viewModel.resolvedDeckId(for: node)
-                                            return AnyView(
-                                                TreasureClaimSheet(
-                                                    node: node,
-                                                    deckId: deckId,
-                                                    onClaim: {
-                                                        try await viewModel.claimTreasure(node: node)
-                                                    },
-                                                    onClaimSuccess: { result in
-                                                        handleTreasureClaimSuccess(result)
-                                                    },
-                                                    onDismiss: onDismiss
-                                                )
-                                                .craftSurfaceStyle(.tactile3D)
-                                                .presentationDetents([.fraction(0.52), .medium])
+                                    if node.kind == .treasureChest {
+                                        let deckId = viewModel.resolvedDeckId(for: node)
+                                        return AnyView(
+                                            TreasureClaimSheet(
+                                                node: node,
+                                                deckId: deckId,
+                                                onClaim: {
+                                                    try await viewModel.claimTreasure(node: node)
+                                                },
+                                                onClaimSuccess: { result in
+                                                    handleTreasureClaimSuccess(result)
+                                                },
+                                                onDismiss: onDismiss
                                             )
-                                        } else {
-                                            return AnyView(
-                                                CraftLessonDetailSheet(
-                                                    node: node,
-                                                    surfaceStyle: .tactile3D,
-                                                    onStart: onStart,
-                                                    onDismiss: onDismiss
-                                                )
-                                                .craftSurfaceStyle(.tactile3D)
-                                                .presentationDetents([.fraction(0.70), .large])
+                                            .craftSurfaceStyle(.tactile3D)
+                                            .presentationDetents([.fraction(0.52), .medium])
+                                        )
+                                    } else {
+                                        return AnyView(
+                                            CraftLessonDetailSheet(
+                                                node: node,
+                                                surfaceStyle: .tactile3D,
+                                                onStart: onStart,
+                                                onDismiss: onDismiss
                                             )
-                                        }
+                                            .craftSurfaceStyle(.tactile3D)
+                                            .presentationDetents([.fraction(0.70), .large])
+                                        )
                                     }
                                 }
                             )
