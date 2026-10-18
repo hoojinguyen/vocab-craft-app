@@ -304,7 +304,7 @@ public struct LearningPathSwitchSheet: View {
             loadedPaths = initialPaths
         } else {
             let fetched = (try? await appContainer.vocabularyDataSource.fetchLearningPaths()) ?? []
-            loadedPaths = fetched.isEmpty ? Self.fallbackPaths : fetched
+            loadedPaths = fetched.count >= Self.fallbackPaths.count ? fetched : Self.fallbackPaths
         }
         self.paths = loadedPaths.sorted { $0.sortOrder < $1.sortOrder }
 

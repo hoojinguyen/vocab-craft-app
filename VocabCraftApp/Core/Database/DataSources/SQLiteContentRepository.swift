@@ -21,7 +21,8 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
     public static func readContentVersion(at url: URL) -> Int? {
         var db: OpaquePointer?
         let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX
-        guard sqlite3_open_v2(url.path, &db, flags, nil) == SQLITE_OK else { return nil }
+        let path = url.standardizedFileURL.path
+        guard sqlite3_open_v2(path, &db, flags, nil) == SQLITE_OK else { return nil }
         defer { sqlite3_close(db) }
 
         var stmt: OpaquePointer?
@@ -33,6 +34,24 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
             return Int(sqlite3_column_int(stmt, 0))
         }
         return nil
+    }
+
+    public static func readLearningPathCount(at url: URL) -> Int {
+        var db: OpaquePointer?
+        let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX
+        let path = url.standardizedFileURL.path
+        guard sqlite3_open_v2(path, &db, flags, nil) == SQLITE_OK else { return 0 }
+        defer { sqlite3_close(db) }
+
+        var stmt: OpaquePointer?
+        let sql = "SELECT COUNT(*) FROM learning_paths;"
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return 0 }
+        defer { sqlite3_finalize(stmt) }
+
+        if sqlite3_step(stmt) == SQLITE_ROW {
+            return Int(sqlite3_column_int(stmt, 0))
+        }
+        return 0
     }
 
     // MARK: - Query Helpers

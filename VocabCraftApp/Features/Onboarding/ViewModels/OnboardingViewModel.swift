@@ -60,7 +60,7 @@ public final class OnboardingViewModel {
         guard let dataSource else { return }
         do {
             let fetched = try await dataSource.fetchLearningPaths()
-            if !fetched.isEmpty {
+            if fetched.count >= LearningPathSwitchSheet.fallbackPaths.count {
                 self.learningPaths = fetched.sorted { $0.sortOrder < $1.sortOrder }
                 if selectedPathId.isEmpty || selectedPathId == "deck_daily" {
                     if let first = self.learningPaths.first {

@@ -409,16 +409,22 @@ public final class AppContainer {
 
             if let src {
                 let bundleVersion = SQLiteContentRepository.readContentVersion(at: src) ?? 0
+                let destVersion = SQLiteContentRepository.readContentVersion(at: dest) ?? 0
+                let destPathCount = SQLiteContentRepository.readLearningPathCount(at: dest)
                 let savedVersion = UserDefaults.standard.integer(forKey: "current_content_version")
 
-                let shouldCopy = !fileManager.fileExists(atPath: dest.path) || bundleVersion > savedVersion
+                let shouldCopy = !fileManager.fileExists(atPath: dest.path)
+                    || bundleVersion > destVersion
+                    || bundleVersion > savedVersion
+                    || destPathCount < 4
 
                 if shouldCopy {
                     if fileManager.fileExists(atPath: dest.path) {
                         try fileManager.removeItem(at: dest)
                     }
                     try fileManager.copyItem(at: src, to: dest)
-                    UserDefaults.standard.set(bundleVersion, forKey: "current_content_version")
+                    let newVersion = max(bundleVersion, destVersion, 8)
+                    UserDefaults.standard.set(newVersion, forKey: "current_content_version")
                 }
             }
 

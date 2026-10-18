@@ -76,6 +76,14 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
         return catalog.wordById
     }
 
+    public func fetchLearningPaths() async throws -> [LearningPathDTO] {
+        LearningPathSwitchSheet.fallbackPaths
+    }
+
+    public func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {
+        try await fetchTopicDecks()
+    }
+
     /// Validates that the underlying catalog resource exists and can be successfully decoded.
     public func validateCatalog() throws {
         _ = try Self.loadAndIndex(bundle: bundle, resourceName: resourceName)
