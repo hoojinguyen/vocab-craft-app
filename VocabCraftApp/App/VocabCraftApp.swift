@@ -18,6 +18,8 @@ struct VocabCraftApp: App {
         return args.contains("-test-lesson-feedback-incorrect")
             || args.contains("-test-lesson-feedback-correct")
             || args.contains("-test-lesson-discovery")
+            || args.contains("-test-path-switch")
+            || args.contains("-test-treasure-claim")
     }
 
     var body: some Scene {
