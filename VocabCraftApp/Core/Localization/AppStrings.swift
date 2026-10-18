@@ -903,6 +903,8 @@ extension AppStrings {
         public static var claimButtonText: String {
             String(localized: "app.treasure.claim_button", defaultValue: "Claim +150 XP", bundle: .module)
         }
+        public static var claimReward: LocalizedStringKey { claimButton }
+        public static var claimRewardText: String { claimButtonText }
 
         public static var alreadyClaimed: LocalizedStringKey { "app.treasure.already_claimed" }
         public static var alreadyClaimedText: String {

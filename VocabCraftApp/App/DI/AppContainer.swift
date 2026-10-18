@@ -246,7 +246,8 @@ public final class AppContainer {
         HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService,
-            userSettings: userSettingsStore
+            userSettings: userSettingsStore,
+            claimTreasureRewardUseCase: claimTreasureRewardUseCase
         )
     }
 

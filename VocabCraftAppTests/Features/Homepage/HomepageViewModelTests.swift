@@ -48,6 +48,27 @@ private final class MockFetchLearningPathUseCase: FetchLearningPathUseCaseProtoc
     }
 }
 
+private final class MockClaimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol, @unchecked Sendable {
+    var stubbedResult: TreasureRewardResult = TreasureRewardResult(
+        stageId: "treasure_deck_1",
+        deckId: "deck_1",
+        xpEarned: 150,
+        isAlreadyClaimed: false
+    )
+    var shouldThrowError: Error?
+    var executeCallCount = 0
+    var lastRequestedDeckId: String?
+
+    func execute(deckId: String) async throws -> TreasureRewardResult {
+        executeCallCount += 1
+        lastRequestedDeckId = deckId
+        if let error = shouldThrowError {
+            throw error
+        }
+        return stubbedResult
+    }
+}
+
 private func makeSampleCurriculum() -> LearningPathCurriculum {
     LearningPathCurriculum(
         decks: [
@@ -803,5 +824,79 @@ final class HomepageViewModelTests: XCTestCase {
         XCTAssertEqual(settings.selectedLearningPathId, "path_ielts")
         XCTAssertEqual(mockUseCase.lastRequestedPathId, "path_ielts")
         defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testResolvedDeckIdResolution() {
+        let treasureNode = LessonNodeModel(id: "treasure_deck_abc", title: "Treasure", kind: .treasureChest)
+        let checkpointNode = LessonNodeModel(id: "checkpoint_deck_xyz", title: "Checkpoint", kind: .checkpoint)
+        let standardNode = LessonNodeModel(id: "stage_1", title: "Lesson 1", kind: .standard)
+
+        let section = LessonSection(id: "deck_sec1", title: "Deck Sec 1", nodes: [standardNode])
+        let vm = HomepageViewModel(sections: [section])
+
+        XCTAssertEqual(vm.resolvedDeckId(for: treasureNode), "deck_abc")
+        XCTAssertEqual(vm.resolvedDeckId(for: checkpointNode), "deck_xyz")
+        XCTAssertEqual(vm.resolvedDeckId(for: standardNode), "deck_sec1")
+    }
+
+    func testClaimTreasureSuccessAwardsXPAndCompletesNode() async throws {
+        let mockUseCase = MockClaimTreasureRewardUseCase()
+        let treasureNode = LessonNodeModel(id: "treasure_deck_1", title: "Treasure", state: .bonus, kind: .treasureChest)
+        let checkpointNode = LessonNodeModel(id: "checkpoint_deck_1", title: "Checkpoint", state: .completed, kind: .checkpoint)
+        let section = LessonSection(id: "deck_1", title: "Unit 1", nodes: [checkpointNode, treasureNode])
+
+        let vm = HomepageViewModel(
+            claimTreasureRewardUseCase: mockUseCase,
+            sections: [section]
+        )
+
+        let result = try await vm.claimTreasure(node: treasureNode)
+        XCTAssertEqual(result.xpEarned, 150)
+        XCTAssertFalse(result.isAlreadyClaimed)
+        XCTAssertEqual(mockUseCase.executeCallCount, 1)
+        XCTAssertEqual(mockUseCase.lastRequestedDeckId, "deck_1")
+
+        let updatedTreasureNode = vm.sections[0].nodes.first(where: { $0.id == "treasure_deck_1" })
+        XCTAssertEqual(updatedTreasureNode?.state, .completed)
+    }
+
+    func testClaimTreasureThrowsErrorWhenIncomplete() async throws {
+        let mockUseCase = MockClaimTreasureRewardUseCase()
+        mockUseCase.shouldThrowError = TreasureClaimError.checkpointIncomplete
+
+        let treasureNode = LessonNodeModel(id: "treasure_deck_1", title: "Treasure", state: .bonus, kind: .treasureChest)
+        let section = LessonSection(id: "deck_1", title: "Unit 1", nodes: [treasureNode])
+
+        let vm = HomepageViewModel(
+            claimTreasureRewardUseCase: mockUseCase,
+            sections: [section]
+        )
+
+        do {
+            _ = try await vm.claimTreasure(node: treasureNode)
+            XCTFail("Expected error to be thrown")
+        } catch let error as TreasureClaimError {
+            XCTAssertEqual(error, .checkpointIncomplete)
+        }
+
+        let updatedTreasureNode = vm.sections[0].nodes.first(where: { $0.id == "treasure_deck_1" })
+        XCTAssertEqual(updatedTreasureNode?.state, .bonus)
+    }
+
+    func testClaimTreasureFallbackWhenUseCaseIsNil() async throws {
+        let treasureNode = LessonNodeModel(id: "treasure_deck_1", title: "Treasure", state: .bonus, kind: .treasureChest)
+        let section = LessonSection(id: "deck_1", title: "Unit 1", nodes: [treasureNode])
+
+        let vm = HomepageViewModel(
+            claimTreasureRewardUseCase: nil,
+            sections: [section]
+        )
+
+        let result = try await vm.claimTreasure(node: treasureNode)
+        XCTAssertEqual(result.xpEarned, 150)
+        XCTAssertFalse(result.isAlreadyClaimed)
+
+        let updatedTreasureNode = vm.sections[0].nodes.first(where: { $0.id == "treasure_deck_1" })
+        XCTAssertEqual(updatedTreasureNode?.state, .completed)
     }
 }

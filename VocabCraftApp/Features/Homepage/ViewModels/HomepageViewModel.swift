@@ -72,11 +72,13 @@ public final class HomepageViewModel {
     private let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
     private let userSettings: UserSettingsStore?
+    private let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol?
 
     public init(
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettings: UserSettingsStore? = nil,
+        claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
         activeLearningPath: LearningPathDTO? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
@@ -88,6 +90,7 @@ public final class HomepageViewModel {
         self.fetchLearningPathUseCase = fetchLearningPathUseCase
         self.ttsService = ttsService
         self.userSettings = userSettings
+        self.claimTreasureRewardUseCase = claimTreasureRewardUseCase
         self.activeLearningPath = activeLearningPath
         self.userName = userName
         self._streakDays = userSettings?.currentStreak ?? streakDays
@@ -138,6 +141,33 @@ public final class HomepageViewModel {
     public func dismissDetailSheet() {
         self.isDetailSheetPresented = false
         self.selectedNode = nil
+    }
+
+    public func resolvedDeckId(for node: LessonNodeModel) -> String {
+        if node.id.hasPrefix("treasure_") {
+            return String(node.id.dropFirst("treasure_".count))
+        }
+        if node.id.hasPrefix("checkpoint_") {
+            return String(node.id.dropFirst("checkpoint_".count))
+        }
+        return sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
+    }
+
+    @discardableResult
+    public func claimTreasure(node: LessonNodeModel) async throws -> TreasureRewardResult {
+        let deckId = resolvedDeckId(for: node)
+        guard let useCase = claimTreasureRewardUseCase else {
+            applyCompletedLesson(stageId: node.id)
+            return TreasureRewardResult(
+                stageId: node.id,
+                deckId: deckId,
+                xpEarned: LessonEconomyPolicy.treasureXP,
+                isAlreadyClaimed: false
+            )
+        }
+        let result = try await useCase.execute(deckId: deckId)
+        applyCompletedLesson(stageId: node.id)
+        return result
     }
 
     public func applyCompletedLesson(stageId: String) {

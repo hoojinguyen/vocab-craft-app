@@ -21,6 +21,7 @@ public struct HomepageView: View {
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var aiAssistantHubVM: AIAssistantHubViewModel?
     @State private var activeLessonLearningVM: LessonLearningViewModel?
+    @State private var activeTreasureClaimNode: LessonNodeModel?
     @State private var lessonLaunchTask: Task<Void, Never>?
     @State private var isLaunchingLesson: Bool = false
     @State private var isHandlingLessonFinished: Bool = false
@@ -84,7 +85,7 @@ public struct HomepageView: View {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
                                 surfaceStyle: .tactile3D,
-                                isSuspended: activeLessonLearningVM != nil,
+                                isSuspended: activeLessonLearningVM != nil || activeTreasureClaimNode != nil,
                                 deckTitle: viewModel.currentDeckTitle,
                                 deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
@@ -111,7 +112,40 @@ public struct HomepageView: View {
                                     }
                                 },
                                 scrollToActive: true,
-                                externalScrollTrigger: scrollToActiveNonce
+                                externalScrollTrigger: scrollToActiveNonce,
+                                detailSheetBuilder: { node, onStart, onDismiss in
+                                    MainActor.assumeIsolated {
+                                        if node.kind == .treasureChest {
+                                            let deckId = viewModel.resolvedDeckId(for: node)
+                                            return AnyView(
+                                                TreasureClaimSheet(
+                                                    node: node,
+                                                    deckId: deckId,
+                                                    onClaim: {
+                                                        try await viewModel.claimTreasure(node: node)
+                                                    },
+                                                    onClaimSuccess: { result in
+                                                        handleTreasureClaimSuccess(result)
+                                                    },
+                                                    onDismiss: onDismiss
+                                                )
+                                                .craftSurfaceStyle(.tactile3D)
+                                                .presentationDetents([.fraction(0.52), .medium])
+                                            )
+                                        } else {
+                                            return AnyView(
+                                                CraftLessonDetailSheet(
+                                                    node: node,
+                                                    surfaceStyle: .tactile3D,
+                                                    onStart: onStart,
+                                                    onDismiss: onDismiss
+                                                )
+                                                .craftSurfaceStyle(.tactile3D)
+                                                .presentationDetents([.fraction(0.70), .large])
+                                            )
+                                        }
+                                    }
+                                }
                             )
                             .refreshable {
                                 await viewModel.loadLearningPath()
@@ -247,6 +281,23 @@ public struct HomepageView: View {
             )
         }
         #endif
+        .sheet(item: $activeTreasureClaimNode) { node in
+            TreasureClaimSheet(
+                node: node,
+                deckId: viewModel.resolvedDeckId(for: node),
+                onClaim: {
+                    try await viewModel.claimTreasure(node: node)
+                },
+                onClaimSuccess: { result in
+                    handleTreasureClaimSuccess(result)
+                },
+                onDismiss: {
+                    activeTreasureClaimNode = nil
+                }
+            )
+            .craftSurfaceStyle(.tactile3D)
+            .presentationDetents([.fraction(0.52), .medium])
+        }
     }
 }
 
@@ -255,6 +306,28 @@ public struct HomepageView: View {
 private extension HomepageView {
     func handleTestLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-test-treasure-claim") {
+            Task {
+                try? await Task.sleep(for: .milliseconds(250))
+                if viewModel.sections.isEmpty {
+                    await viewModel.loadLearningPath()
+                }
+                let treasureNode = viewModel.sections.flatMap(\.nodes).first(where: { $0.kind == .treasureChest })
+                    ?? LessonNodeModel(
+                        id: "treasure_deck_0",
+                        title: AppStrings.Treasure.congratsTitleText,
+                        iconName: "gift.fill",
+                        state: .bonus,
+                        kind: .treasureChest,
+                        xpReward: LessonEconomyPolicy.treasureXP
+                    )
+                await MainActor.run {
+                    self.activeTreasureClaimNode = treasureNode
+                }
+            }
+            return
+        }
+
         if args.contains("-test-lesson-discovery") {
             Task {
                 try? await Task.sleep(for: .milliseconds(150))
@@ -304,15 +377,14 @@ private extension HomepageView {
     }
 
     func startLesson(for node: LessonNodeModel) {
-        guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
-
-        let resolvedDeckId: String
-        if node.id.hasPrefix("checkpoint_") {
-            resolvedDeckId = String(node.id.dropFirst("checkpoint_".count))
-        } else {
-            resolvedDeckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
+        if node.kind == .treasureChest {
+            activeTreasureClaimNode = node
+            return
         }
 
+        guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
+
+        let resolvedDeckId = viewModel.resolvedDeckId(for: node)
         guard !resolvedDeckId.isEmpty else {
             completionToastData = CraftToastData(
                 title: AppStrings.Common.errorText,
@@ -334,36 +406,8 @@ private extension HomepageView {
                 }
             }
 
-            let words: [TopicWordDTO]
             let deckId: String = resolvedDeckId
-            if node.id.hasPrefix("checkpoint_") {
-                let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                let wordsByStage: [String: [TopicWordDTO]] = await withTaskGroup(of: (String, [TopicWordDTO]).self) { group in
-                    for stage in stages {
-                        group.addTask {
-                            let stageWords = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
-                            return (stage.id, stageWords)
-                        }
-                    }
-                    var mapped: [String: [TopicWordDTO]] = [:]
-                    mapped.reserveCapacity(stages.count)
-                    for await (stageId, stageWords) in group {
-                        mapped[stageId] = stageWords
-                    }
-                    return mapped
-                }
-                let weakWords = (try? await appContainer.reviewWeakWordsUseCase.fetchWeakWords()) ?? []
-                let weakWordIds = Set(weakWords.map(\.id))
-                let sampler = SmartCheckpointWordSampler()
-                words = sampler.sample(
-                    stages: stages,
-                    wordsByStage: wordsByStage,
-                    weakWordIds: weakWordIds,
-                    targetCount: 10
-                )
-            } else {
-                words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
-            }
+            let words = await fetchLessonWords(for: node, deckId: deckId)
 
             guard !Task.isCancelled else { return }
 
@@ -393,6 +437,37 @@ private extension HomepageView {
                 guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
                 self.activeLessonLearningVM = vm
             }
+        }
+    }
+
+    private func fetchLessonWords(for node: LessonNodeModel, deckId: String) async -> [TopicWordDTO] {
+        if node.id.hasPrefix("checkpoint_") {
+            let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
+            let wordsByStage: [String: [TopicWordDTO]] = await withTaskGroup(of: (String, [TopicWordDTO]).self) { group in
+                for stage in stages {
+                    group.addTask {
+                        let stageWords = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
+                        return (stage.id, stageWords)
+                    }
+                }
+                var mapped: [String: [TopicWordDTO]] = [:]
+                mapped.reserveCapacity(stages.count)
+                for await (stageId, stageWords) in group {
+                    mapped[stageId] = stageWords
+                }
+                return mapped
+            }
+            let weakWords = (try? await appContainer.reviewWeakWordsUseCase.fetchWeakWords()) ?? []
+            let weakWordIds = Set(weakWords.map(\.id))
+            let sampler = SmartCheckpointWordSampler()
+            return sampler.sample(
+                stages: stages,
+                wordsByStage: wordsByStage,
+                weakWordIds: weakWordIds,
+                targetCount: 10
+            )
+        } else {
+            return (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
         }
     }
 
@@ -441,6 +516,30 @@ private extension HomepageView {
                     duration: 3.0
                 )
             }
+        }
+    }
+
+    private func handleTreasureClaimSuccess(_ result: TreasureRewardResult) {
+        CraftHaptics.shared.success()
+        homeConfettiTrigger = true
+        if result.isAlreadyClaimed {
+            completionToastData = CraftToastData(
+                title: AppStrings.Treasure.alreadyClaimedText,
+                message: AppStrings.Treasure.congratsTitleText,
+                iconName: "checkmark.seal.fill",
+                style: .info,
+                surfaceStyle: .glass,
+                duration: 3.0
+            )
+        } else {
+            completionToastData = CraftToastData(
+                title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
+                message: "+\(result.xpEarned) XP • \(AppStrings.Treasure.congratsTitleText)",
+                iconName: "gift.fill",
+                style: .success,
+                surfaceStyle: .glass,
+                duration: 3.0
+            )
         }
     }
 
