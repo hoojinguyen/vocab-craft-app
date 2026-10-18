@@ -72,7 +72,7 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
         } else {
             targetId = nil
         }
-        let activePath = paths.first(where: { $0.id == targetId }) ?? paths.first
+        let activePath = paths.first(where: { $0.id == targetId || $0.code == targetId }) ?? paths.first
         let resolvedPathId = activePath?.id ?? targetId
 
         let staticData: StaticCurriculumData

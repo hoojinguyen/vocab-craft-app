@@ -112,13 +112,13 @@ public final class HomepageViewModel {
         }
     }
 
-    public func loadLearningPath() async {
+    public func loadLearningPath(forceRefresh: Bool = false) async {
         refreshDailyProgress()
         guard let useCase = fetchLearningPathUseCase else { return }
         isLoading = true
         errorMessage = nil
         do {
-            let curriculum = try await useCase.execute(pathId: userSettings?.selectedLearningPathId, forceRefresh: false)
+            let curriculum = try await useCase.execute(pathId: userSettings?.selectedLearningPathId, forceRefresh: forceRefresh)
             self.activeLearningPath = curriculum.activePath
             self.sections = LearningPathDataMapper.map(curriculum: curriculum)
         } catch {
@@ -129,7 +129,7 @@ public final class HomepageViewModel {
 
     public func switchLearningPath(to pathId: String) async {
         userSettings?.saveLearningPathPreference(pathId: pathId)
-        await loadLearningPath()
+        await loadLearningPath(forceRefresh: true)
     }
 
     public func handleNodeTap(_ node: LessonNodeModel) {

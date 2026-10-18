@@ -531,6 +531,67 @@ struct HomepageViewModelTestingTests {
         #expect(mockUseCase.lastRequestedPathId == "path_ielts")
         defaults.removePersistentDomain(forName: suite)
     }
+
+    @Test("Verify switching real SQLite learning paths updates sections and active path")
+    @MainActor
+    func testSwitchingRealLearningPathsUpdatesCurriculumAndSections() async throws {
+        var dbURL: URL?
+        for bundle in Bundle.allBundles {
+            if let url = bundle.url(forResource: "vocab_content", withExtension: "sqlite") {
+                dbURL = url
+                break
+            }
+        }
+        if dbURL == nil {
+            let currentFilePath = URL(fileURLWithPath: #filePath)
+            let sourceURL = currentFilePath
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("VocabCraftApp/Resources/Content/vocab_content.sqlite")
+            if FileManager.default.fileExists(atPath: sourceURL.path) {
+                dbURL = sourceURL
+            }
+        }
+        guard let resolvedURL = dbURL else { return }
+
+        let dataSource = try SQLiteContentRepository(url: resolvedURL)
+        let stageRepo = MockStageProgressRepository()
+        let suite = "test_hp_vm_real_switch_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(userDefaults: defaults)
+        let useCase = FetchLearningPathUseCase(
+            dataSource: dataSource,
+            stageRepo: stageRepo,
+            userSettings: settings
+        )
+        let viewModel = HomepageViewModel(
+            fetchLearningPathUseCase: useCase,
+            userSettings: settings
+        )
+
+        // 1. Initial load defaults to core curriculum (48 decks)
+        await viewModel.loadLearningPath()
+        #expect(viewModel.sections.count == 48)
+        #expect(viewModel.activeLearningPath?.code == "essential-english-mastery")
+
+        // 2. Switch to daily life & travel (26 decks)
+        await viewModel.switchLearningPath(to: "c11e8a24-9b2f-4e67-881a-637dc44d3201")
+        #expect(viewModel.sections.count == 26)
+        #expect(viewModel.activeLearningPath?.code == "daily-life-travel")
+
+        // 3. Switch to business career (10 decks) using slug
+        await viewModel.switchLearningPath(to: "business-career")
+        #expect(viewModel.sections.count == 10)
+        #expect(viewModel.activeLearningPath?.code == "business-career")
+
+        // 4. Switch to academic research (16 decks)
+        await viewModel.switchLearningPath(to: "academic-research")
+        #expect(viewModel.sections.count == 16)
+        #expect(viewModel.activeLearningPath?.code == "academic-research")
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 #endif
 

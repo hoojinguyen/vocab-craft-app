@@ -164,12 +164,14 @@ public final class SQLiteContentRepository: VocabularyDataSourceProtocol, Sendab
                ) AS computed_cefr
         FROM decks d
         JOIN path_decks pd ON pd.deck_id = d.id
-        WHERE pd.path_id = ?
+        JOIN learning_paths lp ON lp.id = pd.path_id
+        WHERE pd.path_id = ? OR lp.code = ?
         ORDER BY pd.sort_order;
         """
         let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         let decks = try query(sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, pathId, -1, sqliteTransient)
+            sqlite3_bind_text(stmt, 2, pathId, -1, sqliteTransient)
         }) { [self] stmt in
             let descEn = columnString(stmt, 3)
             let descVi = columnString(stmt, 4)
