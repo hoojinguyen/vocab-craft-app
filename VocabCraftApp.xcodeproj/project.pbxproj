@@ -388,6 +388,7 @@
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
 		300082B754991DC24862 /* LocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200082B754991DC24862 /* LocalizationTests.swift */; };
+		3000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
 		3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
@@ -806,6 +807,7 @@
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
 		200082B754991DC24862 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
+		2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
 		2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModelTests.swift"; sourceTree = "<group>"; };
@@ -1781,6 +1783,7 @@
 				2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */,
 				4000538975BBBF45E56C /* Features */,
 				40001795D309886C29B1 /* Mocks */,
+				400080019F7B3C6D234A /* Localization */,
 				4000A43204724448D0C9 /* Reflex */,
 				4000EED3B02F6642C380 /* Resources */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
@@ -2036,6 +2039,14 @@
 				200082B754991DC24862 /* LocalizationTests.swift */,
 			);
 			path = "Resources";
+			sourceTree = "<group>";
+		};
+		400080019F7B3C6D234A /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */,
+			);
+			path = "Localization";
 			sourceTree = "<group>";
 		};
 		4000D3F1B681BE1783FF /* Support */ = {
@@ -2584,6 +2595,7 @@
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
 				300082B754991DC24862 /* LocalizationTests.swift in Test Sources */,
+				3000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,
 				3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */,
 				30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */,

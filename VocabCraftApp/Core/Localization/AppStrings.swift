@@ -879,3 +879,91 @@ extension AppStrings {
     public static var llamaDesc: LocalizedStringKey { AIModelDownload.llamaDesc }
     public static var llamaDescText: String { AIModelDownload.llamaDescText }
 }
+
+// MARK: - Treasure & Learning Path Strings
+
+extension AppStrings {
+    // MARK: - Treasure
+    public enum Treasure {
+        public static var congratsTitle: LocalizedStringKey { "app.treasure.congrats_title" }
+        public static var congratsTitleText: String {
+            String(localized: "app.treasure.congrats_title", defaultValue: "Unit Mastered!", bundle: .module)
+        }
+
+        public static var congratsSubtitle: LocalizedStringKey { "app.treasure.congrats_subtitle" }
+        public static var congratsSubtitleText: String {
+            String(
+                localized: "app.treasure.congrats_subtitle",
+                defaultValue: "You have completed all lessons and the checkpoint quiz. Open the chest to claim your milestone reward!",
+                bundle: .module
+            )
+        }
+
+        public static var claimButton: LocalizedStringKey { "app.treasure.claim_button" }
+        public static var claimButtonText: String {
+            String(localized: "app.treasure.claim_button", defaultValue: "Claim +150 XP", bundle: .module)
+        }
+
+        public static var alreadyClaimed: LocalizedStringKey { "app.treasure.already_claimed" }
+        public static var alreadyClaimedText: String {
+            String(localized: "app.treasure.already_claimed", defaultValue: "Reward Claimed", bundle: .module)
+        }
+
+        public static var checkpointIncompleteError: LocalizedStringKey { "app.treasure.error.checkpoint_incomplete" }
+        public static var checkpointIncompleteErrorText: String {
+            String(
+                localized: "app.treasure.error.checkpoint_incomplete",
+                defaultValue: "Checkpoint must be completed before claiming treasure reward.",
+                bundle: .module
+            )
+        }
+    }
+
+    // MARK: - Learning Path
+    public enum LearningPath {
+        public static var switcherTitle: LocalizedStringKey { "app.learning_path.switcher_title" }
+        public static var switcherTitleText: String {
+            String(localized: "app.learning_path.switcher_title", defaultValue: "Learning Paths", bundle: .module)
+        }
+
+        public static var switcherSubtitle: LocalizedStringKey { "app.learning_path.switcher_subtitle" }
+        public static var switcherSubtitleText: String {
+            String(
+                localized: "app.learning_path.switcher_subtitle",
+                defaultValue: "Switch paths anytime. All progress is safely preserved.",
+                bundle: .module
+            )
+        }
+
+        public static var activeBadge: LocalizedStringKey { "app.learning_path.active_badge" }
+        public static var activeBadgeText: String {
+            String(localized: "app.learning_path.active_badge", defaultValue: "Active", bundle: .module)
+        }
+
+        public static func progressFormat(completed: Int, total: Int, percent: Int) -> String {
+            String(
+                format: String(
+                    localized: "app.learning_path.progress_format",
+                    defaultValue: "%lld of %lld Units completed (%lld%%)",
+                    bundle: .module
+                ),
+                completed,
+                total,
+                percent
+            )
+        }
+
+        public static func progressFormatKey(completed: Int, total: Int, percent: Int) -> LocalizedStringKey {
+            LocalizedStringKey(progressFormat(completed: completed, total: total, percent: percent))
+        }
+
+        public static func progress(completed: Int, total: Int, percent: Int) -> String {
+            progressFormat(completed: completed, total: total, percent: percent)
+        }
+
+        public static var switchAction: LocalizedStringKey { "app.learning_path.switch_action" }
+        public static var switchActionText: String {
+            String(localized: "app.learning_path.switch_action", defaultValue: "Switch to this Path", bundle: .module)
+        }
+    }
+}

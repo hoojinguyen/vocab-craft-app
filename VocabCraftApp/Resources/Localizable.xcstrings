@@ -3894,6 +3894,74 @@
         }
       }
     },
+    "app.treasure.already_claimed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reward Claimed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã Nhận Thưởng"
+          }
+        }
+      }
+    },
+    "app.treasure.claim_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claim +150 XP"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhận Thưởng +150 XP"
+          }
+        }
+      }
+    },
+    "app.treasure.congrats_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have completed all lessons and the checkpoint quiz. Open the chest to claim your milestone reward!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đã hoàn thành toàn bộ bài học và bài kiểm tra Checkpoint. Mở rương để nhận phần thưởng!"
+          }
+        }
+      }
+    },
+    "app.treasure.congrats_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit Mastered!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chúc mừng bạn đã chinh phục Unit!"
+          }
+        }
+      }
+    },
     "app.treasure.error.checkpoint_incomplete": {
       "extractionState": "manual",
       "localizations": {
@@ -3907,6 +3975,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cần hoàn thành bài kiểm tra checkpoint trước khi mở rương phần thưởng."
+          }
+        }
+      }
+    },
+    "app.learning_path.active_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang học"
+          }
+        }
+      }
+    },
+    "app.learning_path.progress_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld of %lld Units completed (%lld%%)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã hoàn thành %lld/%lld Unit (%lld%%)"
+          }
+        }
+      }
+    },
+    "app.learning_path.switch_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to this Path"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn lộ trình này"
+          }
+        }
+      }
+    },
+    "app.learning_path.switcher_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch paths anytime. All progress is safely preserved."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển đổi linh hoạt bất cứ lúc nào. Toàn bộ tiến độ được lưu giữ nguyên vẹn."
+          }
+        }
+      }
+    },
+    "app.learning_path.switcher_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learning Paths"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lộ Trình Học Tập"
           }
         }
       }
