@@ -338,20 +338,29 @@ private extension HomepageView {
             let deckId: String = resolvedDeckId
             if node.id.hasPrefix("checkpoint_") {
                 let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
+                let wordsByStage: [String: [TopicWordDTO]] = await withTaskGroup(of: (String, [TopicWordDTO]).self) { group in
                     for stage in stages {
                         group.addTask {
-                            (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
+                            let stageWords = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
+                            return (stage.id, stageWords)
                         }
                     }
-                    var combined: [TopicWordDTO] = []
-                    combined.reserveCapacity(stages.count * 8)
-                    for await words in group {
-                        combined.append(contentsOf: words)
+                    var mapped: [String: [TopicWordDTO]] = [:]
+                    mapped.reserveCapacity(stages.count)
+                    for await (stageId, stageWords) in group {
+                        mapped[stageId] = stageWords
                     }
-                    return combined
+                    return mapped
                 }
-                words = deckWords
+                let weakWords = (try? await appContainer.reviewWeakWordsUseCase.fetchWeakWords()) ?? []
+                let weakWordIds = Set(weakWords.map(\.id))
+                let sampler = SmartCheckpointWordSampler()
+                words = sampler.sample(
+                    stages: stages,
+                    wordsByStage: wordsByStage,
+                    weakWordIds: weakWordIds,
+                    targetCount: 10
+                )
             } else {
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
