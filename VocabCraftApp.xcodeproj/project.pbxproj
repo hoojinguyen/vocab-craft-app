@@ -312,6 +312,7 @@
 		300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */; };
 		300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */; };
 		30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */; };
+		3000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */; };
 		3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */; };
 		3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */; };
 		3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */; };
@@ -725,6 +726,7 @@
 		200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
 		20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseQuarantineTests.swift"; sourceTree = "<group>"; };
+		2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataSourceTests.swift"; sourceTree = "<group>"; };
 		2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchemaMigrationTests.swift"; sourceTree = "<group>"; };
 		2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryConcurrencyTests.swift"; sourceTree = "<group>"; };
@@ -1862,6 +1864,7 @@
 			children = (
 				200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */,
 				20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */,
+				2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */,
 				2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */,
 				2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */,
 				2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */,
@@ -2493,6 +2496,7 @@
 				300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */,
 				300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */,
 				30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */,
+				3000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift in Test Sources */,
 				3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */,
 				3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */,
