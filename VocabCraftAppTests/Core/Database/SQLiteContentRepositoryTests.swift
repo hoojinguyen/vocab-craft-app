@@ -35,6 +35,41 @@ final class SQLiteContentRepositoryTests: XCTestCase {
         XCTAssertTrue(nonExistentStages.isEmpty)
     }
 
+    func testFetchTopicDecksIncludesBilingualTitlesAndCEFR() async throws {
+        let originalURL = try resolveBundledDatabaseURL()
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_vocab_content_bilingual.sqlite")
+        if FileManager.default.fileExists(atPath: tempURL.path) {
+            try FileManager.default.removeItem(at: tempURL)
+        }
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+
+        let repo = try SQLiteContentRepository(url: tempURL)
+        let decks = try await repo.fetchTopicDecks()
+        XCTAssertFalse(decks.isEmpty)
+        guard let first = decks.first else { return }
+        XCTAssertFalse(first.titleEn.isEmpty)
+        XCTAssertFalse(first.titleVi.isEmpty)
+        XCTAssertNotEqual(first.cefrLevel, "")
+    }
+
+    func testFetchSubTopicStagesIncludesBilingualTitles() async throws {
+        let originalURL = try resolveBundledDatabaseURL()
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_vocab_content_stages_bilingual.sqlite")
+        if FileManager.default.fileExists(atPath: tempURL.path) {
+            try FileManager.default.removeItem(at: tempURL)
+        }
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+
+        let repo = try SQLiteContentRepository(url: tempURL)
+        let decks = try await repo.fetchTopicDecks()
+        guard let firstDeck = decks.first else { return }
+        let stages = try await repo.fetchSubTopicStages(deckId: firstDeck.id)
+        XCTAssertFalse(stages.isEmpty)
+        guard let firstStage = stages.first else { return }
+        XCTAssertFalse(firstStage.titleEn.isEmpty)
+        XCTAssertFalse(firstStage.titleVi.isEmpty)
+    }
+
     func testFetchWordsAndSearch() async throws {
         let originalURL = try resolveBundledDatabaseURL()
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_vocab_content.sqlite")
