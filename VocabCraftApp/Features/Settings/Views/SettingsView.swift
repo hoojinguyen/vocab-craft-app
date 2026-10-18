@@ -111,17 +111,12 @@ public struct SettingsView: View {
     // MARK: - Section Views
 
     private var localizedActivePathTitle: String {
-        guard let activePath else {
-            return locale.identifier.hasPrefix("vi")
-                ? "Lộ Trình Cốt Lõi: Tiếng Anh Toàn Diện"
-                : "Core Curriculum: Comprehensive English"
-        }
+        let path = activePath ?? LearningPathSwitchSheet.fallbackPaths.first
+        guard let path else { return "" }
         let isVietnamese = locale.identifier.hasPrefix("vi")
-        if isVietnamese {
-            return activePath.titleVi.isEmpty ? activePath.titleEn : activePath.titleVi
-        } else {
-            return activePath.titleEn.isEmpty ? activePath.titleVi : activePath.titleEn
-        }
+        return isVietnamese
+            ? (path.titleVi.isEmpty ? path.titleEn : path.titleVi)
+            : (path.titleEn.isEmpty ? path.titleVi : path.titleEn)
     }
 
     private var learningSection: some View {

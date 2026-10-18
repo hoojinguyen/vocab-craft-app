@@ -153,9 +153,11 @@ public struct LearningPathSwitchSheet: View {
                             .fill(active ? theme.colors.brandPrimary.opacity(0.15) : theme.colors.surfaceSubtle)
                             .frame(width: 40, height: 40)
 
-                        Image(systemName: iconName(for: path))
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(active ? theme.colors.brandPrimary : theme.colors.textPrimary)
+                        CraftIcon(
+                            iconName(for: path),
+                            size: .md,
+                            color: active ? theme.colors.brandPrimary : theme.colors.textPrimary
+                        )
                     }
 
                     CraftBadge(
