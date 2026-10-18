@@ -3,10 +3,14 @@ import SwiftUI
 
 public struct SettingsView: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.appContainer) private var appContainer
+    @Environment(\.locale) private var locale
     @Bindable public var viewModel: SettingsViewModel
     @State private var showResetAlert: Bool = false
     @State private var showCatalogSheet: Bool = ProcessInfo.processInfo.arguments.contains("-open-catalog")
     @State private var showProfileSheet: Bool = false
+    @State private var showLearningPathSheet: Bool = false
+    @State private var activePath: LearningPathDTO?
 
     public init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
@@ -69,6 +73,21 @@ public struct SettingsView: View {
         .sheet(isPresented: $showProfileSheet) {
             ProfileStatsSheet()
         }
+        .sheet(isPresented: $showLearningPathSheet) {
+            LearningPathSwitchSheet(
+                activePathId: viewModel.store.selectedLearningPathId,
+                onSelectPath: { selectedPath in
+                    viewModel.store.saveLearningPathPreference(pathId: selectedPath.id)
+                    self.activePath = selectedPath
+                }
+            )
+            .presentationDetents([.medium, .large])
+        }
+        .task {
+            let paths = (try? await appContainer.vocabularyDataSource.fetchLearningPaths()) ?? []
+            let selectedId = viewModel.store.selectedLearningPathId
+            self.activePath = paths.first(where: { $0.id == selectedId }) ?? paths.first
+        }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.themePreset) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.roleplayVoiceId) { _, _ in viewModel.store.isHapticsEnabled }
@@ -91,10 +110,30 @@ public struct SettingsView: View {
 
     // MARK: - Section Views
 
+    private var localizedActivePathTitle: String {
+        guard let activePath else {
+            return locale.identifier.hasPrefix("vi")
+                ? "Lộ Trình Cốt Lõi: Tiếng Anh Toàn Diện"
+                : "Core Curriculum: Comprehensive English"
+        }
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return activePath.titleVi.isEmpty ? activePath.titleEn : activePath.titleVi
+        } else {
+            return activePath.titleEn.isEmpty ? activePath.titleVi : activePath.titleEn
+        }
+    }
+
     private var learningSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionLearning)
-            SettingsLearningCard(store: viewModel.store)
+            SettingsLearningCard(
+                store: viewModel.store,
+                activePathTitle: localizedActivePathTitle,
+                onSelectLearningPath: {
+                    showLearningPathSheet = true
+                }
+            )
         }
     }
 
@@ -166,10 +205,28 @@ public struct SettingsView: View {
 private struct SettingsLearningCard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable var store: UserSettingsStore
+    var activePathTitle: String?
+    var onSelectLearningPath: (() -> Void)?
 
     var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
+                CraftListRow(
+                    title: AppStrings.LearningPath.switcherTitle,
+                    showChevron: true,
+                    action: {
+                        CraftHaptics.shared.light()
+                        onSelectLearningPath?()
+                    }
+                ) {
+                    if let activePathTitle, !activePathTitle.isEmpty {
+                        CraftText(activePathTitle, style: .bodyMedium, color: theme.colors.textSecondary)
+                            .lineLimit(1)
+                    }
+                }
+
+                CraftDivider()
+
                 CraftListRow(
                     title: AppStrings.Settings.dailyGoal
                 ) {

@@ -21,6 +21,8 @@ public struct HomeTopHeaderView: View {
     public var onAvatarTap: (() -> Void)?
     public var onStreakTap: (() -> Void)?
     public var onProgressTap: (() -> Void)?
+    public var onSelectPath: (() -> Void)?
+    public var onPathTap: (() -> Void)?
 
     public init(
         userName: String,
@@ -30,7 +32,9 @@ public struct HomeTopHeaderView: View {
         activeLearningPath: LearningPathDTO? = nil,
         onAvatarTap: (() -> Void)? = nil,
         onStreakTap: (() -> Void)? = nil,
-        onProgressTap: (() -> Void)? = nil
+        onProgressTap: (() -> Void)? = nil,
+        onSelectPath: (() -> Void)? = nil,
+        onPathTap: (() -> Void)? = nil
     ) {
         self.userName = userName
         self.streakDays = streakDays
@@ -40,6 +44,9 @@ public struct HomeTopHeaderView: View {
         self.onAvatarTap = onAvatarTap
         self.onStreakTap = onStreakTap
         self.onProgressTap = onProgressTap
+        let resolvedAction = onSelectPath ?? onPathTap
+        self.onSelectPath = resolvedAction
+        self.onPathTap = resolvedAction
     }
 
     private var userInitials: String {
@@ -73,7 +80,20 @@ public struct HomeTopHeaderView: View {
             }
 
             if let activeLearningPath {
-                ActiveJourneyBadge(path: activeLearningPath)
+                let pathAction = onSelectPath ?? onPathTap
+                if let pathAction {
+                    Button(action: {
+                        CraftHaptics.shared.light()
+                        pathAction()
+                    }) {
+                        ActiveJourneyBadge(path: activeLearningPath, showChevron: true)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint(AppStrings.LearningPath.switcherSubtitleText)
+                } else {
+                    ActiveJourneyBadge(path: activeLearningPath, showChevron: false)
+                }
             }
         }
     }
@@ -172,6 +192,7 @@ private struct ActiveJourneyBadge: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.locale) private var locale
     let path: LearningPathDTO
+    var showChevron: Bool = false
 
     var body: some View {
         HStack(alignment: .center, spacing: theme.spacing.xs) {
@@ -187,6 +208,10 @@ private struct ActiveJourneyBadge: View {
                 .font(theme.typography.caption)
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
+
+            if showChevron {
+                CraftIcon("chevron.right", size: .sm, color: theme.colors.textMuted)
+            }
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.bottom, theme.spacing.xs)

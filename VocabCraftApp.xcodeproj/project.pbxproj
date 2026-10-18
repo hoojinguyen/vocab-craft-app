@@ -174,6 +174,7 @@
 		3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4EBE185E244E802 /* HomeTopHeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
 		3000C1A1A78E993B4125 /* TreasureClaimSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */; };
+		3000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */; };
 		30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */; };
 		30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */; };
 		3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */; };
@@ -344,6 +345,7 @@
 		30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */; };
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
 		3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */; };
+		3000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */; };
 		3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */; };
 		3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */; };
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
@@ -611,6 +613,7 @@
 		2000B4EBE185E244E802 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
 		2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TreasureClaimSheet.swift"; sourceTree = "<group>"; };
+		2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheet.swift"; sourceTree = "<group>"; };
 		20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StreakWeekStripView.swift"; sourceTree = "<group>"; };
 		20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Completion.swift"; sourceTree = "<group>"; };
 		2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Speech.swift"; sourceTree = "<group>"; };
@@ -764,6 +767,7 @@
 		20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelTests.swift"; sourceTree = "<group>"; };
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewTests.swift"; sourceTree = "<group>"; };
 		2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
+		2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheetTests.swift"; sourceTree = "<group>"; };
 		2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModelTests.swift"; sourceTree = "<group>"; };
 		2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLocalizationTests.swift"; sourceTree = "<group>"; };
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
@@ -1391,6 +1395,7 @@
 				2000B4EBE185E244E802 /* HomeTopHeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
 				2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */,
+				2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */,
 				20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */,
 			);
 			path = "Views";
@@ -1946,6 +1951,7 @@
 				20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */,
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
 				2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */,
+				2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */,
 			);
 			path = "Homepage";
 			sourceTree = "<group>";
@@ -2376,6 +2382,7 @@
 				3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
 				3000C1A1A78E993B4125 /* TreasureClaimSheet.swift in Sources */,
+				3000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
 				30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */,
 				3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */,
@@ -2554,6 +2561,7 @@
 				30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */,
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
 				3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */,
+				3000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift in Test Sources */,
 				3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */,
 				3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,

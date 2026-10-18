@@ -29,6 +29,7 @@ public struct HomepageView: View {
     @State private var scrollToActiveNonce: Int = 0
     @State private var homeConfettiTrigger: Bool = false
     @State private var completionToastData: CraftToastData?
+    @State private var isLearningPathSwitchPresented: Bool = false
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
@@ -61,6 +62,12 @@ public struct HomepageView: View {
                         },
                         onProgressTap: {
                             scrollToActiveNonce += 1
+                        },
+                        onSelectPath: {
+                            isLearningPathSwitchPresented = true
+                        },
+                        onPathTap: {
+                            isLearningPathSwitchPresented = true
                         }
                     )
                     .background(theme.colors.canvasBackground)
@@ -109,6 +116,11 @@ public struct HomepageView: View {
                                                 }
                                             }
                                         }
+                                    }
+                                },
+                                onAdjustPlan: {
+                                    MainActor.assumeIsolated {
+                                        isLearningPathSwitchPresented = true
                                     }
                                 },
                                 scrollToActive: true,
@@ -237,6 +249,10 @@ public struct HomepageView: View {
         .onChange(of: appRouter.selectedTab) { _, newTab in
             if newTab == .home {
                 viewModel.refreshDailyProgress()
+                if let selectedId = appContainer.userSettingsStore.selectedLearningPathId,
+                   selectedId != viewModel.activeLearningPath?.id {
+                    Task { await viewModel.loadLearningPath() }
+                }
             }
             if newTab != .home {
                 lessonLaunchTask?.cancel()
@@ -296,6 +312,17 @@ public struct HomepageView: View {
             .craftSurfaceStyle(.tactile3D)
             .presentationDetents([.fraction(0.52), .medium])
         }
+        .sheet(isPresented: $isLearningPathSwitchPresented) {
+            LearningPathSwitchSheet(
+                activePathId: viewModel.activeLearningPath?.id,
+                onSelectPath: { selectedPath in
+                    Task {
+                        await viewModel.switchLearningPath(to: selectedPath.id)
+                    }
+                }
+            )
+            .presentationDetents([.medium, .large])
+        }
     }
 }
 
@@ -304,6 +331,19 @@ public struct HomepageView: View {
 private extension HomepageView {
     func handleTestLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-test-path-switch") {
+            Task {
+                try? await Task.sleep(for: .milliseconds(250))
+                if viewModel.sections.isEmpty {
+                    await viewModel.loadLearningPath()
+                }
+                await MainActor.run {
+                    self.isLearningPathSwitchPresented = true
+                }
+            }
+            return
+        }
+
         if args.contains("-test-treasure-claim") {
             Task {
                 try? await Task.sleep(for: .milliseconds(250))
