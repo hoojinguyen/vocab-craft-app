@@ -334,6 +334,65 @@ public struct LearningPathDTO: Identifiable, Sendable, Equatable, Codable {
         self.themeKey = themeKey
         self.sortOrder = sortOrder
     }
+
+    public static let defaultCuratedPaths: [LearningPathDTO] = [
+        LearningPathDTO(
+            id: "7147ba7e-0728-471d-97af-f3e2262a6d23",
+            code: "essential-english-mastery",
+            titleEn: "Core Curriculum: Comprehensive English for Communication & Academics",
+            titleVi: "Lộ Trình Cốt Lõi: Tiếng Anh Giao Tiếp & Học Thuật Toàn Diện",
+            descriptionEn: "Complete mastery across all essential grammar and vocabulary from A1 to C2.",
+            descriptionVi: "Toàn diện ngữ pháp và từ vựng cốt lõi từ căn bản đến nâng cao A1 đến C2.",
+            goalCategory: "general",
+            targetLevelMin: "A1",
+            targetLevelMax: "C2",
+            iconKey: "compass",
+            themeKey: "ocean_blue",
+            sortOrder: 0
+        ),
+        LearningPathDTO(
+            id: "c11e8a24-9b2f-4e67-881a-637dc44d3201",
+            code: "daily-life-travel",
+            titleEn: "Everyday Life & Travel Fluency",
+            titleVi: "Giao Tiếp Đời Sống & Du Lịch Thực Tế",
+            descriptionEn: "Essential conversational fluency for travel, dining, shopping, and everyday situations.",
+            descriptionVi: "Giao tiếp trôi chảy tự tin khi đi du lịch, ăn uống, mua sắm và đời sống thường ngày.",
+            goalCategory: "travel",
+            targetLevelMin: "A1",
+            targetLevelMax: "B1",
+            iconKey: "airplane.departure",
+            themeKey: "forest_green",
+            sortOrder: 1
+        ),
+        LearningPathDTO(
+            id: "d22f9b35-0c30-4f78-992b-748ed55e4312",
+            code: "business-career",
+            titleEn: "Business & Workplace Excellence",
+            titleVi: "Tiếng Anh Công Sở & Phát Triển Sự Nghiệp",
+            descriptionEn: "Professional vocabulary for meetings, negotiations, presentations, and leadership.",
+            descriptionVi: "Từ vựng chuyên nghiệp phục vụ hội họp, đàm phán, thuyết trình và phát triển sự nghiệp.",
+            goalCategory: "business",
+            targetLevelMin: "B1",
+            targetLevelMax: "B2",
+            iconKey: "briefcase.fill",
+            themeKey: "ocean_blue",
+            sortOrder: 2
+        ),
+        LearningPathDTO(
+            id: "e33a0c46-1d41-4089-aa3c-859fe66f5423",
+            code: "academic-research",
+            titleEn: "Academic Mastery & Critical Inquiries",
+            titleVi: "Tiếng Anh Học Thuật & Nghiên Cứu Chuyên Sâu",
+            descriptionEn: "Advanced lexicon and rhetoric for university research, thesis writing, and debates.",
+            descriptionVi: "Vốn từ học thuật chuyên sâu phục vụ nghiên cứu, viết luận và tư duy phản biện.",
+            goalCategory: "academic",
+            targetLevelMin: "B2",
+            targetLevelMax: "C2",
+            iconKey: "graduationcap.fill",
+            themeKey: "royal_purple",
+            sortOrder: 3
+        )
+    ]
 }
 
 public protocol VocabularyDataSourceProtocol: Sendable {
@@ -350,64 +409,7 @@ public protocol VocabularyDataSourceProtocol: Sendable {
 
 public extension VocabularyDataSourceProtocol {
     func fetchLearningPaths() async throws -> [LearningPathDTO] {
-        [
-            LearningPathDTO(
-                id: "7147ba7e-0728-471d-97af-f3e2262a6d23",
-                code: "essential-english-mastery",
-                titleEn: "Core Curriculum: Comprehensive English for Communication & Academics",
-                titleVi: "Lộ Trình Cốt Lõi: Tiếng Anh Giao Tiếp & Học Thuật Toàn Diện",
-                descriptionEn: "Complete mastery across all essential grammar and vocabulary from A1 to C2.",
-                descriptionVi: "Toàn diện ngữ pháp và từ vựng cốt lõi từ căn bản đến nâng cao A1 đến C2.",
-                goalCategory: "general",
-                targetLevelMin: "A1",
-                targetLevelMax: "C2",
-                iconKey: "compass",
-                themeKey: "ocean_blue",
-                sortOrder: 0
-            ),
-            LearningPathDTO(
-                id: "c11e8a24-9b2f-4e67-881a-637dc44d3201",
-                code: "daily-life-travel",
-                titleEn: "Everyday Life & Travel Fluency",
-                titleVi: "Giao Tiếp Đời Sống & Du Lịch Thực Tế",
-                descriptionEn: "Essential conversational fluency for travel, dining, shopping, and everyday situations.",
-                descriptionVi: "Giao tiếp trôi chảy tự tin khi đi du lịch, ăn uống, mua sắm và đời sống thường ngày.",
-                goalCategory: "travel",
-                targetLevelMin: "A1",
-                targetLevelMax: "B1",
-                iconKey: "airplane.departure",
-                themeKey: "forest_green",
-                sortOrder: 1
-            ),
-            LearningPathDTO(
-                id: "d22f9b35-0c30-4f78-992b-748ed55e4312",
-                code: "business-career",
-                titleEn: "Business & Workplace Excellence",
-                titleVi: "Tiếng Anh Công Sở & Phát Triển Sự Nghiệp",
-                descriptionEn: "Professional vocabulary for meetings, negotiations, presentations, and leadership.",
-                descriptionVi: "Từ vựng chuyên nghiệp phục vụ hội họp, đàm phán, thuyết trình và phát triển sự nghiệp.",
-                goalCategory: "business",
-                targetLevelMin: "B1",
-                targetLevelMax: "B2",
-                iconKey: "briefcase.fill",
-                themeKey: "ocean_blue",
-                sortOrder: 2
-            ),
-            LearningPathDTO(
-                id: "e33a0c46-1d41-4089-aa3c-859fe66f5423",
-                code: "academic-research",
-                titleEn: "Academic Mastery & Critical Inquiries",
-                titleVi: "Tiếng Anh Học Thuật & Nghiên Cứu Chuyên Sâu",
-                descriptionEn: "Advanced lexicon and rhetoric for university research, thesis writing, and debates.",
-                descriptionVi: "Vốn từ học thuật chuyên sâu phục vụ nghiên cứu, viết luận và tư duy phản biện.",
-                goalCategory: "academic",
-                targetLevelMin: "B2",
-                targetLevelMax: "C2",
-                iconKey: "graduationcap.fill",
-                themeKey: "royal_purple",
-                sortOrder: 3
-            )
-        ]
+        LearningPathDTO.defaultCuratedPaths
     }
 
     func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {

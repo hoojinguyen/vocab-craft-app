@@ -77,7 +77,7 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
     }
 
     public func fetchLearningPaths() async throws -> [LearningPathDTO] {
-        LearningPathSwitchSheet.fallbackPaths
+        LearningPathDTO.defaultCuratedPaths
     }
 
     public func fetchTopicDecks(for pathId: String) async throws -> [TopicDeckDTO] {
