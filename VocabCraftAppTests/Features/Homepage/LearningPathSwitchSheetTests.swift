@@ -73,42 +73,6 @@ struct LearningPathSwitchSheetTestingTests {
         #expect(paths[3].sortOrder == 3)
     }
 
-    @Test("HomeTopHeaderView supports onSelectPath and onPathTap callbacks")
-    @MainActor
-    func testHomeTopHeaderViewPathTapCallbacks() {
-        var pathSelected = false
-        let path = LearningPathSwitchSheet.fallbackPaths[0]
-
-        let headerWithSelectPath = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: path,
-            onSelectPath: { pathSelected = true }
-        )
-
-        #expect(headerWithSelectPath.onSelectPath != nil)
-        #expect(headerWithSelectPath.onPathTap != nil)
-        headerWithSelectPath.onSelectPath?()
-        #expect(pathSelected)
-
-        var pathTapped = false
-        let headerWithPathTap = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: path,
-            onPathTap: { pathTapped = true }
-        )
-
-        #expect(headerWithPathTap.onSelectPath != nil)
-        #expect(headerWithPathTap.onPathTap != nil)
-        headerWithPathTap.onPathTap?()
-        #expect(pathTapped)
-    }
-
     @Test("Bilingual progress format output matches expected template")
     func testBilingualProgressFormatting() {
         let formatted = AppStrings.LearningPath.progress(completed: 5, total: 26, percent: 19)

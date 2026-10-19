@@ -55,19 +55,12 @@ public struct HomepageView: View {
                         streakDays: viewModel.streakDays,
                         dailyWordsLearned: viewModel.dailyWordsLearned,
                         dailyWordsGoal: viewModel.dailyWordsGoal,
-                        activeLearningPath: viewModel.activeLearningPath,
                         onAvatarTap: {
                             CraftHaptics.shared.light()
                             appRouter.navigateToSettings()
                         },
                         onProgressTap: {
                             scrollToActiveNonce += 1
-                        },
-                        onSelectPath: {
-                            isLearningPathSwitchPresented = true
-                        },
-                        onPathTap: {
-                            isLearningPathSwitchPresented = true
                         }
                     )
                     .background(theme.colors.canvasBackground)

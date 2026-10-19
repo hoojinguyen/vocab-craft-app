@@ -75,58 +75,6 @@ struct HomeTopHeaderViewTestingTests {
         )
         _ = emptyNameView.body
     }
-
-    @Test("Header view with active learning path rendering")
-    @MainActor
-    func testHeaderViewWithActiveLearningPath() {
-        let path = LearningPathDTO(
-            id: "path_essential",
-            code: "essential-english-mastery",
-            titleEn: "Essential English Mastery",
-            titleVi: "Chinh Phục Tiếng Anh Toàn Diện",
-            descriptionEn: "From Zero to Hero",
-            descriptionVi: "Từ số 0 đến tự tin giao tiếp",
-            goalCategory: "general_communication",
-            targetLevelMin: "A1",
-            targetLevelMax: "B2",
-            iconKey: "sparkles",
-            themeKey: "emerald",
-            sortOrder: 1
-        )
-        let view = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: path
-        )
-        #expect(view.activeLearningPath?.id == "path_essential")
-        _ = view.body
-
-        let singleLevelPath = LearningPathDTO(
-            id: "path_ielts",
-            code: "ielts-core",
-            titleEn: "IELTS Core",
-            titleVi: "IELTS Cốt Lõi",
-            descriptionEn: nil,
-            descriptionVi: nil,
-            goalCategory: "exam_prep",
-            targetLevelMin: "B2",
-            targetLevelMax: "B2",
-            iconKey: "sparkles",
-            themeKey: "emerald",
-            sortOrder: 2
-        )
-        let singleLevelView = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: singleLevelPath
-        )
-        #expect(singleLevelView.activeLearningPath?.id == "path_ielts")
-        _ = singleLevelView.body
-    }
 }
 #endif
 
@@ -190,56 +138,6 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsGoal: 10
         )
         XCTAssertNotNil(emptyNameView.body)
-    }
-
-    func testHeaderViewWithActiveLearningPath() {
-        let path = LearningPathDTO(
-            id: "path_essential",
-            code: "essential-english-mastery",
-            titleEn: "Essential English Mastery",
-            titleVi: "Chinh Phục Tiếng Anh Toàn Diện",
-            descriptionEn: "From Zero to Hero",
-            descriptionVi: "Từ số 0 đến tự tin giao tiếp",
-            goalCategory: "general_communication",
-            targetLevelMin: "A1",
-            targetLevelMax: "B2",
-            iconKey: "sparkles",
-            themeKey: "emerald",
-            sortOrder: 1
-        )
-        let view = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: path
-        )
-        XCTAssertEqual(view.activeLearningPath?.id, "path_essential")
-        XCTAssertNotNil(view.body)
-
-        let singleLevelPath = LearningPathDTO(
-            id: "path_ielts",
-            code: "ielts-core",
-            titleEn: "IELTS Core",
-            titleVi: "IELTS Cốt Lõi",
-            descriptionEn: nil,
-            descriptionVi: nil,
-            goalCategory: "exam_prep",
-            targetLevelMin: "B2",
-            targetLevelMax: "B2",
-            iconKey: "sparkles",
-            themeKey: "emerald",
-            sortOrder: 2
-        )
-        let singleLevelView = HomeTopHeaderView(
-            userName: "Hooji N.",
-            streakDays: 14,
-            dailyWordsLearned: 8,
-            dailyWordsGoal: 10,
-            activeLearningPath: singleLevelPath
-        )
-        XCTAssertEqual(singleLevelView.activeLearningPath?.id, "path_ielts")
-        XCTAssertNotNil(singleLevelView.body)
     }
 }
 #endif
