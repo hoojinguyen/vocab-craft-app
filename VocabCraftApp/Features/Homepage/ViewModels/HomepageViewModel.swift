@@ -46,6 +46,7 @@ public final class HomepageViewModel {
     public var sections: [LessonSection]
     public var selectedNode: LessonNodeModel?
     public var isDetailSheetPresented: Bool
+    public var activeMilestoneDelta: MilestoneLexicalDelta?
     public var isLoading: Bool
     public var errorMessage: String?
 
@@ -146,6 +147,51 @@ public final class HomepageViewModel {
         self.selectedNode = nil
     }
 
+    public func dismissMilestoneDelta() {
+        self.activeMilestoneDelta = nil
+    }
+
+    public func triggerMilestoneDelta(
+        for deckId: String,
+        summary: LessonSummaryModel? = nil,
+        newWordsCount: Int? = nil
+    ) {
+        let section = sections.first(where: { $0.id == deckId })
+        let unitTitle = section?.title ?? deckId
+        let cefrLevel = section?.level ?? "A1"
+        let fallbackWordsCount = 15
+        let wordsCount: Int = {
+            if let newWordsCount { return newWordsCount }
+            if let summaryWords = summary?.learnedWords, !summaryWords.isEmpty {
+                return summaryWords.count
+            }
+            return fallbackWordsCount
+        }()
+        let masteredCount = (summary?.learnedWords.count ?? 0) > 0 ? (summary?.learnedWords.count ?? 0) : 8
+        let words = summary?.learnedWords.map(\.lemma) ?? []
+        let accuracy = summary?.accuracyFraction ?? 0.95
+
+        self.activeMilestoneDelta = MilestoneLexicalDelta(
+            unitId: deckId,
+            unitTitle: unitTitle,
+            cefrLevel: cefrLevel,
+            newWordsAdded: wordsCount,
+            wordsMastered: masteredCount,
+            avgResponseTimeMs: 1200,
+            accuracyRate: accuracy,
+            acquiredWords: words,
+            cefrProgressCurrent: 240,
+            cefrProgressTarget: 800
+        )
+    }
+
+    public func handleLessonFinished(summary: LessonSummaryModel) {
+        applyCompletedLesson(stageId: summary.stageId)
+        if summary.isUnitCheckpoint {
+            triggerMilestoneDelta(for: summary.deckId, summary: summary)
+        }
+    }
+
     public func resolvedDeckId(for node: LessonNodeModel) -> String {
         if node.id.hasPrefix("treasure_") {
             return String(node.id.dropFirst("treasure_".count))
@@ -159,17 +205,21 @@ public final class HomepageViewModel {
     @discardableResult
     public func claimTreasure(node: LessonNodeModel) async throws -> TreasureRewardResult {
         let deckId = resolvedDeckId(for: node)
-        guard let useCase = claimTreasureRewardUseCase else {
-            applyCompletedLesson(stageId: node.id)
-            return TreasureRewardResult(
+        let result: TreasureRewardResult
+        if let useCase = claimTreasureRewardUseCase {
+            result = try await useCase.execute(deckId: deckId)
+        } else {
+            result = TreasureRewardResult(
                 stageId: node.id,
                 deckId: deckId,
                 xpEarned: LessonEconomyPolicy.treasureXP,
                 isAlreadyClaimed: false
             )
         }
-        let result = try await useCase.execute(deckId: deckId)
         applyCompletedLesson(stageId: node.id)
+        if !result.isAlreadyClaimed {
+            triggerMilestoneDelta(for: deckId)
+        }
         return result
     }
 

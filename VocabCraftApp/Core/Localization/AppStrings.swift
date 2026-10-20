@@ -1015,4 +1015,49 @@ extension AppStrings {
         public static var goalSubtitle: LocalizedStringKey { "app.onboarding.goal.subtitle" }
         public static var `continue`: LocalizedStringKey { "app.onboarding.common.continue" }
     }
+
+    // MARK: - Milestone Report
+    public enum MilestoneReport {
+        public static var celebrationTitle: LocalizedStringKey { "app.milestone_report.celebration_title" }
+        public static var celebrationTitleText: String {
+            String(localized: "app.milestone_report.celebration_title", defaultValue: "Unit Milestone Achieved!", bundle: .module)
+        }
+        public static func wordsAdded(count: Int) -> String {
+            String(format: String(localized: "app.milestone_report.words_added_format", defaultValue: "+%lld Words Added", bundle: .module), count)
+        }
+        public static func wordsAddedKey(count: Int) -> LocalizedStringKey {
+            LocalizedStringKey(wordsAdded(count: count))
+        }
+        public static var wordsAddedSubtitle: LocalizedStringKey { "app.milestone_report.words_added_subtitle" }
+        public static var acquiredWordsTitle: LocalizedStringKey { "app.milestone_report.acquired_words_title" }
+        public static var telemetryTitle: LocalizedStringKey { "app.milestone_report.telemetry_title" }
+        public static var latencyLabel: LocalizedStringKey { "app.milestone_report.latency_label" }
+        public static func latencyValue(seconds: Double) -> String {
+            String(format: String(localized: "app.milestone_report.latency_value_format", defaultValue: "%.1fs / word", bundle: .module), seconds)
+        }
+        public static var retentionLabel: LocalizedStringKey { "app.milestone_report.retention_label" }
+        public static func retentionValue(percent: Int) -> String {
+            String(format: String(localized: "app.milestone_report.retention_value_format", defaultValue: "%lld%%", bundle: .module), percent)
+        }
+        public static var wordsMasteredLabel: LocalizedStringKey { "app.milestone_report.words_mastered_label" }
+        public static func wordsMasteredValue(count: Int) -> String {
+            String(format: String(localized: "app.milestone_report.words_mastered_format", defaultValue: "%lld words", bundle: .module), count)
+        }
+        public static func cefrProgressTitle(level: String) -> String {
+            String(format: String(localized: "app.milestone_report.cefr_progress_title_format", defaultValue: "%@ Competence Progress", bundle: .module), level)
+        }
+        public static func cefrProgressDetail(current: Int, target: Int, percent: Int) -> String {
+            String(format: String(localized: "app.milestone_report.cefr_progress_detail_format", defaultValue: "%lld/%lld Words (%lld%%)", bundle: .module), current, target, percent)
+        }
+        public static var continueCta: LocalizedStringKey { "app.milestone_report.continue_cta" }
+        public static var continueCtaText: String {
+            String(localized: "app.milestone_report.continue_cta", defaultValue: "Continue Journey", bundle: .module)
+        }
+        public static var viewVaultCta: LocalizedStringKey { "app.milestone_report.view_vault_cta" }
+        public static var viewVaultCtaText: String {
+            String(localized: "app.milestone_report.view_vault_cta", defaultValue: "View in Personal Vault", bundle: .module)
+        }
+        public static var closeA11y: LocalizedStringKey { "app.milestone_report.close_a11y" }
+        public static var listenPronunciationA11y: LocalizedStringKey { "app.milestone_report.listen_pronunciation_a11y" }
+    }
 }

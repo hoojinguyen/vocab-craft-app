@@ -42,6 +42,7 @@ public struct LessonSummaryModel: Sendable, Equatable {
     public let accuracyFraction: Double
     public let learnedWords: [TopicWordDTO]
     public let weakWordIds: [Int64]
+    public let isUnitCheckpoint: Bool
 
     public init(
         stageId: String,
@@ -50,7 +51,8 @@ public struct LessonSummaryModel: Sendable, Equatable {
         xpEarned: Int,
         accuracyFraction: Double,
         learnedWords: [TopicWordDTO],
-        weakWordIds: [Int64]
+        weakWordIds: [Int64],
+        isUnitCheckpoint: Bool? = nil
     ) {
         self.stageId = stageId
         self.deckId = deckId
@@ -59,6 +61,7 @@ public struct LessonSummaryModel: Sendable, Equatable {
         self.accuracyFraction = accuracyFraction
         self.learnedWords = learnedWords
         self.weakWordIds = weakWordIds
+        self.isUnitCheckpoint = isUnitCheckpoint ?? stageId.hasPrefix("checkpoint_")
     }
 }
 

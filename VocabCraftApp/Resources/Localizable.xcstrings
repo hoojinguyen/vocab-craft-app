@@ -4234,6 +4234,295 @@
         }
       }
     },
+    "app.milestone_report.acquired_words_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Newly Acquired Vocabulary"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ Vựng Mới Nạp"
+          }
+        }
+      }
+    },
+    "app.milestone_report.cefr_progress_detail_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld Words (%lld%%)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld Từ (%lld%%)"
+          }
+        }
+      }
+    },
+    "app.milestone_report.cefr_progress_title_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Competence Progress"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiến Trình Trình Độ %@"
+          }
+        }
+      }
+    },
+    "app.milestone_report.celebration_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit Milestone Achieved!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chúc Mừng Hoàn Thành Học Phần!"
+          }
+        }
+      }
+    },
+    "app.milestone_report.close_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close milestone report"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đóng báo cáo học phần"
+          }
+        }
+      }
+    },
+    "app.milestone_report.continue_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue Journey"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục lộ trình"
+          }
+        }
+      }
+    },
+    "app.milestone_report.latency_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avg. Reflex Latency"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ Trễ Phản Xạ TB"
+          }
+        }
+      }
+    },
+    "app.milestone_report.latency_value_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1fs / word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%.1fs / từ"
+          }
+        }
+      }
+    },
+    "app.milestone_report.listen_pronunciation_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen to pronunciation"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe phát âm"
+          }
+        }
+      }
+    },
+    "app.milestone_report.retention_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retention Health"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ Bền Trí Nhớ"
+          }
+        }
+      }
+    },
+    "app.milestone_report.retention_value_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "app.milestone_report.telemetry_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex & Retention Telemetry"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chỉ Số Phản Xạ & Ghi Nhớ"
+          }
+        }
+      }
+    },
+    "app.milestone_report.view_vault_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View in Personal Vault"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem trong Personal Vault"
+          }
+        }
+      }
+    },
+    "app.milestone_report.words_added_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld Words Added"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld Từ Mới Tiếp Thu"
+          }
+        }
+      }
+    },
+    "app.milestone_report.words_added_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully integrated into your long-term memory"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã được ghi nhận vào kho trí nhớ dài hạn của bạn"
+          }
+        }
+      }
+    },
+    "app.milestone_report.words_mastered_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld từ"
+          }
+        }
+      }
+    },
+    "app.milestone_report.words_mastered_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex Mastered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thuần Thục Phản Xạ"
+          }
+        }
+      }
+    },
     "app.onboarding.goal.academic": {
       "extractionState": "manual",
       "localizations": {

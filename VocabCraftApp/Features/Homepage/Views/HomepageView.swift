@@ -320,15 +320,21 @@ public struct HomepageView: View {
             .presentationDetents([.fraction(0.52), .medium])
         }
         .sheet(isPresented: $isLearningPathSwitchPresented) {
-            LearningPathSwitchSheet(
-                activePathId: viewModel.activeLearningPath?.id,
-                onSelectPath: { selectedPath in
-                    Task {
-                        await viewModel.switchLearningPath(to: selectedPath.id)
-                    }
-                }
-            )
+            LearningPathSwitchSheet(activePathId: viewModel.activeLearningPath?.id) { selectedPath in
+                Task { await viewModel.switchLearningPath(to: selectedPath.id) }
+            }
             .presentationDetents([.medium, .large])
+        }
+        .sheet(item: $viewModel.activeMilestoneDelta) { delta in
+            MilestoneLexicalDeltaSheet(delta: delta, onContinue: {
+                viewModel.dismissMilestoneDelta()
+                scrollToActiveNonce += 1
+            }, onOpenVault: {
+                viewModel.dismissMilestoneDelta()
+                appRouter.selectedTab = .vocabulary
+            })
+            .craftSurfaceStyle(.tactile3D)
+            .presentationDetents([.fraction(0.65), .large])
         }
     }
 }
@@ -346,6 +352,25 @@ private extension HomepageView {
                 }
                 await MainActor.run {
                     self.isLearningPathSwitchPresented = true
+                }
+            }
+            return
+        }
+
+        if args.contains("-test-milestone-delta") {
+            Task {
+                try? await Task.sleep(for: .milliseconds(250))
+                await MainActor.run {
+                    viewModel.activeMilestoneDelta = MilestoneLexicalDelta(
+                        unitId: "deck_daily",
+                        unitTitle: "Everyday Travel",
+                        cefrLevel: "A1",
+                        newWordsAdded: 15,
+                        wordsMastered: 8,
+                        avgResponseTimeMs: 1200,
+                        accuracyRate: 0.94,
+                        acquiredWords: ["Passport", "Ticket", "Airport", "Luggage"]
+                    )
                 }
             }
             return
@@ -374,26 +399,34 @@ private extension HomepageView {
         }
 
         if args.contains("-test-lesson-discovery") {
-            Task {
-                try? await Task.sleep(for: .milliseconds(150))
-                let decks = (try? await appContainer.vocabularyDataSource.fetchTopicDecks()) ?? []
-                let firstDeck = decks.first?.id ?? "deck_daily"
-                let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: firstDeck)) ?? []
-                let firstStage = stages.first?.id ?? "stage_daily_1"
-                let words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: firstStage)) ?? []
-                guard !words.isEmpty else { return }
-                let vm = appContainer.makeLessonLearningViewModel(
-                    stageId: firstStage,
-                    deckId: firstDeck,
-                    words: words
-                )
-                await MainActor.run {
-                    self.activeLessonLearningVM = vm
-                }
-            }
+            handleLessonDiscoveryLaunchArguments()
             return
         }
 
+        handleLessonFeedbackLaunchArguments(args: args)
+    }
+
+    func handleLessonDiscoveryLaunchArguments() {
+        Task {
+            try? await Task.sleep(for: .milliseconds(150))
+            let decks = (try? await appContainer.vocabularyDataSource.fetchTopicDecks()) ?? []
+            let firstDeck = decks.first?.id ?? "deck_daily"
+            let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: firstDeck)) ?? []
+            let firstStage = stages.first?.id ?? "stage_daily_1"
+            let words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: firstStage)) ?? []
+            guard !words.isEmpty else { return }
+            let vm = appContainer.makeLessonLearningViewModel(
+                stageId: firstStage,
+                deckId: firstDeck,
+                words: words
+            )
+            await MainActor.run {
+                self.activeLessonLearningVM = vm
+            }
+        }
+    }
+
+    func handleLessonFeedbackLaunchArguments(args: [String]) {
         guard args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") else { return }
         let isCorrect = args.contains("-test-lesson-feedback-correct")
         Task {
@@ -606,7 +639,7 @@ private extension HomepageView {
 
             await MainActor.run {
                 activeLessonLearningVM = nil
-                viewModel.applyCompletedLesson(stageId: summary.stageId)
+                viewModel.handleLessonFinished(summary: summary)
             }
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)
