@@ -25,6 +25,14 @@ public protocol UserProgressRepositoryProtocol: Sendable {
     func fetchProgress(for wordId: Int64) async throws -> UserWordProgressData?
 
     // swiftlint:disable function_parameter_count
+    /// Records batch lesson results for practiced words, updating mastery and review intervals.
+    func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) async throws
+
     /// Records the result of a reflex blitz / mixed reflex drill attempt.
     func recordDrillResult(
         wordId: Int64,

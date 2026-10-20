@@ -196,6 +196,95 @@ extension UserProgressModelActor {
         try modelContext.save()
     }
 
+    public func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) throws {
+        let now = Date()
+        var processedWordIds = Set<Int64>()
+        for wordId in practicedWordIds {
+            guard !processedWordIds.contains(wordId) else { continue }
+            processedWordIds.insert(wordId)
+            let isWeak = weakWordIds.contains(wordId)
+
+            if let existing = try fetchEntity(wordId: wordId) {
+                if isWeak {
+                    existing.needsReview = true
+                    existing.mistakeCount += 1
+                    existing.consecutiveCorrectStreak = 0
+                    existing.intervalDays = 1
+                    existing.nextReviewDate = now
+                    existing.easeFactor = max(1.3, existing.easeFactor - 0.2)
+                } else {
+                    let srs = SRSEngine.calculateNextInterval(
+                        currentMastery: existing.masteryLevel,
+                        easeFactor: existing.easeFactor,
+                        isCorrect: true,
+                        responseTimeMs: 2000
+                    )
+                    existing.masteryLevel = min(5, existing.masteryLevel + 1)
+                    existing.needsReview = false
+                    existing.easeFactor = srs.easeFactor
+                    existing.intervalDays = srs.intervalDays
+                    existing.nextReviewDate = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+                    existing.consecutiveCorrectStreak += 1
+                }
+                if let stageId { existing.sourceNodeId = stageId }
+                if let deckId { existing.sourceDeckId = deckId }
+                existing.lastReviewDate = now
+                existing.totalReviews += 1
+            } else {
+                if isWeak {
+                    let newProgress = UserWordProgress(
+                        wordId: wordId,
+                        cefrLevel: "A1",
+                        masteryLevel: 0,
+                        isBookmarked: false,
+                        easeFactor: 2.3,
+                        intervalDays: 1,
+                        nextReviewDate: now,
+                        lastReviewDate: now,
+                        totalReviews: 1,
+                        needsReview: true,
+                        mistakeCount: 1,
+                        sourceDeckId: deckId,
+                        sourceNodeId: stageId,
+                        consecutiveCorrectStreak: 0
+                    )
+                    modelContext.insert(newProgress)
+                } else {
+                    let srs = SRSEngine.calculateNextInterval(
+                        currentMastery: 0,
+                        easeFactor: 2.5,
+                        isCorrect: true,
+                        responseTimeMs: 2000
+                    )
+                    let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+                    let newProgress = UserWordProgress(
+                        wordId: wordId,
+                        cefrLevel: "A1",
+                        masteryLevel: min(5, srs.nextMastery),
+                        isBookmarked: false,
+                        easeFactor: srs.easeFactor,
+                        intervalDays: srs.intervalDays,
+                        nextReviewDate: nextReview,
+                        lastReviewDate: now,
+                        totalReviews: 1,
+                        needsReview: false,
+                        mistakeCount: 0,
+                        sourceDeckId: deckId,
+                        sourceNodeId: stageId,
+                        consecutiveCorrectStreak: 1
+                    )
+                    modelContext.insert(newProgress)
+                }
+            }
+        }
+        try modelContext.save()
+    }
+
     public func resetAllProgress() throws {
         try modelContext.delete(model: UserWordProgress.self)
         try modelContext.delete(model: ReflexSessionLog.self)
@@ -393,6 +482,94 @@ extension UserProgressModelActor {
             )
             newProgress.totalReviews = 1
             records[wordId] = newProgress
+        }
+    }
+
+    public func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) throws {
+        let now = Date()
+        var processedWordIds = Set<Int64>()
+        for wordId in practicedWordIds {
+            guard !processedWordIds.contains(wordId) else { continue }
+            processedWordIds.insert(wordId)
+            let isWeak = weakWordIds.contains(wordId)
+
+            if let existing = records[wordId] {
+                if isWeak {
+                    existing.needsReview = true
+                    existing.mistakeCount += 1
+                    existing.consecutiveCorrectStreak = 0
+                    existing.intervalDays = 1
+                    existing.nextReviewDate = now
+                    existing.easeFactor = max(1.3, existing.easeFactor - 0.2)
+                } else {
+                    let srs = SRSEngine.calculateNextInterval(
+                        currentMastery: existing.masteryLevel,
+                        easeFactor: existing.easeFactor,
+                        isCorrect: true,
+                        responseTimeMs: 2000
+                    )
+                    existing.masteryLevel = min(5, existing.masteryLevel + 1)
+                    existing.needsReview = false
+                    existing.easeFactor = srs.easeFactor
+                    existing.intervalDays = srs.intervalDays
+                    existing.nextReviewDate = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+                    existing.consecutiveCorrectStreak += 1
+                }
+                if let stageId { existing.sourceNodeId = stageId }
+                if let deckId { existing.sourceDeckId = deckId }
+                existing.lastReviewDate = now
+                existing.totalReviews += 1
+            } else {
+                if isWeak {
+                    let newProgress = UserWordProgress(
+                        wordId: wordId,
+                        cefrLevel: "A1",
+                        masteryLevel: 0,
+                        isBookmarked: false,
+                        easeFactor: 2.3,
+                        intervalDays: 1,
+                        nextReviewDate: now,
+                        lastReviewDate: now,
+                        totalReviews: 1,
+                        needsReview: true,
+                        mistakeCount: 1,
+                        sourceDeckId: deckId,
+                        sourceNodeId: stageId,
+                        consecutiveCorrectStreak: 0
+                    )
+                    records[wordId] = newProgress
+                } else {
+                    let srs = SRSEngine.calculateNextInterval(
+                        currentMastery: 0,
+                        easeFactor: 2.5,
+                        isCorrect: true,
+                        responseTimeMs: 2000
+                    )
+                    let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+                    let newProgress = UserWordProgress(
+                        wordId: wordId,
+                        cefrLevel: "A1",
+                        masteryLevel: min(5, srs.nextMastery),
+                        isBookmarked: false,
+                        easeFactor: srs.easeFactor,
+                        intervalDays: srs.intervalDays,
+                        nextReviewDate: nextReview,
+                        lastReviewDate: now,
+                        totalReviews: 1,
+                        needsReview: false,
+                        mistakeCount: 0,
+                        sourceDeckId: deckId,
+                        sourceNodeId: stageId,
+                        consecutiveCorrectStreak: 1
+                    )
+                    records[wordId] = newProgress
+                }
+            }
         }
     }
 

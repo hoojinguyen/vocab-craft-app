@@ -47,6 +47,51 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         XCTAssertTrue(levelsAfter.isEmpty)
     }
 
+    func testRecordBatchLessonResultsPersistsAllWordsInSingleTransaction() async throws {
+        let practicedIds: [Int64] = [1001, 1002, 1003]
+        let weakIds: Set<Int64> = [1002]
+
+        try await actor.recordBatchLessonResults(
+            practicedWordIds: practicedIds,
+            weakWordIds: weakIds,
+            stageId: "stage_test",
+            deckId: "deck_test"
+        )
+
+        let w1001 = try await actor.getProgressData(wordId: 1001)
+        XCTAssertNotNil(w1001)
+        XCTAssertEqual(w1001?.masteryLevel, 1)
+        XCTAssertEqual(w1001?.needsReview, false)
+        XCTAssertEqual(w1001?.mistakeCount, 0)
+        XCTAssertEqual(w1001?.consecutiveCorrectStreak, 1)
+
+        let w1002 = try await actor.getProgressData(wordId: 1002)
+        XCTAssertNotNil(w1002)
+        XCTAssertEqual(w1002?.masteryLevel, 0)
+        XCTAssertEqual(w1002?.needsReview, true)
+        XCTAssertEqual(w1002?.mistakeCount, 1)
+        XCTAssertEqual(w1002?.consecutiveCorrectStreak, 0)
+        XCTAssertEqual(w1002?.intervalDays, 1)
+
+        let w1003 = try await actor.getProgressData(wordId: 1003)
+        XCTAssertNotNil(w1003)
+        XCTAssertEqual(w1003?.masteryLevel, 1)
+        XCTAssertEqual(w1003?.needsReview, false)
+
+        // Second pass: correct repetition of 1001 increments mastery and streak
+        try await actor.recordBatchLessonResults(
+            practicedWordIds: [1001],
+            weakWordIds: [],
+            stageId: "stage_test",
+            deckId: "deck_test"
+        )
+
+        let updated1001 = try await actor.getProgressData(wordId: 1001)
+        XCTAssertEqual(updated1001?.masteryLevel, 2)
+        XCTAssertEqual(updated1001?.consecutiveCorrectStreak, 2)
+        XCTAssertEqual(updated1001?.needsReview, false)
+    }
+
     func testSRSRepositoryResetAllProgressClearsData() async throws {
         let srsRepo = SRSRepositoryImpl(modelContext: container.mainContext)
         let item = SRSProgressItem(wordId: 99, masteryLevel: 4)

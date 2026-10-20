@@ -107,6 +107,23 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
         try await markWordReviewed(wordId: wordId, isCorrect: true)
     }
 
+    func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) async throws {
+        for wordId in practicedWordIds {
+            let isWeak = weakWordIds.contains(wordId)
+            try await recordChallengeResult(
+                wordId: wordId,
+                isCorrect: !isWeak,
+                stageId: stageId,
+                deckId: deckId
+            )
+        }
+    }
+
     func fetchAllProgress() async throws -> [UserWordProgressData] {
         Array(storage.values)
     }

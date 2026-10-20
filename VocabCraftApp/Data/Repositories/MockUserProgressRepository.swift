@@ -1,17 +1,42 @@
 import Foundation
 import os
 
+/// Record of a batch lesson result recording call captured by `MockUserProgressRepository`.
+public struct RecordedBatchLessonCall: Sendable, Equatable {
+    public let practicedWordIds: [Int64]
+    public let weakWordIds: Set<Int64>
+    public let stageId: String?
+    public let deckId: String?
+
+    public init(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String? = nil,
+        deckId: String? = nil
+    ) {
+        self.practicedWordIds = practicedWordIds
+        self.weakWordIds = weakWordIds
+        self.stageId = stageId
+        self.deckId = deckId
+    }
+}
+
 /// In-memory mock implementation of `UserProgressRepositoryProtocol` for testing, previews, and mock container mode.
 public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @unchecked Sendable {
     private struct State {
         var storage: [Int64: UserWordProgressData] = [:]
         var recordChallengeCallCount: Int = 0
+        var recordedBatchCalls: [RecordedBatchLessonCall] = []
     }
 
     private let stateLock: OSAllocatedUnfairLock<State>
 
     public var recordChallengeCallCount: Int {
         stateLock.withLock { $0.recordChallengeCallCount }
+    }
+
+    public var recordedBatchCalls: [RecordedBatchLessonCall] {
+        stateLock.withLock { $0.recordedBatchCalls }
     }
 
     public init(initialData: [UserWordProgressData] = []) {
@@ -184,6 +209,177 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                     practicedModes: newModes,
                     isMastered: isMastered,
                     modeStats: modeStats ?? ModeSuccessStats()
+                )
+            }
+        }
+    }
+
+    private static func makeExistingProgressData(
+        existing: UserWordProgressData,
+        isWeak: Bool,
+        stageId: String?,
+        deckId: String?,
+        now: Date
+    ) -> UserWordProgressData {
+        if isWeak {
+            return UserWordProgressData(
+                wordId: existing.wordId,
+                cefrLevel: existing.cefrLevel,
+                masteryLevel: existing.masteryLevel,
+                isBookmarked: existing.isBookmarked,
+                easeFactor: max(1.3, existing.easeFactor - 0.2),
+                intervalDays: 1,
+                nextReviewDate: now,
+                lastReviewDate: now,
+                totalReviews: existing.totalReviews + 1,
+                needsReview: true,
+                mistakeCount: existing.mistakeCount + 1,
+                sourceDeckId: deckId ?? existing.sourceDeckId,
+                sourceNodeId: stageId ?? existing.sourceNodeId,
+                consecutiveCorrectStreak: 0,
+                practicedModes: existing.practicedModes,
+                isMastered: existing.isMastered,
+                modeStats: existing.modeStats
+            )
+        } else {
+            let srs = SRSEngine.calculateNextInterval(
+                currentMastery: existing.masteryLevel,
+                easeFactor: existing.easeFactor,
+                isCorrect: true,
+                responseTimeMs: 2000
+            )
+            let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+            return UserWordProgressData(
+                wordId: existing.wordId,
+                cefrLevel: existing.cefrLevel,
+                masteryLevel: min(5, existing.masteryLevel + 1),
+                isBookmarked: existing.isBookmarked,
+                easeFactor: srs.easeFactor,
+                intervalDays: srs.intervalDays,
+                nextReviewDate: nextReview,
+                lastReviewDate: now,
+                totalReviews: existing.totalReviews + 1,
+                needsReview: false,
+                mistakeCount: existing.mistakeCount,
+                sourceDeckId: deckId ?? existing.sourceDeckId,
+                sourceNodeId: stageId ?? existing.sourceNodeId,
+                consecutiveCorrectStreak: existing.consecutiveCorrectStreak + 1,
+                practicedModes: existing.practicedModes,
+                isMastered: existing.isMastered,
+                modeStats: existing.modeStats
+            )
+        }
+    }
+
+    private static func makeNewProgressData(
+        wordId: Int64,
+        isWeak: Bool,
+        stageId: String?,
+        deckId: String?,
+        now: Date
+    ) -> UserWordProgressData {
+        if isWeak {
+            return UserWordProgressData(
+                wordId: wordId,
+                cefrLevel: "A1",
+                masteryLevel: 0,
+                isBookmarked: false,
+                easeFactor: 2.3,
+                intervalDays: 1,
+                nextReviewDate: now,
+                lastReviewDate: now,
+                totalReviews: 1,
+                needsReview: true,
+                mistakeCount: 1,
+                sourceDeckId: deckId,
+                sourceNodeId: stageId,
+                consecutiveCorrectStreak: 0
+            )
+        } else {
+            let srs = SRSEngine.calculateNextInterval(
+                currentMastery: 0,
+                easeFactor: 2.5,
+                isCorrect: true,
+                responseTimeMs: 2000
+            )
+            let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
+            return UserWordProgressData(
+                wordId: wordId,
+                cefrLevel: "A1",
+                masteryLevel: min(5, srs.nextMastery),
+                isBookmarked: false,
+                easeFactor: srs.easeFactor,
+                intervalDays: srs.intervalDays,
+                nextReviewDate: nextReview,
+                lastReviewDate: now,
+                totalReviews: 1,
+                needsReview: false,
+                mistakeCount: 0,
+                sourceDeckId: deckId,
+                sourceNodeId: stageId,
+                consecutiveCorrectStreak: 1
+            )
+        }
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    private static func makeBatchProgressData(
+        existing: UserWordProgressData?,
+        wordId: Int64,
+        isWeak: Bool,
+        stageId: String?,
+        deckId: String?,
+        now: Date
+    ) -> UserWordProgressData {
+        if let existing {
+            return makeExistingProgressData(
+                existing: existing,
+                isWeak: isWeak,
+                stageId: stageId,
+                deckId: deckId,
+                now: now
+            )
+        } else {
+            return makeNewProgressData(
+                wordId: wordId,
+                isWeak: isWeak,
+                stageId: stageId,
+                deckId: deckId,
+                now: now
+            )
+        }
+    }
+
+    public func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) async throws {
+        stateLock.withLock { state in
+            state.recordChallengeCallCount += weakWordIds.count
+            state.recordedBatchCalls.append(
+                RecordedBatchLessonCall(
+                    practicedWordIds: practicedWordIds,
+                    weakWordIds: weakWordIds,
+                    stageId: stageId,
+                    deckId: deckId
+                )
+            )
+            let now = Date()
+            var processedWordIds = Set<Int64>()
+            for wordId in practicedWordIds {
+                guard !processedWordIds.contains(wordId) else { continue }
+                processedWordIds.insert(wordId)
+                let isWeak = weakWordIds.contains(wordId)
+                let existing = state.storage[wordId]
+                state.storage[wordId] = Self.makeBatchProgressData(
+                    existing: existing,
+                    wordId: wordId,
+                    isWeak: isWeak,
+                    stageId: stageId,
+                    deckId: deckId,
+                    now: now
                 )
             }
         }

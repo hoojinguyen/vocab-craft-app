@@ -8,15 +8,18 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
     var executedStageId: String?
     var executedDeckId: String?
     var executedStars: Int?
+    var executedPracticedWordIds: [Int64]?
     var executedWeakWordIds: [Int64]?
     var executedProgressFraction: Double?
     var shouldFail: Bool = false
     var executeCallCount: Int = 0
 
+    // swiftlint:disable:next function_parameter_count
     func execute(
         stageId: String,
         deckId: String,
         stars: Int,
+        practicedWordIds: [Int64],
         weakWordIds: [Int64],
         progressFraction: Double
     ) async throws -> LessonCompletionResult {
@@ -27,6 +30,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         self.executedStageId = stageId
         self.executedDeckId = deckId
         self.executedStars = stars
+        self.executedPracticedWordIds = practicedWordIds
         self.executedWeakWordIds = weakWordIds
         self.executedProgressFraction = progressFraction
         return LessonCompletionResult(

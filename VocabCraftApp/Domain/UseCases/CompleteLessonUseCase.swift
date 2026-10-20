@@ -27,13 +27,34 @@ public struct LessonCompletionResult: Sendable, Equatable {
 }
 
 public protocol CompleteLessonUseCaseProtocol: Sendable {
+    // swiftlint:disable:next function_parameter_count
+    func execute(
+        stageId: String,
+        deckId: String,
+        stars: Int,
+        practicedWordIds: [Int64],
+        weakWordIds: [Int64],
+        progressFraction: Double
+    ) async throws -> LessonCompletionResult
+}
+
+public extension CompleteLessonUseCaseProtocol {
     func execute(
         stageId: String,
         deckId: String,
         stars: Int,
         weakWordIds: [Int64],
         progressFraction: Double
-    ) async throws -> LessonCompletionResult
+    ) async throws -> LessonCompletionResult {
+        try await execute(
+            stageId: stageId,
+            deckId: deckId,
+            stars: stars,
+            practicedWordIds: [],
+            weakWordIds: weakWordIds,
+            progressFraction: progressFraction
+        )
+    }
 }
 
 public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendable {
@@ -53,6 +74,7 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
         stageId: String,
         deckId: String,
         stars: Int,
+        practicedWordIds: [Int64] = [],
         weakWordIds: [Int64],
         progressFraction: Double
     ) async throws -> LessonCompletionResult {
@@ -72,6 +94,7 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
                     stageId: stageId,
                     deckId: deckId,
                     stars: stars,
+                    practicedWordIds: practicedWordIds,
                     weakWordIds: weakWordIds,
                     progressFraction: progressFraction
                 )
@@ -83,10 +106,12 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
         return try await sessionTask.value
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func performExecution(
         stageId: String,
         deckId: String,
         stars: Int,
+        practicedWordIds: [Int64],
         weakWordIds: [Int64],
         progressFraction: Double
     ) async throws -> LessonCompletionResult {
@@ -102,11 +127,12 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
             progressFraction: progressFraction
         )
 
-        if let progressRepo, !weakWordIds.isEmpty {
-            for wordId in weakWordIds {
-                try await progressRepo.recordChallengeResult(
-                    wordId: wordId,
-                    isCorrect: false,
+        if let progressRepo {
+            let effectivePracticed = practicedWordIds.isEmpty ? weakWordIds : practicedWordIds
+            if !effectivePracticed.isEmpty {
+                try await progressRepo.recordBatchLessonResults(
+                    practicedWordIds: effectivePracticed,
+                    weakWordIds: Set(weakWordIds),
                     stageId: stageId,
                     deckId: deckId
                 )

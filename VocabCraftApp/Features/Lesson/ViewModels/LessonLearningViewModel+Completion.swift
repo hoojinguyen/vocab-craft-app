@@ -31,6 +31,7 @@ extension LessonLearningViewModel {
                     stageId: stageId,
                     deckId: deckId,
                     stars: stars,
+                    practicedWordIds: words.map(\.id),
                     weakWordIds: Array(weakWordIds),
                     progressFraction: 1.0
                 )
@@ -64,6 +65,7 @@ extension LessonLearningViewModel {
                     stageId: stageId,
                     deckId: deckId,
                     stars: summary.stars,
+                    practicedWordIds: words.map(\.id),
                     weakWordIds: Array(weakWordIds),
                     progressFraction: 1.0
                 )
