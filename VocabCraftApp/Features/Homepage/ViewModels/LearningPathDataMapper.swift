@@ -48,8 +48,7 @@ public struct LearningPathDataMapper: Sendable {
         let wordDeckMap = Dictionary(words.compactMap { word in stageDeckMap[word.stageId].map { (Int64(word.id), $0) } }, uniquingKeysWith: { first, _ in first })
         let sortedDecks = decks.sorted { $0.sortOrder < $1.sortOrder }
 
-        let activeWeakWords = weakWords.filter { $0.needsReview || $0.masteryLevel < 3 }
-        let effectiveWeakWords = activeWeakWords.isEmpty ? weakWords : activeWeakWords
+        let effectiveWeakWords = weakWords.filter { $0.needsReview || $0.masteryLevel < 3 }
 
         var hasFoundActive = false
         var sections: [LessonSection] = []
@@ -269,9 +268,7 @@ public struct LearningPathDataMapper: Sendable {
             nodeProgress = nil
         }
 
-        let wordsText = CraftLocalized.format("craft.common.unit.words_format", wordCount)
-        let minutesText = CraftLocalized.format("craft.common.unit.minutes_format", estimatedMinutes)
-        let subtitle = "\(wordsText) • \(minutesText)"
+        let subtitle = AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes)
 
         return LessonNodeModel(
             id: spiralId,

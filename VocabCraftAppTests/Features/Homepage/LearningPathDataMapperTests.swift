@@ -408,7 +408,40 @@ final class LearningPathDataMapperTests: XCTestCase {
         )
 
         let nodes = sections.first?.nodes ?? []
-        XCTAssertTrue(nodes.contains(where: { $0.kind == .spiralReview }))
+        guard let spiralNode = nodes.first(where: { $0.kind == .spiralReview }) else {
+            XCTFail("Expected spiralReview node to be injected")
+            return
+        }
+        XCTAssertEqual(spiralNode.title, AppStrings.Home.spiralReviewTitleText)
+        let expectedEstimatedMinutes = LessonEconomyPolicy.spiralReviewEstimatedMinutes(wordCount: 5)
+        XCTAssertEqual(spiralNode.subtitle, AppStrings.Home.wordsDuration(words: 5, minutes: expectedEstimatedMinutes))
+        XCTAssertEqual(spiralNode.xpReward, LessonEconomyPolicy.xpReward(for: .spiralReview))
+    }
+
+    func testSpiralReviewNodeOmittedWhenAllWordsAreMastered() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let completedProgress = [UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())]
+        // 5 words passed, but all are mastered (needsReview == false and masteryLevel >= 3)
+        let masteredWordProgress = (1...5).map { UserWordProgressData(wordId: Int64($0), masteryLevel: 4, needsReview: false) }
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: completedProgress,
+            weakWords: masteredWordProgress
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        XCTAssertFalse(nodes.contains(where: { $0.kind == .spiralReview }))
     }
 
     func testSpiralReviewNodeOmittedWhenWeakWordsBelowThreshold() {
