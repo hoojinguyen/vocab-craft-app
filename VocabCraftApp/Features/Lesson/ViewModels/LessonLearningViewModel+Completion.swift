@@ -39,7 +39,8 @@ extension LessonLearningViewModel {
                     stars: stars,
                     practicedWordIds: words.map(\.id),
                     weakWordIds: Array(weakWordIds),
-                    progressFraction: 1.0
+                    progressFraction: 1.0,
+                    cefrLevel: words.first?.cefrLevel
                 )
                 await MainActor.run {
                     self.isCompleted = true
@@ -73,7 +74,8 @@ extension LessonLearningViewModel {
                     stars: summary.stars,
                     practicedWordIds: words.map(\.id),
                     weakWordIds: Array(weakWordIds),
-                    progressFraction: 1.0
+                    progressFraction: 1.0,
+                    cefrLevel: words.first?.cefrLevel
                 )
                 await MainActor.run {
                     self.isCompleted = true

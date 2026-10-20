@@ -20,7 +20,10 @@ struct FastTrackUnitUseCaseTests {
 
         #expect(result.isSuccess == true)
         #expect(mockStageRepo.savedStages.contains(where: { $0.stageId == "checkpoint_deck_daily" && $0.isCompleted }))
+        #expect(mockStageRepo.savedStages.contains(where: { $0.stageId == "spiral_deck_daily" && $0.isCompleted }))
+        #expect(result.completedStageIds.contains("spiral_deck_daily"))
         #expect(mockProgressRepo.recordedBatchCalls.count >= 1)
+        #expect(mockProgressRepo.recordedBatchCalls.first?.cefrLevel != nil)
     }
 
     @Test("Fast-track failure (score < 0.85) leaves stages unchanged and records no batch progress")

@@ -11,6 +11,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
     var executedPracticedWordIds: [Int64]?
     var executedWeakWordIds: [Int64]?
     var executedProgressFraction: Double?
+    var executedCefrLevel: String?
     var shouldFail: Bool = false
     var executeCallCount: Int = 0
 
@@ -21,7 +22,8 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         stars: Int,
         practicedWordIds: [Int64],
         weakWordIds: [Int64],
-        progressFraction: Double
+        progressFraction: Double,
+        cefrLevel: String?
     ) async throws -> LessonCompletionResult {
         executeCallCount += 1
         if shouldFail {
@@ -33,6 +35,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         self.executedPracticedWordIds = practicedWordIds
         self.executedWeakWordIds = weakWordIds
         self.executedProgressFraction = progressFraction
+        self.executedCefrLevel = cefrLevel
         return LessonCompletionResult(
             stageId: stageId,
             deckId: deckId,
@@ -40,6 +43,26 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
             xpEarned: 25,
             weakWordIds: weakWordIds,
             isUnitCheckpoint: false
+        )
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    func execute(
+        stageId: String,
+        deckId: String,
+        stars: Int,
+        practicedWordIds: [Int64],
+        weakWordIds: [Int64],
+        progressFraction: Double
+    ) async throws -> LessonCompletionResult {
+        try await execute(
+            stageId: stageId,
+            deckId: deckId,
+            stars: stars,
+            practicedWordIds: practicedWordIds,
+            weakWordIds: weakWordIds,
+            progressFraction: progressFraction,
+            cefrLevel: nil
         )
     }
 }

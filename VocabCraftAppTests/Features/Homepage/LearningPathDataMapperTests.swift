@@ -557,4 +557,33 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(spiralNode?.state, .completed)
         XCTAssertEqual(spiralNode?.stars, 3)
     }
+
+    func testSpiralReviewNodeTreatedAsCompletedWhenCheckpointCompleted() {
+        let deck1 = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let deck2 = TopicDeckDTO(id: "deck_2", titleEn: "Travel", titleVi: "Du lịch", iconName: "airplane", themeKey: "blue", cefrLevel: "A1", sortOrder: 1)
+        let stage1 = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let stage2 = SubTopicStageDTO(id: "stage_2", deckId: "deck_2", titleEn: "Airport", titleVi: "Sân bay", iconName: "airplane", sortOrder: 0)
+        let progressList = [
+            UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date()),
+            UserStageProgressData(stageId: "checkpoint_deck_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())
+        ]
+        let weakWordProgress = (1...6).map { UserWordProgressData(wordId: Int64($0), masteryLevel: 1, needsReview: true) }
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck1, deck2],
+            stages: [stage1, stage2],
+            words: [],
+            progressList: progressList,
+            weakWords: weakWordProgress
+        )
+
+        let deck1Nodes = sections.first(where: { $0.id == "deck_1" })?.nodes ?? []
+        let spiralNode = deck1Nodes.first(where: { $0.kind == .spiralReview })
+        XCTAssertNotNil(spiralNode)
+        XCTAssertEqual(spiralNode?.state, .completed)
+
+        let deck2Nodes = sections.first(where: { $0.id == "deck_2" })?.nodes ?? []
+        let deck2FirstStage = deck2Nodes.first(where: { $0.id == "stage_2" })
+        XCTAssertEqual(deck2FirstStage?.state, .active)
+    }
 }

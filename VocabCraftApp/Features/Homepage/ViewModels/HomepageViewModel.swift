@@ -232,6 +232,10 @@ public final class HomepageViewModel {
         let words = summary?.learnedWords.map(\.lemma) ?? []
         let accuracy = summary?.accuracyFraction ?? 0.95
 
+        let cefrStat = vocabGrowthSnapshot?.cefrDistribution.first(where: { $0.cefrLevel == cefrLevel })
+        let currentCEFR = cefrStat?.acquiredCount ?? 0
+        let targetCEFR = cefrStat?.targetStandardCount ?? (FetchVocabGrowthMetricsUseCase.standardTargetCounts[cefrLevel] ?? 500)
+
         self.activeMilestoneDelta = MilestoneLexicalDelta(
             unitId: deckId,
             unitTitle: unitTitle,
@@ -241,8 +245,8 @@ public final class HomepageViewModel {
             avgResponseTimeMs: 1200,
             accuracyRate: accuracy,
             acquiredWords: words,
-            cefrProgressCurrent: 240,
-            cefrProgressTarget: 800
+            cefrProgressCurrent: currentCEFR > 0 ? currentCEFR : wordsCount,
+            cefrProgressTarget: targetCEFR
         )
     }
 

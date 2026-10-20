@@ -200,9 +200,11 @@ extension UserProgressModelActor {
         practicedWordIds: [Int64],
         weakWordIds: Set<Int64>,
         stageId: String?,
-        deckId: String?
+        deckId: String?,
+        cefrLevel: String? = nil
     ) throws {
         let now = Date()
+        let effectiveCefr = cefrLevel ?? "A1"
         let allWordIds = Array(Set(practicedWordIds).union(weakWordIds))
         var processedWordIds = Set<Int64>()
         for wordId in allWordIds {
@@ -234,13 +236,16 @@ extension UserProgressModelActor {
                 }
                 if let stageId { existing.sourceNodeId = stageId }
                 if let deckId { existing.sourceDeckId = deckId }
+                if let cefr = cefrLevel, existing.cefrLevel.isEmpty || existing.cefrLevel == "A1" {
+                    existing.cefrLevel = cefr
+                }
                 existing.lastReviewDate = now
                 existing.totalReviews += 1
             } else {
                 if isWeak {
                     let newProgress = UserWordProgress(
                         wordId: wordId,
-                        cefrLevel: "A1",
+                        cefrLevel: effectiveCefr,
                         masteryLevel: 0,
                         isBookmarked: false,
                         easeFactor: 2.3,
@@ -265,7 +270,7 @@ extension UserProgressModelActor {
                     let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
                     let newProgress = UserWordProgress(
                         wordId: wordId,
-                        cefrLevel: "A1",
+                        cefrLevel: effectiveCefr,
                         masteryLevel: min(5, srs.nextMastery),
                         isBookmarked: false,
                         easeFactor: srs.easeFactor,
@@ -490,9 +495,11 @@ extension UserProgressModelActor {
         practicedWordIds: [Int64],
         weakWordIds: Set<Int64>,
         stageId: String?,
-        deckId: String?
+        deckId: String?,
+        cefrLevel: String? = nil
     ) throws {
         let now = Date()
+        let effectiveCefr = cefrLevel ?? "A1"
         let allWordIds = Array(Set(practicedWordIds).union(weakWordIds))
         var processedWordIds = Set<Int64>()
         for wordId in allWordIds {
@@ -524,13 +531,16 @@ extension UserProgressModelActor {
                 }
                 if let stageId { existing.sourceNodeId = stageId }
                 if let deckId { existing.sourceDeckId = deckId }
+                if let cefr = cefrLevel, existing.cefrLevel.isEmpty || existing.cefrLevel == "A1" {
+                    existing.cefrLevel = cefr
+                }
                 existing.lastReviewDate = now
                 existing.totalReviews += 1
             } else {
                 if isWeak {
                     let newProgress = UserWordProgress(
                         wordId: wordId,
-                        cefrLevel: "A1",
+                        cefrLevel: effectiveCefr,
                         masteryLevel: 0,
                         isBookmarked: false,
                         easeFactor: 2.3,
@@ -555,7 +565,7 @@ extension UserProgressModelActor {
                     let nextReview = Calendar.current.date(byAdding: .day, value: srs.intervalDays, to: now) ?? now
                     let newProgress = UserWordProgress(
                         wordId: wordId,
-                        cefrLevel: "A1",
+                        cefrLevel: effectiveCefr,
                         masteryLevel: min(5, srs.nextMastery),
                         isBookmarked: false,
                         easeFactor: srs.easeFactor,

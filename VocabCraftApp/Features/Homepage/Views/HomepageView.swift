@@ -655,8 +655,8 @@ private extension HomepageView {
                 CraftHaptics.shared.success()
                 homeConfettiTrigger = true
                 completionToastData = CraftToastData(
-                    title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
-                    message: "+\(summary.xpEarned) XP • \(starIcons)\(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Amazing!", bundle: .module))",
+                    title: AppStrings.Home.completedTitleText,
+                    message: "+\(summary.xpEarned) XP • \(starIcons)\(AppStrings.Home.starsSuffixText)",
                     iconName: "star.fill",
                     style: .success,
                     surfaceStyle: .glass,
@@ -669,7 +669,7 @@ private extension HomepageView {
     private func handleTreasureClaimSuccess(_ result: TreasureRewardResult) {
         CraftHaptics.shared.success()
         homeConfettiTrigger = true
-        let title = result.isAlreadyClaimed ? AppStrings.Treasure.alreadyClaimedText : String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module)
+        let title = result.isAlreadyClaimed ? AppStrings.Treasure.alreadyClaimedText : AppStrings.Home.completedTitleText
         let message = result.isAlreadyClaimed ? AppStrings.Treasure.congratsTitleText : "+\(result.xpEarned) XP • \(AppStrings.Treasure.congratsTitleText)"
         let icon = result.isAlreadyClaimed ? "checkmark.seal.fill" : "gift.fill"
         let style: CraftToastStyle = result.isAlreadyClaimed ? .info : .success

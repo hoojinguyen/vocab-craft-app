@@ -30,6 +30,15 @@ public protocol UserProgressRepositoryProtocol: Sendable {
         practicedWordIds: [Int64],
         weakWordIds: Set<Int64>,
         stageId: String?,
+        deckId: String?,
+        cefrLevel: String?
+    ) async throws
+
+    /// Records batch lesson results for practiced words, updating mastery and review intervals.
+    func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
         deckId: String?
     ) async throws
 
@@ -58,6 +67,36 @@ public protocol UserProgressRepositoryProtocol: Sendable {
 }
 
 public extension UserProgressRepositoryProtocol {
+    func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?
+    ) async throws {
+        try await recordBatchLessonResults(
+            practicedWordIds: practicedWordIds,
+            weakWordIds: weakWordIds,
+            stageId: stageId,
+            deckId: deckId,
+            cefrLevel: nil
+        )
+    }
+
+    func recordBatchLessonResults(
+        practicedWordIds: [Int64],
+        weakWordIds: Set<Int64>,
+        stageId: String?,
+        deckId: String?,
+        cefrLevel: String?
+    ) async throws {
+        try await recordBatchLessonResults(
+            practicedWordIds: practicedWordIds,
+            weakWordIds: weakWordIds,
+            stageId: stageId,
+            deckId: deckId
+        )
+    }
+
     func fetchProgress(for wordId: Int64) async throws -> UserWordProgressData? {
         try await getProgress(wordId: wordId)
     }

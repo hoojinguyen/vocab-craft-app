@@ -82,9 +82,29 @@ struct MilestoneLexicalDeltaSheetTests {
         #expect(vm.activeMilestoneDelta?.unitId == "deck_1")
         #expect(vm.activeMilestoneDelta?.unitTitle == "Unit 1: Basics")
         #expect(vm.activeMilestoneDelta?.cefrLevel == "A1")
+        #expect(vm.activeMilestoneDelta?.cefrProgressTarget == 500)
 
         vm.dismissMilestoneDelta()
         #expect(vm.activeMilestoneDelta == nil)
+    }
+
+    @Test("HomepageViewModel triggerMilestoneDelta uses dynamic CEFR progress from snapshot")
+    func testHomepageViewModelTriggerMilestoneDeltaUsesSnapshot() {
+        let section = LessonSection(id: "deck_b1", title: "Business English", level: "B1", nodes: [])
+        let stat = CEFRLevelStat(cefrLevel: "B1", acquiredCount: 320, targetStandardCount: 800)
+        let snapshot = VocabGrowthSnapshot(
+            totalWordsAcquired: 320,
+            masteredWordsCount: 100,
+            consolidatingWordsCount: 120,
+            newWordsCount: 100,
+            estimatedRetentionRate: 0.92,
+            cefrDistribution: [stat]
+        )
+        let vm = HomepageViewModel(vocabGrowthSnapshot: snapshot, sections: [section])
+
+        vm.triggerMilestoneDelta(for: "deck_b1")
+        #expect(vm.activeMilestoneDelta?.cefrProgressCurrent == 320)
+        #expect(vm.activeMilestoneDelta?.cefrProgressTarget == 800)
     }
 
     @Test("HomepageViewModel handleLessonFinished triggers milestone on checkpoint completion")

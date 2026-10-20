@@ -252,6 +252,10 @@ public struct LearningPathDataMapper: Sendable {
             state = .completed
             stars = calculateStars(from: progress.score)
             nodeProgress = nil
+        } else if let checkpointProgress = progressMap["checkpoint_\(deck.id)"], checkpointProgress.isCompleted {
+            state = .completed
+            stars = calculateStars(from: checkpointProgress.score)
+            nodeProgress = nil
         } else if allPrecedingCompleted && !hasFoundActive {
             if let progress = spiralProgress, progress.progressFraction > 0.0 {
                 state = .inProgress

@@ -87,5 +87,27 @@ struct CompleteLessonUseCaseTests {
         let unwrappedStage = try #require(stageProgress)
         #expect(unwrappedStage.isCompleted == true)
     }
+
+    @Test func testCompleteLessonWithCefrLevel_persistsGivenCefrLevel() async throws {
+        let mockStageRepo = MockStageProgressRepository()
+        let mockProgressRepo = MockUserProgressRepository()
+        let useCase = CompleteLessonUseCase(stageRepo: mockStageRepo, progressRepo: mockProgressRepo)
+
+        let result = try await useCase.execute(
+            stageId: "stage_b1_1",
+            deckId: "deck_b1",
+            stars: 3,
+            practicedWordIds: [301],
+            weakWordIds: [],
+            progressFraction: 1.0,
+            cefrLevel: "B1"
+        )
+
+        #expect(result.score == 3)
+        let call = try #require(mockProgressRepo.recordedBatchCalls.first)
+        #expect(call.cefrLevel == "B1")
+        let word301 = try await mockProgressRepo.getProgress(wordId: 301)
+        #expect(word301?.cefrLevel == "B1")
+    }
 }
 #endif

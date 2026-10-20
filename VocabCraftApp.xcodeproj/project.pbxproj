@@ -137,6 +137,7 @@
 		3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */; };
 		3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */; };
 		30007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */; };
+		300093A759A8D9DD88F0 /* FetchVocabGrowthMetricsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200093A759A8D9DD88F0 /* FetchVocabGrowthMetricsUseCase.swift */; };
 		3000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */; };
 		300064603C7AF7C60564 /* InitializeUserRoadmapUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200064603C7AF7C60564 /* InitializeUserRoadmapUseCase.swift */; };
 		300075F7B17B75FB621E /* LessonPlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200075F7B17B75FB621E /* LessonPlanGenerator.swift */; };
@@ -175,8 +176,10 @@
 		3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4EBE185E244E802 /* HomeTopHeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
 		30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */; };
+		300047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift */; };
 		30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */; };
 		300037B28B849FB08515 /* TreasureClaimSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200037B28B849FB08515 /* TreasureClaimSheet.swift */; };
+		3000E06394A67DF1F09B /* VocabGrowthDashboardSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E06394A67DF1F09B /* VocabGrowthDashboardSheet.swift */; };
 		30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */; };
 		3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */; };
 		3000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift */; };
@@ -327,6 +330,7 @@
 		30003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */; };
 		30006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */; };
 		30004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */; };
+		30002DCC5726F8E2C925 /* FetchVocabGrowthMetricsUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002DCC5726F8E2C925 /* FetchVocabGrowthMetricsUseCaseTests.swift */; };
 		300086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */; };
 		30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */; };
 		30009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */; };
@@ -349,6 +353,9 @@
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
 		3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */; };
 		3000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */; };
+		3000E1C6EC60560CA57F /* MilestoneLexicalDeltaSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E1C6EC60560CA57F /* MilestoneLexicalDeltaSheetTests.swift */; };
+		30007E7261F339A1C4DA /* VocabGrowthDashboardSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E7261F339A1C4DA /* VocabGrowthDashboardSheetTests.swift */; };
+		3000766EB3AF29293F35 /* LessonFastTrackIntegrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000766EB3AF29293F35 /* LessonFastTrackIntegrationTests.swift */; };
 		3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */; };
 		3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */; };
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
@@ -580,6 +587,7 @@
 		2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
 		2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchPersonalVaultUseCase.swift"; sourceTree = "<group>"; };
 		20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchRoleplayScenariosUseCase.swift"; sourceTree = "<group>"; };
+		200093A759A8D9DD88F0 /* FetchVocabGrowthMetricsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchVocabGrowthMetricsUseCase.swift"; sourceTree = "<group>"; };
 		2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateMixedReflexQueueUseCase.swift"; sourceTree = "<group>"; };
 		200064603C7AF7C60564 /* InitializeUserRoadmapUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InitializeUserRoadmapUseCase.swift"; sourceTree = "<group>"; };
 		200075F7B17B75FB621E /* LessonPlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanGenerator.swift"; sourceTree = "<group>"; };
@@ -618,8 +626,10 @@
 		2000B4EBE185E244E802 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
 		20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheet.swift"; sourceTree = "<group>"; };
+		200047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MilestoneLexicalDeltaSheet.swift"; sourceTree = "<group>"; };
 		20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StreakWeekStripView.swift"; sourceTree = "<group>"; };
 		200037B28B849FB08515 /* TreasureClaimSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TreasureClaimSheet.swift"; sourceTree = "<group>"; };
+		2000E06394A67DF1F09B /* VocabGrowthDashboardSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabGrowthDashboardSheet.swift"; sourceTree = "<group>"; };
 		20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Completion.swift"; sourceTree = "<group>"; };
 		2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Speech.swift"; sourceTree = "<group>"; };
 		2000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Steps.swift"; sourceTree = "<group>"; };
@@ -754,6 +764,7 @@
 		20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaimTreasureRewardUseCaseTests.swift"; sourceTree = "<group>"; };
 		20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCaseTests.swift"; sourceTree = "<group>"; };
 		20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FastTrackUnitUseCaseTests.swift"; sourceTree = "<group>"; };
+		20002DCC5726F8E2C925 /* FetchVocabGrowthMetricsUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchVocabGrowthMetricsUseCaseTests.swift"; sourceTree = "<group>"; };
 		200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InitializeUserRoadmapUseCaseTests.swift"; sourceTree = "<group>"; };
 		20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathUseCasesTests.swift"; sourceTree = "<group>"; };
 		20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanGeneratorTests.swift"; sourceTree = "<group>"; };
@@ -776,6 +787,9 @@
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewTests.swift"; sourceTree = "<group>"; };
 		2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
 		2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheetTests.swift"; sourceTree = "<group>"; };
+		2000E1C6EC60560CA57F /* MilestoneLexicalDeltaSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MilestoneLexicalDeltaSheetTests.swift"; sourceTree = "<group>"; };
+		20007E7261F339A1C4DA /* VocabGrowthDashboardSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabGrowthDashboardSheetTests.swift"; sourceTree = "<group>"; };
+		2000766EB3AF29293F35 /* LessonFastTrackIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonFastTrackIntegrationTests.swift"; sourceTree = "<group>"; };
 		2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModelTests.swift"; sourceTree = "<group>"; };
 		2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLocalizationTests.swift"; sourceTree = "<group>"; };
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
@@ -1291,6 +1305,7 @@
 				2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */,
 				2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */,
 				20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */,
+				200093A759A8D9DD88F0 /* FetchVocabGrowthMetricsUseCase.swift */,
 				2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */,
 				200064603C7AF7C60564 /* InitializeUserRoadmapUseCase.swift */,
 				200075F7B17B75FB621E /* LessonPlanGenerator.swift */,
@@ -1405,8 +1420,10 @@
 				2000B4EBE185E244E802 /* HomeTopHeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
 				20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */,
+				200047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift */,
 				20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */,
 				200037B28B849FB08515 /* TreasureClaimSheet.swift */,
+				2000E06394A67DF1F09B /* VocabGrowthDashboardSheet.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";
@@ -1919,6 +1936,7 @@
 				20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */,
 				20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */,
 				20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */,
+				20002DCC5726F8E2C925 /* FetchVocabGrowthMetricsUseCaseTests.swift */,
 				200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */,
 				20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */,
 				20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */,
@@ -1967,6 +1985,8 @@
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
 				2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */,
 				2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */,
+				2000E1C6EC60560CA57F /* MilestoneLexicalDeltaSheetTests.swift */,
+				20007E7261F339A1C4DA /* VocabGrowthDashboardSheetTests.swift */,
 			);
 			path = "Homepage";
 			sourceTree = "<group>";
@@ -1974,6 +1994,7 @@
 		400095848A6A5A497042 /* Lesson */ = {
 			isa = PBXGroup;
 			children = (
+				2000766EB3AF29293F35 /* LessonFastTrackIntegrationTests.swift */,
 				2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */,
 				2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */,
 			);
@@ -2366,6 +2387,7 @@
 				3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */,
 				3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */,
 				30007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift in Sources */,
+				300093A759A8D9DD88F0 /* FetchVocabGrowthMetricsUseCase.swift in Sources */,
 				3000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift in Sources */,
 				300064603C7AF7C60564 /* InitializeUserRoadmapUseCase.swift in Sources */,
 				300075F7B17B75FB621E /* LessonPlanGenerator.swift in Sources */,
@@ -2404,8 +2426,10 @@
 				3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
 				30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */,
+				300047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
 				300037B28B849FB08515 /* TreasureClaimSheet.swift in Sources */,
+				3000E06394A67DF1F09B /* VocabGrowthDashboardSheet.swift in Sources */,
 				30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */,
 				3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */,
 				3000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift in Sources */,
@@ -2566,6 +2590,7 @@
 				30003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */,
 				30006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift in Test Sources */,
 				30004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift in Test Sources */,
+				30002DCC5726F8E2C925 /* FetchVocabGrowthMetricsUseCaseTests.swift in Test Sources */,
 				300086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */,
 				30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */,
 				30009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift in Test Sources */,
@@ -2588,6 +2613,9 @@
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
 				3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */,
 				3000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift in Test Sources */,
+				3000E1C6EC60560CA57F /* MilestoneLexicalDeltaSheetTests.swift in Test Sources */,
+				30007E7261F339A1C4DA /* VocabGrowthDashboardSheetTests.swift in Test Sources */,
+				3000766EB3AF29293F35 /* LessonFastTrackIntegrationTests.swift in Test Sources */,
 				3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */,
 				3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,

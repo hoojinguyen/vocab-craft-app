@@ -85,11 +85,29 @@ public final class FastTrackUnitUseCase: FastTrackUnitUseCaseProtocol, Sendable 
             progressFraction: 1.0
         )
 
+        let spiralStageId = "spiral_\(deckId)"
+        try await stageRepo.saveStageProgress(
+            stageId: spiralStageId,
+            deckId: deckId,
+            isCompleted: true,
+            score: 3,
+            progressFraction: 1.0
+        )
+
         // 4. Collect all vocabulary words across the unit's stages
         var allWordIds: [Int64] = []
+        var detectedCefrLevel: String?
         for stage in stages {
             let stageWords = try await dataSource.fetchWordsForStage(stageId: stage.id)
+            if detectedCefrLevel == nil, let wordCefr = stageWords.first?.cefrLevel, !wordCefr.isEmpty {
+                detectedCefrLevel = wordCefr
+            }
             allWordIds.append(contentsOf: stageWords.map(\.id))
+        }
+
+        if detectedCefrLevel == nil {
+            let decks = (try? await dataSource.fetchTopicDecks()) ?? []
+            detectedCefrLevel = decks.first(where: { $0.id == deckId })?.cefrLevel
         }
 
         // Preserve unique word IDs
@@ -106,11 +124,12 @@ public final class FastTrackUnitUseCase: FastTrackUnitUseCaseProtocol, Sendable 
                 practicedWordIds: uniqueWordIds,
                 weakWordIds: [],
                 stageId: checkpointStageId,
-                deckId: deckId
+                deckId: deckId,
+                cefrLevel: detectedCefrLevel
             )
         }
 
-        let completedStageIds = stages.map(\.id) + [checkpointStageId]
+        let completedStageIds = stages.map(\.id) + [checkpointStageId, spiralStageId]
         return FastTrackResult(
             deckId: deckId,
             isSuccess: true,

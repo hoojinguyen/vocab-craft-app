@@ -760,6 +760,16 @@ extension AppStrings {
         public static var lockedHintText: String {
             String(localized: "app.home.node.locked_hint", defaultValue: "Complete previous lessons to unlock", bundle: .module)
         }
+
+        // Toast
+        public static var completedTitle: LocalizedStringKey { "app.home.toast.completed_title" }
+        public static var completedTitleText: String {
+            String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module)
+        }
+        public static var starsSuffix: LocalizedStringKey { "app.home.toast.stars_suffix" }
+        public static var starsSuffixText: String {
+            String(localized: "app.home.toast.stars_suffix", defaultValue: " • Amazing!", bundle: .module)
+        }
     }
 
     // MARK: - Widget

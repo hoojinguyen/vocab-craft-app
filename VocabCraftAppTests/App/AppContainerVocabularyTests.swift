@@ -67,8 +67,12 @@ final class AppContainerVocabularyTests: XCTestCase {
         let container = AppContainer.mock
         XCTAssertNotNil(container.fetchLearningPathUseCase)
         XCTAssertNotNil(container.completeLessonUseCase)
+        XCTAssertNotNil(container.fastTrackUnitUseCase)
+        XCTAssertNotNil(container.fetchVocabGrowthMetricsUseCase)
         XCTAssertNotNil(container.makeFetchLearningPathUseCase())
         XCTAssertNotNil(container.makeCompleteLessonUseCase())
+        XCTAssertNotNil(container.makeFastTrackUnitUseCase())
+        XCTAssertNotNil(container.makeFetchVocabGrowthMetricsUseCase())
     }
 
     @MainActor
