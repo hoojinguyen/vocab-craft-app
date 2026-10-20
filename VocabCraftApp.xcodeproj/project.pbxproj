@@ -400,6 +400,7 @@
 		300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200029F58E9AE9045086 /* NextWordIntentTests.swift */; };
 		3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */; };
 		30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000669E2AEEB9C9048 /* AppStringsParityTests.swift */; };
+		3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
 		300082B754991DC24862 /* LocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200082B754991DC24862 /* LocalizationTests.swift */; };
@@ -834,6 +835,7 @@
 		200029F58E9AE9045086 /* NextWordIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntentTests.swift"; sourceTree = "<group>"; };
 		2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetLocalizationTests.swift"; sourceTree = "<group>"; };
 		20000669E2AEEB9C9048 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
+		2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockCompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
 		200082B754991DC24862 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
@@ -2081,6 +2083,7 @@
 		40001795D309886C29B1 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */,
 				2000C272A49C7CAF5DDF /* MockReflexServices.swift */,
 			);
 			path = "Mocks";
@@ -2660,6 +2663,7 @@
 				300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */,
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
+				3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */,
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
 				300082B754991DC24862 /* LocalizationTests.swift in Test Sources */,
