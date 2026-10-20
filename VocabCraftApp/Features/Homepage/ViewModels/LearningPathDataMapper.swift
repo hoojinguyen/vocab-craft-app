@@ -4,14 +4,21 @@ import Foundation
 /// Pure Swift mapper that transforms topic deck DTOs and user progress into CraftUIKit `LessonSection` models with linear progression.
 public struct LearningPathDataMapper: Sendable {
     /// Maps a domain `LearningPathCurriculum` aggregate into presentation `LessonSection` models.
-    /// - Parameter curriculum: Domain model containing decks, stages, words, and user progress.
+    /// - Parameters:
+    ///   - curriculum: Domain model containing decks, stages, words, and user progress.
+    ///   - minWeakWordsThreshold: Minimum count of words needing review to trigger spiral review injection (default 5).
     /// - Returns: An array of configured `LessonSection` models ready for presentation.
-    public static func map(curriculum: LearningPathCurriculum) -> [LessonSection] {
+    public static func map(
+        curriculum: LearningPathCurriculum,
+        minWeakWordsThreshold: Int = 5
+    ) -> [LessonSection] {
         map(
             decks: curriculum.decks,
             stages: curriculum.stages,
             words: curriculum.words,
-            progressList: curriculum.progressList
+            progressList: curriculum.progressList,
+            weakWords: curriculum.weakWords,
+            minWeakWordsThreshold: minWeakWordsThreshold
         )
     }
 
@@ -21,19 +28,28 @@ public struct LearningPathDataMapper: Sendable {
     ///   - stages: Subtopic stage DTOs representing individual lesson nodes.
     ///   - words: Vocabulary word DTOs grouped into stages.
     ///   - progressList: Persisted user progress records for stages and checkpoints.
+    ///   - weakWords: User word progress records for spaced spiral review calculation.
+    ///   - minWeakWordsThreshold: Minimum count of words needing review to trigger spiral review injection (default 5).
     /// - Returns: An array of configured `LessonSection` models ready for presentation.
     public static func map(
         decks: [TopicDeckDTO],
         stages: [SubTopicStageDTO],
         words: [TopicWordDTO],
-        progressList: [UserStageProgressData]
+        progressList: [UserStageProgressData],
+        weakWords: [UserWordProgressData] = [],
+        minWeakWordsThreshold: Int = 5
     ) -> [LessonSection] {
         guard !decks.isEmpty else { return [] }
 
         let progressMap = Dictionary(progressList.map { ($0.stageId, $0) }, uniquingKeysWith: { first, _ in first })
         let wordsByStage = Dictionary(grouping: words, by: \.stageId)
         let stagesByDeck = Dictionary(grouping: stages, by: \.deckId)
+        let stageDeckMap = Dictionary(stages.map { ($0.id, $0.deckId) }, uniquingKeysWith: { first, _ in first })
+        let wordDeckMap = Dictionary(words.compactMap { word in stageDeckMap[word.stageId].map { (Int64(word.id), $0) } }, uniquingKeysWith: { first, _ in first })
         let sortedDecks = decks.sorted { $0.sortOrder < $1.sortOrder }
+
+        let activeWeakWords = weakWords.filter { $0.needsReview || $0.masteryLevel < 3 }
+        let effectiveWeakWords = activeWeakWords.isEmpty ? weakWords : activeWeakWords
 
         var hasFoundActive = false
         var sections: [LessonSection] = []
@@ -52,6 +68,34 @@ public struct LearningPathDataMapper: Sendable {
             let deckWordCount = deckStages.reduce(0) { total, stage in
                 total + (wordsByStage[stage.id]?.count ?? 0)
             }
+
+            // Determine weak words eligible for spiral review in this unit
+            let deckWeakWords: [UserWordProgressData] = {
+                if sortedDecks.count == 1 {
+                    return effectiveWeakWords
+                }
+                let precedingDeckIds = Set(sortedDecks.prefix(deckIndex).map(\.id))
+                let wordsForDeck = effectiveWeakWords.filter { word in
+                    guard let wordDeckId = word.sourceDeckId ?? wordDeckMap[word.wordId] else {
+                        return deckIndex == 0
+                    }
+                    return precedingDeckIds.contains(wordDeckId) || (deckIndex == 0 && wordDeckId == deck.id)
+                }
+                return wordsForDeck
+            }()
+
+            // Inject spaced spiral review node when candidate words meet the review threshold
+            if deckWeakWords.count >= minWeakWordsThreshold {
+                let spiralNode = buildSpiralNode(
+                    deck: deck,
+                    wordsNeedingReview: deckWeakWords,
+                    sectionNodes: sectionNodes,
+                    progressMap: progressMap,
+                    hasFoundActive: &hasFoundActive
+                )
+                sectionNodes.append(spiralNode)
+            }
+
             let checkpointNode = buildCheckpointNode(
                 deck: deck,
                 deckWordCount: deckWordCount,
@@ -170,6 +214,85 @@ public struct LearningPathDataMapper: Sendable {
                 "app.home.node.objective_1_format",
                 "app.home.node.objective_2",
                 "app.home.node.objective_3"
+            ]
+        )
+    }
+
+    public static func buildSpiralNode(
+        deck: TopicDeckDTO,
+        wordsNeedingReview: [UserWordProgressData],
+        hasFoundActive: inout Bool
+    ) -> LessonNodeModel {
+        buildSpiralNode(
+            deck: deck,
+            wordsNeedingReview: wordsNeedingReview,
+            sectionNodes: [],
+            progressMap: [:],
+            hasFoundActive: &hasFoundActive
+        )
+    }
+
+    private static func buildSpiralNode(
+        deck: TopicDeckDTO,
+        wordsNeedingReview: [UserWordProgressData],
+        sectionNodes: [LessonNodeModel],
+        progressMap: [String: UserStageProgressData],
+        hasFoundActive: inout Bool
+    ) -> LessonNodeModel {
+        let spiralId = "spiral_\(deck.id)"
+        let spiralProgress = progressMap[spiralId]
+        let wordCount = wordsNeedingReview.count
+        let estimatedMinutes = LessonEconomyPolicy.spiralReviewEstimatedMinutes(wordCount: wordCount)
+        let allPrecedingCompleted = sectionNodes.allSatisfy { $0.state == .completed }
+
+        let state: LessonNodeState
+        let stars: Int?
+        let nodeProgress: Double?
+
+        if let progress = spiralProgress, progress.isCompleted {
+            state = .completed
+            stars = calculateStars(from: progress.score)
+            nodeProgress = nil
+        } else if allPrecedingCompleted && !hasFoundActive {
+            if let progress = spiralProgress, progress.progressFraction > 0.0 {
+                state = .inProgress
+                nodeProgress = progress.progressFraction
+            } else {
+                state = .active
+                nodeProgress = nil
+            }
+            stars = nil
+            hasFoundActive = true
+        } else {
+            state = .locked
+            stars = nil
+            nodeProgress = nil
+        }
+
+        let wordsText = CraftLocalized.format("craft.common.unit.words_format", wordCount)
+        let minutesText = CraftLocalized.format("craft.common.unit.minutes_format", estimatedMinutes)
+        let subtitle = "\(wordsText) • \(minutesText)"
+
+        return LessonNodeModel(
+            id: spiralId,
+            title: AppStrings.Home.spiralReviewTitleText,
+            subtitle: subtitle,
+            iconName: "arrow.triangle.2.circlepath.circle.fill",
+            state: state,
+            kind: .spiralReview,
+            progress: nodeProgress,
+            xpReward: LessonEconomyPolicy.xpReward(for: .spiralReview),
+            estimatedMinutes: estimatedMinutes,
+            stars: stars,
+            badgeCount: nil,
+            badgeText: nil,
+            objectives: [
+                AppStrings.Home.spiralReviewObjective1(words: wordCount),
+                AppStrings.Home.spiralReviewObjective2Text
+            ],
+            objectiveKeys: [
+                "app.home.node.spiral_review_objective_1_format",
+                "app.home.node.spiral_review_objective_2"
             ]
         )
     }

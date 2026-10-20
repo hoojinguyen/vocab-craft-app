@@ -1677,6 +1677,78 @@
         }
       }
     },
+    "craft.node.spiral_review.a11y" : {
+      "comment" : "Accessibility label for spiral review node",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiral Review: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ôn tập xoắn ốc: %@"
+          }
+        }
+      }
+    },
+    "craft.node.spiral_review.callout" : {
+      "comment" : "Callout badge text for active spiral review node",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REVIEW"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ÔN TẬP"
+          }
+        }
+      }
+    },
+    "craft.node.spiral_review.subtitle" : {
+      "comment" : "Subtitle for spiral review node",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinforce past vocabulary"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Củng cố từ vựng đã học"
+          }
+        }
+      }
+    },
+    "craft.node.spiral_review.title" : {
+      "comment" : "Title for spiral review node",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiral Review"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ôn tập xoắn ốc"
+          }
+        }
+      }
+    },
     "craft.progress.label" : {
       "comment" : "Progress bar/ring label",
       "extractionState" : "manual",

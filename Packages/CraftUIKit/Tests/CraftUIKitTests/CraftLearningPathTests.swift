@@ -28,13 +28,15 @@ final class CraftLearningPathTests: XCTestCase {
     // MARK: - LessonNodeKind Tests
 
     func testLessonNodeKindCasesAndRawValues() {
-        XCTAssertEqual(LessonNodeKind.allCases.count, 3)
+        XCTAssertEqual(LessonNodeKind.allCases.count, 4)
         XCTAssertEqual(LessonNodeKind.allCases, [
             .standard,
+            .spiralReview,
             .checkpoint,
             .treasureChest
         ])
         XCTAssertEqual(LessonNodeKind.standard.rawValue, "standard")
+        XCTAssertEqual(LessonNodeKind.spiralReview.rawValue, "spiralReview")
         XCTAssertEqual(LessonNodeKind.checkpoint.rawValue, "checkpoint")
         XCTAssertEqual(LessonNodeKind.treasureChest.rawValue, "treasureChest")
     }
@@ -2962,7 +2964,7 @@ final class CraftLearningPathTests: XCTestCase {
 
     func testCraftLessonNodeStateTransitionsAndKindVariations() {
         let states: [LessonNodeState] = [.completed, .active, .inProgress, .upcoming, .locked, .bonus]
-        let kinds: [LessonNodeKind] = [.standard, .checkpoint, .treasureChest]
+        let kinds: [LessonNodeKind] = [.standard, .spiralReview, .checkpoint, .treasureChest]
 
         for kind in kinds {
             for state in states {

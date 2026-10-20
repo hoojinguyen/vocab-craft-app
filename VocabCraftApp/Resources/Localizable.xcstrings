@@ -2925,6 +2925,23 @@
         }
       }
     },
+    "app.home.node.cta_spiral_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Spiral Review"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu ôn tập xoắn ốc"
+          }
+        }
+      }
+    },
     "app.home.node.cta_start": {
       "extractionState": "manual",
       "localizations": {
@@ -3006,6 +3023,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đạt độ chính xác ≥ 80% để qua bài"
+          }
+        }
+      }
+    },
+    "app.home.node.spiral_review_objective_1_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review %lld words needing consolidation"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn tập %lld từ vựng cần củng cố"
+          }
+        }
+      }
+    },
+    "app.home.node.spiral_review_objective_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combat the forgetting curve across units"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chống lại đường cong quên lãng giữa các bài"
+          }
+        }
+      }
+    },
+    "app.home.node.spiral_review_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinforce past unit vocabulary"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Củng cố từ vựng từ các bài học trước"
+          }
+        }
+      }
+    },
+    "app.home.node.spiral_review_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spaced Spiral Review"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn tập xoắn ốc định kỳ"
           }
         }
       }

@@ -459,6 +459,10 @@ public struct CraftLessonNode: View, Equatable {
             HexagonShape()
                 .fill(rimColor)
                 .frame(width: nodeDiameter, height: nodeDiameter)
+        case .spiralReview:
+            DiamondShape()
+                .fill(rimColor)
+                .frame(width: nodeDiameter, height: nodeDiameter)
         case .standard, .treasureChest:
             Circle()
                 .fill(rimColor)
@@ -489,6 +493,27 @@ public struct CraftLessonNode: View, Equatable {
 
                 if model.state == .upcoming || model.state == .locked {
                     HexagonShape()
+                        .stroke(theme.colors.borderDefault, lineWidth: 1.5)
+                }
+            }
+        case .spiralReview:
+            ZStack {
+                switch model.state {
+                case .completed:
+                    DiamondShape().fill(theme.colors.statusSuccess)
+                case .active:
+                    DiamondShape().fill(theme.gradients.streakLegendary)
+                case .inProgress:
+                    DiamondShape().fill(theme.colors.surfaceElevated)
+                case .upcoming, .locked:
+                    DiamondShape().fill(theme.colors.surfaceSubtle)
+                case .bonus:
+                    DiamondShape().fill(theme.gradients.streakLegendary)
+                        .craftShimmer(isActive: !reduceMotion)
+                }
+
+                if model.state == .upcoming || model.state == .locked {
+                    DiamondShape()
                         .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
@@ -531,6 +556,12 @@ public struct CraftLessonNode: View, Equatable {
                     theme.depths.topHighlight,
                     lineWidth: 1.5
                 )
+        case .spiralReview:
+            DiamondShape()
+                .stroke(
+                    theme.depths.topHighlight,
+                    lineWidth: 1.5
+                )
         case .standard, .treasureChest:
             Circle()
                 .stroke(
@@ -546,6 +577,19 @@ public struct CraftLessonNode: View, Equatable {
         switch model.kind {
         case .treasureChest:
             return theme.colors.accent.opacity(0.85)
+        case .spiralReview:
+            switch model.state {
+            case .completed:
+                return theme.colors.statusSuccess.opacity(0.85)
+            case .active:
+                return theme.colors.streakLegendary.opacity(0.85)
+            case .inProgress, .upcoming:
+                return theme.colors.borderDefault
+            case .locked:
+                return theme.colors.surfaceSubtle
+            case .bonus:
+                return theme.colors.accent.opacity(0.85)
+            }
         case .standard, .checkpoint:
             switch model.state {
             case .completed:
@@ -580,6 +624,7 @@ public struct CraftLessonNode: View, Equatable {
     @ViewBuilder
     private var activeGlowRing: some View {
         let isCheckpoint = model.kind == .checkpoint
+        let isSpiralReview = model.kind == .spiralReview
         let haloSize = nodeDiameter + 24
         let haloGradient = haloRadialGradient
         if reduceMotion || !isVisibleForAnimation {
@@ -590,6 +635,13 @@ public struct CraftLessonNode: View, Equatable {
                         .frame(width: haloSize, height: haloSize)
                     HexagonShape()
                         .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
+                        .frame(width: haloSize, height: haloSize)
+                } else if isSpiralReview {
+                    DiamondShape()
+                        .fill(haloGradient)
+                        .frame(width: haloSize, height: haloSize)
+                    DiamondShape()
+                        .stroke(theme.colors.streakLegendary.opacity(0.25), lineWidth: 1.5)
                         .frame(width: haloSize, height: haloSize)
                 } else {
                     Circle()
@@ -613,6 +665,20 @@ public struct CraftLessonNode: View, Equatable {
                         HexagonShape()
                             .stroke(
                                 theme.colors.brandPrimary.opacity(phase == .glowing ? 0.35 : 0.18),
+                                lineWidth: 1.5
+                            )
+                            .frame(width: haloSize, height: haloSize)
+                            .scaleEffect(phase == .glowing ? 1.04 : 0.98)
+                    } else if isSpiralReview {
+                        DiamondShape()
+                            .fill(haloGradient)
+                            .frame(width: haloSize, height: haloSize)
+                            .opacity(phase == .glowing ? 1.0 : 0.75)
+                            .scaleEffect(phase == .glowing ? 1.04 : 0.98)
+
+                        DiamondShape()
+                            .stroke(
+                                theme.colors.streakLegendary.opacity(phase == .glowing ? 0.35 : 0.18),
                                 lineWidth: 1.5
                             )
                             .frame(width: haloSize, height: haloSize)
@@ -651,6 +717,13 @@ public struct CraftLessonNode: View, Equatable {
                     theme.colors.brandPrimary,
                     style: StrokeStyle(lineWidth: 3, lineCap: .round)
                 )
+        } else if model.kind == .spiralReview {
+            DiamondShape()
+                .trim(from: 0.0, to: CGFloat(clampedProgress))
+                .stroke(
+                    theme.colors.streakLegendary,
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                )
         } else {
             ZStack {
                 Circle()
@@ -672,6 +745,9 @@ public struct CraftLessonNode: View, Equatable {
     private var effectiveIconName: String {
         if model.kind == .treasureChest {
             return (model.iconName == "book.fill" || model.iconName.isEmpty) ? "gift.fill" : model.iconName
+        }
+        if model.kind == .spiralReview {
+            return (model.iconName == "book.fill" || model.iconName.isEmpty) ? "arrow.triangle.2.circlepath.circle.fill" : model.iconName
         }
 
         switch model.state {

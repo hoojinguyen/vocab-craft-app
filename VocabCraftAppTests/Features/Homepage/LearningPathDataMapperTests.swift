@@ -383,4 +383,145 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(sections[0].nodes[0].stars, 3)
         XCTAssertEqual(sections[0].nodes[1].state, .active)
     }
+
+    // MARK: - Spiral Review Node Tests
+
+    func testSpiralReviewNodeInjectedWhenWordsNeedReview() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let completedProgress = [UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())]
+        let weakWordProgress = (1...5).map { UserWordProgressData(wordId: Int64($0), masteryLevel: 1, needsReview: true) }
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: completedProgress,
+            weakWords: weakWordProgress
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        XCTAssertTrue(nodes.contains(where: { $0.kind == .spiralReview }))
+    }
+
+    func testSpiralReviewNodeOmittedWhenWeakWordsBelowThreshold() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let completedProgress = [UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())]
+        let weakWordProgress = [UserWordProgressData(wordId: 1, masteryLevel: 1, needsReview: true)]
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: completedProgress,
+            weakWords: weakWordProgress
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        XCTAssertFalse(nodes.contains(where: { $0.kind == .spiralReview }))
+    }
+
+    func testSpiralReviewNodeInjectedWithCustomThreshold() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let completedProgress = [UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())]
+        let weakWordProgress = [UserWordProgressData(wordId: 1, masteryLevel: 1, needsReview: true)]
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: completedProgress,
+            weakWords: weakWordProgress,
+            minWeakWordsThreshold: 1
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        XCTAssertTrue(nodes.contains(where: { $0.kind == .spiralReview }))
+    }
+
+    func testSpiralReviewNodePositionedBeforeCheckpoint() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let completedProgress = [UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())]
+        let weakWordProgress = (1...5).map { UserWordProgressData(wordId: Int64($0), masteryLevel: 1, needsReview: true) }
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: completedProgress,
+            weakWords: weakWordProgress
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        guard let spiralIndex = nodes.firstIndex(where: { $0.kind == .spiralReview }),
+              let checkpointIndex = nodes.firstIndex(where: { $0.kind == .checkpoint }) else {
+            XCTFail("Expected both spiralReview and checkpoint nodes to exist")
+            return
+        }
+
+        XCTAssertLessThan(spiralIndex, checkpointIndex)
+        XCTAssertEqual(spiralIndex + 1, checkpointIndex)
+    }
+
+    func testSpiralReviewNodeCompletedState() {
+        let deck = TopicDeckDTO(id: "deck_1", titleEn: "Food", titleVi: "Ẩm thực", iconName: "fork.knife", themeKey: "green", cefrLevel: "A1", sortOrder: 0)
+        let stage = SubTopicStageDTO(id: "stage_1", deckId: "deck_1", titleEn: "Fruits", titleVi: "Trái cây", iconName: "apple", sortOrder: 0)
+        let words = [
+            TopicWordDTO(
+                id: 1, stageId: "stage_1", lemma: "Apple", phonetic: "/ˈæp.əl/",
+                pos: "noun", cefrLevel: "A1", definitionVi: "Quả táo", definitionEn: "A fruit",
+                exampleEn: "Eat apple", exampleVi: "Ăn táo"
+            )
+        ]
+        let progressList = [
+            UserStageProgressData(stageId: "stage_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date()),
+            UserStageProgressData(stageId: "spiral_deck_1", deckId: "deck_1", isCompleted: true, score: 3, progressFraction: 1.0, completedAt: Date())
+        ]
+        let weakWordProgress = (1...5).map { UserWordProgressData(wordId: Int64($0), masteryLevel: 1, needsReview: true) }
+
+        let sections = LearningPathDataMapper.map(
+            decks: [deck],
+            stages: [stage],
+            words: words,
+            progressList: progressList,
+            weakWords: weakWordProgress
+        )
+
+        let nodes = sections.first?.nodes ?? []
+        let spiralNode = nodes.first(where: { $0.kind == .spiralReview })
+        XCTAssertNotNil(spiralNode)
+        XCTAssertEqual(spiralNode?.state, .completed)
+        XCTAssertEqual(spiralNode?.stars, 3)
+    }
 }

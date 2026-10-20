@@ -48,6 +48,10 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
 
     // MARK: - Computed Properties & Sizing
 
+    private var isSpiralReview: Bool {
+        (model.customPayload as? LessonNodePayload)?.kind == .spiralReview
+    }
+
     public var effectiveSurfaceStyle: CraftSurfaceStyle {
         model.surfaceStyle
     }
@@ -327,22 +331,29 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
 
     @ViewBuilder
     private func stateFillView<S: Shape>(shape: S) -> some View {
-        switch model.state {
-        case .completed:
-            shape.fill(theme.colors.statusSuccess)
-        case .active:
-            shape.fill(theme.gradients.brandHero)
-        case .inProgress:
-            shape.fill(theme.colors.surfaceElevated)
-        case .upcoming, .locked:
-            shape.fill(theme.colors.surfaceSubtle)
-        case .bonus:
-            shape.fill(theme.gradients.accentShine)
-                .craftShimmer(isActive: !reduceMotion)
+        if isSpiralReview && model.state == .active {
+            shape.fill(theme.gradients.streakLegendary)
+        } else {
+            switch model.state {
+            case .completed:
+                shape.fill(theme.colors.statusSuccess)
+            case .active:
+                shape.fill(theme.gradients.brandHero)
+            case .inProgress:
+                shape.fill(theme.colors.surfaceElevated)
+            case .upcoming, .locked:
+                shape.fill(theme.colors.surfaceSubtle)
+            case .bonus:
+                shape.fill(theme.gradients.accentShine)
+                    .craftShimmer(isActive: !reduceMotion)
+            }
         }
     }
 
     private var stateFillColor: Color {
+        if isSpiralReview && model.state == .active {
+            return theme.colors.streakLegendary
+        }
         switch model.state {
         case .completed:
             return theme.colors.statusSuccess
@@ -445,6 +456,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
     // MARK: - Rim Color
 
     private var rimColor: Color {
+        if isSpiralReview && model.state == .active {
+            return theme.colors.streakLegendary.opacity(0.85)
+        }
         switch model.state {
         case .completed:
             return theme.colors.statusSuccess.opacity(0.85)
@@ -565,6 +579,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
         case .bonus:
             return model.icon.name.isEmpty ? "star.fill" : model.icon.name
         case .active, .inProgress, .upcoming:
+            if isSpiralReview && (model.icon.name.isEmpty || model.icon.name == "book.fill") {
+                return "arrow.triangle.2.circlepath.circle.fill"
+            }
             return model.icon.name.isEmpty ? "book.fill" : model.icon.name
         }
     }

@@ -45,9 +45,16 @@ struct HomeLocalizationTests {
         #expect(AppStrings.Home.objective3Text == "Achieve ≥ 80% accuracy to pass")
         #expect(AppStrings.Home.checkpointObjective1(words: 50) == "Review all 50 words in this unit")
         #expect(AppStrings.Home.checkpointObjective2Text == "Score ≥ 80% accuracy to unlock the next Unit")
+        #expect(AppStrings.Home.spiralReviewTitleText == "Spaced Spiral Review")
+        #expect(AppStrings.Home.spiralReviewSubtitleText == "Reinforce past unit vocabulary")
+        #expect(AppStrings.Home.spiralReviewObjective1(words: 10) == "Review 10 words needing consolidation")
+        #expect(AppStrings.Home.spiralReviewObjective2Text == "Combat the forgetting curve across units")
         let _: LocalizedStringKey = AppStrings.Home.objective2
         let _: LocalizedStringKey = AppStrings.Home.objective3
         let _: LocalizedStringKey = AppStrings.Home.checkpointObjective2
+        let _: LocalizedStringKey = AppStrings.Home.spiralReviewTitle
+        let _: LocalizedStringKey = AppStrings.Home.spiralReviewSubtitle
+        let _: LocalizedStringKey = AppStrings.Home.spiralReviewObjective2
     }
 
     @Test("Verifies CTA and hint accessors in AppStrings.Home")
@@ -55,9 +62,11 @@ struct HomeLocalizationTests {
         #expect(AppStrings.Home.ctaStartText == "Start Lesson")
         #expect(AppStrings.Home.ctaContinue(percent: 60) == "Continue (60%)")
         #expect(AppStrings.Home.ctaReview(xp: 25) == "Review Lesson (+25 XP)")
+        #expect(AppStrings.Home.ctaSpiralReviewText == "Start Spiral Review")
         #expect(AppStrings.Home.ctaCheckpointText == "Start Boss Exam")
         #expect(AppStrings.Home.lockedHintText == "Complete previous lessons to unlock")
         let _: LocalizedStringKey = AppStrings.Home.ctaStart
+        let _: LocalizedStringKey = AppStrings.Home.ctaSpiralReview
         let _: LocalizedStringKey = AppStrings.Home.ctaCheckpoint
         let _: LocalizedStringKey = AppStrings.Home.lockedHint
     }
@@ -118,11 +127,16 @@ struct HomeLocalizationTests {
             "app.home.node.cta_start",
             "app.home.node.cta_continue_format",
             "app.home.node.cta_review_format",
+            "app.home.node.cta_spiral_review",
             "app.home.node.cta_checkpoint",
-            "app.home.node.locked_hint"
+            "app.home.node.locked_hint",
+            "app.home.node.spiral_review_title",
+            "app.home.node.spiral_review_subtitle",
+            "app.home.node.spiral_review_objective_1_format",
+            "app.home.node.spiral_review_objective_2"
         ]
 
-        #expect(requiredHomeKeys.count == 23)
+        #expect(requiredHomeKeys.count == 28)
 
         for key in requiredHomeKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")

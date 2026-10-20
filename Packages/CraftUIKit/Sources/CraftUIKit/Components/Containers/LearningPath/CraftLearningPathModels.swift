@@ -11,6 +11,7 @@ public typealias LessonNodeState = CraftNodeState
 /// Semantic type/tier of a lesson node in the tactile learning path.
 public enum LessonNodeKind: String, Sendable, Equatable, Hashable, CaseIterable {
     case standard       // Standard circular lesson node
+    case spiralReview   // Periodic spaced review node consolidating past units
     case checkpoint     // Mid-unit or boss exam node
     case treasureChest  // End-of-unit milestone reward chest
 }
@@ -68,7 +69,7 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
         self.id = id
         self.title = title
         self.subtitle = subtitle
-        self.iconName = iconName
+        self.iconName = (kind == .spiralReview && iconName == "book.fill") ? "arrow.triangle.2.circlepath.circle.fill" : iconName
         self.state = state
         self.kind = kind
         self.progress = progress
@@ -85,6 +86,7 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
     public var asPathNode: CraftPathNodeModel<LessonNodePayload> {
         let shape: CraftNodeShape = switch kind {
         case .checkpoint: .hexagon
+        case .spiralReview: .diamond
         case .standard, .treasureChest: .circle
         }
         let metricText: String? = if let xp = xpReward {

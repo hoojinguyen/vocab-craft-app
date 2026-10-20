@@ -701,6 +701,23 @@ extension AppStrings {
             String(localized: "app.home.node.checkpoint_objective_2", defaultValue: "Score ≥ 80% accuracy to unlock the next Unit", bundle: .module)
         }
 
+        // Spiral Review Node
+        public static var spiralReviewTitle: LocalizedStringKey { "app.home.node.spiral_review_title" }
+        public static var spiralReviewTitleText: String {
+            String(localized: "app.home.node.spiral_review_title", defaultValue: "Spaced Spiral Review", bundle: .module)
+        }
+        public static var spiralReviewSubtitle: LocalizedStringKey { "app.home.node.spiral_review_subtitle" }
+        public static var spiralReviewSubtitleText: String {
+            String(localized: "app.home.node.spiral_review_subtitle", defaultValue: "Reinforce past unit vocabulary", bundle: .module)
+        }
+        public static func spiralReviewObjective1(words: Int) -> String {
+            String(format: String(localized: "app.home.node.spiral_review_objective_1_format", defaultValue: "Review %lld words needing consolidation", bundle: .module), words)
+        }
+        public static var spiralReviewObjective2: LocalizedStringKey { "app.home.node.spiral_review_objective_2" }
+        public static var spiralReviewObjective2Text: String {
+            String(localized: "app.home.node.spiral_review_objective_2", defaultValue: "Combat the forgetting curve across units", bundle: .module)
+        }
+
         // Call-to-Actions & Hints
         public static var ctaStart: LocalizedStringKey { "app.home.node.cta_start" }
         public static var ctaStartText: String {
@@ -711,6 +728,10 @@ extension AppStrings {
         }
         public static func ctaReview(xp: Int) -> String {
             String(format: String(localized: "app.home.node.cta_review_format", defaultValue: "Review Lesson (+%lld XP)", bundle: .module), xp)
+        }
+        public static var ctaSpiralReview: LocalizedStringKey { "app.home.node.cta_spiral_review" }
+        public static var ctaSpiralReviewText: String {
+            String(localized: "app.home.node.cta_spiral_review", defaultValue: "Start Spiral Review", bundle: .module)
         }
         public static var ctaCheckpoint: LocalizedStringKey { "app.home.node.cta_checkpoint" }
         public static var ctaCheckpointText: String {

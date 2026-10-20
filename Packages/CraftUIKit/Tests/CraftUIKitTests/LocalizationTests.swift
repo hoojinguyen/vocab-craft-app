@@ -274,6 +274,16 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.locked_lesson"), "LESSON LOCKED")
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.locked_lesson", language: "vi"), "BÀI HỌC ĐANG KHÓA")
         
+        // Spiral Review Node
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.title"), "Spiral Review")
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.title", language: "vi"), "Ôn tập xoắn ốc")
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.subtitle"), "Reinforce past vocabulary")
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.subtitle", language: "vi"), "Củng cố từ vựng đã học")
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.callout"), "REVIEW")
+        XCTAssertEqual(CraftLocalized.string("craft.node.spiral_review.callout", language: "vi"), "ÔN TẬP")
+        XCTAssertEqual(CraftLocalized.format("craft.node.spiral_review.a11y", "Basics"), "Spiral Review: Basics")
+        XCTAssertEqual(CraftLocalized.format("craft.node.spiral_review.a11y", language: "vi", "Cơ bản"), "Ôn tập xoắn ốc: Cơ bản")
+        
         // Objectives
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.objectives_header"), "Lesson Objectives")
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.objectives_header", language: "vi"), "Mục tiêu bài học")
