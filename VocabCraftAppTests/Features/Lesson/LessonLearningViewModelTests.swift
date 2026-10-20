@@ -250,8 +250,9 @@ struct LessonLearningViewModelTests {
 
     @Test("Completing all steps calculates 3 stars when 0 mistakes made and persists progress")
     func testFinishLessonWithThreeStars() async throws {
+        let words = makeSampleWords()
         let completeUseCase = MockCompleteLessonUseCase()
-        let vm = makeVM(completeLessonUseCase: completeUseCase)
+        let vm = makeVM(words: words, completeLessonUseCase: completeUseCase)
 
         // Advance through all steps until summary is reached
         while !vm.isSummaryStep {
@@ -272,6 +273,7 @@ struct LessonLearningViewModelTests {
         #expect(completeUseCase.executedDeckId == "deck_1")
         #expect(completeUseCase.executedProgressFraction == 1.0)
         #expect(completeUseCase.executedWeakWordIds?.isEmpty == true)
+        #expect(completeUseCase.executedPracticedWordIds == words.map(\.id))
     }
 
     @Test("Transient persistence failure allows retry via awaitCompletion or retryCompletion")

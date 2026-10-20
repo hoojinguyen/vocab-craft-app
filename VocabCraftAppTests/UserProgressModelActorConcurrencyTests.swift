@@ -92,6 +92,30 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         XCTAssertEqual(updated1001?.needsReview, false)
     }
 
+    func testRecordBatchLessonResultsDefensiveUnionPersistsDisjointWeakWords() async throws {
+        // Mismatched caller arguments: 2002 is marked weak but omitted from practicedWordIds
+        let practicedIds: [Int64] = [2001]
+        let weakIds: Set<Int64> = [2002]
+
+        try await actor.recordBatchLessonResults(
+            practicedWordIds: practicedIds,
+            weakWordIds: weakIds,
+            stageId: "stage_test",
+            deckId: "deck_test"
+        )
+
+        let w2001 = try await actor.getProgressData(wordId: 2001)
+        XCTAssertNotNil(w2001)
+        XCTAssertEqual(w2001?.masteryLevel, 1)
+        XCTAssertEqual(w2001?.needsReview, false)
+
+        let w2002 = try await actor.getProgressData(wordId: 2002)
+        XCTAssertNotNil(w2002)
+        XCTAssertEqual(w2002?.masteryLevel, 0)
+        XCTAssertEqual(w2002?.needsReview, true)
+        XCTAssertEqual(w2002?.mistakeCount, 1)
+    }
+
     func testSRSRepositoryResetAllProgressClearsData() async throws {
         let srsRepo = SRSRepositoryImpl(modelContext: container.mainContext)
         let item = SRSProgressItem(wordId: 99, masteryLevel: 4)

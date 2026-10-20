@@ -203,8 +203,9 @@ extension UserProgressModelActor {
         deckId: String?
     ) throws {
         let now = Date()
+        let allWordIds = Array(Set(practicedWordIds).union(weakWordIds))
         var processedWordIds = Set<Int64>()
-        for wordId in practicedWordIds {
+        for wordId in allWordIds {
             guard !processedWordIds.contains(wordId) else { continue }
             processedWordIds.insert(wordId)
             let isWeak = weakWordIds.contains(wordId)
@@ -492,8 +493,9 @@ extension UserProgressModelActor {
         deckId: String?
     ) throws {
         let now = Date()
+        let allWordIds = Array(Set(practicedWordIds).union(weakWordIds))
         var processedWordIds = Set<Int64>()
-        for wordId in practicedWordIds {
+        for wordId in allWordIds {
             guard !processedWordIds.contains(wordId) else { continue }
             processedWordIds.insert(wordId)
             let isWeak = weakWordIds.contains(wordId)
