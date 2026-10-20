@@ -39,6 +39,7 @@ public final class AppContainer {
     public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
     public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
     public let initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol
+    public let fetchVocabGrowthMetricsUseCase: FetchVocabGrowthMetricsUseCaseProtocol
 
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
@@ -60,6 +61,7 @@ public final class AppContainer {
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol? = nil,
+        fetchVocabGrowthMetricsUseCase: FetchVocabGrowthMetricsUseCaseProtocol? = nil,
         audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
@@ -161,6 +163,11 @@ public final class AppContainer {
             stageRepo: resolvedStageRepo,
             userSettings: effectiveUserSettingsStore
         )
+
+        self.fetchVocabGrowthMetricsUseCase = fetchVocabGrowthMetricsUseCase ?? FetchVocabGrowthMetricsUseCase(
+            progressRepo: resolvedUserProgressRepo,
+            dataSource: resolvedDataSource
+        )
     }
 
     private static func makeDefaultAIPackRegistry(settingsStore: UserSettingsStore) -> AIPackRegistry {
@@ -232,6 +239,10 @@ public final class AppContainer {
 
     public func makeRecordMixedDrillAttemptUseCase() -> RecordMixedDrillAttemptUseCaseProtocol {
         recordMixedDrillAttemptUseCase
+    }
+
+    public func makeFetchVocabGrowthMetricsUseCase() -> FetchVocabGrowthMetricsUseCaseProtocol {
+        fetchVocabGrowthMetricsUseCase
     }
 
     // MARK: - View Model Factories

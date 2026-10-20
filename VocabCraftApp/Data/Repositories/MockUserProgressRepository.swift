@@ -39,6 +39,17 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
         stateLock.withLock { $0.recordedBatchCalls }
     }
 
+    public var stubbedProgress: [UserWordProgressData] {
+        get {
+            stateLock.withLock { Array($0.storage.values) }
+        }
+        set {
+            stateLock.withLock { state in
+                state.storage = Dictionary(newValue.map { ($0.wordId, $0) }, uniquingKeysWith: { _, last in last })
+            }
+        }
+    }
+
     public init(initialData: [UserWordProgressData] = []) {
         var initialStorage: [Int64: UserWordProgressData] = [:]
         for item in initialData {
