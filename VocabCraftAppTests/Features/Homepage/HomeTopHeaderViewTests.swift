@@ -75,6 +75,41 @@ struct HomeTopHeaderViewTestingTests {
         )
         _ = emptyNameView.body
     }
+
+    @Test("Lexical pill displays formatted word count and CEFR level correctly")
+    @MainActor
+    func testLexicalPillFormatting() {
+        let view = HomeTopHeaderView(
+            userName: "Hooji N.",
+            streakDays: 14,
+            dailyWordsLearned: 8,
+            dailyWordsGoal: 10,
+            totalWordsAcquired: 450,
+            currentCEFRLevel: "B1",
+            onLexicalPillTap: {}
+        )
+        #expect(view.totalWordsAcquired == 450)
+        #expect(view.currentCEFRLevel == "B1")
+        #expect(view.lexicalPillText.contains("450"))
+        #expect(view.lexicalPillText.contains("B1"))
+    }
+
+    @Test("Lexical pill callback fires on invocation")
+    @MainActor
+    func testLexicalPillCallback() {
+        var pillTapped = false
+        let view = HomeTopHeaderView(
+            userName: "Hooji N.",
+            streakDays: 14,
+            dailyWordsLearned: 8,
+            dailyWordsGoal: 10,
+            totalWordsAcquired: 450,
+            currentCEFRLevel: "B1",
+            onLexicalPillTap: { pillTapped = true }
+        )
+        view.onLexicalPillTap?()
+        #expect(pillTapped)
+    }
 }
 #endif
 
@@ -112,6 +147,25 @@ final class HomeTopHeaderViewTests: XCTestCase {
 
         XCTAssertTrue(avatarTapped)
         XCTAssertTrue(streakTapped)
+    }
+
+    func testLexicalPillFormattingAndTap() {
+        var pillTapped = false
+        let view = HomeTopHeaderView(
+            userName: "Hooji N.",
+            streakDays: 14,
+            dailyWordsLearned: 8,
+            dailyWordsGoal: 10,
+            totalWordsAcquired: 450,
+            currentCEFRLevel: "B1",
+            onLexicalPillTap: { pillTapped = true }
+        )
+        XCTAssertEqual(view.totalWordsAcquired, 450)
+        XCTAssertEqual(view.currentCEFRLevel, "B1")
+        XCTAssertTrue(view.lexicalPillText.contains("450"))
+        XCTAssertTrue(view.lexicalPillText.contains("B1"))
+        view.onLexicalPillTap?()
+        XCTAssertTrue(pillTapped)
     }
 
     func testHeaderViewBodyRendering() {

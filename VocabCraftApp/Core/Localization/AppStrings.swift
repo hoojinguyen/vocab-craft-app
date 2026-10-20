@@ -1060,4 +1060,56 @@ extension AppStrings {
         public static var closeA11y: LocalizedStringKey { "app.milestone_report.close_a11y" }
         public static var listenPronunciationA11y: LocalizedStringKey { "app.milestone_report.listen_pronunciation_a11y" }
     }
+
+    // MARK: - Vocab Growth Dashboard
+    public enum VocabGrowth {
+        public static var dashboardTitle: LocalizedStringKey { "app.vocab_growth.dashboard_title" }
+        public static var dashboardTitleText: String {
+            String(localized: "app.vocab_growth.dashboard_title", defaultValue: "Vocabulary Growth", bundle: .module)
+        }
+        public static var dashboardSubtitle: LocalizedStringKey { "app.vocab_growth.dashboard_subtitle" }
+        public static var dashboardSubtitleText: String {
+            String(localized: "app.vocab_growth.dashboard_subtitle", defaultValue: "Personal Lexical Expansion & Retention", bundle: .module)
+        }
+        public static var totalWordsLabel: LocalizedStringKey { "app.vocab_growth.total_words_label" }
+        public static var estimatedCompetenceLabel: LocalizedStringKey { "app.vocab_growth.estimated_competence_label" }
+        public static var retentionHealthLabel: LocalizedStringKey { "app.vocab_growth.retention_health_label" }
+        public static func retentionHealthValue(percent: Int) -> String {
+            String(format: String(localized: "app.vocab_growth.retention_health_format", defaultValue: "%lld%% Healthy", bundle: .module), percent)
+        }
+        public static var cefrLadderTitle: LocalizedStringKey { "app.vocab_growth.cefr_ladder_title" }
+        public static var cefrLadderSubtitle: LocalizedStringKey { "app.vocab_growth.cefr_ladder_subtitle" }
+        public static func cefrStatRatio(acquired: Int, target: Int, percent: Int) -> String {
+            String(format: String(localized: "app.vocab_growth.cefr_stat_ratio_format", defaultValue: "%lld/%lld Words (%lld%%)", bundle: .module), acquired, target, percent)
+        }
+        public static var depthFunnelTitle: LocalizedStringKey { "app.vocab_growth.depth_funnel_title" }
+        public static var depthFunnelSubtitle: LocalizedStringKey { "app.vocab_growth.depth_funnel_subtitle" }
+        public static var tierEncounteredTitle: LocalizedStringKey { "app.vocab_growth.tier_encountered_title" }
+        public static var tierEncounteredDesc: LocalizedStringKey { "app.vocab_growth.tier_encountered_desc" }
+        public static var tierConsolidatingTitle: LocalizedStringKey { "app.vocab_growth.tier_consolidating_title" }
+        public static var tierConsolidatingDesc: LocalizedStringKey { "app.vocab_growth.tier_consolidating_desc" }
+        public static var tierMasteredTitle: LocalizedStringKey { "app.vocab_growth.tier_mastered_title" }
+        public static var tierMasteredDesc: LocalizedStringKey { "app.vocab_growth.tier_mastered_desc" }
+        public static var pacingTitle: LocalizedStringKey { "app.vocab_growth.pacing_title" }
+        public static var pacingSubtitle: LocalizedStringKey { "app.vocab_growth.pacing_subtitle" }
+        public static func pacingPredictionText(pace: Int, level: String, date: String) -> String {
+            String(format: String(localized: "app.vocab_growth.pacing_prediction_format", defaultValue: "At %lld words/day, you will complete %@ on %@.", bundle: .module), pace, level, date)
+        }
+        public static var pacingAllCompletedText: String {
+            String(localized: "app.vocab_growth.pacing_all_completed", defaultValue: "You have reached all standard CEFR vocabulary milestones!", bundle: .module)
+        }
+        public static func wordsCount(count: Int) -> String {
+            String(format: String(localized: "app.vocab_growth.words_count_format", defaultValue: "%lld words", bundle: .module), count)
+        }
+        public static func headerPill(words: Int, level: String) -> String {
+            String(format: String(localized: "app.vocab_growth.header_pill_format", defaultValue: "%lld words • %@", bundle: .module), words, level)
+        }
+        public static func headerPillA11y(words: Int, level: String) -> String {
+            String(format: String(localized: "app.vocab_growth.header_pill_a11y_format", defaultValue: "Vocabulary: %lld words acquired, CEFR level %@", bundle: .module), words, level)
+        }
+        public static var headerPillHint: LocalizedStringKey { "app.vocab_growth.header_pill_hint" }
+        public static var headerPillHintText: String {
+            String(localized: "app.vocab_growth.header_pill_hint", defaultValue: "Tap to view vocabulary growth dashboard", bundle: .module)
+        }
+    }
 }

@@ -4523,6 +4523,431 @@
         }
       }
     },
+    "app.vocab_growth.cefr_ladder_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acquired vocabulary across international CEFR standards"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ vựng tích luỹ theo khung chuẩn CEFR quốc tế"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.cefr_ladder_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CEFR Proficiency Ladder"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thang Năng Lực CEFR"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.cefr_stat_ratio_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld Words (%lld%%)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/%lld Từ (%lld%%)"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.dashboard_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal Lexical Expansion & Retention"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Rộng Vốn Từ & Độ Ghi Nhớ"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.dashboard_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary Growth"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tăng Trưởng Từ Vựng"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.depth_funnel_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progression from initial encounter to reflex mastery"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiến trình từ làm quen đến phản xạ tự nhiên"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.depth_funnel_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lexical Depth Funnel"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phễu Độ Sâu Ghi Nhớ"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.estimated_competence_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CEFR Competence"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Năng Lực CEFR"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.header_pill_a11y_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vocabulary: %lld words acquired, CEFR level %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ vựng: %lld từ đã nạp, Cấp độ CEFR %@"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.header_pill_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld words • %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld từ • %@"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.header_pill_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to view vocabulary growth dashboard"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhấn để xem bảng theo dõi tăng trưởng từ vựng"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.pacing_all_completed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have reached all standard CEFR vocabulary milestones!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đã hoàn thành tất cả cột mốc từ vựng chuẩn CEFR!"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.pacing_prediction_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At %lld words/day, you will complete %@ on %@."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Với %lld từ/ngày, bạn sẽ hoàn thành %@ vào %@."
+          }
+        }
+      }
+    },
+    "app.vocab_growth.pacing_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimated milestone arrival at current daily pace"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dự tính thời gian hoàn thành theo nhịp độ học hiện tại"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.pacing_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart Pacing Predictor"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dự Báo Tiến Độ Học"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.retention_health_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% Healthy"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% Ổn Định"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.retention_health_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retention Health"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ Bền Trí Nhớ"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_consolidating_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level 2-3 • Active spaced repetition"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cấp 2-3 • Ôn luyện lặp khoảng cách"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_consolidating_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consolidating"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang Củng Cố"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_encountered_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level 1 • Introduced & recognized"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cấp 1 • Mới làm quen & nhận biết"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_encountered_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encountered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã Tiếp Cận"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_mastered_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level 4-5 • Sub-second reflex recall"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cấp 4-5 • Phản xạ tức thì dưới 1.5s"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.tier_mastered_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex Mastered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thành Thạo Phản Xạ"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.total_words_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total Words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tổng Số Từ"
+          }
+        }
+      }
+    },
+    "app.vocab_growth.words_count_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld từ"
+          }
+        }
+      }
+    },
     "app.onboarding.goal.academic": {
       "extractionState": "manual",
       "localizations": {

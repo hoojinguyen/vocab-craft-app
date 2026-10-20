@@ -47,12 +47,48 @@ public final class HomepageViewModel {
     public var selectedNode: LessonNodeModel?
     public var isDetailSheetPresented: Bool
     public var activeMilestoneDelta: MilestoneLexicalDelta?
+    public var isVocabGrowthDashboardPresented: Bool
+    public var vocabGrowthSnapshot: VocabGrowthSnapshot?
     public var isLoading: Bool
     public var errorMessage: String?
 
     public var dailyGoalProgress: Double {
         guard dailyWordsGoal > 0 else { return 0.0 }
         return Double(dailyWordsLearned) / Double(dailyWordsGoal)
+    }
+
+    public var totalWordsAcquired: Int {
+        vocabGrowthSnapshot?.totalWordsAcquired ?? 0
+    }
+
+    public var currentCEFRLevel: String {
+        if let explicit = activeLearningPath?.targetLevelMin, !explicit.isEmpty {
+            return explicit
+        }
+        if let sectionLevel = sections.first?.level, !sectionLevel.isEmpty {
+            return sectionLevel
+        }
+        return "A1"
+    }
+
+    public var currentVocabGrowthSnapshot: VocabGrowthSnapshot {
+        if let vocabGrowthSnapshot {
+            return vocabGrowthSnapshot
+        }
+        return VocabGrowthSnapshot(
+            totalWordsAcquired: 0,
+            masteredWordsCount: 0,
+            consolidatingWordsCount: 0,
+            newWordsCount: 0,
+            estimatedRetentionRate: 1.0,
+            cefrDistribution: FetchVocabGrowthMetricsUseCase.standardCEFRLevels.map { level in
+                CEFRLevelStat(
+                    cefrLevel: level,
+                    acquiredCount: 0,
+                    targetStandardCount: FetchVocabGrowthMetricsUseCase.standardTargetCounts[level] ?? 500
+                )
+            }
+        )
     }
 
     public var currentDeckTitle: String? {
@@ -71,6 +107,7 @@ public final class HomepageViewModel {
     }
 
     private let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol?
+    private let fetchVocabGrowthMetricsUseCase: FetchVocabGrowthMetricsUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
     private let userSettings: UserSettingsStore?
     private let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol?
@@ -78,10 +115,12 @@ public final class HomepageViewModel {
 
     public init(
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
+        fetchVocabGrowthMetricsUseCase: FetchVocabGrowthMetricsUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettings: UserSettingsStore? = nil,
         claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
         fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol? = nil,
+        vocabGrowthSnapshot: VocabGrowthSnapshot? = nil,
         activeLearningPath: LearningPathDTO? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
@@ -91,10 +130,12 @@ public final class HomepageViewModel {
         sections: [LessonSection] = []
     ) {
         self.fetchLearningPathUseCase = fetchLearningPathUseCase
+        self.fetchVocabGrowthMetricsUseCase = fetchVocabGrowthMetricsUseCase
         self.ttsService = ttsService
         self.userSettings = userSettings
         self.claimTreasureRewardUseCase = claimTreasureRewardUseCase
         self.fastTrackUnitUseCase = fastTrackUnitUseCase
+        self.vocabGrowthSnapshot = vocabGrowthSnapshot
         self.activeLearningPath = activeLearningPath
         self.userName = userName
         self._streakDays = userSettings?.currentStreak ?? streakDays
@@ -104,6 +145,7 @@ public final class HomepageViewModel {
         self.sections = sections
         self.selectedNode = nil
         self.isDetailSheetPresented = false
+        self.isVocabGrowthDashboardPresented = false
         self.isLoading = false
         self.errorMessage = nil
     }
@@ -118,6 +160,7 @@ public final class HomepageViewModel {
 
     public func loadLearningPath(forceRefresh: Bool = false) async {
         refreshDailyProgress()
+        await loadVocabGrowthMetrics()
         guard let useCase = fetchLearningPathUseCase else { return }
         isLoading = true
         errorMessage = nil
@@ -129,6 +172,24 @@ public final class HomepageViewModel {
             self.errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    public func loadVocabGrowthMetrics(at date: Date = Date()) async {
+        guard let useCase = fetchVocabGrowthMetricsUseCase else { return }
+        do {
+            let snapshot = try await useCase.execute(at: date)
+            self.vocabGrowthSnapshot = snapshot
+        } catch {
+            // non-fatal
+        }
+    }
+
+    public func presentVocabGrowthDashboard() {
+        self.isVocabGrowthDashboardPresented = true
+    }
+
+    public func dismissVocabGrowthDashboard() {
+        self.isVocabGrowthDashboardPresented = false
     }
 
     public func switchLearningPath(to pathId: String) async {
@@ -190,6 +251,7 @@ public final class HomepageViewModel {
         if summary.isUnitCheckpoint {
             triggerMilestoneDelta(for: summary.deckId, summary: summary)
         }
+        Task { await loadVocabGrowthMetrics() }
     }
 
     public func resolvedDeckId(for node: LessonNodeModel) -> String {

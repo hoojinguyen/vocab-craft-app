@@ -56,13 +56,14 @@ public struct HomepageView: View {
                         streakDays: viewModel.streakDays,
                         dailyWordsLearned: viewModel.dailyWordsLearned,
                         dailyWordsGoal: viewModel.dailyWordsGoal,
+                        totalWordsAcquired: viewModel.totalWordsAcquired,
+                        currentCEFRLevel: viewModel.currentCEFRLevel,
                         onAvatarTap: {
                             CraftHaptics.shared.light()
                             appRouter.navigateToSettings()
                         },
-                        onProgressTap: {
-                            scrollToActiveNonce += 1
-                        }
+                        onProgressTap: { scrollToActiveNonce += 1 },
+                        onLexicalPillTap: { viewModel.presentVocabGrowthDashboard() }
                     )
                     .background(theme.colors.canvasBackground)
 
@@ -90,14 +91,10 @@ public struct HomepageView: View {
                                 deckTitle: viewModel.currentDeckTitle,
                                 deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
-                                    MainActor.assumeIsolated {
-                                        viewModel.handleNodeTap(node)
-                                    }
+                                    MainActor.assumeIsolated { viewModel.handleNodeTap(node) }
                                 },
                                 onStartLesson: { node in
-                                    MainActor.assumeIsolated {
-                                        startLesson(for: node)
-                                    }
+                                    MainActor.assumeIsolated { startLesson(for: node) }
                                 },
                                 onTabBarPresentationChange: { presentation in
                                     MainActor.assumeIsolated {
@@ -113,9 +110,7 @@ public struct HomepageView: View {
                                     }
                                 },
                                 onAdjustPlan: {
-                                    MainActor.assumeIsolated {
-                                        isLearningPathSwitchPresented = true
-                                    }
+                                    MainActor.assumeIsolated { isLearningPathSwitchPresented = true }
                                 },
                                 scrollToActive: true,
                                 externalScrollTrigger: scrollToActiveNonce,
@@ -312,9 +307,7 @@ public struct HomepageView: View {
                 onClaimSuccess: { result in
                     handleTreasureClaimSuccess(result)
                 },
-                onDismiss: {
-                    activeTreasureClaimNode = nil
-                }
+                onDismiss: { activeTreasureClaimNode = nil }
             )
             .craftSurfaceStyle(.tactile3D)
             .presentationDetents([.fraction(0.52), .medium])
@@ -335,6 +328,15 @@ public struct HomepageView: View {
             })
             .craftSurfaceStyle(.tactile3D)
             .presentationDetents([.fraction(0.65), .large])
+        }
+        .sheet(isPresented: $viewModel.isVocabGrowthDashboardPresented) {
+            VocabGrowthDashboardSheet(
+                snapshot: viewModel.currentVocabGrowthSnapshot,
+                dailyPace: viewModel.dailyWordsGoal > 0 ? viewModel.dailyWordsGoal : 10,
+                onDismiss: { viewModel.dismissVocabGrowthDashboard() }
+            )
+            .craftSurfaceStyle(.tactile3D)
+            .presentationDetents([.large])
         }
     }
 }

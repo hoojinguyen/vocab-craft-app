@@ -267,6 +267,7 @@ public final class AppContainer {
     public func makeHomepageViewModel() -> HomepageViewModel {
         HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
+            fetchVocabGrowthMetricsUseCase: fetchVocabGrowthMetricsUseCase,
             ttsService: ttsService,
             userSettings: userSettingsStore,
             claimTreasureRewardUseCase: claimTreasureRewardUseCase,

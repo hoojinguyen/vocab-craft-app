@@ -16,26 +16,39 @@ public struct HomeTopHeaderView: View {
     public let streakDays: Int
     public let dailyWordsLearned: Int
     public let dailyWordsGoal: Int
+    public let totalWordsAcquired: Int
+    public let currentCEFRLevel: String
     public var onAvatarTap: (() -> Void)?
     public var onStreakTap: (() -> Void)?
     public var onProgressTap: (() -> Void)?
+    public var onLexicalPillTap: (() -> Void)?
 
     public init(
         userName: String,
         streakDays: Int,
         dailyWordsLearned: Int,
         dailyWordsGoal: Int,
+        totalWordsAcquired: Int = 0,
+        currentCEFRLevel: String = "A1",
         onAvatarTap: (() -> Void)? = nil,
         onStreakTap: (() -> Void)? = nil,
-        onProgressTap: (() -> Void)? = nil
+        onProgressTap: (() -> Void)? = nil,
+        onLexicalPillTap: (() -> Void)? = nil
     ) {
         self.userName = userName
         self.streakDays = streakDays
         self.dailyWordsLearned = dailyWordsLearned
         self.dailyWordsGoal = dailyWordsGoal
+        self.totalWordsAcquired = totalWordsAcquired
+        self.currentCEFRLevel = currentCEFRLevel
         self.onAvatarTap = onAvatarTap
         self.onStreakTap = onStreakTap
         self.onProgressTap = onProgressTap
+        self.onLexicalPillTap = onLexicalPillTap
+    }
+
+    public var lexicalPillText: String {
+        AppStrings.VocabGrowth.headerPill(words: totalWordsAcquired, level: currentCEFRLevel)
     }
 
     private var userInitials: String {
@@ -69,8 +82,11 @@ public struct HomeTopHeaderView: View {
     }
 
     private var trailingActionsGroup: some View {
-        HStack(alignment: .center, spacing: theme.spacing.sm) {
-            // 1. Streak Flame Badge
+        HStack(alignment: .center, spacing: theme.spacing.xs) {
+            // 1. Lexical CEFR Pill
+            lexicalPillButton
+
+            // 2. Streak Flame Badge
             CraftStreakBadge(
                 count: streakDays,
                 tier: CraftStreakTier.tier(for: streakDays),
@@ -79,7 +95,7 @@ public struct HomeTopHeaderView: View {
                 onTap: onStreakTap
             )
 
-            // 2. Daily Goal Progress Ring (36pt) - tappable to scroll to active
+            // 3. Daily Goal Progress Ring (36pt) - tappable to scroll to active
             if let onProgressTap {
                 Button(action: {
                     CraftHaptics.shared.light()
@@ -94,9 +110,42 @@ public struct HomeTopHeaderView: View {
                 progressRingView
             }
 
-            // 3. User Avatar Button
+            // 4. User Avatar Button
             avatarButton
         }
+    }
+
+    private var lexicalPillButton: some View {
+        Button(action: {
+            CraftHaptics.shared.light()
+            onLexicalPillTap?()
+        }) {
+            HStack(spacing: theme.spacing.xxs) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(theme.colors.brandPrimary)
+
+                Text(lexicalPillText)
+                    .font(theme.typography.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, theme.spacing.xs)
+            .padding(.vertical, 6)
+            .background(theme.colors.surfaceElevated)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .strokeBorder(theme.colors.borderDefault.opacity(0.8), lineWidth: 1)
+            )
+            .craftShadow(theme.shadows.sm)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(AppStrings.VocabGrowth.headerPillA11y(words: totalWordsAcquired, level: currentCEFRLevel))
+        .accessibilityHint(AppStrings.VocabGrowth.headerPillHint)
     }
 
     private var progressRingView: some View {
