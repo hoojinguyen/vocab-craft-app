@@ -639,7 +639,14 @@ private extension HomepageView {
 
             await MainActor.run {
                 activeLessonLearningVM = nil
-                viewModel.handleLessonFinished(summary: summary)
+                viewModel.applyCompletedLesson(stageId: summary.stageId)
+            }
+            if summary.isUnitCheckpoint {
+                Task {
+                    // Buffer recovery (~150ms) after full-screen cover dismissal before presenting milestone sheet
+                    try? await Task.sleep(for: .milliseconds(150))
+                    await MainActor.run { viewModel.triggerMilestoneDelta(for: summary.deckId, summary: summary) }
+                }
             }
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)
@@ -660,24 +667,17 @@ private extension HomepageView {
     private func handleTreasureClaimSuccess(_ result: TreasureRewardResult) {
         CraftHaptics.shared.success()
         homeConfettiTrigger = true
-        if result.isAlreadyClaimed {
-            completionToastData = CraftToastData(
-                title: AppStrings.Treasure.alreadyClaimedText,
-                message: AppStrings.Treasure.congratsTitleText,
-                iconName: "checkmark.seal.fill",
-                style: .info,
-                surfaceStyle: .glass,
-                duration: 3.0
-            )
-        } else {
-            completionToastData = CraftToastData(
-                title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
-                message: "+\(result.xpEarned) XP • \(AppStrings.Treasure.congratsTitleText)",
-                iconName: "gift.fill",
-                style: .success,
-                surfaceStyle: .glass,
-                duration: 3.0
-            )
+        let title = result.isAlreadyClaimed ? AppStrings.Treasure.alreadyClaimedText : String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module)
+        let message = result.isAlreadyClaimed ? AppStrings.Treasure.congratsTitleText : "+\(result.xpEarned) XP • \(AppStrings.Treasure.congratsTitleText)"
+        let icon = result.isAlreadyClaimed ? "checkmark.seal.fill" : "gift.fill"
+        let style: CraftToastStyle = result.isAlreadyClaimed ? .info : .success
+        completionToastData = CraftToastData(title: title, message: message, iconName: icon, style: style, surfaceStyle: .glass, duration: 3.0)
+        if !result.isAlreadyClaimed {
+            Task {
+                // Allow treasure claim sheet dismissal (~350ms) before presenting milestone delta sheet
+                try? await Task.sleep(for: .milliseconds(350))
+                await MainActor.run { viewModel.triggerMilestoneDelta(for: result.deckId) }
+            }
         }
     }
 

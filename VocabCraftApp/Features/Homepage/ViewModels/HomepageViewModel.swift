@@ -203,7 +203,7 @@ public final class HomepageViewModel {
     }
 
     @discardableResult
-    public func claimTreasure(node: LessonNodeModel) async throws -> TreasureRewardResult {
+    public func claimTreasure(node: LessonNodeModel, autoTriggerMilestone: Bool = false) async throws -> TreasureRewardResult {
         let deckId = resolvedDeckId(for: node)
         let result: TreasureRewardResult
         if let useCase = claimTreasureRewardUseCase {
@@ -217,7 +217,7 @@ public final class HomepageViewModel {
             )
         }
         applyCompletedLesson(stageId: node.id)
-        if !result.isAlreadyClaimed {
+        if autoTriggerMilestone && !result.isAlreadyClaimed {
             triggerMilestoneDelta(for: deckId)
         }
         return result

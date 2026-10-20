@@ -144,16 +144,27 @@ struct MilestoneLexicalDeltaSheetTests {
         #expect(vm.activeMilestoneDelta == nil)
     }
 
-    @Test("HomepageViewModel claimTreasure triggers milestone delta")
+    @Test("HomepageViewModel claimTreasure triggers milestone delta when autoTriggerMilestone is true")
     func testHomepageViewModelClaimTreasureTriggersMilestoneDelta() async throws {
+        let treasureNode = LessonNodeModel(id: "treasure_deck_1", title: "Treasure Chest", state: .bonus, kind: .treasureChest)
+        let section = LessonSection(id: "deck_1", title: "Unit 1", level: "A1", nodes: [treasureNode])
+        let vm = HomepageViewModel(claimTreasureRewardUseCase: nil, sections: [section])
+
+        let result = try await vm.claimTreasure(node: treasureNode, autoTriggerMilestone: true)
+        #expect(result.xpEarned == 150)
+        #expect(vm.activeMilestoneDelta != nil)
+        #expect(vm.activeMilestoneDelta?.unitId == "deck_1")
+    }
+
+    @Test("HomepageViewModel claimTreasure avoids modal race condition by defaulting autoTriggerMilestone to false")
+    func testHomepageViewModelClaimTreasureAvoidsModalRaceCondition() async throws {
         let treasureNode = LessonNodeModel(id: "treasure_deck_1", title: "Treasure Chest", state: .bonus, kind: .treasureChest)
         let section = LessonSection(id: "deck_1", title: "Unit 1", level: "A1", nodes: [treasureNode])
         let vm = HomepageViewModel(claimTreasureRewardUseCase: nil, sections: [section])
 
         let result = try await vm.claimTreasure(node: treasureNode)
         #expect(result.xpEarned == 150)
-        #expect(vm.activeMilestoneDelta != nil)
-        #expect(vm.activeMilestoneDelta?.unitId == "deck_1")
+        #expect(vm.activeMilestoneDelta == nil)
     }
 
     @Test("AppStrings.MilestoneReport accessors return expected formatted strings")
