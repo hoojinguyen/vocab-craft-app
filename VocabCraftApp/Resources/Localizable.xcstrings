@@ -2670,6 +2670,91 @@
         }
       }
     },
+    "app.home.checkpoint.fast_track_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast-Track Challenge"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử Thách Vượt Cấp"
+          }
+        }
+      }
+    },
+    "app.home.checkpoint.fast_track_description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Score ≥ 85% on this checkpoint to test out of this unit and unlock the next one immediately."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đạt điểm ≥ 85% ở bài kiểm tra này để vượt cấp và mở khoá bài học tiếp theo ngay lập tức."
+          }
+        }
+      }
+    },
+    "app.home.checkpoint.fast_track_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Need ≥ 85% to fast-track. Review unit lessons and try again!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần đạt ≥ 85% để vượt cấp. Hãy ôn lại các bài học và thử lại nhé!"
+          }
+        }
+      }
+    },
+    "app.home.checkpoint.fast_track_success": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast-Track Success! Unit unlocked."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vượt cấp thành công! Đã mở khoá bài học."
+          }
+        }
+      }
+    },
+    "app.home.checkpoint.fast_track_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast-Track Challenge"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử Thách Vượt Cấp"
+          }
+        }
+      }
+    },
     "app.home.header.daily_goal_a11y_format": {
       "extractionState": "manual",
       "localizations": {

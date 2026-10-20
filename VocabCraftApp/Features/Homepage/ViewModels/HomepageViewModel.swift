@@ -73,12 +73,14 @@ public final class HomepageViewModel {
     private let ttsService: TextToSpeechProtocol?
     private let userSettings: UserSettingsStore?
     private let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol?
+    private let fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol?
 
     public init(
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         userSettings: UserSettingsStore? = nil,
         claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
+        fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol? = nil,
         activeLearningPath: LearningPathDTO? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
@@ -91,6 +93,7 @@ public final class HomepageViewModel {
         self.ttsService = ttsService
         self.userSettings = userSettings
         self.claimTreasureRewardUseCase = claimTreasureRewardUseCase
+        self.fastTrackUnitUseCase = fastTrackUnitUseCase
         self.activeLearningPath = activeLearningPath
         self.userName = userName
         self._streakDays = userSettings?.currentStreak ?? streakDays
@@ -167,6 +170,28 @@ public final class HomepageViewModel {
         }
         let result = try await useCase.execute(deckId: deckId)
         applyCompletedLesson(stageId: node.id)
+        return result
+    }
+
+    @discardableResult
+    public func fastTrackUnit(deckId: String, score: Double) async throws -> FastTrackResult {
+        guard let useCase = fastTrackUnitUseCase else {
+            let isSuccess = score >= FastTrackUnitUseCase.passingThreshold
+            if isSuccess {
+                applyCompletedLesson(stageId: "checkpoint_\(deckId)")
+            }
+            return FastTrackResult(
+                deckId: deckId,
+                isSuccess: isSuccess,
+                scorePercentage: score,
+                completedStageIds: isSuccess ? ["checkpoint_\(deckId)"] : [],
+                ingestedWordCount: 0
+            )
+        }
+        let result = try await useCase.execute(deckId: deckId, scorePercentage: score)
+        if result.isSuccess {
+            await loadLearningPath(forceRefresh: true)
+        }
         return result
     }
 

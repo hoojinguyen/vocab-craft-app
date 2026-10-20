@@ -1156,6 +1156,60 @@
         }
       }
     },
+    "craft.learning_path.fast_track_cta" : {
+      "comment" : "CTA button text for fast-tracking out of a unit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast-Track Challenge"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử Thách Vượt Cấp"
+          }
+        }
+      }
+    },
+    "craft.learning_path.fast_track_desc" : {
+      "comment" : "Description for fast-track jump ahead",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score ≥ 85% on this checkpoint to test out of the unit and unlock the next one immediately."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đạt điểm ≥ 85% ở bài kiểm tra này để vượt cấp và mở khoá bài học tiếp theo ngay lập tức."
+          }
+        }
+      }
+    },
+    "craft.learning_path.fast_track_title" : {
+      "comment" : "Title for fast-track jump ahead callout",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast-Track Challenge"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử Thách Vượt Cấp"
+          }
+        }
+      }
+    },
     "craft.learning_path.close_sheet_hint" : {
       "comment" : "Detail sheet close button hint",
       "extractionState" : "manual",

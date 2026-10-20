@@ -14,14 +14,14 @@
 		300094814DC25601FEC3 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200094814DC25601FEC3 /* TabItem.swift */; };
 		30000471F293F7AFFB2A /* DatabaseRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000471F293F7AFFB2A /* DatabaseRecoveryView.swift */; };
 		30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D17660A661FF2F5 /* VocabCraftApp.swift */; };
+		3000311FED5FF9316530 /* LlamaInferenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000311FED5FF9316530 /* LlamaInferenceWorker.swift */; };
 		300015483F700591F689 /* AppleEnhancedTTSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200015483F700591F689 /* AppleEnhancedTTSEngine.swift */; };
 		3000B44E35433DDEB0A8 /* AppleVoiceSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B44E35433DDEB0A8 /* AppleVoiceSelector.swift */; };
 		3000C6AE7F8579C5EEFD /* AudioBufferRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C6AE7F8579C5EEFD /* AudioBufferRelay.swift */; };
 		300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200055B1F504DEAD204D /* AudioSessionCoordinator.swift */; };
 		30007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */; };
+		30000617071E8E21DD9F /* KokoroInferenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000617071E8E21DD9F /* KokoroInferenceWorker.swift */; };
 		30008AE0923C4D6FC0CF /* KokoroTTSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */; };
-		3000B91A4F82C10D49AE /* KokoroInferenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */; };
-		3000B91A4F82C10D49AF /* LlamaInferenceWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B91A4F82C10D49AF /* LlamaInferenceWorker.swift */; };
 		3000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */; };
 		300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */; };
 		300049AF2BDE00D00A1A /* OnDemandAIModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */; };
@@ -60,13 +60,29 @@
 		300076045470BEBE428B /* AppPermissionNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200076045470BEBE428B /* AppPermissionNotice.swift */; };
 		3000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift */; };
 		30003498E286D20C1EBC /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
+		30004E563CD55FB17E84 /* AppleFoundationModelLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004E563CD55FB17E84 /* AppleFoundationModelLLMProvider.swift */; };
+		300051C841E46B8F9230 /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200051C841E46B8F9230 /* AppleIntelligenceOrLocalDialogueProvider.swift */; };
+		300066ABF5CB077ACF87 /* DialogueIntentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200066ABF5CB077ACF87 /* DialogueIntentClassifier.swift */; };
+		30004466760261F0DEEB /* ScenarioDialogueState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004466760261F0DEEB /* ScenarioDialogueState.swift */; };
+		3000B512F340C2DF98F8 /* ScenarioStateReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B512F340C2DF98F8 /* ScenarioStateReducer.swift */; };
+		3000496EDF2CD96C84DE /* TargetWordPrompter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000496EDF2CD96C84DE /* TargetWordPrompter.swift */; };
 		3000C503297AA6AEC4DE /* GeminiLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */; };
-		3000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */; };
 		30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C2292A121D4AD48 /* GroqLLMProvider.swift */; };
 		300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */; };
+		30005B95A0F8A27351AA /* LlamaLocalLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005B95A0F8A27351AA /* LlamaLocalLLMProvider.swift */; };
 		3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ACE33830E9547D1A /* MockLLMProvider.swift */; };
+		300025CA786D92C4D351 /* OnDeviceContextDialogueEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200025CA786D92C4D351 /* OnDeviceContextDialogueEngine.swift */; };
 		3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */; };
 		30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */; };
+		3000C3BBA5620FECA3C0 /* AIPackRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C3BBA5620FECA3C0 /* AIPackRegistry.swift */; };
+		30007D813A83EDD7699F /* AppleDefaultPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007D813A83EDD7699F /* AppleDefaultPack.swift */; };
+		3000B97EF3A6ECDCEA48 /* GeminiCloudPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B97EF3A6ECDCEA48 /* GeminiCloudPack.swift */; };
+		30001D203EE719576805 /* OfflineAIPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D203EE719576805 /* OfflineAIPack.swift */; };
+		3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */; };
+		3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */; };
+		30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */; };
+		3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */; };
+		3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */; };
 		3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */; };
 		3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */; };
 		300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096397D4172E9A2C5 /* UserWordProgressData.swift */; };
@@ -89,51 +105,35 @@
 		300036675EAE3D605018 /* SuggestedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200036675EAE3D605018 /* SuggestedWord.swift */; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		30002A121BF620A9A229 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A121BF620A9A229 /* Word.swift */; };
+		30008E70DAEC498D34A5 /* AIPackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008E70DAEC498D34A5 /* AIPackError.swift */; };
+		30005809BD013F08669A /* AIPackIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005809BD013F08669A /* AIPackIdentifier.swift */; };
+		30006A04BC5F8F0A1E71 /* AIPackStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006A04BC5F8F0A1E71 /* AIPackStatus.swift */; };
 		300097262FBD5E9DE745 /* LearningPathCurriculum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097262FBD5E9DE745 /* LearningPathCurriculum.swift */; };
 		3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */; };
 		30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */; };
 		3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AD0A35CB0657E32D /* ReflexMode.swift */; };
 		300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
-		30007403F29B34041E95A32B /* AIPackIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */; };
-		3000F14985BAD08A1975736D /* AIPackStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E5BC1EC58874B9542179 /* AIPackStatus.swift */; };
-		3000A0539DD76FFCBD777559 /* AIPackError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C2115BC9DEF96ECF538 /* AIPackError.swift */; };
 		30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */; };
+		30009C23C95C9E39A410 /* AIPackProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009C23C95C9E39A410 /* AIPackProtocol.swift */; };
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
 		3000DA7148B88C17BFA9 /* LLMProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */; };
 		3000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */; };
 		300025360B5A06610E2E /* ReflexDrillable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200025360B5A06610E2E /* ReflexDrillable.swift */; };
 		30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */; };
 		30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */; };
+		3000294281CE418E6314 /* STTEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000294281CE418E6314 /* STTEngineProtocol.swift */; };
+		300013224253FE6A18BA /* TTSEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200013224253FE6A18BA /* TTSEngineProtocol.swift */; };
 		3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */; };
 		3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */; };
 		3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */; };
+		300046CCC998F5BD631A /* VoiceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200046CCC998F5BD631A /* VoiceConfiguration.swift */; };
 		3000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */; };
-		3000BBFD6D7A3A43440E9D69 /* AIPackProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */; };
-		30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */; };
-		3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */; };
-		30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */; };
-		3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */; };
-		3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */; };
-		30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */; };
-		3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */; };
-		3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */; };
-		3000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */; };
-		3000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */; };
-		3000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */; };
-		3000C041297AA6AEC403 /* AppleDefaultPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC403 /* AppleDefaultPack.swift */; };
-		3000C041297AA6AEC404 /* OfflineAIPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC404 /* OfflineAIPack.swift */; };
-		3000C041297AA6AEC405 /* GeminiCloudPack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC405 /* GeminiCloudPack.swift */; };
-		3000C041297AA6AEC406 /* AIPackRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC406 /* AIPackRegistry.swift */; };
-		3000C041297AA6AEC40C /* ScenarioDialogueState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40C /* ScenarioDialogueState.swift */; };
-		3000C041297AA6AEC40D /* DialogueIntentClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40D /* DialogueIntentClassifier.swift */; };
-		3000C041297AA6AEC40E /* TargetWordPrompter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40E /* TargetWordPrompter.swift */; };
-		3000C041297AA6AEC40F /* ScenarioStateReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40F /* ScenarioStateReducer.swift */; };
+		3000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift */; };
 		300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */; };
-		300063C6A8B57B3C329A /* ClaimTreasureRewardUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C329A /* ClaimTreasureRewardUseCase.swift */; };
-		300063C6A8B57B3C329B /* SmartCheckpointWordSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C329B /* SmartCheckpointWordSampler.swift */; };
 		300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
 		3000D91BE7AC2B4C05AF /* ExecuteRoleplayTurnUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D91BE7AC2B4C05AF /* ExecuteRoleplayTurnUseCase.swift */; };
+		3000CA7570A3F3204D88 /* FastTrackUnitUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CA7570A3F3204D88 /* FastTrackUnitUseCase.swift */; };
 		3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */; };
 		3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */; };
 		30007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */; };
@@ -144,6 +144,7 @@
 		3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */; };
 		3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7560015826094C /* ResetUserProgressUseCase.swift */; };
 		30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */; };
+		30003060E0771B3D7C1F /* SmartCheckpointWordSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003060E0771B3D7C1F /* SmartCheckpointWordSampler.swift */; };
 		30009B56D7887F9A77B3 /* SmartVaultWordSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009B56D7887F9A77B3 /* SmartVaultWordSelector.swift */; };
 		30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */; };
 		3000CACA4ECC27F6724B /* ResilientConversationSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CACA4ECC27F6724B /* ResilientConversationSpeechEngine.swift */; };
@@ -173,9 +174,9 @@
 		30002FFDE20095760CB8 /* HomeSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002FFDE20095760CB8 /* HomeSkeletonView.swift */; };
 		3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4EBE185E244E802 /* HomeTopHeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
-		3000C1A1A78E993B4125 /* TreasureClaimSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */; };
-		3000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */; };
+		30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */; };
 		30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */; };
+		300037B28B849FB08515 /* TreasureClaimSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200037B28B849FB08515 /* TreasureClaimSheet.swift */; };
 		30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */; };
 		3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */; };
 		3000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift */; };
@@ -248,7 +249,6 @@
 		3000AE48F46F0BF167D1 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AE48F46F0BF167D1 /* VocabularyView.swift */; };
 		3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
 		30006F0DCF97A12E9EBA /* vocabulary_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 20006F0DCF97A12E9EBA /* vocabulary_catalog.json */; };
-		30016F0DCF97A12E9EBB /* vocab_content.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 20016F0DCF97A12E9EBB /* vocab_content.sqlite */; };
 		300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -272,31 +272,30 @@
 		3001E137FEFBE77015F7 /* BundledVocabularyDataSource.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift */; };
 		3001DAC94ACE4AFC4259 /* Localizable.xcstrings in Widget Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
 		3001264FAADACF4FCA7C /* vocabulary_catalog.json in Widget Resources */ = {isa = PBXBuildFile; fileRef = 20006F0DCF97A12E9EBA /* vocabulary_catalog.json */; };
-		30026F0DCF97A12E9EBB /* vocab_content.sqlite in Widget Resources */ = {isa = PBXBuildFile; fileRef = 20016F0DCF97A12E9EBB /* vocab_content.sqlite */; };
 		3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */; };
 		3000A65D87BF85A411BF /* AIAssistantViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */; };
 		300028004FD41CBE4E9A /* AIDomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */; };
+		3000800165996FACE95B /* AIPackDomainModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000800165996FACE95B /* AIPackDomainModelTests.swift */; };
+		300072B38DA4E70CD5DE /* AIPackRegistryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200072B38DA4E70CD5DE /* AIPackRegistryTests.swift */; };
+		3000B73C835757DFB93A /* ConcreteAIPackTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B73C835757DFB93A /* ConcreteAIPackTests.swift */; };
+		3000243DA3282D003564 /* DialogueIntentClassifierTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000243DA3282D003564 /* DialogueIntentClassifierTests.swift */; };
 		3000560FC177AB72F972 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000560FC177AB72F972 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */; };
 		3000B91C6C813222848F /* GroqLLMProviderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B91C6C813222848F /* GroqLLMProviderTests.swift */; };
 		300017FBF3E43B2093E2 /* IntelligentMockLLMProviderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200017FBF3E43B2093E2 /* IntelligentMockLLMProviderTests.swift */; };
 		3000ADF6C8A0A5C2FC83 /* LLMProviderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000ADF6C8A0A5C2FC83 /* LLMProviderTests.swift */; };
+		3000F4E0155BB6E2F660 /* LlamaInferenceWorkerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F4E0155BB6E2F660 /* LlamaInferenceWorkerTests.swift */; };
+		3000C6DC9E92118015DB /* OnDeviceContextDialogueEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6DC9E92118015DB /* OnDeviceContextDialogueEngineTests.swift */; };
 		300077F9A5C71C71715D /* ResilientConversationSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200077F9A5C71C71715D /* ResilientConversationSpeechEngineTests.swift */; };
 		3000E8EF9BADB4055888 /* RoleplaySuggestedDrawerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E8EF9BADB4055888 /* RoleplaySuggestedDrawerTests.swift */; };
 		300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */; };
 		3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */; };
 		300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */; };
-		30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */; };
-		30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */; };
-		3000C041297AA6AEC401 /* ConcreteAIPackTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */; };
-		3000C041297AA6AEC407 /* AIPackRegistryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC407 /* AIPackRegistryTests.swift */; };
-		3000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */; };
-		3000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */; };
-		3000C041297AA6AEC410 /* ScenarioDialogueStateTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC410 /* ScenarioDialogueStateTests.swift */; };
-		3000C041297AA6AEC411 /* DialogueIntentClassifierTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC411 /* DialogueIntentClassifierTests.swift */; };
-		3000C041297AA6AEC412 /* TargetWordPrompterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC412 /* TargetWordPrompterTests.swift */; };
-		3000C041297AA6AEC413 /* ScenarioStateReducerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C041297AA6AEC413 /* ScenarioStateReducerTests.swift */; };
 		30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */; };
+		3000FB23AA5A9F6104C8 /* ScenarioDialogueStateTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FB23AA5A9F6104C8 /* ScenarioDialogueStateTests.swift */; };
+		30002ED4F23561C0E563 /* ScenarioStateReducerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002ED4F23561C0E563 /* ScenarioStateReducerTests.swift */; };
 		30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */; };
+		30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */; };
+		30009602BFAF37D35B23 /* TargetWordPrompterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009602BFAF37D35B23 /* TargetWordPrompterTests.swift */; };
 		30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */; };
 		30004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */; };
 		300086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */; };
@@ -316,24 +315,27 @@
 		300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */; };
 		300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */; };
 		30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */; };
-		3000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */; };
+		300043205668E5B06335 /* LearningPathDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200043205668E5B06335 /* LearningPathDataSourceTests.swift */; };
 		3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */; };
 		3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */; };
 		3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */; };
+		30002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */; };
 		30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */; };
 		3000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift */; };
 		3000D052EA676149B3D6 /* ColorTokensTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D052EA676149B3D6 /* ColorTokensTests.swift */; };
 		3000838EAAA70A5E0D29 /* VocabThemeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000838EAAA70A5E0D29 /* VocabThemeTests.swift */; };
+		30003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */; };
+		30006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */; };
+		30004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */; };
 		300086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */; };
 		30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */; };
-		30006B99E7C69FF14342 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006B99E7C69FF14342 /* ClaimTreasureRewardUseCaseTests.swift */; };
-		30006B99E7C69FF14343 /* SmartCheckpointWordSamplerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006B99E7C69FF14343 /* SmartCheckpointWordSamplerTests.swift */; };
 		30009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */; };
 		3000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */; };
 		3000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */; };
 		3000FCFC45FAFF51B6C9 /* ModeSuccessStatsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FCFC45FAFF51B6C9 /* ModeSuccessStatsTests.swift */; };
 		30003FADD24C027F4E57 /* PracticeDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003FADD24C027F4E57 /* PracticeDrillPlanGeneratorTests.swift */; };
 		30005B373A959290F7A7 /* ReflexDrillableTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005B373A959290F7A7 /* ReflexDrillableTests.swift */; };
+		300008E891B5442E7085 /* SmartCheckpointWordSamplerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200008E891B5442E7085 /* SmartCheckpointWordSamplerTests.swift */; };
 		3000702E2AC1ACF8CDBE /* SmartVaultWordSelectorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000702E2AC1ACF8CDBE /* SmartVaultWordSelectorTests.swift */; };
 		30008B0DBE2980E8443F /* SpeechContextTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20008B0DBE2980E8443F /* SpeechContextTests.swift */; };
 		3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */; };
@@ -342,17 +344,18 @@
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
 		3000D7D92B122A4B2F10 /* HomeLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */; };
 		300016308CFEFF34283A /* HomeTopHeaderViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */; };
+		30000C27439349DA6150 /* HomepageViewModelFastTrackTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000C27439349DA6150 /* HomepageViewModelFastTrackTests.swift */; };
 		30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */; };
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
 		3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */; };
-		3000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */; };
+		3000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */; };
 		3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */; };
 		3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */; };
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
 		300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */; };
+		30002BD5960B5A045CA8 /* OnboardingRoadmapTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002BD5960B5A045CA8 /* OnboardingRoadmapTests.swift */; };
 		300037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */; };
 		30002A59BC7D855A5215 /* OnboardingViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002A59BC7D855A5215 /* OnboardingViewModelTests.swift */; };
-		3000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */; };
 		300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */; };
 		30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */; };
 		3000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift */; };
@@ -389,10 +392,10 @@
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
 		300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200029F58E9AE9045086 /* NextWordIntentTests.swift */; };
 		3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */; };
+		30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000669E2AEEB9C9048 /* AppStringsParityTests.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
 		300082B754991DC24862 /* LocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200082B754991DC24862 /* LocalizationTests.swift */; };
-		3000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
 		3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
@@ -454,14 +457,14 @@
 		20000471F293F7AFFB2A /* DatabaseRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseRecoveryView.swift"; sourceTree = "<group>"; };
 		2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftApp.entitlements"; sourceTree = "<group>"; };
 		20005D17660A661FF2F5 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp.swift"; sourceTree = "<group>"; };
+		2000311FED5FF9316530 /* LlamaInferenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaInferenceWorker.swift"; sourceTree = "<group>"; };
 		200015483F700591F689 /* AppleEnhancedTTSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleEnhancedTTSEngine.swift"; sourceTree = "<group>"; };
 		2000B44E35433DDEB0A8 /* AppleVoiceSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleVoiceSelector.swift"; sourceTree = "<group>"; };
 		2000C6AE7F8579C5EEFD /* AudioBufferRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioBufferRelay.swift"; sourceTree = "<group>"; };
 		200055B1F504DEAD204D /* AudioSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinator.swift"; sourceTree = "<group>"; };
 		20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiAudioSpeechEngine.swift"; sourceTree = "<group>"; };
+		20000617071E8E21DD9F /* KokoroInferenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroInferenceWorker.swift"; sourceTree = "<group>"; };
 		20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroTTSEngine.swift"; sourceTree = "<group>"; };
-		2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroInferenceWorker.swift"; sourceTree = "<group>"; };
-		2000B91A4F82C10D49AF /* LlamaInferenceWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaInferenceWorker.swift"; sourceTree = "<group>"; };
 		2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPerformanceDiagnostics.swift"; sourceTree = "<group>"; };
 		200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
 		200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDemandAIModelManager.swift"; sourceTree = "<group>"; };
@@ -500,13 +503,29 @@
 		200076045470BEBE428B /* AppPermissionNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppPermissionNotice.swift"; sourceTree = "<group>"; };
 		2000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationSchedulerProtocol.swift"; sourceTree = "<group>"; };
 		20003498E286D20C1EBC /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngine.swift"; sourceTree = "<group>"; };
+		20004E563CD55FB17E84 /* AppleFoundationModelLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleFoundationModelLLMProvider.swift"; sourceTree = "<group>"; };
+		200051C841E46B8F9230 /* AppleIntelligenceOrLocalDialogueProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleIntelligenceOrLocalDialogueProvider.swift"; sourceTree = "<group>"; };
+		200066ABF5CB077ACF87 /* DialogueIntentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DialogueIntentClassifier.swift"; sourceTree = "<group>"; };
+		20004466760261F0DEEB /* ScenarioDialogueState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioDialogueState.swift"; sourceTree = "<group>"; };
+		2000B512F340C2DF98F8 /* ScenarioStateReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioStateReducer.swift"; sourceTree = "<group>"; };
+		2000496EDF2CD96C84DE /* TargetWordPrompter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TargetWordPrompter.swift"; sourceTree = "<group>"; };
 		2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiLLMProvider.swift"; sourceTree = "<group>"; };
-		2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaLocalLLMProvider.swift"; sourceTree = "<group>"; };
 		20002C2292A121D4AD48 /* GroqLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GroqLLMProvider.swift"; sourceTree = "<group>"; };
 		200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProvider.swift"; sourceTree = "<group>"; };
+		20005B95A0F8A27351AA /* LlamaLocalLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaLocalLLMProvider.swift"; sourceTree = "<group>"; };
 		2000ACE33830E9547D1A /* MockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockLLMProvider.swift"; sourceTree = "<group>"; };
+		200025CA786D92C4D351 /* OnDeviceContextDialogueEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngine.swift"; sourceTree = "<group>"; };
 		2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenarioCatalog.swift"; sourceTree = "<group>"; };
 		20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalog.swift"; sourceTree = "<group>"; };
+		2000C3BBA5620FECA3C0 /* AIPackRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackRegistry.swift"; sourceTree = "<group>"; };
+		20007D813A83EDD7699F /* AppleDefaultPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleDefaultPack.swift"; sourceTree = "<group>"; };
+		2000B97EF3A6ECDCEA48 /* GeminiCloudPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiCloudPack.swift"; sourceTree = "<group>"; };
+		20001D203EE719576805 /* OfflineAIPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OfflineAIPack.swift"; sourceTree = "<group>"; };
+		2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleSTTEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroTTSEngineAdapter.swift"; sourceTree = "<group>"; };
+		2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSTTEngineAdapter.swift"; sourceTree = "<group>"; };
 		2000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor+Mutations.swift"; sourceTree = "<group>"; };
 		2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor.swift"; sourceTree = "<group>"; };
 		200096397D4172E9A2C5 /* UserWordProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserWordProgressData.swift"; sourceTree = "<group>"; };
@@ -529,51 +548,35 @@
 		200036675EAE3D605018 /* SuggestedWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWord.swift"; sourceTree = "<group>"; };
 		200001EA5C596D2E5E45 /* VaultWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordItem.swift"; sourceTree = "<group>"; };
 		20002A121BF620A9A229 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Word.swift"; sourceTree = "<group>"; };
+		20008E70DAEC498D34A5 /* AIPackError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackError.swift"; sourceTree = "<group>"; };
+		20005809BD013F08669A /* AIPackIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackIdentifier.swift"; sourceTree = "<group>"; };
+		20006A04BC5F8F0A1E71 /* AIPackStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackStatus.swift"; sourceTree = "<group>"; };
 		200097262FBD5E9DE745 /* LearningPathCurriculum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathCurriculum.swift"; sourceTree = "<group>"; };
 		2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttempt.swift"; sourceTree = "<group>"; };
 		20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
 		2000AD0A35CB0657E32D /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
 		200065DD5844D92B1800 /* UserStageProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStageProgressData.swift"; sourceTree = "<group>"; };
-		2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackIdentifier.swift"; sourceTree = "<group>"; };
-		2000E5BC1EC58874B9542179 /* AIPackStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackStatus.swift"; sourceTree = "<group>"; };
-		20002C2115BC9DEF96ECF538 /* AIPackError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackError.swift"; sourceTree = "<group>"; };
 		20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicy.swift"; sourceTree = "<group>"; };
+		20009C23C95C9E39A410 /* AIPackProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackProtocol.swift"; sourceTree = "<group>"; };
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
 		2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LLMProviderProtocol.swift"; sourceTree = "<group>"; };
 		2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttemptRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		200025360B5A06610E2E /* ReflexDrillable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillable.swift"; sourceTree = "<group>"; };
 		20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechEngineProtocol.swift"; sourceTree = "<group>"; };
 		20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		2000294281CE418E6314 /* STTEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "STTEngineProtocol.swift"; sourceTree = "<group>"; };
+		200013224253FE6A18BA /* TTSEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineProtocol.swift"; sourceTree = "<group>"; };
 		2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserRoadmapSettingsProtocol.swift"; sourceTree = "<group>"; };
 		2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		200046CCC998F5BD631A /* VoiceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConfiguration.swift"; sourceTree = "<group>"; };
 		2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationEngineProtocol.swift"; sourceTree = "<group>"; };
-		2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackProtocol.swift"; sourceTree = "<group>"; };
-		2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "STTEngineProtocol.swift"; sourceTree = "<group>"; };
-		2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineProtocol.swift"; sourceTree = "<group>"; };
-		2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConfiguration.swift"; sourceTree = "<group>"; };
-		2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleTTSEngineAdapter.swift"; sourceTree = "<group>"; };
-		2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KokoroTTSEngineAdapter.swift"; sourceTree = "<group>"; };
-		20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiTTSEngineAdapter.swift"; sourceTree = "<group>"; };
-		2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleSTTEngineAdapter.swift"; sourceTree = "<group>"; };
-		2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSTTEngineAdapter.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleFoundationModelLLMProvider.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngine.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleIntelligenceOrLocalDialogueProvider.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC403 /* AppleDefaultPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppleDefaultPack.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC404 /* OfflineAIPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OfflineAIPack.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC405 /* GeminiCloudPack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiCloudPack.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC406 /* AIPackRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackRegistry.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40C /* ScenarioDialogueState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioDialogueState.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40D /* DialogueIntentClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DialogueIntentClassifier.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40E /* TargetWordPrompter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TargetWordPrompter.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40F /* ScenarioStateReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioStateReducer.swift"; sourceTree = "<group>"; };
+		2000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaimTreasureRewardUseCase.swift"; sourceTree = "<group>"; };
 		200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
-		200063C6A8B57B3C329A /* ClaimTreasureRewardUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaimTreasureRewardUseCase.swift"; sourceTree = "<group>"; };
-		200063C6A8B57B3C329B /* SmartCheckpointWordSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartCheckpointWordSampler.swift"; sourceTree = "<group>"; };
 		200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteRoleplaySessionUseCase.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCase.swift"; sourceTree = "<group>"; };
 		2000D91BE7AC2B4C05AF /* ExecuteRoleplayTurnUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExecuteRoleplayTurnUseCase.swift"; sourceTree = "<group>"; };
+		2000CA7570A3F3204D88 /* FastTrackUnitUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FastTrackUnitUseCase.swift"; sourceTree = "<group>"; };
 		2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
 		2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchPersonalVaultUseCase.swift"; sourceTree = "<group>"; };
 		20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchRoleplayScenariosUseCase.swift"; sourceTree = "<group>"; };
@@ -584,6 +587,7 @@
 		2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordMixedDrillAttemptUseCase.swift"; sourceTree = "<group>"; };
 		2000FA7560015826094C /* ResetUserProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResetUserProgressUseCase.swift"; sourceTree = "<group>"; };
 		20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReviewWeakWordsUseCase.swift"; sourceTree = "<group>"; };
+		20003060E0771B3D7C1F /* SmartCheckpointWordSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartCheckpointWordSampler.swift"; sourceTree = "<group>"; };
 		20009B56D7887F9A77B3 /* SmartVaultWordSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartVaultWordSelector.swift"; sourceTree = "<group>"; };
 		20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToggleWordBookmarkUseCase.swift"; sourceTree = "<group>"; };
 		2000CACA4ECC27F6724B /* ResilientConversationSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientConversationSpeechEngine.swift"; sourceTree = "<group>"; };
@@ -613,9 +617,9 @@
 		20002FFDE20095760CB8 /* HomeSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeSkeletonView.swift"; sourceTree = "<group>"; };
 		2000B4EBE185E244E802 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
-		2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TreasureClaimSheet.swift"; sourceTree = "<group>"; };
-		2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheet.swift"; sourceTree = "<group>"; };
+		20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheet.swift"; sourceTree = "<group>"; };
 		20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StreakWeekStripView.swift"; sourceTree = "<group>"; };
+		200037B28B849FB08515 /* TreasureClaimSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TreasureClaimSheet.swift"; sourceTree = "<group>"; };
 		20005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Completion.swift"; sourceTree = "<group>"; };
 		2000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Speech.swift"; sourceTree = "<group>"; };
 		2000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModel+Steps.swift"; sourceTree = "<group>"; };
@@ -688,7 +692,6 @@
 		2000AE48F46F0BF167D1 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyView.swift"; sourceTree = "<group>"; };
 		2000B135085E448B7AE0 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Localizable.xcstrings"; sourceTree = "<group>"; };
 		20006F0DCF97A12E9EBA /* vocabulary_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "vocabulary_catalog.json"; sourceTree = "<group>"; };
-		20016F0DCF97A12E9EBB /* vocab_content.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "vocab_content.sqlite"; sourceTree = "<group>"; };
 		200014ABEEFD5E14865F /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkLearnedIntent.swift"; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntent.swift"; sourceTree = "<group>"; };
 		200017F5C24B744B988C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
@@ -699,27 +702,27 @@
 		2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantViewsTests.swift"; sourceTree = "<group>"; };
 		200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIDomainEntitiesTests.swift"; sourceTree = "<group>"; };
+		2000800165996FACE95B /* AIPackDomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackDomainModelTests.swift"; sourceTree = "<group>"; };
+		200072B38DA4E70CD5DE /* AIPackRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackRegistryTests.swift"; sourceTree = "<group>"; };
+		2000B73C835757DFB93A /* ConcreteAIPackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConcreteAIPackTests.swift"; sourceTree = "<group>"; };
+		2000243DA3282D003564 /* DialogueIntentClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DialogueIntentClassifierTests.swift"; sourceTree = "<group>"; };
 		2000560FC177AB72F972 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExecuteRoleplayTurnUseCaseFuzzyTests.swift"; sourceTree = "<group>"; };
 		2000B91C6C813222848F /* GroqLLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GroqLLMProviderTests.swift"; sourceTree = "<group>"; };
 		200017FBF3E43B2093E2 /* IntelligentMockLLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProviderTests.swift"; sourceTree = "<group>"; };
 		2000ADF6C8A0A5C2FC83 /* LLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LLMProviderTests.swift"; sourceTree = "<group>"; };
+		2000F4E0155BB6E2F660 /* LlamaInferenceWorkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaInferenceWorkerTests.swift"; sourceTree = "<group>"; };
+		2000C6DC9E92118015DB /* OnDeviceContextDialogueEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngineTests.swift"; sourceTree = "<group>"; };
 		200077F9A5C71C71715D /* ResilientConversationSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientConversationSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		2000E8EF9BADB4055888 /* RoleplaySuggestedDrawerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySuggestedDrawerTests.swift"; sourceTree = "<group>"; };
 		200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayViewModelsTests.swift"; sourceTree = "<group>"; };
 		200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceCallViewModelTests.swift"; sourceTree = "<group>"; };
-		2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackDomainModelTests.swift"; sourceTree = "<group>"; };
-		20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineAdapterTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConcreteAIPackTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC407 /* AIPackRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIPackRegistryTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LlamaInferenceWorkerTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnDeviceContextDialogueEngineTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC410 /* ScenarioDialogueStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioDialogueStateTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC411 /* DialogueIntentClassifierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DialogueIntentClassifierTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC412 /* TargetWordPrompterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TargetWordPrompterTests.swift"; sourceTree = "<group>"; };
-		2000C041297AA6AEC413 /* ScenarioStateReducerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioStateReducerTests.swift"; sourceTree = "<group>"; };
 		20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayVoiceProfileCatalogTests.swift"; sourceTree = "<group>"; };
+		2000FB23AA5A9F6104C8 /* ScenarioDialogueStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioDialogueStateTests.swift"; sourceTree = "<group>"; };
+		20002ED4F23561C0E563 /* ScenarioStateReducerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScenarioStateReducerTests.swift"; sourceTree = "<group>"; };
 		20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionServiceTests.swift"; sourceTree = "<group>"; };
+		20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TTSEngineAdapterTests.swift"; sourceTree = "<group>"; };
+		20009602BFAF37D35B23 /* TargetWordPrompterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TargetWordPrompterTests.swift"; sourceTree = "<group>"; };
 		20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
 		20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationStateTests.swift"; sourceTree = "<group>"; };
 		200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppBootstrapperTests.swift"; sourceTree = "<group>"; };
@@ -739,24 +742,27 @@
 		200000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WhisperKitSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
 		20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseQuarantineTests.swift"; sourceTree = "<group>"; };
-		2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataSourceTests.swift"; sourceTree = "<group>"; };
+		200043205668E5B06335 /* LearningPathDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataSourceTests.swift"; sourceTree = "<group>"; };
 		2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchemaMigrationTests.swift"; sourceTree = "<group>"; };
 		2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryConcurrencyTests.swift"; sourceTree = "<group>"; };
+		20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocolTests.swift"; sourceTree = "<group>"; };
 		20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechKitAdapterTests.swift"; sourceTree = "<group>"; };
 		2000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000D052EA676149B3D6 /* ColorTokensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ColorTokensTests.swift"; sourceTree = "<group>"; };
 		2000838EAAA70A5E0D29 /* VocabThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabThemeTests.swift"; sourceTree = "<group>"; };
+		20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaimTreasureRewardUseCaseTests.swift"; sourceTree = "<group>"; };
+		20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCaseTests.swift"; sourceTree = "<group>"; };
+		20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FastTrackUnitUseCaseTests.swift"; sourceTree = "<group>"; };
 		200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InitializeUserRoadmapUseCaseTests.swift"; sourceTree = "<group>"; };
 		20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathUseCasesTests.swift"; sourceTree = "<group>"; };
-		20006B99E7C69FF14342 /* ClaimTreasureRewardUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClaimTreasureRewardUseCaseTests.swift"; sourceTree = "<group>"; };
-		20006B99E7C69FF14343 /* SmartCheckpointWordSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartCheckpointWordSamplerTests.swift"; sourceTree = "<group>"; };
 		20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanGeneratorTests.swift"; sourceTree = "<group>"; };
 		2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicyTests.swift"; sourceTree = "<group>"; };
 		2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
 		2000FCFC45FAFF51B6C9 /* ModeSuccessStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModeSuccessStatsTests.swift"; sourceTree = "<group>"; };
 		20003FADD24C027F4E57 /* PracticeDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
 		20005B373A959290F7A7 /* ReflexDrillableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillableTests.swift"; sourceTree = "<group>"; };
+		200008E891B5442E7085 /* SmartCheckpointWordSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartCheckpointWordSamplerTests.swift"; sourceTree = "<group>"; };
 		2000702E2AC1ACF8CDBE /* SmartVaultWordSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartVaultWordSelectorTests.swift"; sourceTree = "<group>"; };
 		20008B0DBE2980E8443F /* SpeechContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechContextTests.swift"; sourceTree = "<group>"; };
 		2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDomainEntitiesTests.swift"; sourceTree = "<group>"; };
@@ -765,17 +771,18 @@
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCaseTests.swift"; sourceTree = "<group>"; };
 		2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeLocalizationTests.swift"; sourceTree = "<group>"; };
 		200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderViewTests.swift"; sourceTree = "<group>"; };
+		20000C27439349DA6150 /* HomepageViewModelFastTrackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelFastTrackTests.swift"; sourceTree = "<group>"; };
 		20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelTests.swift"; sourceTree = "<group>"; };
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewTests.swift"; sourceTree = "<group>"; };
 		2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
-		2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheetTests.swift"; sourceTree = "<group>"; };
+		2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathSwitchSheetTests.swift"; sourceTree = "<group>"; };
 		2000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLearningViewModelTests.swift"; sourceTree = "<group>"; };
 		2000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonLocalizationTests.swift"; sourceTree = "<group>"; };
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
 		200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewsTests.swift"; sourceTree = "<group>"; };
+		20002BD5960B5A045CA8 /* OnboardingRoadmapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingRoadmapTests.swift"; sourceTree = "<group>"; };
 		200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingLocalizationTests.swift"; sourceTree = "<group>"; };
 		20002A59BC7D855A5215 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingViewModelTests.swift"; sourceTree = "<group>"; };
-		2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingRoadmapTests.swift"; sourceTree = "<group>"; };
 		200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
 		20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModelTests.swift"; sourceTree = "<group>"; };
 		2000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -812,10 +819,10 @@
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
 		200029F58E9AE9045086 /* NextWordIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntentTests.swift"; sourceTree = "<group>"; };
 		2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetLocalizationTests.swift"; sourceTree = "<group>"; };
+		20000669E2AEEB9C9048 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
 		200082B754991DC24862 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalizationTests.swift"; sourceTree = "<group>"; };
-		2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
 		2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModelTests.swift"; sourceTree = "<group>"; };
@@ -931,7 +938,7 @@
 		400071CFB0497F428E99 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				4000B91A4F82C10D49AE /* AI */,
+				40008FF7155CE98CBF69 /* AI */,
 				4000778F3AC70FE2B174 /* Audio */,
 				4000B9FD3CB2F2042047 /* Database */,
 				40003153465D574812BC /* DesignSystem */,
@@ -943,10 +950,10 @@
 			path = "Core";
 			sourceTree = "<group>";
 		};
-		4000B91A4F82C10D49AE /* AI */ = {
+		40008FF7155CE98CBF69 /* AI */ = {
 			isa = PBXGroup;
 			children = (
-				2000B91A4F82C10D49AF /* LlamaInferenceWorker.swift */,
+				2000311FED5FF9316530 /* LlamaInferenceWorker.swift */,
 			);
 			path = "AI";
 			sourceTree = "<group>";
@@ -959,8 +966,8 @@
 				2000C6AE7F8579C5EEFD /* AudioBufferRelay.swift */,
 				200055B1F504DEAD204D /* AudioSessionCoordinator.swift */,
 				20007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift */,
+				20000617071E8E21DD9F /* KokoroInferenceWorker.swift */,
 				20008AE0923C4D6FC0CF /* KokoroTTSEngine.swift */,
-				2000B91A4F82C10D49AE /* KokoroInferenceWorker.swift */,
 				2000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift */,
 				200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */,
 				200049AF2BDE00D00A1A /* OnDemandAIModelManager.swift */,
@@ -1081,7 +1088,7 @@
 			isa = PBXGroup;
 			children = (
 				4000A0E6120D8624D72A /* AI */,
-				4000F801297AA6AEC400 /* AIPacks */,
+				4000D13A274A60F80F0D /* AIPacks */,
 				4000A57F181DD4A46E83 /* Audio */,
 				40009A7A10F832BFCD13 /* Local */,
 				40001FE94D3B22BA736B /* Repositories */,
@@ -1089,13 +1096,42 @@
 			path = "Data";
 			sourceTree = "<group>";
 		};
-		4000F801297AA6AEC400 /* AIPacks */ = {
+		4000A0E6120D8624D72A /* AI */ = {
 			isa = PBXGroup;
 			children = (
-				2000C041297AA6AEC403 /* AppleDefaultPack.swift */,
-				2000C041297AA6AEC404 /* OfflineAIPack.swift */,
-				2000C041297AA6AEC405 /* GeminiCloudPack.swift */,
-				2000C041297AA6AEC406 /* AIPackRegistry.swift */,
+				20004E563CD55FB17E84 /* AppleFoundationModelLLMProvider.swift */,
+				200051C841E46B8F9230 /* AppleIntelligenceOrLocalDialogueProvider.swift */,
+				40007416E7AC8CEB8869 /* DialogueFSM */,
+				2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */,
+				20002C2292A121D4AD48 /* GroqLLMProvider.swift */,
+				200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */,
+				20005B95A0F8A27351AA /* LlamaLocalLLMProvider.swift */,
+				2000ACE33830E9547D1A /* MockLLMProvider.swift */,
+				200025CA786D92C4D351 /* OnDeviceContextDialogueEngine.swift */,
+				2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */,
+				20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */,
+			);
+			path = "AI";
+			sourceTree = "<group>";
+		};
+		40007416E7AC8CEB8869 /* DialogueFSM */ = {
+			isa = PBXGroup;
+			children = (
+				200066ABF5CB077ACF87 /* DialogueIntentClassifier.swift */,
+				20004466760261F0DEEB /* ScenarioDialogueState.swift */,
+				2000B512F340C2DF98F8 /* ScenarioStateReducer.swift */,
+				2000496EDF2CD96C84DE /* TargetWordPrompter.swift */,
+			);
+			path = "DialogueFSM";
+			sourceTree = "<group>";
+		};
+		4000D13A274A60F80F0D /* AIPacks */ = {
+			isa = PBXGroup;
+			children = (
+				2000C3BBA5620FECA3C0 /* AIPackRegistry.swift */,
+				20007D813A83EDD7699F /* AppleDefaultPack.swift */,
+				2000B97EF3A6ECDCEA48 /* GeminiCloudPack.swift */,
+				20001D203EE719576805 /* OfflineAIPack.swift */,
 			);
 			path = "AIPacks";
 			sourceTree = "<group>";
@@ -1111,42 +1147,13 @@
 		400079DDF01423D3D7CA /* Engines */ = {
 			isa = PBXGroup;
 			children = (
-				2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */,
-				2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */,
-				20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */,
 				2000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift */,
+				2000BF138EE38621756B /* AppleTTSEngineAdapter.swift */,
+				20000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift */,
+				2000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift */,
 				2000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift */,
 			);
 			path = "Engines";
-			sourceTree = "<group>";
-		};
-		4000A0E6120D8624D72A /* AI */ = {
-			isa = PBXGroup;
-			children = (
-				4000C041297AA6AEC414 /* DialogueFSM */,
-				2000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift */,
-				2000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift */,
-				2000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift */,
-				2000C503297AA6AEC4DE /* GeminiLLMProvider.swift */,
-				2000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift */,
-				20002C2292A121D4AD48 /* GroqLLMProvider.swift */,
-				200013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift */,
-				2000ACE33830E9547D1A /* MockLLMProvider.swift */,
-				2000253861A7FC309FAA /* RoleplayScenarioCatalog.swift */,
-				20005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift */,
-			);
-			path = "AI";
-			sourceTree = "<group>";
-		};
-		4000C041297AA6AEC414 /* DialogueFSM */ = {
-			isa = PBXGroup;
-			children = (
-				2000C041297AA6AEC40C /* ScenarioDialogueState.swift */,
-				2000C041297AA6AEC40D /* DialogueIntentClassifier.swift */,
-				2000C041297AA6AEC40E /* TargetWordPrompter.swift */,
-				2000C041297AA6AEC40F /* ScenarioStateReducer.swift */,
-			);
-			path = "DialogueFSM";
 			sourceTree = "<group>";
 		};
 		40009A7A10F832BFCD13 /* Local */ = {
@@ -1223,9 +1230,9 @@
 		4000260E29F35C2EBCD5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				2000BB009E3F83A0B9A2C2C3 /* AIPackIdentifier.swift */,
-				2000E5BC1EC58874B9542179 /* AIPackStatus.swift */,
-				20002C2115BC9DEF96ECF538 /* AIPackError.swift */,
+				20008E70DAEC498D34A5 /* AIPackError.swift */,
+				20005809BD013F08669A /* AIPackIdentifier.swift */,
+				20006A04BC5F8F0A1E71 /* AIPackStatus.swift */,
 				200097262FBD5E9DE745 /* LearningPathCurriculum.swift */,
 				2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */,
 				4000107F161429117498 /* Reflex */,
@@ -1254,19 +1261,19 @@
 		40008F48FF4076AEA27E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				2000CA954419C5FD9E15F52C /* AIPackProtocol.swift */,
+				20009C23C95C9E39A410 /* AIPackProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */,
 				2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */,
 				200025360B5A06610E2E /* ReflexDrillable.swift */,
 				20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */,
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
+				2000294281CE418E6314 /* STTEngineProtocol.swift */,
+				200013224253FE6A18BA /* TTSEngineProtocol.swift */,
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
 				2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */,
-				2000447A9FE592BEE12149F4 /* STTEngineProtocol.swift */,
-				2000CB66C5DB93201B62F114 /* TTSEngineProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
-				2000C2B90ABE827AEA6DAA53 /* VoiceConfiguration.swift */,
+				200046CCC998F5BD631A /* VoiceConfiguration.swift */,
 				2000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift */,
 			);
 			path = "Protocols";
@@ -1275,12 +1282,12 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				2000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift */,
 				200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */,
-				200063C6A8B57B3C329A /* ClaimTreasureRewardUseCase.swift */,
-				200063C6A8B57B3C329B /* SmartCheckpointWordSampler.swift */,
 				200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */,
 				2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */,
 				2000D91BE7AC2B4C05AF /* ExecuteRoleplayTurnUseCase.swift */,
+				2000CA7570A3F3204D88 /* FastTrackUnitUseCase.swift */,
 				2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */,
 				2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */,
 				20007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift */,
@@ -1291,6 +1298,7 @@
 				2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */,
 				2000FA7560015826094C /* ResetUserProgressUseCase.swift */,
 				20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */,
+				20003060E0771B3D7C1F /* SmartCheckpointWordSampler.swift */,
 				20009B56D7887F9A77B3 /* SmartVaultWordSelector.swift */,
 				20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */,
 			);
@@ -1396,9 +1404,9 @@
 				20002FFDE20095760CB8 /* HomeSkeletonView.swift */,
 				2000B4EBE185E244E802 /* HomeTopHeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
-				2000C1A1A78E993B4125 /* TreasureClaimSheet.swift */,
-				2000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift */,
+				20009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift */,
 				20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */,
+				200037B28B849FB08515 /* TreasureClaimSheet.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";
@@ -1753,7 +1761,7 @@
 		40005FB519F175A27AF1 /* Content */ = {
 			isa = PBXGroup;
 			children = (
-				20016F0DCF97A12E9EBB /* vocab_content.sqlite */,
+
 			);
 			path = "Content";
 			sourceTree = "<group>";
@@ -1792,8 +1800,8 @@
 				2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */,
 				2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */,
 				4000538975BBBF45E56C /* Features */,
+				40001069DA8897F41798 /* Localization */,
 				40001795D309886C29B1 /* Mocks */,
-				400080019F7B3C6D234A /* Localization */,
 				4000A43204724448D0C9 /* Reflex */,
 				4000EED3B02F6642C380 /* Resources */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
@@ -1816,27 +1824,27 @@
 				2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */,
 				2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */,
 				200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */,
+				2000800165996FACE95B /* AIPackDomainModelTests.swift */,
+				200072B38DA4E70CD5DE /* AIPackRegistryTests.swift */,
+				2000B73C835757DFB93A /* ConcreteAIPackTests.swift */,
+				2000243DA3282D003564 /* DialogueIntentClassifierTests.swift */,
 				2000560FC177AB72F972 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift */,
 				2000B91C6C813222848F /* GroqLLMProviderTests.swift */,
 				200017FBF3E43B2093E2 /* IntelligentMockLLMProviderTests.swift */,
 				2000ADF6C8A0A5C2FC83 /* LLMProviderTests.swift */,
+				2000F4E0155BB6E2F660 /* LlamaInferenceWorkerTests.swift */,
+				2000C6DC9E92118015DB /* OnDeviceContextDialogueEngineTests.swift */,
 				200077F9A5C71C71715D /* ResilientConversationSpeechEngineTests.swift */,
 				2000E8EF9BADB4055888 /* RoleplaySuggestedDrawerTests.swift */,
 				200009B690EF5857B5C7 /* RoleplayUseCasesTests.swift */,
 				2000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift */,
 				200092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift */,
-				2000B96E154C07BA8D2220F0 /* AIPackDomainModelTests.swift */,
-				20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */,
-				2000C041297AA6AEC401 /* ConcreteAIPackTests.swift */,
-				2000C041297AA6AEC407 /* AIPackRegistryTests.swift */,
-				2000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift */,
-				2000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift */,
-				2000C041297AA6AEC410 /* ScenarioDialogueStateTests.swift */,
-				2000C041297AA6AEC411 /* DialogueIntentClassifierTests.swift */,
-				2000C041297AA6AEC412 /* TargetWordPrompterTests.swift */,
-				2000C041297AA6AEC413 /* ScenarioStateReducerTests.swift */,
 				20008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift */,
+				2000FB23AA5A9F6104C8 /* ScenarioDialogueStateTests.swift */,
+				20002ED4F23561C0E563 /* ScenarioStateReducerTests.swift */,
 				20007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift */,
+				20000A004AB846A3CD35 /* TTSEngineAdapterTests.swift */,
+				20009602BFAF37D35B23 /* TargetWordPrompterTests.swift */,
 				20007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift */,
 				20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */,
 			);
@@ -1887,10 +1895,11 @@
 			children = (
 				200025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift */,
 				20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */,
-				2000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift */,
+				200043205668E5B06335 /* LearningPathDataSourceTests.swift */,
 				2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */,
 				2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */,
 				2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */,
+				20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */,
 			);
 			path = "Database";
 			sourceTree = "<group>";
@@ -1907,16 +1916,18 @@
 		40002E4285B41EEC7F8B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				20003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift */,
+				20006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift */,
+				20004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift */,
 				200086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift */,
 				20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */,
-				20006B99E7C69FF14342 /* ClaimTreasureRewardUseCaseTests.swift */,
-				20006B99E7C69FF14343 /* SmartCheckpointWordSamplerTests.swift */,
 				20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */,
 				2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */,
 				2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */,
 				2000FCFC45FAFF51B6C9 /* ModeSuccessStatsTests.swift */,
 				20003FADD24C027F4E57 /* PracticeDrillPlanGeneratorTests.swift */,
 				20005B373A959290F7A7 /* ReflexDrillableTests.swift */,
+				200008E891B5442E7085 /* SmartCheckpointWordSamplerTests.swift */,
 				2000702E2AC1ACF8CDBE /* SmartVaultWordSelectorTests.swift */,
 				20008B0DBE2980E8443F /* SpeechContextTests.swift */,
 				2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */,
@@ -1930,9 +1941,9 @@
 			children = (
 				40004A7D1798887BBCBC /* Homepage */,
 				400095848A6A5A497042 /* Lesson */,
-				4000A1B2C3D4E5F60010 /* Onboarding */,
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
 				200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */,
+				40009AB32DC3A0576B12 /* Onboarding */,
 				200037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift */,
 				20002A59BC7D855A5215 /* OnboardingViewModelTests.swift */,
 				200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */,
@@ -1951,10 +1962,11 @@
 			children = (
 				2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */,
 				200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */,
+				20000C27439349DA6150 /* HomepageViewModelFastTrackTests.swift */,
 				20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */,
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
 				2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */,
-				2000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift */,
+				2000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift */,
 			);
 			path = "Homepage";
 			sourceTree = "<group>";
@@ -1968,10 +1980,10 @@
 			path = "Lesson";
 			sourceTree = "<group>";
 		};
-		4000A1B2C3D4E5F60010 /* Onboarding */ = {
+		40009AB32DC3A0576B12 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
-				2000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift */,
+				20002BD5960B5A045CA8 /* OnboardingRoadmapTests.swift */,
 			);
 			path = "Onboarding";
 			sourceTree = "<group>";
@@ -2037,6 +2049,14 @@
 			path = "Widget";
 			sourceTree = "<group>";
 		};
+		40001069DA8897F41798 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				20000669E2AEEB9C9048 /* AppStringsParityTests.swift */,
+			);
+			path = "Localization";
+			sourceTree = "<group>";
+		};
 		40001795D309886C29B1 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2059,14 +2079,6 @@
 				200082B754991DC24862 /* LocalizationTests.swift */,
 			);
 			path = "Resources";
-			sourceTree = "<group>";
-		};
-		400080019F7B3C6D234A /* Localization */ = {
-			isa = PBXGroup;
-			children = (
-				2000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift */,
-			);
-			path = "Localization";
 			sourceTree = "<group>";
 		};
 		4000D3F1B681BE1783FF /* Support */ = {
@@ -2205,7 +2217,6 @@
 			files = (
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
 				30006F0DCF97A12E9EBA /* vocabulary_catalog.json in Resources */,
-				30016F0DCF97A12E9EBB /* vocab_content.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2215,7 +2226,6 @@
 			files = (
 				3001DAC94ACE4AFC4259 /* Localizable.xcstrings in Widget Resources */,
 				3001264FAADACF4FCA7C /* vocabulary_catalog.json in Widget Resources */,
-				30026F0DCF97A12E9EBB /* vocab_content.sqlite in Widget Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2233,14 +2243,14 @@
 				300094814DC25601FEC3 /* TabItem.swift in Sources */,
 				30000471F293F7AFFB2A /* DatabaseRecoveryView.swift in Sources */,
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
+				3000311FED5FF9316530 /* LlamaInferenceWorker.swift in Sources */,
 				300015483F700591F689 /* AppleEnhancedTTSEngine.swift in Sources */,
 				3000B44E35433DDEB0A8 /* AppleVoiceSelector.swift in Sources */,
 				3000C6AE7F8579C5EEFD /* AudioBufferRelay.swift in Sources */,
 				300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */,
 				30007C7A2B197E0EC53F /* GeminiAudioSpeechEngine.swift in Sources */,
+				30000617071E8E21DD9F /* KokoroInferenceWorker.swift in Sources */,
 				30008AE0923C4D6FC0CF /* KokoroTTSEngine.swift in Sources */,
-				3000B91A4F82C10D49AE /* KokoroInferenceWorker.swift in Sources */,
-				3000B91A4F82C10D49AF /* LlamaInferenceWorker.swift in Sources */,
 				3000CA2DA6555476677E /* LessonPerformanceDiagnostics.swift in Sources */,
 				300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */,
 				300049AF2BDE00D00A1A /* OnDemandAIModelManager.swift in Sources */,
@@ -2279,13 +2289,29 @@
 				300076045470BEBE428B /* AppPermissionNotice.swift in Sources */,
 				3000FFA60EB41567C17E /* NotificationSchedulerProtocol.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
+				30004E563CD55FB17E84 /* AppleFoundationModelLLMProvider.swift in Sources */,
+				300051C841E46B8F9230 /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */,
+				300066ABF5CB077ACF87 /* DialogueIntentClassifier.swift in Sources */,
+				30004466760261F0DEEB /* ScenarioDialogueState.swift in Sources */,
+				3000B512F340C2DF98F8 /* ScenarioStateReducer.swift in Sources */,
+				3000496EDF2CD96C84DE /* TargetWordPrompter.swift in Sources */,
 				3000C503297AA6AEC4DE /* GeminiLLMProvider.swift in Sources */,
-				3000C503297AA6AEC4DF /* LlamaLocalLLMProvider.swift in Sources */,
 				30002C2292A121D4AD48 /* GroqLLMProvider.swift in Sources */,
 				300013D46D39AB5B4018 /* IntelligentMockLLMProvider.swift in Sources */,
+				30005B95A0F8A27351AA /* LlamaLocalLLMProvider.swift in Sources */,
 				3000ACE33830E9547D1A /* MockLLMProvider.swift in Sources */,
+				300025CA786D92C4D351 /* OnDeviceContextDialogueEngine.swift in Sources */,
 				3000253861A7FC309FAA /* RoleplayScenarioCatalog.swift in Sources */,
 				30005B59AFB2B9B42F98 /* RoleplayVoiceProfileCatalog.swift in Sources */,
+				3000C3BBA5620FECA3C0 /* AIPackRegistry.swift in Sources */,
+				30007D813A83EDD7699F /* AppleDefaultPack.swift in Sources */,
+				3000B97EF3A6ECDCEA48 /* GeminiCloudPack.swift in Sources */,
+				30001D203EE719576805 /* OfflineAIPack.swift in Sources */,
+				3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */,
+				3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */,
+				30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */,
+				3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */,
+				3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */,
 				3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */,
@@ -2308,51 +2334,35 @@
 				300036675EAE3D605018 /* SuggestedWord.swift in Sources */,
 				300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */,
 				30002A121BF620A9A229 /* Word.swift in Sources */,
+				30008E70DAEC498D34A5 /* AIPackError.swift in Sources */,
+				30005809BD013F08669A /* AIPackIdentifier.swift in Sources */,
+				30006A04BC5F8F0A1E71 /* AIPackStatus.swift in Sources */,
 				300097262FBD5E9DE745 /* LearningPathCurriculum.swift in Sources */,
 				3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */,
 				30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */,
 				3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */,
 				300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */,
-				30007403F29B34041E95A32B /* AIPackIdentifier.swift in Sources */,
-				3000F14985BAD08A1975736D /* AIPackStatus.swift in Sources */,
-				3000A0539DD76FFCBD777559 /* AIPackError.swift in Sources */,
 				30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */,
+				30009C23C95C9E39A410 /* AIPackProtocol.swift in Sources */,
 				30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */,
 				3000DA7148B88C17BFA9 /* LLMProviderProtocol.swift in Sources */,
 				3000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */,
 				300025360B5A06610E2E /* ReflexDrillable.swift in Sources */,
 				30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */,
 				30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */,
+				3000294281CE418E6314 /* STTEngineProtocol.swift in Sources */,
+				300013224253FE6A18BA /* TTSEngineProtocol.swift in Sources */,
 				3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */,
 				3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
+				300046CCC998F5BD631A /* VoiceConfiguration.swift in Sources */,
 				3000E5C4F839513B76FD /* VoiceConversationEngineProtocol.swift in Sources */,
-				3000BBFD6D7A3A43440E9D69 /* AIPackProtocol.swift in Sources */,
-				30000482FFD536116FA70762 /* STTEngineProtocol.swift in Sources */,
-				3000F905B14863D88E5798EF /* TTSEngineProtocol.swift in Sources */,
-				30003E015DCE91BF3BDB60D4 /* VoiceConfiguration.swift in Sources */,
-				3000BF138EE38621756B /* AppleTTSEngineAdapter.swift in Sources */,
-				3000A76D78CFACBA3F04 /* KokoroTTSEngineAdapter.swift in Sources */,
-				30000A3B0DF47A7FB7F7 /* GeminiTTSEngineAdapter.swift in Sources */,
-				3000DC7B284FB92CFEAD /* AppleSTTEngineAdapter.swift in Sources */,
-				3000092D0E8FD0DF08C5 /* WhisperKitSTTEngineAdapter.swift in Sources */,
-				3000C041297AA6AEC402 /* AppleFoundationModelLLMProvider.swift in Sources */,
-				3000C041297AA6AEC409 /* OnDeviceContextDialogueEngine.swift in Sources */,
-				3000C041297AA6AEC40A /* AppleIntelligenceOrLocalDialogueProvider.swift in Sources */,
-				3000C041297AA6AEC403 /* AppleDefaultPack.swift in Sources */,
-				3000C041297AA6AEC404 /* OfflineAIPack.swift in Sources */,
-				3000C041297AA6AEC405 /* GeminiCloudPack.swift in Sources */,
-				3000C041297AA6AEC406 /* AIPackRegistry.swift in Sources */,
-				3000C041297AA6AEC40C /* ScenarioDialogueState.swift in Sources */,
-				3000C041297AA6AEC40D /* DialogueIntentClassifier.swift in Sources */,
-				3000C041297AA6AEC40E /* TargetWordPrompter.swift in Sources */,
-				3000C041297AA6AEC40F /* ScenarioStateReducer.swift in Sources */,
+				3000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift in Sources */,
 				300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */,
-				300063C6A8B57B3C329A /* ClaimTreasureRewardUseCase.swift in Sources */,
-				300063C6A8B57B3C329B /* SmartCheckpointWordSampler.swift in Sources */,
 				300078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
 				3000D91BE7AC2B4C05AF /* ExecuteRoleplayTurnUseCase.swift in Sources */,
+				3000CA7570A3F3204D88 /* FastTrackUnitUseCase.swift in Sources */,
 				3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */,
 				3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */,
 				30007E4230C1F63F5AD3 /* FetchRoleplayScenariosUseCase.swift in Sources */,
@@ -2363,6 +2373,7 @@
 				3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */,
 				3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */,
 				30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */,
+				30003060E0771B3D7C1F /* SmartCheckpointWordSampler.swift in Sources */,
 				30009B56D7887F9A77B3 /* SmartVaultWordSelector.swift in Sources */,
 				30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */,
 				3000CACA4ECC27F6724B /* ResilientConversationSpeechEngine.swift in Sources */,
@@ -2392,9 +2403,9 @@
 				30002FFDE20095760CB8 /* HomeSkeletonView.swift in Sources */,
 				3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
-				3000C1A1A78E993B4125 /* TreasureClaimSheet.swift in Sources */,
-				3000E3C3C9A0AB5D6347 /* LearningPathSwitchSheet.swift in Sources */,
+				30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
+				300037B28B849FB08515 /* TreasureClaimSheet.swift in Sources */,
 				30005FB0835F89AF93A4 /* LessonLearningViewModel+Completion.swift in Sources */,
 				3000318084AC2ED69E91 /* LessonLearningViewModel+Speech.swift in Sources */,
 				3000E19CF6B5575A2407 /* LessonLearningViewModel+Steps.swift in Sources */,
@@ -2503,27 +2514,27 @@
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,
 				3000A65D87BF85A411BF /* AIAssistantViewsTests.swift in Test Sources */,
 				300028004FD41CBE4E9A /* AIDomainEntitiesTests.swift in Test Sources */,
+				3000800165996FACE95B /* AIPackDomainModelTests.swift in Test Sources */,
+				300072B38DA4E70CD5DE /* AIPackRegistryTests.swift in Test Sources */,
+				3000B73C835757DFB93A /* ConcreteAIPackTests.swift in Test Sources */,
+				3000243DA3282D003564 /* DialogueIntentClassifierTests.swift in Test Sources */,
 				3000560FC177AB72F972 /* ExecuteRoleplayTurnUseCaseFuzzyTests.swift in Test Sources */,
 				3000B91C6C813222848F /* GroqLLMProviderTests.swift in Test Sources */,
 				300017FBF3E43B2093E2 /* IntelligentMockLLMProviderTests.swift in Test Sources */,
 				3000ADF6C8A0A5C2FC83 /* LLMProviderTests.swift in Test Sources */,
+				3000F4E0155BB6E2F660 /* LlamaInferenceWorkerTests.swift in Test Sources */,
+				3000C6DC9E92118015DB /* OnDeviceContextDialogueEngineTests.swift in Test Sources */,
 				300077F9A5C71C71715D /* ResilientConversationSpeechEngineTests.swift in Test Sources */,
 				3000E8EF9BADB4055888 /* RoleplaySuggestedDrawerTests.swift in Test Sources */,
 				300009B690EF5857B5C7 /* RoleplayUseCasesTests.swift in Test Sources */,
 				3000B9F0660FC56BEE6F /* RoleplayViewModelsTests.swift in Test Sources */,
 				300092520B3C979B8232 /* RoleplayVoiceCallViewModelTests.swift in Test Sources */,
-				30007B300573E8B82E38EA2C /* AIPackDomainModelTests.swift in Test Sources */,
-				30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */,
-				3000C041297AA6AEC401 /* ConcreteAIPackTests.swift in Test Sources */,
-				3000C041297AA6AEC407 /* AIPackRegistryTests.swift in Test Sources */,
-				3000C041297AA6AEC408 /* LlamaInferenceWorkerTests.swift in Test Sources */,
-				3000C041297AA6AEC40B /* OnDeviceContextDialogueEngineTests.swift in Test Sources */,
-				3000C041297AA6AEC410 /* ScenarioDialogueStateTests.swift in Test Sources */,
-				3000C041297AA6AEC411 /* DialogueIntentClassifierTests.swift in Test Sources */,
-				3000C041297AA6AEC412 /* TargetWordPrompterTests.swift in Test Sources */,
-				3000C041297AA6AEC413 /* ScenarioStateReducerTests.swift in Test Sources */,
 				30008F062D5819A6E571 /* RoleplayVoiceProfileCatalogTests.swift in Test Sources */,
+				3000FB23AA5A9F6104C8 /* ScenarioDialogueStateTests.swift in Test Sources */,
+				30002ED4F23561C0E563 /* ScenarioStateReducerTests.swift in Test Sources */,
 				30007C6964BB56E530FB /* SpeechRecognitionServiceTests.swift in Test Sources */,
+				30000A004AB846A3CD35 /* TTSEngineAdapterTests.swift in Test Sources */,
+				30009602BFAF37D35B23 /* TargetWordPrompterTests.swift in Test Sources */,
 				30007D443B21A564722B /* TurnBasedVoiceConversationEngineTests.swift in Test Sources */,
 				30004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift in Test Sources */,
 				300086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift in Test Sources */,
@@ -2543,24 +2554,27 @@
 				300000D56BE6F25C628D /* WhisperKitSpeechEngineTests.swift in Test Sources */,
 				300025885B4AEBDC8AE6 /* BundledVocabularyDataSourceTests.swift in Test Sources */,
 				30008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift in Test Sources */,
-				3000A1B2C3D4E5F60002 /* LearningPathDataSourceTests.swift in Test Sources */,
+				300043205668E5B06335 /* LearningPathDataSourceTests.swift in Test Sources */,
 				3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */,
 				3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */,
+				30002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift in Test Sources */,
 				30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */,
 				3000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift in Test Sources */,
 				3000D052EA676149B3D6 /* ColorTokensTests.swift in Test Sources */,
 				3000838EAAA70A5E0D29 /* VocabThemeTests.swift in Test Sources */,
+				30003E558CC2093770E9 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */,
+				30006EB57DBDCB6B3174 /* CompleteLessonUseCaseTests.swift in Test Sources */,
+				30004350E1DA425C89DA /* FastTrackUnitUseCaseTests.swift in Test Sources */,
 				300086F3419F287D162E /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */,
 				30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */,
-				30006B99E7C69FF14342 /* ClaimTreasureRewardUseCaseTests.swift in Test Sources */,
-				30006B99E7C69FF14343 /* SmartCheckpointWordSamplerTests.swift in Test Sources */,
 				30009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift in Test Sources */,
 				3000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift in Test Sources */,
 				3000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift in Test Sources */,
 				3000FCFC45FAFF51B6C9 /* ModeSuccessStatsTests.swift in Test Sources */,
 				30003FADD24C027F4E57 /* PracticeDrillPlanGeneratorTests.swift in Test Sources */,
 				30005B373A959290F7A7 /* ReflexDrillableTests.swift in Test Sources */,
+				300008E891B5442E7085 /* SmartCheckpointWordSamplerTests.swift in Test Sources */,
 				3000702E2AC1ACF8CDBE /* SmartVaultWordSelectorTests.swift in Test Sources */,
 				30008B0DBE2980E8443F /* SpeechContextTests.swift in Test Sources */,
 				3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */,
@@ -2569,17 +2583,18 @@
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,
 				3000D7D92B122A4B2F10 /* HomeLocalizationTests.swift in Test Sources */,
 				300016308CFEFF34283A /* HomeTopHeaderViewTests.swift in Test Sources */,
+				30000C27439349DA6150 /* HomepageViewModelFastTrackTests.swift in Test Sources */,
 				30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */,
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
 				3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */,
-				3000F4D4DAB1BC6E7458 /* LearningPathSwitchSheetTests.swift in Test Sources */,
+				3000C6DA149569B582A3 /* LearningPathSwitchSheetTests.swift in Test Sources */,
 				3000C6C1CCCBDA826411 /* LessonLearningViewModelTests.swift in Test Sources */,
 				3000AABFD0E7F0B98D5C /* LessonLocalizationTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,
 				300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */,
+				30002BD5960B5A045CA8 /* OnboardingRoadmapTests.swift in Test Sources */,
 				300037CDCFCE57CA7533 /* OnboardingLocalizationTests.swift in Test Sources */,
 				30002A59BC7D855A5215 /* OnboardingViewModelTests.swift in Test Sources */,
-				3000A1B2C3D4E5F60011 /* OnboardingRoadmapTests.swift in Test Sources */,
 				300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */,
 				30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */,
 				3000707A5ED137EB115E /* PracticeSelectionLocalizationTests.swift in Test Sources */,
@@ -2616,10 +2631,10 @@
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
 				300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */,
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
+				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
 				300082B754991DC24862 /* LocalizationTests.swift in Test Sources */,
-				3000A1A2B3C4D5E6F701 /* AppStringsParityTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,
 				3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */,
 				30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */,

@@ -129,6 +129,10 @@ public final class MockStageProgressRepository: StageProgressRepositoryProtocol 
     public private(set) var saveCallCount: Int = 0
     public var delayNanoseconds: UInt64 = 0
 
+    public var savedStages: [UserStageProgressData] {
+        Array(records.values)
+    }
+
     public init(records: [String: UserStageProgressData] = [:]) {
         self.records = records
     }

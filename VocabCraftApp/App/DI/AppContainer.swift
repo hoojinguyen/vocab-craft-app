@@ -30,6 +30,7 @@ public final class AppContainer {
     public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
     public let completeLessonUseCase: CompleteLessonUseCaseProtocol
     public let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol
+    public let fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol
 
     public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
@@ -54,6 +55,7 @@ public final class AppContainer {
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
         claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
+        fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
@@ -128,6 +130,11 @@ public final class AppContainer {
         )
         self.claimTreasureRewardUseCase = claimTreasureRewardUseCase ?? ClaimTreasureRewardUseCase(
             stageRepo: resolvedStageRepo
+        )
+        self.fastTrackUnitUseCase = fastTrackUnitUseCase ?? FastTrackUnitUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo,
+            progressRepo: resolvedUserProgressRepo
         )
 
         // Personal Vault & Mixed Reflex Use Cases
@@ -215,6 +222,10 @@ public final class AppContainer {
         claimTreasureRewardUseCase
     }
 
+    public func makeFastTrackUnitUseCase() -> FastTrackUnitUseCaseProtocol {
+        fastTrackUnitUseCase
+    }
+
     public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
         generateMixedReflexQueueUseCase
     }
@@ -247,7 +258,8 @@ public final class AppContainer {
             fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService,
             userSettings: userSettingsStore,
-            claimTreasureRewardUseCase: claimTreasureRewardUseCase
+            claimTreasureRewardUseCase: claimTreasureRewardUseCase,
+            fastTrackUnitUseCase: fastTrackUnitUseCase
         )
     }
 

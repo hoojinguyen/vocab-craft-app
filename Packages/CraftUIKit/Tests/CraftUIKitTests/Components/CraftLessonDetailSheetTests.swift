@@ -173,6 +173,52 @@ final class CraftLessonDetailSheetTests: XCTestCase {
         XCTAssertTrue(dismissCalled)
     }
 
+    func testFastTrackAvailabilityAndCallback() {
+        let lockedCheckpoint = LessonNodeModel(
+            id: "cp_locked",
+            title: "Unit 1 Checkpoint",
+            state: .locked,
+            kind: .checkpoint
+        )
+        let upcomingCheckpoint = LessonNodeModel(
+            id: "cp_upcoming",
+            title: "Unit 2 Checkpoint",
+            state: .upcoming,
+            kind: .checkpoint
+        )
+        let activeCheckpoint = LessonNodeModel(
+            id: "cp_active",
+            title: "Unit 3 Checkpoint",
+            state: .active,
+            kind: .checkpoint
+        )
+        let lockedStandard = LessonNodeModel(
+            id: "std_locked",
+            title: "Lesson 2",
+            state: .locked,
+            kind: .standard
+        )
+
+        var fastTrackTriggeredNode: LessonNodeModel?
+        let sheet = CraftLessonDetailSheet(
+            node: lockedCheckpoint,
+            onFastTrack: { node in
+                fastTrackTriggeredNode = node
+            }
+        )
+
+        XCTAssertTrue(sheet.isFastTrackAvailable)
+        XCTAssertTrue(CraftLessonDetailSheet(node: upcomingCheckpoint).isFastTrackAvailable)
+        XCTAssertFalse(CraftLessonDetailSheet(node: activeCheckpoint).isFastTrackAvailable)
+        XCTAssertFalse(CraftLessonDetailSheet(node: lockedStandard).isFastTrackAvailable)
+
+        MainActor.assumeIsolated {
+            sheet.onFastTrack?(lockedCheckpoint)
+        }
+        XCTAssertEqual(fastTrackTriggeredNode?.id, "cp_locked")
+        XCTAssertNotNil(sheet.body)
+    }
+
     // MARK: - Kinds & Body Rendering Tests
 
     func testKindVariantsBodyRendering() {

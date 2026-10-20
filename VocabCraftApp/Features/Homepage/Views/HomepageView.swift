@@ -30,6 +30,7 @@ public struct HomepageView: View {
     @State private var homeConfettiTrigger: Bool = false
     @State private var completionToastData: CraftToastData?
     @State private var isLearningPathSwitchPresented: Bool = false
+    @State private var fastTrackAttemptDeckId: String?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
@@ -142,7 +143,13 @@ public struct HomepageView: View {
                                                 node: node,
                                                 surfaceStyle: .tactile3D,
                                                 onStart: onStart,
-                                                onDismiss: onDismiss
+                                                onDismiss: onDismiss,
+                                                onFastTrack: { checkpointNode in
+                                                    let deckId = viewModel.resolvedDeckId(for: checkpointNode)
+                                                    fastTrackAttemptDeckId = deckId
+                                                    onDismiss()
+                                                    startLesson(for: checkpointNode)
+                                                }
                                             )
                                             .craftSurfaceStyle(.tactile3D)
                                             .presentationDetents([.fraction(0.70), .large])
@@ -528,6 +535,46 @@ private extension HomepageView {
                     )
                 }
                 return
+            }
+
+            let isFastTrackAttempt = (fastTrackAttemptDeckId == summary.deckId)
+            fastTrackAttemptDeckId = nil
+
+            if isFastTrackAttempt {
+                let fastTrackResult = try? await viewModel.fastTrackUnit(
+                    deckId: summary.deckId,
+                    score: summary.accuracyFraction
+                )
+                if let fastTrackResult, fastTrackResult.isSuccess {
+                    await MainActor.run {
+                        activeLessonLearningVM = nil
+                        CraftHaptics.shared.success()
+                        homeConfettiTrigger = true
+                        completionToastData = CraftToastData(
+                            title: AppStrings.Home.fastTrackSuccessText,
+                            message: "+\(summary.xpEarned) XP • \(AppStrings.Home.fastTrackCTAText)",
+                            iconName: "bolt.fill",
+                            style: .success,
+                            surfaceStyle: .glass,
+                            duration: 3.5
+                        )
+                    }
+                    return
+                } else {
+                    await MainActor.run {
+                        activeLessonLearningVM = nil
+                        CraftHaptics.shared.warning()
+                        completionToastData = CraftToastData(
+                            title: AppStrings.Home.fastTrackCTAText,
+                            message: AppStrings.Home.fastTrackFailedText,
+                            iconName: "xmark.circle.fill",
+                            style: .warning,
+                            surfaceStyle: .glass,
+                            duration: 3.5
+                        )
+                    }
+                    return
+                }
             }
 
             await MainActor.run {

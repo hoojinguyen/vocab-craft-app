@@ -718,6 +718,25 @@ extension AppStrings {
             String(localized: "app.home.node.spiral_review_objective_2", defaultValue: "Combat the forgetting curve across units", bundle: .module)
         }
 
+        // Fast-Track Jump-Ahead
+        public static var fastTrackTitle: LocalizedStringKey { "app.home.checkpoint.fast_track_title" }
+        public static var fastTrackTitleText: String {
+            String(localized: "app.home.checkpoint.fast_track_title", defaultValue: "Fast-Track Challenge", bundle: .module)
+        }
+        public static var fastTrackCTA: LocalizedStringKey { "app.home.checkpoint.fast_track_cta" }
+        public static var fastTrackCTAText: String {
+            String(localized: "app.home.checkpoint.fast_track_cta", defaultValue: "Fast-Track Challenge", bundle: .module)
+        }
+        public static var fastTrackDescriptionText: String {
+            String(localized: "app.home.checkpoint.fast_track_description", defaultValue: "Score ≥ 85% on this checkpoint to test out of this unit and unlock the next one immediately.", bundle: .module)
+        }
+        public static var fastTrackSuccessText: String {
+            String(localized: "app.home.checkpoint.fast_track_success", defaultValue: "Fast-Track Success! Unit unlocked.", bundle: .module)
+        }
+        public static var fastTrackFailedText: String {
+            String(localized: "app.home.checkpoint.fast_track_failed", defaultValue: "Need ≥ 85% to fast-track. Review unit lessons and try again!", bundle: .module)
+        }
+
         // Call-to-Actions & Hints
         public static var ctaStart: LocalizedStringKey { "app.home.node.cta_start" }
         public static var ctaStartText: String {
