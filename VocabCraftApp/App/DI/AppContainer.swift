@@ -299,12 +299,14 @@ public final class AppContainer {
     public func makeLessonLearningViewModel(
         stageId: String,
         deckId: String,
-        words: [TopicWordDTO]
+        words: [TopicWordDTO],
+        isFastTrack: Bool = false
     ) -> LessonLearningViewModel {
         LessonLearningViewModel(
             stageId: stageId,
             deckId: deckId,
             words: words,
+            isFastTrack: isFastTrack,
             completeLessonUseCase: completeLessonUseCase,
             ttsService: ttsService,
             soundEffectService: SoundEffectService.shared,

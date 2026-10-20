@@ -25,6 +25,12 @@ extension LessonLearningViewModel {
         self.summary = summaryModel
         self.steps.append(.summary(summary: summaryModel))
 
+        if isFastTrack {
+            // For fast-track checkpoint attempts, stage completion persistence is handled solely
+            // by FastTrackUnitUseCase upon evaluating the 85% passing threshold.
+            return
+        }
+
         self.completionTask = Task {
             do {
                 let result = try await completeLessonUseCase.execute(
@@ -51,7 +57,7 @@ extension LessonLearningViewModel {
 
     @discardableResult
     public func retryCompletion() async throws -> LessonCompletionResult? {
-        if isCompleted {
+        if isFastTrack || isCompleted {
             return nil
         }
         if let completionTask {
@@ -87,6 +93,9 @@ extension LessonLearningViewModel {
 
     @discardableResult
     public func awaitCompletion() async throws -> LessonCompletionResult? {
+        if isFastTrack {
+            return nil
+        }
         if let completionTask {
             return try await completionTask.value
         }

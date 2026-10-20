@@ -143,12 +143,15 @@ public struct HomepageView: View {
                                                 node: node,
                                                 surfaceStyle: .tactile3D,
                                                 onStart: onStart,
-                                                onDismiss: onDismiss,
+                                                onDismiss: {
+                                                    fastTrackAttemptDeckId = nil
+                                                    onDismiss()
+                                                },
                                                 onFastTrack: { checkpointNode in
                                                     let deckId = viewModel.resolvedDeckId(for: checkpointNode)
                                                     fastTrackAttemptDeckId = deckId
                                                     onDismiss()
-                                                    startLesson(for: checkpointNode)
+                                                    startLesson(for: checkpointNode, isFastTrack: true)
                                                 }
                                             )
                                             .craftSurfaceStyle(.tactile3D)
@@ -269,11 +272,13 @@ public struct HomepageView: View {
         #if os(iOS)
         .fullScreenCover(item: $activeLessonLearningVM, onDismiss: {
             activeLessonLearningVM = nil
+            fastTrackAttemptDeckId = nil
         }) { vm in
             LessonLearningView(
                 viewModel: vm,
                 onDismiss: {
                     activeLessonLearningVM = nil
+                    fastTrackAttemptDeckId = nil
                 },
                 onFinished: { summary in
                     handleLessonFinished(vm: vm, summary: summary)
@@ -283,11 +288,13 @@ public struct HomepageView: View {
         #else
         .sheet(item: $activeLessonLearningVM, onDismiss: {
             activeLessonLearningVM = nil
+            fastTrackAttemptDeckId = nil
         }) { vm in
             LessonLearningView(
                 viewModel: vm,
                 onDismiss: {
                     activeLessonLearningVM = nil
+                    fastTrackAttemptDeckId = nil
                 },
                 onFinished: { summary in
                     handleLessonFinished(vm: vm, summary: summary)
@@ -414,16 +421,26 @@ private extension HomepageView {
         }
     }
 
-    func startLesson(for node: LessonNodeModel) {
+    func startLesson(for node: LessonNodeModel, isFastTrack: Bool = false) {
+        if !isFastTrack {
+            fastTrackAttemptDeckId = nil
+        }
+
         if node.kind == .treasureChest {
             activeTreasureClaimNode = node
             return
         }
 
-        guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
+        guard !isLaunchingLesson && activeLessonLearningVM == nil else {
+            if !isFastTrack {
+                fastTrackAttemptDeckId = nil
+            }
+            return
+        }
 
         let resolvedDeckId = viewModel.resolvedDeckId(for: node)
         guard !resolvedDeckId.isEmpty else {
+            fastTrackAttemptDeckId = nil
             completionToastData = CraftToastData(
                 title: AppStrings.Common.errorText,
                 message: AppStrings.Lesson.loadErrorText,
@@ -447,10 +464,16 @@ private extension HomepageView {
             let deckId: String = resolvedDeckId
             let words = await fetchLessonWords(for: node, deckId: deckId)
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else {
+                await MainActor.run {
+                    fastTrackAttemptDeckId = nil
+                }
+                return
+            }
 
             guard !words.isEmpty else {
                 await MainActor.run {
+                    fastTrackAttemptDeckId = nil
                     guard !Task.isCancelled else { return }
                     completionToastData = CraftToastData(
                         title: AppStrings.Common.errorText,
@@ -467,12 +490,16 @@ private extension HomepageView {
             let vm = appContainer.makeLessonLearningViewModel(
                 stageId: node.id,
                 deckId: deckId,
-                words: words
+                words: words,
+                isFastTrack: isFastTrack || (fastTrackAttemptDeckId == deckId)
             )
             // Allow CoreAnimation buffer recovery (~150ms) after sheet dismissal before presenting cover
             try? await Task.sleep(for: .milliseconds(150))
             await MainActor.run {
-                guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
+                guard !Task.isCancelled, appRouter.selectedTab == .home else {
+                    fastTrackAttemptDeckId = nil
+                    return
+                }
                 self.activeLessonLearningVM = vm
             }
         }
@@ -537,7 +564,7 @@ private extension HomepageView {
                 return
             }
 
-            let isFastTrackAttempt = (fastTrackAttemptDeckId == summary.deckId)
+            let isFastTrackAttempt = vm.isFastTrack || (fastTrackAttemptDeckId == summary.deckId)
             fastTrackAttemptDeckId = nil
 
             if isFastTrackAttempt {

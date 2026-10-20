@@ -13,6 +13,7 @@ public final class LessonLearningViewModel: Identifiable {
     public let stageId: String
     public let deckId: String
     public let words: [TopicWordDTO]
+    public let isFastTrack: Bool
     public internal(set) var steps: [LessonStep] = []
     public internal(set) var currentStepIndex: Int = 0
     public internal(set) var mistakeCount: Int = 0
@@ -60,6 +61,7 @@ public final class LessonLearningViewModel: Identifiable {
         stageId: String,
         deckId: String,
         words: [TopicWordDTO],
+        isFastTrack: Bool = false,
         planGenerator: LessonPlanGeneratorProtocol = LessonPlanGenerator(),
         completeLessonUseCase: CompleteLessonUseCaseProtocol,
         ttsService: TextToSpeechProtocol,
@@ -69,6 +71,7 @@ public final class LessonLearningViewModel: Identifiable {
         self.stageId = stageId
         self.deckId = deckId
         self.words = words
+        self.isFastTrack = isFastTrack
         self.planGenerator = planGenerator
         self.completeLessonUseCase = completeLessonUseCase
         self.ttsService = ttsService
