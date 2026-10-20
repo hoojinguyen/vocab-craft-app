@@ -132,7 +132,7 @@ public struct HomeTopHeaderView: View {
                     .lineLimit(1)
             }
             .padding(.horizontal, theme.spacing.xs)
-            .padding(.vertical, 6)
+            .padding(.vertical, theme.spacing.xs)
             .background(theme.colors.surfaceElevated)
             .clipShape(Capsule())
             .overlay(

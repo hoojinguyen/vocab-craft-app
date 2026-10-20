@@ -71,10 +71,7 @@ public struct VocabGrowthDashboardSheet: View {
     }
 
     public var pacingFormattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: pacingEstimatedDate)
+        pacingEstimatedDate.formatted(date: .abbreviated, time: .omitted)
     }
 
     public var pacingMessage: String {
@@ -244,10 +241,6 @@ public struct VocabGrowthDashboardSheet: View {
                     size: .sm
                 )
 
-                Text(stat.cefrLevel)
-                    .font(theme.typography.caption.weight(.semibold))
-                    .foregroundStyle(theme.colors.textPrimary)
-
                 Spacer()
 
                 Text(AppStrings.VocabGrowth.cefrStatRatio(
@@ -267,6 +260,7 @@ public struct VocabGrowthDashboardSheet: View {
                 cornerRadius: theme.radius.full
             )
         }
+        .accessibilityElement(children: .combine)
     }
 
     private var depthFunnelCard: some View {
