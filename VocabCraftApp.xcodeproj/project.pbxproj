@@ -93,6 +93,8 @@
 		30002717CA572B9B21A6 /* SRSRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002717CA572B9B21A6 /* SRSRepositoryImpl.swift */; };
 		3000174FE7B23888C774 /* VocabularyRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000174FE7B23888C774 /* VocabularyRepositoryImpl.swift */; };
 		300063514297A537E934 /* ShadowingVideoRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063514297A537E934 /* ShadowingVideoRepositoryImpl.swift */; };
+		30005E3A3F7D00000004 /* CraftYouTubePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000004 /* CraftYouTubePlayerView.swift */; };
+		30005E3A3F7D00000005 /* YouTubePlayerBridgeScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000005 /* YouTubePlayerBridgeScript.swift */; };
 		30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000BFE98509D30FF1D /* LessonPlanModels.swift */; };
 		300097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift */; };
 		30002627066D66426216 /* ModeSuccessStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002627066D66426216 /* ModeSuccessStats.swift */; };
@@ -406,6 +408,7 @@
 		3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */; };
 		30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000669E2AEEB9C9048 /* AppStringsParityTests.swift */; };
 		30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000002 /* ShadowingLocalizationTests.swift */; };
+		30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */; };
 		3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
@@ -550,6 +553,8 @@
 		20002717CA572B9B21A6 /* SRSRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSRepositoryImpl.swift"; sourceTree = "<group>"; };
 		2000174FE7B23888C774 /* VocabularyRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRepositoryImpl.swift"; sourceTree = "<group>"; };
 		200063514297A537E934 /* ShadowingVideoRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingVideoRepositoryImpl.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00000004 /* CraftYouTubePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CraftYouTubePlayerView.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00000005 /* YouTubePlayerBridgeScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubePlayerBridgeScript.swift"; sourceTree = "<group>"; };
 		20000BFE98509D30FF1D /* LessonPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanModels.swift"; sourceTree = "<group>"; };
 		200097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillItem.swift"; sourceTree = "<group>"; };
 		20002627066D66426216 /* ModeSuccessStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModeSuccessStats.swift"; sourceTree = "<group>"; };
@@ -847,6 +852,7 @@
 		2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetLocalizationTests.swift"; sourceTree = "<group>"; };
 		20000669E2AEEB9C9048 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000002 /* ShadowingLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingLocalizationTests.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubePlayerBridgeTests.swift"; sourceTree = "<group>"; };
 		2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockCompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -1355,8 +1361,26 @@
 				40003C02F9B5FF46EF35 /* Reflex */,
 				4000D4D5BFC6AFCDAB4C /* Settings */,
 				4000235BDB4106301AF2 /* Vocabulary */,
+				40005E3A3F7D00000004 /* Shadowing */,
 			);
 			path = "Features";
+			sourceTree = "<group>";
+		};
+		40005E3A3F7D00000004 /* Shadowing */ = {
+			isa = PBXGroup;
+			children = (
+				40005E3A3F7D00000005 /* Components */,
+			);
+			path = "Shadowing";
+			sourceTree = "<group>";
+		};
+		40005E3A3F7D00000005 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				20005E3A3F7D00000004 /* CraftYouTubePlayerView.swift */,
+				20005E3A3F7D00000005 /* YouTubePlayerBridgeScript.swift */,
+			);
+			path = "Components";
 			sourceTree = "<group>";
 		};
 		40009832B6EBBEFE8B72 /* AIAssistant */ = {
@@ -1997,8 +2021,17 @@
 				4000222CDC96FC1A1DA8 /* ReflexDrill */,
 				4000829CC0FFDB01C99C /* Vocabulary */,
 				4000BCC709DD8E699FBE /* Widget */,
+				40005E3A3F7D00000003 /* Shadowing */,
 			);
 			path = "Features";
+			sourceTree = "<group>";
+		};
+		40005E3A3F7D00000003 /* Shadowing */ = {
+			isa = PBXGroup;
+			children = (
+				20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */,
+			);
+			path = "Shadowing";
 			sourceTree = "<group>";
 		};
 		40004A7D1798887BBCBC /* Homepage */ = {
@@ -2372,6 +2405,8 @@
 				30002717CA572B9B21A6 /* SRSRepositoryImpl.swift in Sources */,
 				3000174FE7B23888C774 /* VocabularyRepositoryImpl.swift in Sources */,
 				300063514297A537E934 /* ShadowingVideoRepositoryImpl.swift in Sources */,
+				30005E3A3F7D00000004 /* CraftYouTubePlayerView.swift in Sources */,
+				30005E3A3F7D00000005 /* YouTubePlayerBridgeScript.swift in Sources */,
 				30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */,
 				300097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift in Sources */,
 				30002627066D66426216 /* ModeSuccessStats.swift in Sources */,
@@ -2694,6 +2729,7 @@
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
+				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
 				3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */,
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
