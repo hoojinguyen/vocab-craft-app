@@ -1,6 +1,11 @@
+import Foundation
 import SwiftUI
+#if canImport(WebKit)
 import WebKit
+#endif
 
+#if canImport(UIKit)
+@MainActor
 public struct CraftYouTubePlayerView: UIViewRepresentable {
     public let videoId: String
     public let bridgeHolder: YouTubeBridgeHolder
@@ -41,6 +46,7 @@ public struct CraftYouTubePlayerView: UIViewRepresentable {
     public func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     public static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        uiView.stopLoading()
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "shadowingBridge")
     }
 
@@ -63,7 +69,9 @@ public struct CraftYouTubePlayerView: UIViewRepresentable {
         }
     }
 }
+#endif
 
+#if canImport(WebKit)
 @MainActor
 public final class YouTubeBridgeHolder {
     fileprivate weak var webView: WKWebView?
@@ -84,3 +92,15 @@ public final class YouTubeBridgeHolder {
         playSegment(start: start, end: end, rate: rate)
     }
 }
+#else
+@MainActor
+public final class YouTubeBridgeHolder {
+    public init() {}
+
+    public func playSegment(start: Double, end: Double, rate: Float = 1.0) {}
+
+    public func pauseVideo() {}
+
+    public func replaySegment(start: Double, end: Double, rate: Float = 1.0) {}
+}
+#endif

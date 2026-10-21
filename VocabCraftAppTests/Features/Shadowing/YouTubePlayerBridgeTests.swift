@@ -38,12 +38,16 @@ struct YouTubePlayerBridgeTests {
         #expect(YouTubePlayerBridgeMessage(dictionary: invalidTypePayload) == .unknown)
     }
 
-    @Test("Verifies HTML template generation contains videoId and bridge hooks")
+    @Test("Verifies HTML template generation contains videoId, seek-latch, and bridge hooks")
     func testHtmlTemplateGeneration() throws {
         let videoId = "dQw4w9WgXcQ"
         let html = YouTubePlayerBridgeScript.htmlTemplate(videoId: videoId)
         #expect(html.contains(videoId))
         #expect(html.contains("window.webkit.messageHandlers.shadowingBridge.postMessage"))
+        #expect(html.contains("hasSeeked = false"))
+        #expect(html.contains("if (!hasSeeked)"))
+        #expect(html.contains("hasSeeked = true"))
+        #expect(html.contains("if (hasSeeked && current >= targetEndTime)"))
         #expect(html.contains("function playSegment"))
         #expect(html.contains("function pauseVideo"))
         #expect(html.contains("function replaySegment"))

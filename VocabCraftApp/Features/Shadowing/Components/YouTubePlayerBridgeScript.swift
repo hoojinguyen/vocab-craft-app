@@ -69,7 +69,7 @@ public enum YouTubePlayerBridgeScript {
           <div id="player"></div>
           <script src="https://www.youtube.com/iframe_api"></script>
           <script>
-            var player, targetEndTime = 0, isMonitoring = false;
+            var player, targetEndTime = 0, isMonitoring = false, hasSeeked = false;
             function onYouTubeIframeAPIReady() {
               player = new YT.Player('player', {
                 videoId: '\(videoId)',
@@ -94,6 +94,7 @@ public enum YouTubePlayerBridgeScript {
 
             function playSegment(start, end, rate) {
               targetEndTime = end;
+              hasSeeked = false;
               if (!player) return;
               if (rate && player.setPlaybackRate) player.setPlaybackRate(rate);
               player.seekTo(start, true);
@@ -114,7 +115,12 @@ public enum YouTubePlayerBridgeScript {
             function checkTime() {
               if (!isMonitoring || !player || !player.getCurrentTime) return;
               var current = player.getCurrentTime();
-              if (current >= targetEndTime) {
+              if (!hasSeeked) {
+                if (current < targetEndTime) {
+                  hasSeeked = true;
+                }
+              }
+              if (hasSeeked && current >= targetEndTime) {
                 player.pauseVideo();
                 isMonitoring = false;
                 window.webkit.messageHandlers.shadowingBridge.postMessage({
