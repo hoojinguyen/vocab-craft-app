@@ -252,6 +252,7 @@
 		3000AE48F46F0BF167D1 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AE48F46F0BF167D1 /* VocabularyView.swift */; };
 		3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
 		30006F0DCF97A12E9EBA /* vocabulary_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 20006F0DCF97A12E9EBA /* vocabulary_catalog.json */; };
+		3000A1B2C3D4E5F60099 /* vocab_content.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60099 /* vocab_content.sqlite */; };
 		300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -703,6 +704,7 @@
 		2000AE48F46F0BF167D1 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyView.swift"; sourceTree = "<group>"; };
 		2000B135085E448B7AE0 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Localizable.xcstrings"; sourceTree = "<group>"; };
 		20006F0DCF97A12E9EBA /* vocabulary_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "vocabulary_catalog.json"; sourceTree = "<group>"; };
+		2000A1B2C3D4E5F60099 /* vocab_content.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "vocab_content.sqlite"; sourceTree = "<group>"; };
 		200014ABEEFD5E14865F /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkLearnedIntent.swift"; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntent.swift"; sourceTree = "<group>"; };
 		200017F5C24B744B988C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
@@ -1780,7 +1782,7 @@
 		40005FB519F175A27AF1 /* Content */ = {
 			isa = PBXGroup;
 			children = (
-
+				2000A1B2C3D4E5F60099 /* vocab_content.sqlite */,
 			);
 			path = "Content";
 			sourceTree = "<group>";
@@ -2241,6 +2243,7 @@
 			files = (
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
 				30006F0DCF97A12E9EBA /* vocabulary_catalog.json in Resources */,
+				3000A1B2C3D4E5F60099 /* vocab_content.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
