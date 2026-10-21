@@ -87,7 +87,7 @@ public struct ShadowingPracticeView: View {
                         .foregroundColor(theme.colors.textPrimary)
                         .frame(width: 40, height: 40)
                 }
-                .accessibilityLabel(String(localized: "common.close", defaultValue: "Close", bundle: .module))
+                .accessibilityLabel(String(localized: "common.close"))
 
                 Spacer()
 

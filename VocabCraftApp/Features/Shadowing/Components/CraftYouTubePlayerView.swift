@@ -69,6 +69,19 @@ public struct CraftYouTubePlayerView: UIViewRepresentable {
         }
     }
 }
+#else
+@MainActor
+public struct CraftYouTubePlayerView: View {
+    public init(
+        videoId: String,
+        bridgeHolder: YouTubeBridgeHolder,
+        onMessage: @escaping @MainActor (YouTubePlayerBridgeMessage) -> Void
+    ) {}
+
+    public var body: some View {
+        EmptyView()
+    }
+}
 #endif
 
 #if canImport(WebKit)
