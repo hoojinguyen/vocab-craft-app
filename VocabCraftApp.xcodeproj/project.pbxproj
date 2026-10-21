@@ -98,6 +98,8 @@
 		30005E3A3F7D00000006 /* ShadowingAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000006 /* ShadowingAudioRecorder.swift */; };
 		30005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift */; };
 		30005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */; };
+		30005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */; };
+		30005E3A3F7D0000000C /* ShadowingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D0000000C /* ShadowingPracticeView.swift */; };
 		30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000BFE98509D30FF1D /* LessonPlanModels.swift */; };
 		300097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift */; };
 		30002627066D66426216 /* ModeSuccessStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002627066D66426216 /* ModeSuccessStats.swift */; };
@@ -563,6 +565,8 @@
 		20005E3A3F7D00000006 /* ShadowingAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingAudioRecorder.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingSessionCoordinator.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingPracticeViewModel.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingKeyWordPopoverView.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D0000000C /* ShadowingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingPracticeView.swift"; sourceTree = "<group>"; };
 		20000BFE98509D30FF1D /* LessonPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanModels.swift"; sourceTree = "<group>"; };
 		200097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillItem.swift"; sourceTree = "<group>"; };
 		20002627066D66426216 /* ModeSuccessStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModeSuccessStats.swift"; sourceTree = "<group>"; };
@@ -1382,8 +1386,18 @@
 				40005E3A3F7D00000005 /* Components */,
 				40005E3A3F7D00000006 /* Services */,
 				40005E3A3F7D00000007 /* ViewModels */,
+				40005E3A3F7D00000008 /* Views */,
 			);
 			path = "Shadowing";
+			sourceTree = "<group>";
+		};
+		40005E3A3F7D00000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */,
+				20005E3A3F7D0000000C /* ShadowingPracticeView.swift */,
+			);
+			path = "Views";
 			sourceTree = "<group>";
 		};
 		40005E3A3F7D00000007 /* ViewModels */ = {
@@ -2441,6 +2455,8 @@
 				30005E3A3F7D00000006 /* ShadowingAudioRecorder.swift in Sources */,
 				30005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift in Sources */,
 				30005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift in Sources */,
+				30005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift in Sources */,
+				30005E3A3F7D0000000C /* ShadowingPracticeView.swift in Sources */,
 				30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */,
 				300097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift in Sources */,
 				30002627066D66426216 /* ModeSuccessStats.swift in Sources */,

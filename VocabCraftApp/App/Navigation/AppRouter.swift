@@ -9,6 +9,7 @@ public final class AppRouter {
     public var selectedTab: TabItem
     public var navigationPath: NavigationPath
     public var pendingReflexBlitzConfig: ReflexBlitzDeepLinkConfig?
+    public var pendingShadowingVideoId: String?
 
     public init(initialTab: TabItem = .home) {
         let args = ProcessInfo.processInfo.arguments
@@ -88,6 +89,14 @@ public final class AppRouter {
             )
             print("[AppRouter] pendingReflexBlitzConfig set: mode=\(mode), phase=\(phase), state=\(String(describing: stateParam))")
             selectTab(.reflex)
+        } else if host == "shadowing" {
+            let query = url.query ?? ""
+            for item in query.split(separator: "&") {
+                let pair = item.split(separator: "=")
+                if pair.count == 2, pair[0] == "videoId" {
+                    self.pendingShadowingVideoId = String(pair[1])
+                }
+            }
         } else if host == "vocabulary" {
             selectTab(.vocabulary)
         } else if host == "settings" {

@@ -415,6 +415,14 @@ public final class AppContainer {
         return RoleplayVoiceCallViewModel(engine: engine, ttsService: ttsService)
     }
 
+    @MainActor
+    public func makeShadowingPracticeViewModel(for video: ShadowingVideo) -> ShadowingPracticeViewModel {
+        ShadowingPracticeViewModel(
+            video: video,
+            toggleBookmarkUseCase: toggleWordBookmarkUseCase
+        )
+    }
+
     public static func getProductionDataSource() -> VocabularyDataSourceProtocol {
         do {
             let fileManager = FileManager.default
