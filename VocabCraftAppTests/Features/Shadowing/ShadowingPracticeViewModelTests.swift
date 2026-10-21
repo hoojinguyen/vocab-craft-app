@@ -254,6 +254,75 @@ struct ShadowingPracticeViewModelTests {
         #expect(!viewModel.bookmarkedWordIds.contains("hello"))
     }
 
+    @Test("Verifies calling handleSegmentFinished while in evaluated phase retains evaluated")
+    @MainActor
+    func testHandleSegmentFinishedInEvaluatedPhase() {
+        let sampleVideo = makeSampleVideo()
+        let viewModel = ShadowingPracticeViewModel(
+            video: sampleVideo,
+            assessmentService: MockSpeechAssessmentService(),
+            sessionCoordinator: ShadowingSessionCoordinator()
+        )
+
+        viewModel.playbackPhase = .evaluated(score: 85.0)
+        viewModel.handleSegmentFinished()
+        #expect(viewModel.playbackPhase == .evaluated(score: 85.0))
+    }
+
+    @Test("Verifies currentEvaluationTokens maps speech evaluation tokens to CraftSpeechWordTokens")
+    @MainActor
+    func testCurrentEvaluationTokensMapping() async {
+        let sampleVideo = makeSampleVideo()
+        let mockAssessment = MockSpeechAssessmentService()
+        let viewModel = ShadowingPracticeViewModel(
+            video: sampleVideo,
+            assessmentService: mockAssessment,
+            sessionCoordinator: ShadowingSessionCoordinator()
+        )
+
+        #expect(viewModel.currentEvaluationTokens == nil)
+
+        await viewModel.startRecordingAsync()
+        let result = SpeechEvaluationResult(
+            targetSentence: "Hello world",
+            spokenText: "Hello world",
+            tokens: [
+                WordTokenResult(targetWord: "Hello", spokenWord: "Hello", status: .exactMatch, confidence: 0.95),
+                WordTokenResult(targetWord: "world", spokenWord: "world", status: .fuzzyMatch, confidence: 0.6)
+            ],
+            overallScore: 85.0,
+            isPassed: true,
+            durationMs: 1200
+        )
+        mockAssessment.simulateCompletion(result)
+
+        let tokens = viewModel.currentEvaluationTokens
+        #expect(tokens?.count == 2)
+        #expect(tokens?[0].targetWord == "Hello")
+        #expect(tokens?[0].status == .matched)
+        #expect(tokens?[1].targetWord == "world")
+        #expect(tokens?[1].status == .fuzzy)
+    }
+
+    @Test("Verifies playNativeAudio prepares session coordinator for playback")
+    @MainActor
+    func testPlayNativeAudioPreparesPlayback() async {
+        let sampleVideo = makeSampleVideo()
+        let sessionCoordinator = ShadowingSessionCoordinator()
+        let viewModel = ShadowingPracticeViewModel(
+            video: sampleVideo,
+            assessmentService: MockSpeechAssessmentService(),
+            sessionCoordinator: sessionCoordinator
+        )
+
+        viewModel.playNativeAudio()
+        for _ in 0..<50 {
+            if sessionCoordinator.currentIntent == .playback { break }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        #expect(sessionCoordinator.currentIntent == .playback)
+    }
+
     @Test("Verifies cleanup releases session and stops assessment")
     @MainActor
     func testCleanup() {

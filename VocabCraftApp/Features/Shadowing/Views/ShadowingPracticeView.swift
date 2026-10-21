@@ -36,6 +36,7 @@ public struct ShadowingPracticeView: View {
                     CraftVoiceMatchCard(
                         originText: viewModel.currentSentence.textEn,
                         actualText: viewModel.currentEvaluation?.spokenText,
+                        explicitTokens: viewModel.currentEvaluationTokens,
                         subtitle: viewModel.currentSentence.textVi,
                         speechState: speechState,
                         customInstruction: String(localized: "app.shadowing.title"),
@@ -165,6 +166,7 @@ public struct ShadowingPracticeView: View {
             isSelected: viewModel.playbackSpeed == speed,
             action: { viewModel.setSpeed(speed) }
         )
+        .accessibilityLabel(String(format: String(localized: "app.shadowing.speed"), String(format: "%.1fx", speed)))
     }
 
     private var keyWordsBar: some View {

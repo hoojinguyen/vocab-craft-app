@@ -62,6 +62,24 @@ struct AppContainerAITests {
         #expect(!store.isGeminiApiKeyConfigured)
     }
 
+    @Test("AppContainer creates shadowing practice view model with session coordinator")
+    @MainActor
+    func testAppContainerCreatesShadowingPracticeViewModel() {
+        let container = AppContainer()
+        let video = ShadowingVideo(
+            id: "v1",
+            youtubeVideoId: "test",
+            title: "Test Video",
+            topic: .dailyLife,
+            level: "A2",
+            durationSeconds: 10.0,
+            sentences: []
+        )
+        let vm = container.makeShadowingPracticeViewModel(for: video)
+        #expect(vm.video.id == "v1")
+        #expect(vm.sessionCoordinator.currentIntent == nil)
+    }
+
     @Test("Offline AI Pack status in AppContainer reflects model readiness")
     @MainActor
     func testOfflinePackReadinessInAppContainer() {

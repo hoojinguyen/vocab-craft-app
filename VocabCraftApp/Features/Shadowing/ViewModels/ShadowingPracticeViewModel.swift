@@ -1,3 +1,4 @@
+import CraftUIKit
 import Foundation
 import Observation
 import SpeechKit
@@ -11,6 +12,9 @@ public final class ShadowingPracticeViewModel {
     public var playbackSpeed: Float = 1.0
 
     public var currentEvaluation: SpeechEvaluationResult?
+    public var currentEvaluationTokens: [CraftSpeechWordToken]? {
+        currentEvaluation?.tokens.map(\.asCraftSpeechWordToken)
+    }
     public var sentenceAttempts: [String: SentenceAttemptRecord] = [:]
     public var bookmarkedWordIds: Set<String> = []
     public var selectedKeyWordForPopover: ShadowingKeyWord?
@@ -83,6 +87,7 @@ public final class ShadowingPracticeViewModel {
     }
 
     public func handleSegmentFinished() {
+        if case .evaluated = playbackPhase { return }
         playbackPhase = .readyToRecord
     }
 
@@ -143,17 +148,23 @@ public final class ShadowingPracticeViewModel {
     }
 
     public func playNativeAudio() {
-        bridgeHolder.playSegment(
-            start: currentSentence.startTime,
-            end: currentSentence.endTime,
-            rate: playbackSpeed
-        )
+        Task {
+            try? await sessionCoordinator.prepareForNativePlayback()
+            bridgeHolder.playSegment(
+                start: currentSentence.startTime,
+                end: currentSentence.endTime,
+                rate: playbackSpeed
+            )
+        }
     }
 
     public func playUserAudio() {
         guard let record = sentenceAttempts[currentSentence.id],
               let url = record.userAudioURL else { return }
-        try? sessionCoordinator.recorder.playRecordedAudio(from: url)
+        Task {
+            try? await sessionCoordinator.prepareForNativePlayback()
+            try? sessionCoordinator.recorder.playRecordedAudio(from: url)
+        }
     }
 
     public func advanceToNextSentence() {
@@ -188,6 +199,7 @@ public final class ShadowingPracticeViewModel {
     }
 
     public func cleanup() {
+        bridgeHolder.pauseVideo()
         assessmentService.stopAssessing()
         Task { [sessionCoordinator] in
             await sessionCoordinator.releaseAll()

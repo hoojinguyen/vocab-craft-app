@@ -417,8 +417,10 @@ public final class AppContainer {
 
     @MainActor
     public func makeShadowingPracticeViewModel(for video: ShadowingVideo) -> ShadowingPracticeViewModel {
-        ShadowingPracticeViewModel(
+        let coordinator = ShadowingSessionCoordinator(audioCoordinator: audioSessionCoordinator)
+        return ShadowingPracticeViewModel(
             video: video,
+            sessionCoordinator: coordinator,
             toggleBookmarkUseCase: toggleWordBookmarkUseCase
         )
     }
