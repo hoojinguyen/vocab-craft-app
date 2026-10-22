@@ -11,6 +11,8 @@ public struct AIAssistantHubView: View {
         case voiceCall(RoleplayVoiceCallViewModel)
         case summary(RoleplaySessionSummary)
         case shadowing(ShadowingPracticeViewModel)
+        case shadowingHub(ShadowingHubViewModel)
+        case shadowingStudio(ShadowingStudioViewModel)
 
         nonisolated var id: String {
             switch self {
@@ -18,6 +20,8 @@ public struct AIAssistantHubView: View {
             case .voiceCall(let vm): return "voice-\(ObjectIdentifier(vm))"
             case .summary(let summary): return "summary-\(summary.id)"
             case .shadowing(let vm): return "shadowing-\(ObjectIdentifier(vm))"
+            case .shadowingHub(let vm): return "hub-\(ObjectIdentifier(vm))"
+            case .shadowingStudio(let vm): return "studio-\(ObjectIdentifier(vm))"
             }
         }
     }
@@ -89,7 +93,7 @@ public struct AIAssistantHubView: View {
             let args = ProcessInfo.processInfo.arguments
             if args.contains("-test-shadowing") {
                 let video = ShadowingVideoRepositoryImpl.sampleVideo
-                activeDestination = .shadowing(appContainer.makeShadowingPracticeViewModel(for: video))
+                activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
             } else if args.contains("-test-ai-room") {
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
                     activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: scenario))
@@ -135,6 +139,16 @@ public struct AIAssistantHubView: View {
                 }
             case .shadowing(let shadowingViewModel):
                 ShadowingPracticeView(viewModel: shadowingViewModel)
+            case .shadowingHub(let hubViewModel):
+                ShadowingHubModalView(
+                    viewModel: hubViewModel,
+                    onDismiss: { activeDestination = nil },
+                    onSelectVideo: { video in
+                        activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
+                    }
+                )
+            case .shadowingStudio(let studioViewModel):
+                ShadowingStudioContainerView(viewModel: studioViewModel)
             }
         }
         #else
@@ -156,6 +170,16 @@ public struct AIAssistantHubView: View {
                 }
             case .shadowing(let shadowingViewModel):
                 ShadowingPracticeView(viewModel: shadowingViewModel)
+            case .shadowingHub(let hubViewModel):
+                ShadowingHubModalView(
+                    viewModel: hubViewModel,
+                    onDismiss: { activeDestination = nil },
+                    onSelectVideo: { video in
+                        activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
+                    }
+                )
+            case .shadowingStudio(let studioViewModel):
+                ShadowingStudioContainerView(viewModel: studioViewModel)
             }
         }
         #endif
@@ -224,8 +248,7 @@ public struct AIAssistantHubView: View {
                     variant: .primary,
                     size: .md
                 ) {
-                    let video = ShadowingVideoRepositoryImpl.sampleVideo
-                    activeDestination = .shadowing(appContainer.makeShadowingPracticeViewModel(for: video))
+                    activeDestination = .shadowingHub(appContainer.makeShadowingHubViewModel())
                 }
             }
         }
@@ -378,5 +401,31 @@ public struct AIAssistantHubView: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(.isButton)
+    }
+}
+
+private struct ShadowingHubModalView: View {
+    let viewModel: ShadowingHubViewModel
+    let onDismiss: () -> Void
+    let onSelectVideo: (ShadowingVideo) -> Void
+    @Environment(\.craftTheme) private var theme
+
+    var body: some View {
+        NavigationStack {
+            ShadowingHubView(
+                viewModel: viewModel,
+                onSelectVideo: onSelectVideo
+            )
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .font(theme.typography.headline)
+                            .foregroundColor(theme.colors.textPrimary)
+                    }
+                    .accessibilityLabel(String(localized: "common.close"))
+                }
+            }
+        }
     }
 }

@@ -18,6 +18,7 @@ public final class AppContainer {
     public let vocabularyRepository: VocabularyRepositoryProtocol
     public let srsRepository: SRSRepositoryProtocol
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
+    public let shadowingProgressRepository: any ShadowingProgressRepositoryProtocol
 
     // MARK: - Services
     public let audioSessionCoordinator: any AudioSessionCoordinating
@@ -66,7 +67,8 @@ public final class AppContainer {
         ttsService: TextToSpeechProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil,
-        aiPackRegistry: AIPackRegistry? = nil
+        aiPackRegistry: AIPackRegistry? = nil,
+        shadowingProgressRepository: (any ShadowingProgressRepositoryProtocol)? = nil
     ) {
         self.useSampleData = useSampleData
         self.modelContainer = modelContainer
@@ -94,6 +96,7 @@ public final class AppContainer {
         self.vocabularyRepository = vocabRepo
         self.srsRepository = srsRepo
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
+        self.shadowingProgressRepository = shadowingProgressRepository ?? ShadowingProgressRepositoryImpl()
 
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
         let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
@@ -348,9 +351,11 @@ public final class AppContainer {
             dataSource: vocabularyDataSource
         )
     }
+}
 
-    // MARK: - AI Assistant Factories
+// MARK: - AI Assistant & Shadowing Factories
 
+extension AppContainer {
     public var llmProvider: any LLMProviderProtocol {
         (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
     }
@@ -422,6 +427,36 @@ public final class AppContainer {
             video: video,
             sessionCoordinator: coordinator,
             toggleBookmarkUseCase: toggleWordBookmarkUseCase
+        )
+    }
+
+    @MainActor
+    public func makeShadowingStudioViewModel(for video: ShadowingVideo) -> ShadowingStudioViewModel {
+        let coordinator = ShadowingSessionCoordinator(audioCoordinator: audioSessionCoordinator)
+        return ShadowingStudioViewModel(
+            video: video,
+            sessionCoordinator: coordinator,
+            toggleBookmarkUseCase: toggleWordBookmarkUseCase,
+            progressRepository: shadowingProgressRepository
+        )
+    }
+
+    @MainActor
+    public func makeShadowingHubViewModel(
+        catalogRepository: (any ShadowingCatalogRepositoryProtocol)? = nil
+    ) -> ShadowingHubViewModel {
+        let catalogRepo: any ShadowingCatalogRepositoryProtocol
+        if let custom = catalogRepository {
+            catalogRepo = custom
+        } else if let repo = try? ShadowingCatalogRepository(bundle: .main) {
+            catalogRepo = repo
+        } else {
+            catalogRepo = FallbackShadowingCatalogRepository()
+        }
+        return ShadowingHubViewModel(
+            catalogRepository: catalogRepo,
+            progressRepository: shadowingProgressRepository,
+            streakDays: max(userSettingsStore.currentStreak, 1)
         )
     }
 

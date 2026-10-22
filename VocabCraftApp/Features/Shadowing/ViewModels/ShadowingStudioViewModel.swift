@@ -116,6 +116,25 @@ public final class ShadowingStudioViewModel: Identifiable {
         }
     }
 
+    public func startActiveRound() {
+        switch activeRound {
+        case .round1Immersion:
+            startRound1Playback()
+        case .round2SpeedShadowing:
+            startRound2Playback()
+        case .round3EchoDrill:
+            startCurrentSentence()
+        case .summaryReport:
+            bridgeHolder.pauseVideo()
+            isPlaying = false
+        }
+    }
+
+    public func startRound1Playback() {
+        isPlaying = true
+        bridgeHolder.playSegment(start: 0, end: video.durationSeconds, rate: playbackSpeed)
+    }
+
     public func selectRound(_ round: ShadowingRoundStage) {
         if activeRound == .round2SpeedShadowing && round != .round2SpeedShadowing {
             if sessionCoordinator.recorder.isRecording {
@@ -400,6 +419,26 @@ public final class ShadowingStudioViewModel: Identifiable {
             try? await sessionCoordinator.prepareForNativePlayback()
             try? sessionCoordinator.recorder.playRecordedAudio(from: url)
         }
+    }
+
+    public func retryWeakSentences() {
+        let weakIndices = video.sentences.indices.filter { idx in
+            let sent = video.sentences[idx]
+            guard let record = sentenceAttempts[sent.id] else { return true }
+            return !record.isPassed || record.score < 70.0
+        }
+        selectRound(.round3EchoDrill)
+        if let firstWeak = weakIndices.first {
+            currentSentenceIndex = firstWeak
+        } else {
+            currentSentenceIndex = 0
+        }
+        for idx in weakIndices {
+            sentenceAttempts.removeValue(forKey: video.sentences[idx].id)
+        }
+        currentEvaluation = nil
+        playbackPhase = .idle
+        startCurrentSentence()
     }
 
     public func cleanup() {
