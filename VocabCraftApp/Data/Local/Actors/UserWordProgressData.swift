@@ -24,7 +24,7 @@ public struct UserProgressSummary: Sendable, Equatable {
     }
 }
 
-public struct UserWordProgressData: Sendable, Equatable {
+public struct UserWordProgressData: Sendable, Equatable, Codable {
     public let wordId: Int64
     public let cefrLevel: String
     public let masteryLevel: Int

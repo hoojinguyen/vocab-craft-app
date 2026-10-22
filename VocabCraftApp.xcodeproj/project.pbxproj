@@ -23,6 +23,15 @@
 		30005E3A3F7D00040004 /* ShadowingHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040004 /* ShadowingHubView.swift */; };
 		30005E3A3F7D00040005 /* ShadowingHubViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */; };
 		30005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift */; };
+		30003A1000010001 /* PracticeMission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010001 /* PracticeMission.swift */; };
+		30003A1000010002 /* PracticeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010002 /* PracticeSession.swift */; };
+		30003A1000010003 /* PracticeTurn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010003 /* PracticeTurn.swift */; };
+		30003A1000010004 /* SupportExposure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010004 /* SupportExposure.swift */; };
+		30003A1000010005 /* WordUseEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010005 /* WordUseEvidence.swift */; };
+		30003A1000010006 /* CommunicationProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010006 /* CommunicationProgress.swift */; };
+		30003A1000010007 /* PracticeContracts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010007 /* PracticeContracts.swift */; };
+		30003A1000010008 /* PracticeDomainTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010008 /* PracticeDomainTests.swift */; };
+		30003A1000010009 /* PracticeFixtures.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010009 /* PracticeFixtures.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -513,6 +522,15 @@
 		20005E3A3F7D00040004 /* ShadowingHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubView.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubViewModel.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubViewModelTests.swift"; sourceTree = "<group>"; };
+		20003A1000010001 /* PracticeMission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeMission.swift"; sourceTree = "<group>"; };
+		20003A1000010002 /* PracticeSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSession.swift"; sourceTree = "<group>"; };
+		20003A1000010003 /* PracticeTurn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeTurn.swift"; sourceTree = "<group>"; };
+		20003A1000010004 /* SupportExposure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupportExposure.swift"; sourceTree = "<group>"; };
+		20003A1000010005 /* WordUseEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordUseEvidence.swift"; sourceTree = "<group>"; };
+		20003A1000010006 /* CommunicationProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommunicationProgress.swift"; sourceTree = "<group>"; };
+		20003A1000010007 /* PracticeContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeContracts.swift"; sourceTree = "<group>"; };
+		20003A1000010008 /* PracticeDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeDomainTests.swift"; sourceTree = "<group>"; };
+		20003A1000010009 /* PracticeFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeFixtures.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1341,6 +1359,7 @@
 				20008E70DAEC498D34A5 /* AIPackError.swift */,
 				20005809BD013F08669A /* AIPackIdentifier.swift */,
 				20006A04BC5F8F0A1E71 /* AIPackStatus.swift */,
+				40003A1000010000 /* GuidedPractice */,
 				200097262FBD5E9DE745 /* LearningPathCurriculum.swift */,
 				2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */,
 				4000107F161429117498 /* Reflex */,
@@ -1348,6 +1367,20 @@
 				200065DD5844D92B1800 /* UserStageProgressData.swift */,
 			);
 			path = "Models";
+			sourceTree = "<group>";
+		};
+		40003A1000010000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A1000010001 /* PracticeMission.swift */,
+				20003A1000010002 /* PracticeSession.swift */,
+				20003A1000010003 /* PracticeTurn.swift */,
+				20003A1000010004 /* SupportExposure.swift */,
+				20003A1000010005 /* WordUseEvidence.swift */,
+				20003A1000010006 /* CommunicationProgress.swift */,
+				20003A1000010007 /* PracticeContracts.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		4000CAD0409FC69E4417 /* Shadowing */ = {
@@ -2032,6 +2065,7 @@
 		40003E6ED18BD3967BD7 /* AI */ = {
 			isa = PBXGroup;
 			children = (
+				40003A1000020000 /* GuidedPractice */,
 				2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */,
 				2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */,
 				200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */,
@@ -2060,6 +2094,15 @@
 				20004EC781F3CDEE0C07 /* VoiceConversationStateTests.swift */,
 			);
 			path = "AI";
+			sourceTree = "<group>";
+		};
+		40003A1000020000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A1000010008 /* PracticeDomainTests.swift */,
+				20003A1000010009 /* PracticeFixtures.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		4000D124A443CB2C8687 /* App */ = {
@@ -2496,6 +2539,13 @@
 				30005E3A3F7D00020001 /* ShadowingProgressRecord.swift in Sources */,
 				30005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift in Sources */,
 				30005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift in Sources */,
+				30003A1000010001 /* PracticeMission.swift in Sources */,
+				30003A1000010002 /* PracticeSession.swift in Sources */,
+				30003A1000010003 /* PracticeTurn.swift in Sources */,
+				30003A1000010004 /* SupportExposure.swift in Sources */,
+				30003A1000010005 /* WordUseEvidence.swift in Sources */,
+				30003A1000010006 /* CommunicationProgress.swift in Sources */,
+				30003A1000010007 /* PracticeContracts.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -2948,6 +2998,8 @@
 				30002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift in Test Sources */,
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Test Sources */,
 				300084512C285C79A09D /* WidgetIntentsTests.swift in Test Sources */,
+				30003A1000010008 /* PracticeDomainTests.swift in Test Sources */,
+				30003A1000010009 /* PracticeFixtures.swift in Test Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
