@@ -13,6 +13,7 @@ public struct SelectPracticeMissionUseCase: Sendable {
         let lastReviewDate: Date
         let isTransferCandidate: Bool
         let previousContextFamilies: Set<PracticeContextFamily>
+        let isReviewEligible: Bool
     }
 
     /// Selects a practice mission from available templates given the current learning context.
@@ -103,6 +104,7 @@ public struct SelectPracticeMissionUseCase: Sendable {
             let previousFamilies = evidenceFamiliesByWordId[progressRecord.wordId] ?? []
             let highestStage = commRecords.map(\.stage).max() ?? .noEvidence
             let isTransfer = highestStage >= .independentFamiliar
+            let isReview = isTransfer || progressRecord.masteryLevel >= 4 || progressRecord.isMastered
 
             let (tier, reason) = evaluatePriorityTier(
                 commRecords: commRecords,
@@ -118,7 +120,8 @@ public struct SelectPracticeMissionUseCase: Sendable {
                     nextReviewDate: progressRecord.nextReviewDate,
                     lastReviewDate: progressRecord.lastReviewDate,
                     isTransferCandidate: isTransfer,
-                    previousContextFamilies: previousFamilies
+                    previousContextFamilies: previousFamilies,
+                    isReviewEligible: isReview
                 )
             )
         }
@@ -211,14 +214,29 @@ public struct SelectPracticeMissionUseCase: Sendable {
     ) -> PracticeMission? {
         var targetWordIds: [Int64] = [primaryCandidate.wordId]
         var uniqueReasons: [PracticeSelectionReason] = [primaryCandidate.selectionReason]
+        var focusCount = primaryCandidate.isReviewEligible ? 0 : 1
+        var reviewCount = primaryCandidate.isReviewEligible ? 1 : 0
 
         for otherCandidate in candidates where otherCandidate.wordId != primaryCandidate.wordId {
             guard targetWordIds.count < 3 else { break }
-            if template.supportedWordSenses.contains(where: { $0.wordId == otherCandidate.wordId }) {
+            guard template.supportedWordSenses.contains(where: { $0.wordId == otherCandidate.wordId }) else {
+                continue
+            }
+
+            if otherCandidate.isReviewEligible {
+                // At most 1 review word allowed in a mission
+                guard reviewCount < 1 else { continue }
                 targetWordIds.append(otherCandidate.wordId)
-                if !uniqueReasons.contains(otherCandidate.selectionReason) {
-                    uniqueReasons.append(otherCandidate.selectionReason)
-                }
+                reviewCount += 1
+            } else {
+                // At most 2 focus words allowed in a mission
+                guard focusCount < 2 else { continue }
+                targetWordIds.append(otherCandidate.wordId)
+                focusCount += 1
+            }
+
+            if !uniqueReasons.contains(otherCandidate.selectionReason) {
+                uniqueReasons.append(otherCandidate.selectionReason)
             }
         }
 

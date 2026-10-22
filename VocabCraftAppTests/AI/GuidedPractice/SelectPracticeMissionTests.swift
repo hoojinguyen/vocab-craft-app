@@ -478,4 +478,96 @@ struct SelectPracticeMissionTests {
             #expect(error is DummyError)
         }
     }
+
+    @Test("PracticeLearningContextReader omits unresolvable vocabulary progress records without crashing")
+    func unresolvableVocabularyProgressIsOmittedWithoutCrashing() async throws {
+        // Word 4 exists in vocabulary catalog, Word 888 is absent
+        let vocab = TestVocabularyDataSource(words: [
+            makeDTO(id: 4, lemma: "Gratitude")
+        ])
+
+        let userProgress = TestUserProgressRepository(progress: [
+            makeProgress(wordId: 4, totalReviews: 2, masteryLevel: 1),
+            makeProgress(wordId: 888, totalReviews: 3, masteryLevel: 2)
+        ])
+
+        let practiceRepo = TestPracticeRepository()
+
+        let reader = PracticeLearningContextReader(
+            vocabularyDataSource: vocab,
+            progressRepository: userProgress,
+            practiceRepository: practiceRepo
+        )
+
+        let context = try await reader.load()
+
+        #expect(context.words.count == 1)
+        #expect(context.words.first?.wordId == 4)
+        #expect(!context.words.contains { $0.wordId == 888 })
+
+        #expect(context.progress.count == 1)
+        #expect(context.progress.first?.wordId == 4)
+        #expect(!context.progress.contains { $0.wordId == 888 })
+    }
+
+    @Test("Three focus words matching a template are capped at two words")
+    func threeFocusWordsAreCappedAtTwoWords() {
+        // Words 4, 11, and 13 are all supported in dining_basic_v1
+        // All three are focus words (masteryLevel < 4, no independent communication stage)
+        let progress = [
+            makeProgress(wordId: 4, totalReviews: 2, masteryLevel: 1),
+            makeProgress(wordId: 11, totalReviews: 2, masteryLevel: 1),
+            makeProgress(wordId: 13, totalReviews: 2, masteryLevel: 1)
+        ]
+        let snapshots = [
+            makeSnapshot(wordId: 4, lemma: "Gratitude"),
+            makeSnapshot(wordId: 11, lemma: "Hesitate"),
+            makeSnapshot(wordId: 13, lemma: "Genuine")
+        ]
+        let context = PracticeLearningContext(
+            words: snapshots,
+            progress: progress,
+            communication: [],
+            evidence: []
+        )
+
+        let result = selector.select(context: context, templates: catalog, now: now)
+        guard case .mission(let mission) = result else {
+            Issue.record("Expected mission, got \(result)")
+            return
+        }
+
+        #expect(mission.targetWordIds.count == 2)
+    }
+
+    @Test("Two focus words plus one review word selects three words")
+    func twoFocusWordsPlusOneReviewWordSelectsThreeWords() {
+        // Words 4 and 11 are focus words (mastery < 4)
+        // Word 13 is a review-eligible word (masteryLevel == 4)
+        let progress = [
+            makeProgress(wordId: 4, totalReviews: 2, masteryLevel: 1),
+            makeProgress(wordId: 11, totalReviews: 2, masteryLevel: 1),
+            makeProgress(wordId: 13, totalReviews: 5, masteryLevel: 4)
+        ]
+        let snapshots = [
+            makeSnapshot(wordId: 4, lemma: "Gratitude"),
+            makeSnapshot(wordId: 11, lemma: "Hesitate"),
+            makeSnapshot(wordId: 13, lemma: "Genuine")
+        ]
+        let context = PracticeLearningContext(
+            words: snapshots,
+            progress: progress,
+            communication: [],
+            evidence: []
+        )
+
+        let result = selector.select(context: context, templates: catalog, now: now)
+        guard case .mission(let mission) = result else {
+            Issue.record("Expected mission, got \(result)")
+            return
+        }
+
+        #expect(mission.targetWordIds.count == 3)
+        #expect(mission.targetWordIds.contains(13))
+    }
 }
