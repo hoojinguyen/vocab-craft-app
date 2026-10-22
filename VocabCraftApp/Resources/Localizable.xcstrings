@@ -14807,6 +14807,414 @@
           }
         }
       }
+    },
+    "app.ai_assistant.guided.template.dining_basic_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bistro Dining Experience"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trải nghiệm dùng bữa tại nhà hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_basic_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order food and beverages naturally at a restaurant, ask for recommendations, and express gratitude for the service."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gọi món và đồ uống tự nhiên tại nhà hàng, hỏi gợi ý món ăn và cảm ơn nhân viên phục vụ."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_basic_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurant Diner"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thực khách"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_basic_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attentive Server"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhân viên phục vụ chu đáo"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_transfer_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Special Requests & Dining Adjustments"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yêu cầu đặc biệt & điều chỉnh món ăn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_transfer_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handle unexpected dining situations, clarify order details, and reach a satisfactory compromise with restaurant staff."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xử lý tình huống bất ngờ khi dùng bữa, làm rõ chi tiết gọi món và đạt thỏa thuận hợp lý với nhân viên nhà hàng."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_transfer_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customer with Special Requirements"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khách hàng có yêu cầu riêng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.dining_transfer_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurant Floor Manager"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quản lý sảnh nhà hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_basic_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In-Store Product Inquiry"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm hiểu sản phẩm tại cửa hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_basic_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask about product reliability, verify authentic materials, and make an informed buying decision."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi về độ bền sản phẩm, kiểm tra chất liệu chính hãng và đưa ra quyết định mua hàng phù hợp."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_basic_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curious Shopper"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khách mua sắm"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_basic_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knowledgeable Store Associate"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhân viên tư vấn bán hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_transfer_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase Terms & Price Adjustment"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thương lượng điều khoản & ưu đãi mua hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_transfer_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discuss purchase conditions, seek member incentives or discounts, and ensure clear pricing transparency."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trao đổi điều kiện mua hàng, hỏi về ưu đãi thành viên hoặc giảm giá, và đảm bảo tính minh bạch về giá cả."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_transfer_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Value-Conscious Buyer"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Người mua cân nhắc chi tiêu"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.shopping_transfer_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Store Department Supervisor"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giám sát quầy hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_basic_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joint Activity & Schedule Planning"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lập kế hoạch hoạt động & lịch trình chung"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_basic_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propose an itinerary, prioritize key activities, and establish realistic deadlines with your partner."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đề xuất lịch trình, sắp xếp ưu tiên các hoạt động chính và thống nhất thời hạn hoàn thành cùng bạn đồng hành."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_basic_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity Coordinator"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Người điều phối hoạt động"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_basic_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collaborative Planning Partner"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn cùng lên kế hoạch"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_transfer_v1.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule Conflict & Timeline Adaptation"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xử lý trùng lịch & điều chỉnh kế hoạch"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_transfer_v1.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Communicate unexpected scheduling constraints, adapt milestones with resilience, and agree on a workable compromise."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trao đổi khi gặp khó khăn về thời gian, kiên trì điều chỉnh các mốc tiến độ và thống nhất giải pháp thay thế hợp lý."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_transfer_v1.role.learner": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Team Project Contributor"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thành viên dự án"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.template.planning_transfer_v1.role.character": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project Lead"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trưởng nhóm dự án"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

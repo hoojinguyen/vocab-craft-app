@@ -38,6 +38,12 @@
 		30003A3000010002 /* PracticeDifficultyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A3000010002 /* PracticeDifficultyPolicy.swift */; };
 		30003A3000010003 /* SupportPolicyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A3000010003 /* SupportPolicyTests.swift */; };
 		30003A3000010004 /* PracticeDifficultyPolicyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A3000010004 /* PracticeDifficultyPolicyTests.swift */; };
+		30003A4000010001 /* PracticeRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010001 /* PracticeRepositoryProtocol.swift */; };
+		30003A4000010002 /* PracticeTemplateCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010002 /* PracticeTemplateCatalog.swift */; };
+		30003A4000010003 /* PracticeLearningContextReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010003 /* PracticeLearningContextReader.swift */; };
+		30003A4000010004 /* SelectPracticeMissionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010004 /* SelectPracticeMissionUseCase.swift */; };
+		30003A4000010005 /* PracticeTemplateCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010005 /* PracticeTemplateCatalogTests.swift */; };
+		30003A4000010006 /* SelectPracticeMissionTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010006 /* SelectPracticeMissionTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -543,6 +549,12 @@
 		20003A3000010002 /* PracticeDifficultyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeDifficultyPolicy.swift"; sourceTree = "<group>"; };
 		20003A3000010003 /* SupportPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupportPolicyTests.swift"; sourceTree = "<group>"; };
 		20003A3000010004 /* PracticeDifficultyPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeDifficultyPolicyTests.swift"; sourceTree = "<group>"; };
+		20003A4000010001 /* PracticeRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		20003A4000010002 /* PracticeTemplateCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeTemplateCatalog.swift"; sourceTree = "<group>"; };
+		20003A4000010003 /* PracticeLearningContextReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeLearningContextReader.swift"; sourceTree = "<group>"; };
+		20003A4000010004 /* SelectPracticeMissionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectPracticeMissionUseCase.swift"; sourceTree = "<group>"; };
+		20003A4000010005 /* PracticeTemplateCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeTemplateCatalogTests.swift"; sourceTree = "<group>"; };
+		20003A4000010006 /* SelectPracticeMissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectPracticeMissionTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1225,10 +1237,20 @@
 				4000A0E6120D8624D72A /* AI */,
 				4000D13A274A60F80F0D /* AIPacks */,
 				4000A57F181DD4A46E83 /* Audio */,
+				40003A4000010000 /* GuidedPractice */,
 				40009A7A10F832BFCD13 /* Local */,
 				40001FE94D3B22BA736B /* Repositories */,
 			);
 			path = "Data";
+			sourceTree = "<group>";
+		};
+		40003A4000010000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A4000010002 /* PracticeTemplateCatalog.swift */,
+				20003A4000010003 /* PracticeLearningContextReader.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		4000A0E6120D8624D72A /* AI */ = {
@@ -1438,6 +1460,7 @@
 			children = (
 				20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */,
 				20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */,
+				20003A4000010001 /* PracticeRepositoryProtocol.swift */,
 				20009C23C95C9E39A410 /* AIPackProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */,
@@ -1460,6 +1483,7 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				40003A4000020000 /* GuidedPractice */,
 				2000BD76017765D73BCD /* ClaimTreasureRewardUseCase.swift */,
 				200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */,
 				200078C362DBB6082691 /* CompleteRoleplaySessionUseCase.swift */,
@@ -1482,6 +1506,14 @@
 				20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */,
 			);
 			path = "UseCases";
+			sourceTree = "<group>";
+		};
+		40003A4000020000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A4000010004 /* SelectPracticeMissionUseCase.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		4000DCA222F51AEF85D4 /* Features */ = {
@@ -2127,6 +2159,8 @@
 				20003A2000010002 /* CommunicationProgressPolicyTests.swift */,
 				20003A3000010003 /* SupportPolicyTests.swift */,
 				20003A3000010004 /* PracticeDifficultyPolicyTests.swift */,
+				20003A4000010005 /* PracticeTemplateCatalogTests.swift */,
+				20003A4000010006 /* SelectPracticeMissionTests.swift */,
 			);
 			path = "GuidedPractice";
 			sourceTree = "<group>";
@@ -2575,6 +2609,10 @@
 				30003A2000010001 /* CommunicationProgressPolicy.swift in Sources */,
 				30003A3000010001 /* SupportPolicy.swift in Sources */,
 				30003A3000010002 /* PracticeDifficultyPolicy.swift in Sources */,
+				30003A4000010001 /* PracticeRepositoryProtocol.swift in Sources */,
+				30003A4000010002 /* PracticeTemplateCatalog.swift in Sources */,
+				30003A4000010003 /* PracticeLearningContextReader.swift in Sources */,
+				30003A4000010004 /* SelectPracticeMissionUseCase.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -3032,6 +3070,8 @@
 				30003A2000010002 /* CommunicationProgressPolicyTests.swift in Test Sources */,
 				30003A3000010003 /* SupportPolicyTests.swift in Test Sources */,
 				30003A3000010004 /* PracticeDifficultyPolicyTests.swift in Test Sources */,
+				30003A4000010005 /* PracticeTemplateCatalogTests.swift in Test Sources */,
+				30003A4000010006 /* SelectPracticeMissionTests.swift in Test Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
