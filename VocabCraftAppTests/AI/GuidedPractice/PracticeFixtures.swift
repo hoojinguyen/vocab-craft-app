@@ -4,9 +4,49 @@ import Foundation
 /// Anchor class used for bundle localization or test fixture resource resolution.
 public final class PracticeFixtureBundleAnchor: NSObject, @unchecked Sendable {}
 
+/// Decodable representation of curated practice assessment test cases.
+public struct PracticeAssessmentFixtureCase: Codable, Sendable {
+    public let id: String
+    public let description: String
+    public let acceptedText: String
+    public let inputMode: PracticeInputMode
+    public let transcriptStatus: PracticeTranscriptStatus
+    public let targetWordIds: [Int64]
+    public let objectiveIds: [String]
+    public let response: PracticeAIResponse
+    public let exposures: [SupportExposure]
+    public let uncertainWordIds: [Int64]
+    public let expectedValid: Bool
+    public let expectedUsageVerdict: PracticeUsageVerdict?
+    public let expectedIntentVerdict: PracticeIntentVerdict?
+    public let expectedReliability: PracticeTranscriptReliability?
+    public let expectedPrimed: Bool?
+    public let expectedQuotedSpan: String?
+}
+
 /// Centralized test fixtures providing deterministic domain snapshots and helpers.
 public enum PracticeFixtures {
     public static let baseDate = Date(timeIntervalSince1970: 1_700_000_000)
+
+    public static func loadAssessmentCases() throws -> [PracticeAssessmentFixtureCase] {
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: PracticeFixtureBundleAnchor.self)
+        #endif
+
+        guard let url = bundle.url(forResource: "practice-assessment-cases", withExtension: "json") ??
+                        bundle.url(forResource: "practice-assessment-cases", withExtension: "json", subdirectory: "Fixtures") ??
+                        bundle.url(forResource: "practice-assessment-cases", withExtension: "json", subdirectory: "AI/GuidedPractice/Fixtures") else {
+            throw PracticeFailure(code: .storage, message: "Missing practice-assessment-cases.json resource in test bundle")
+        }
+
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return try decoder.decode([PracticeAssessmentFixtureCase].self, from: data)
+    }
 
     public static func difficulty(
         taskConstraints: Int = 0,
