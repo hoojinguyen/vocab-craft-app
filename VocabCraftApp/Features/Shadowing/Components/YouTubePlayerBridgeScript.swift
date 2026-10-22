@@ -5,6 +5,7 @@ public enum YouTubePlayerBridgeMessage: Equatable, Sendable {
     case segmentFinished(endTime: Double)
     case timeUpdate(currentTime: Double)
     case stateChange(state: Int)
+    case error(code: Int)
     case unknown
 
     public init(dictionary: [String: Any]) {
@@ -24,6 +25,9 @@ public enum YouTubePlayerBridgeMessage: Equatable, Sendable {
         case "state":
             let state = Self.parseInt(dictionary["state"]) ?? -1
             self = .stateChange(state: state)
+        case "error":
+            let code = Self.parseInt(dictionary["code"]) ?? -1
+            self = .error(code: code)
         default:
             self = .unknown
         }
@@ -60,80 +64,103 @@ public enum YouTubePlayerBridgeScript {
         <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <meta name="referrer" content="strict-origin-when-cross-origin">
           <style>
             body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-            #player { width: 100%; height: 100%; pointer-events: none; }
+            #player { width: 100%; height: 100%; }
           </style>
         </head>
         <body>
           <div id="player"></div>
-          <script src="https://www.youtube.com/iframe_api"></script>
+          <script src="https://www.youtube-nocookie.com/iframe_api"></script>
           <script>
-            var player, targetEndTime = 0, isMonitoring = false, hasSeeked = false;
-            function onYouTubeIframeAPIReady() {
-              player = new YT.Player('player', {
-                videoId: '\(videoId)',
-                playerVars: {
-                  'playsinline': 1,
-                  'controls': 0,
-                  'rel': 0,
-                  'modestbranding': 1,
-                  'disablekb': 1,
-                  'fs': 0
-                },
-                events: {
-                  'onReady': function() {
-                    window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'ready' });
-                  },
-                  'onStateChange': function(e) {
-                    window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'state', state: e.data });
-                  }
-                }
-              });
-            }
-
-            function playSegment(start, end, rate) {
-              targetEndTime = end;
-              hasSeeked = false;
-              if (!player) return;
-              if (rate && player.setPlaybackRate) player.setPlaybackRate(rate);
-              player.seekTo(start, true);
-              player.playVideo();
-              isMonitoring = true;
-              requestAnimationFrame(checkTime);
-            }
-
-            function pauseVideo() {
-              isMonitoring = false;
-              if (player && player.pauseVideo) player.pauseVideo();
-            }
-
-            function replaySegment(start, end, rate) {
-              playSegment(start, end, rate);
-            }
-
-            function checkTime() {
-              if (!isMonitoring || !player || !player.getCurrentTime) return;
-              var current = player.getCurrentTime();
-              if (!hasSeeked) {
-                if (current < targetEndTime) {
-                  hasSeeked = true;
-                }
-              }
-              if (hasSeeked && current >= targetEndTime) {
-                player.pauseVideo();
-                isMonitoring = false;
-                window.webkit.messageHandlers.shadowingBridge.postMessage({
-                  type: 'segmentFinished',
-                  endTime: targetEndTime
-                });
-              } else {
-                requestAnimationFrame(checkTime);
-              }
-            }
+            \(corePlayerScript(videoId: videoId))
+            \(playbackControlScript())
           </script>
         </body>
         </html>
+        """
+    }
+
+    private static func corePlayerScript(videoId: String) -> String {
+        """
+        var player, targetEndTime = 0, isMonitoring = false, hasSeeked = false, isReady = false, pendingSegment = null;
+        function onYouTubeIframeAPIReady() {
+          player = new YT.Player('player', {
+            videoId: '\(videoId)',
+            playerVars: {
+              'playsinline': 1,
+              'controls': 0,
+              'rel': 0,
+              'modestbranding': 1,
+              'disablekb': 1,
+              'fs': 0
+            },
+            events: {
+              'onReady': function() {
+                isReady = true;
+                window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'ready' });
+                if (pendingSegment) {
+                  playSegment(pendingSegment.start, pendingSegment.end, pendingSegment.rate);
+                  pendingSegment = null;
+                }
+              },
+              'onStateChange': function(e) {
+                window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'state', state: e.data });
+              },
+              'onError': function(e) {
+                window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'error', code: e.data });
+              }
+            }
+          });
+        }
+        """
+    }
+
+    private static func playbackControlScript() -> String {
+        """
+        function playSegment(start, end, rate) {
+          if (!isReady || !player || !player.seekTo) {
+            pendingSegment = { start: start, end: end, rate: rate };
+            return;
+          }
+          targetEndTime = end;
+          hasSeeked = false;
+          if (rate && player.setPlaybackRate) player.setPlaybackRate(rate);
+          player.seekTo(start, true);
+          player.playVideo();
+          isMonitoring = true;
+          requestAnimationFrame(checkTime);
+        }
+
+        function pauseVideo() {
+          isMonitoring = false;
+          if (player && player.pauseVideo) player.pauseVideo();
+        }
+
+        function replaySegment(start, end, rate) {
+          playSegment(start, end, rate);
+        }
+
+        function checkTime() {
+          if (!isMonitoring || !player || !player.getCurrentTime) return;
+          var current = player.getCurrentTime();
+          if (!hasSeeked) {
+            if (current < targetEndTime) {
+              hasSeeked = true;
+            }
+          }
+          if (hasSeeked && current >= targetEndTime) {
+            player.pauseVideo();
+            isMonitoring = false;
+            window.webkit.messageHandlers.shadowingBridge.postMessage({
+              type: 'segmentFinished',
+              endTime: targetEndTime
+            });
+          } else {
+            requestAnimationFrame(checkTime);
+          }
+        }
         """
     }
 }

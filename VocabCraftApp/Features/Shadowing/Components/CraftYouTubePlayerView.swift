@@ -39,7 +39,7 @@ public struct CraftYouTubePlayerView: UIViewRepresentable {
 
         bridgeHolder.webView = webView
         let html = YouTubePlayerBridgeScript.htmlTemplate(videoId: videoId)
-        webView.loadHTMLString(html, baseURL: URL(string: "https://www.youtube.com"))
+        webView.loadHTMLString(html, baseURL: URL(string: "https://www.youtube-nocookie.com"))
         return webView
     }
 

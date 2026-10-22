@@ -10,7 +10,7 @@ public final class ShadowingVideoRepositoryImpl: ShadowingVideoRepositoryProtoco
             self.curatedVideos = [
                 ShadowingVideo(
                     id: "yt_daily_coffee_01",
-                    youtubeVideoId: "kJQP7kiw5Fk",
+                    youtubeVideoId: "NhiOn8f-kdM",
                     title: "Ordering at a Café",
                     topic: .dailyLife,
                     level: "A2",
@@ -19,33 +19,31 @@ public final class ShadowingVideoRepositoryImpl: ShadowingVideoRepositoryProtoco
                         ShadowingSentence(
                             id: "s_01",
                             orderIndex: 0,
-                            startTime: 1.0,
-                            endTime: 4.5,
-                            textEn: "Hi there! What can I get started for you today?",
-                            textVi: "Xin chào! Tôi có thể lấy gì cho bạn hôm nay?",
-                            keyWords: [
-                                ShadowingKeyWord(lemma: "started", phonetic: "/ˈstɑːr.t̬ɪd/", definitionVi: "bắt đầu")
-                            ]
+                            startTime: 0.5,
+                            endTime: 3.5,
+                            textEn: "Hi! What can I get for you?",
+                            textVi: "Xin chào! Tôi có thể lấy gì cho bạn?",
+                            keyWords: []
                         ),
                         ShadowingSentence(
                             id: "s_02",
                             orderIndex: 1,
-                            startTime: 5.0,
-                            endTime: 9.2,
-                            textEn: "Could I get a medium iced latte with oat milk, please?",
-                            textVi: "Cho tôi một ly latte đá cỡ vừa với sữa yến mạch được không?",
+                            startTime: 3.6,
+                            endTime: 7.2,
+                            textEn: "Can I get a small flat white, please?",
+                            textVi: "Cho tôi một ly flat white nhỏ được không?",
                             keyWords: [
-                                ShadowingKeyWord(lemma: "latte", phonetic: "/ˈlɑː.teɪ/", definitionVi: "cà phê sữa"),
-                                ShadowingKeyWord(lemma: "medium", phonetic: "/ˈmiː.di.əm/", definitionVi: "cỡ vừa")
+                                ShadowingKeyWord(lemma: "flat white", phonetic: "/ˌflæt ˈwaɪt/", definitionVi: "cà phê sữa kiểu Úc"),
+                                ShadowingKeyWord(lemma: "small", phonetic: "/smɑːl/", definitionVi: "nhỏ")
                             ]
                         ),
                         ShadowingSentence(
                             id: "s_03",
                             orderIndex: 2,
-                            startTime: 10.0,
-                            endTime: 13.5,
-                            textEn: "Sure thing! Would you like that for here or to go?",
-                            textVi: "Được chứ! Bạn muốn dùng tại đây hay mang đi?",
+                            startTime: 7.5,
+                            endTime: 12.0,
+                            textEn: "Sure. Anything else?",
+                            textVi: "Được chứ. Còn gì nữa không?",
                             keyWords: []
                         )
                     ]
@@ -69,7 +67,7 @@ public final class ShadowingVideoRepositoryImpl: ShadowingVideoRepositoryProtoco
         }
         return ShadowingVideo(
             id: "fallback",
-            youtubeVideoId: "kJQP7kiw5Fk",
+            youtubeVideoId: "NhiOn8f-kdM",
             title: "Ordering at a Café",
             topic: .dailyLife,
             level: "A2",
