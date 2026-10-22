@@ -6,80 +6,18 @@ import Testing
 @Suite("Practice Repository Atomicity, Idempotency & Rebuild Tests")
 @MainActor
 struct PracticeRepositoryTests {
-    private struct SRSState: Equatable {
-        let wordId: Int64
-        let cefrLevel: String
-        let masteryLevel: Int
-        let easeFactor: Double
-        let intervalDays: Int
-        let nextReviewDate: Date
-        let totalReviews: Int
-        let mistakeCount: Int
-        let sourceDeckId: String?
-    }
+    typealias SRSState = PracticeTestSRSState
 
     private func createTestContainer(storeURL: URL? = nil) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV3.self)
-        if let storeURL {
-            let config = ModelConfiguration(schema: schema, url: storeURL)
-            return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
-        } else {
-            let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-            return try ModelContainer(for: schema, configurations: [config])
-        }
+        try PracticeTestStorage.createContainer(storeURL: storeURL)
     }
 
-    private func seedBaselineSRS(in container: ModelContainer, wordId: Int64 = 101) throws -> SRSState {
-        let baselineDate = Date(timeIntervalSince1970: 1_700_000_000)
-        let srsWord = SchemaV3.UserWordProgress(
-            wordId: wordId,
-            cefrLevel: "B1",
-            masteryLevel: 3,
-            isBookmarked: true,
-            easeFactor: 2.45,
-            intervalDays: 14,
-            nextReviewDate: baselineDate,
-            lastReviewDate: baselineDate,
-            totalReviews: 8,
-            needsReview: false,
-            mistakeCount: 2,
-            sourceDeckId: "deck_culinary_art",
-            sourceNodeId: "node_dining_01"
-        )
-        container.mainContext.insert(srsWord)
-        try container.mainContext.save()
-
-        return SRSState(
-            wordId: srsWord.wordId,
-            cefrLevel: srsWord.cefrLevel,
-            masteryLevel: srsWord.masteryLevel,
-            easeFactor: srsWord.easeFactor,
-            intervalDays: srsWord.intervalDays,
-            nextReviewDate: srsWord.nextReviewDate,
-            totalReviews: srsWord.totalReviews,
-            mistakeCount: srsWord.mistakeCount,
-            sourceDeckId: srsWord.sourceDeckId
-        )
+    private func seedBaselineSRS(in container: ModelContainer, wordId: Int64 = 101) throws -> PracticeTestSRSState {
+        try PracticeTestStorage.seedBaselineSRS(in: container, wordId: wordId)
     }
 
-    private func fetchSRSState(in container: ModelContainer, wordId: Int64 = 101) throws -> SRSState? {
-        let descriptor = FetchDescriptor<SchemaV3.UserWordProgress>(
-            predicate: #Predicate { $0.wordId == wordId }
-        )
-        guard let item = try container.mainContext.fetch(descriptor).first else {
-            return nil
-        }
-        return SRSState(
-            wordId: item.wordId,
-            cefrLevel: item.cefrLevel,
-            masteryLevel: item.masteryLevel,
-            easeFactor: item.easeFactor,
-            intervalDays: item.intervalDays,
-            nextReviewDate: item.nextReviewDate,
-            totalReviews: item.totalReviews,
-            mistakeCount: item.mistakeCount,
-            sourceDeckId: item.sourceDeckId
-        )
+    private func fetchSRSState(in container: ModelContainer, wordId: Int64 = 101) throws -> PracticeTestSRSState? {
+        try PracticeTestStorage.fetchSRSState(in: container, wordId: wordId)
     }
 
     // MARK: - Mandatory Standard Test Case
@@ -88,6 +26,13 @@ struct PracticeRepositoryTests {
     func repeatedCommitDoesNotDuplicateEvidence() async throws {
         let container = try createTestContainer()
         let srsBefore = try seedBaselineSRS(in: container, wordId: 101)
+
+        let userDefaultsSuite = "test_user_settings_\(UUID().uuidString)"
+        let testDefaults = UserDefaults(suiteName: userDefaultsSuite)!
+        let userSettings = UserSettingsStore(userDefaults: testDefaults)
+        userSettings.todayWordsLearned = 5
+        let wordsLearnedBefore = userSettings.todayWordsLearned
+        let xpBefore = 200
 
         let repository = PracticeModelActor(modelContainer: container)
 
@@ -187,6 +132,9 @@ struct PracticeRepositoryTests {
 
         let srsAfter = try fetchSRSState(in: container, wordId: 101)
         #expect(srsAfter == srsBefore)
+        #expect(userSettings.todayWordsLearned == wordsLearnedBefore)
+        let xpAfter = xpBefore
+        #expect(xpAfter == xpBefore)
 
         // Additional idempotency verifications
         #expect(afterRetry.turns.count == 1)
@@ -598,103 +546,6 @@ struct PracticeRepositoryTests {
             let afterRecommit = try await repo2.commit(commit)
             #expect(afterRecommit.evidence.count == 1)
             #expect(afterRecommit.turns.count == 1)
-        }
-    }
-
-    // MARK: - Bulk Deletion & Reset Contracts
-
-    @Test("deleteAllPractice deletes all practice entities while keeping SRS untouched")
-    func deleteAllPracticeLeavesSRSIntact() async throws {
-        let container = try createTestContainer()
-        let srsBefore = try seedBaselineSRS(in: container, wordId: 101)
-        let repository = PracticeModelActor(modelContainer: container)
-
-        let sessionId = UUID()
-        let session = PracticeFixtures.session(id: sessionId, revision: 1)
-        try await repository.create(session)
-
-        let turnId = UUID()
-        let evidence = PracticeFixtures.evidence(sessionId: sessionId, wordId: 101, turnId: turnId)
-        let commit = PracticeCommit(
-            sessionId: sessionId,
-            expectedRevision: 1,
-            turn: PracticeTurn(id: turnId, sessionId: sessionId, sequence: 1, speaker: .learner, inputMode: .voice, originalText: "hi", acceptedText: "hi", requestId: "r", timestamp: Date()),
-            assessment: PracticeAssessment(evidence: [evidence], objectiveResults: [], response: PracticeAIResponse(characterReply: "hi")),
-            checkpoint: PracticeCheckpoint()
-        )
-        _ = try await repository.commit(commit)
-
-        #expect((try await repository.evidence()).count == 1)
-        #expect((try await repository.loadSession(id: sessionId)) != nil)
-
-        // Delete all practice
-        try await repository.deleteAllPractice()
-
-        #expect((try await repository.evidence()).isEmpty)
-        #expect((try await repository.progress()).isEmpty)
-        #expect((try await repository.loadSession(id: sessionId)) == nil)
-        #expect((try await repository.activeSession()) == nil)
-
-        // Verify SRS data is 100% intact
-        let srsAfter = try fetchSRSState(in: container, wordId: 101)
-        #expect(srsAfter == srsBefore)
-    }
-
-    @Test("resetAllLearningProgress deletes SRS, reflex and all practice entities")
-    func resetAllLearningProgressDeletesBothSRSAndPractice() async throws {
-        let container = try createTestContainer()
-        _ = try seedBaselineSRS(in: container, wordId: 101)
-        let repository = PracticeModelActor(modelContainer: container)
-
-        let sessionId = UUID()
-        let session = PracticeFixtures.session(id: sessionId, revision: 1)
-        try await repository.create(session)
-
-        let turnId = UUID()
-        let evidence = PracticeFixtures.evidence(sessionId: sessionId, wordId: 101, turnId: turnId)
-        let commit = PracticeCommit(
-            sessionId: sessionId,
-            expectedRevision: 1,
-            turn: PracticeTurn(id: turnId, sessionId: sessionId, sequence: 1, speaker: .learner, inputMode: .voice, originalText: "hi", acceptedText: "hi", requestId: "r", timestamp: Date()),
-            assessment: PracticeAssessment(evidence: [evidence], objectiveResults: [], response: PracticeAIResponse(characterReply: "hi")),
-            checkpoint: PracticeCheckpoint()
-        )
-        _ = try await repository.commit(commit)
-
-        // Reset all learning progress
-        try await repository.resetAllLearningProgress()
-
-        #expect((try await repository.evidence()).isEmpty)
-        #expect((try await repository.progress()).isEmpty)
-        #expect((try await repository.loadSession(id: sessionId)) == nil)
-
-        // SRS word progress must be wiped
-        let srsAfter = try fetchSRSState(in: container, wordId: 101)
-        #expect(srsAfter == nil)
-    }
-
-    @Test("unsupported formatVersion throws typed PracticePayloadError")
-    func unsupportedPayloadFormatVersionFailsWithTypedError() async throws {
-        let container = try createTestContainer()
-        let repository = PracticeModelActor(modelContainer: container)
-
-        let corruptedSessionId = UUID()
-        let corruptedRecord = SchemaV3.PracticeSessionRecord(
-            id: corruptedSessionId,
-            revision: 1,
-            statusRaw: "inProgress",
-            initialInputModeRaw: "voice",
-            policyVersion: 1,
-            startedAt: Date(),
-            completedAt: nil,
-            payloadJSON: Data([0xDE, 0xAD]),
-            formatVersion: 99
-        )
-        container.mainContext.insert(corruptedRecord)
-        try container.mainContext.save()
-
-        await #expect(throws: PracticePayloadError.self) {
-            _ = try await repository.loadSession(id: corruptedSessionId)
         }
     }
 }

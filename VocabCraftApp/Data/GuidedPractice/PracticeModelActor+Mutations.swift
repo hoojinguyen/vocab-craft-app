@@ -81,7 +81,6 @@ extension PracticeModelActor {
             )
             try PracticeRecordMapper.updateRecord(sessionRecord, from: updatedSession)
 
-            try modelContext.save()
             try rebuildProgress(for: affectedWordIds)
         }
 
@@ -137,7 +136,12 @@ extension PracticeModelActor {
             }
 
             for rec in existingRecords where rec.statusRaw == PracticeEvidenceStatus.valid.rawValue {
-                if let domain = try? PracticeRecordMapper.toDomain(rec), domain.turnRevision < item.turnRevision {
+                guard let domain = try? PracticeRecordMapper.toDomain(rec) else { continue }
+                guard domain.turnId == item.turnId else { continue }
+
+                if domain.turnRevision < item.turnRevision {
+                    rec.statusRaw = PracticeEvidenceStatus.superseded.rawValue
+                } else if domain.turnRevision == item.turnRevision && domain.assessmentVersion < item.assessmentVersion {
                     rec.statusRaw = PracticeEvidenceStatus.superseded.rawValue
                 }
             }
@@ -374,7 +378,6 @@ extension PracticeModelActor {
 
             modelContext.delete(sessionRecord)
 
-            try modelContext.save()
             try rebuildProgress(for: affectedWordIds)
         }
     }

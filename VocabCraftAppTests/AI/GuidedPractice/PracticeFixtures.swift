@@ -139,6 +139,39 @@ public enum PracticeFixtures {
         )
     }
 
+    public static func evidenceWithVersions(
+        id: UUID = UUID(),
+        sessionId: UUID = UUID(uuidString: "11111111-2222-3333-4444-555555555555")!,
+        turnId: UUID = UUID(uuidString: "22222222-3333-4444-5555-666666666666")!,
+        wordId: Int64 = 101,
+        turnRevision: Int = 1,
+        assessmentVersion: Int = 1,
+        status: PracticeEvidenceStatus = .valid,
+        timestamp: Date = baseDate
+    ) -> WordUseEvidence {
+        WordUseEvidence(
+            id: id,
+            sessionId: sessionId,
+            turnId: turnId,
+            wordId: wordId,
+            objectiveId: "order_food",
+            usageVerdict: .appropriate,
+            intentVerdict: .achieved,
+            transcriptReliability: .usable,
+            supportExposureIds: [],
+            primed: false,
+            contextFamily: .dining,
+            inputMode: .voice,
+            quotedSpan: nil,
+            assessmentVersion: assessmentVersion,
+            providerIdentity: "test_evaluator",
+            status: status,
+            timestamp: timestamp,
+            turnRevision: turnRevision,
+            opportunityId: "opp-01"
+        )
+    }
+
     public static func learningContext(wordIds: [Int64] = [101]) -> PracticeLearningContext {
         let snapshots = wordIds.map { id in wordSnapshot(wordId: id) }
         let progress = wordIds.map { id in
@@ -241,3 +274,88 @@ public enum PracticeFixtures {
         )
     }
 }
+
+// MARK: - SwiftData Test Storage Helpers
+
+#if canImport(SwiftData)
+import SwiftData
+
+public struct PracticeTestSRSState: Equatable, Sendable {
+    public let wordId: Int64
+    public let cefrLevel: String
+    public let masteryLevel: Int
+    public let easeFactor: Double
+    public let intervalDays: Int
+    public let nextReviewDate: Date
+    public let totalReviews: Int
+    public let mistakeCount: Int
+    public let sourceDeckId: String?
+}
+
+@MainActor
+public enum PracticeTestStorage {
+    public static func createContainer(storeURL: URL? = nil) throws -> ModelContainer {
+        let schema = Schema(versionedSchema: SchemaV3.self)
+        if let storeURL {
+            let config = ModelConfiguration(schema: schema, url: storeURL)
+            return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
+        } else {
+            let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            return try ModelContainer(for: schema, configurations: [config])
+        }
+    }
+
+    public static func seedBaselineSRS(in container: ModelContainer, wordId: Int64 = 101) throws -> PracticeTestSRSState {
+        let baselineDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let srsWord = SchemaV3.UserWordProgress(
+            wordId: wordId,
+            cefrLevel: "B1",
+            masteryLevel: 3,
+            isBookmarked: true,
+            easeFactor: 2.45,
+            intervalDays: 14,
+            nextReviewDate: baselineDate,
+            lastReviewDate: baselineDate,
+            totalReviews: 8,
+            needsReview: false,
+            mistakeCount: 2,
+            sourceDeckId: "deck_culinary_art",
+            sourceNodeId: "node_dining_01"
+        )
+        container.mainContext.insert(srsWord)
+        try container.mainContext.save()
+
+        return PracticeTestSRSState(
+            wordId: srsWord.wordId,
+            cefrLevel: srsWord.cefrLevel,
+            masteryLevel: srsWord.masteryLevel,
+            easeFactor: srsWord.easeFactor,
+            intervalDays: srsWord.intervalDays,
+            nextReviewDate: srsWord.nextReviewDate,
+            totalReviews: srsWord.totalReviews,
+            mistakeCount: srsWord.mistakeCount,
+            sourceDeckId: srsWord.sourceDeckId
+        )
+    }
+
+    public static func fetchSRSState(in container: ModelContainer, wordId: Int64 = 101) throws -> PracticeTestSRSState? {
+        let descriptor = FetchDescriptor<SchemaV3.UserWordProgress>(
+            predicate: #Predicate { $0.wordId == wordId }
+        )
+        guard let item = try container.mainContext.fetch(descriptor).first else {
+            return nil
+        }
+        return PracticeTestSRSState(
+            wordId: item.wordId,
+            cefrLevel: item.cefrLevel,
+            masteryLevel: item.masteryLevel,
+            easeFactor: item.easeFactor,
+            intervalDays: item.intervalDays,
+            nextReviewDate: item.nextReviewDate,
+            totalReviews: item.totalReviews,
+            mistakeCount: item.mistakeCount,
+            sourceDeckId: item.sourceDeckId
+        )
+    }
+}
+#endif

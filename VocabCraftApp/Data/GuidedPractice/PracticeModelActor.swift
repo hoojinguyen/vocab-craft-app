@@ -10,9 +10,22 @@ public actor PracticeModelActor: PracticeRepositoryProtocol {
 
     // MARK: - Transaction Helper
 
+    #if DEBUG
+    var transactionFailureHook: (@Sendable () throws -> Void)?
+
+    func setTransactionFailureHook(_ hook: (@Sendable () throws -> Void)?) {
+        transactionFailureHook = hook
+    }
+    #endif
+
     func performTransaction<T>(_ block: () throws -> T) throws -> T {
         do {
             let result = try block()
+            #if DEBUG
+            if let hook = transactionFailureHook {
+                try hook()
+            }
+            #endif
             try modelContext.save()
             return result
         } catch {
