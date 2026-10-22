@@ -1,9 +1,8 @@
 import Foundation
 
-public final class ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryProtocol, @unchecked Sendable {
+public actor ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryProtocol {
     private let userDefaults: UserDefaults
     private let storageKey: String
-    private let lock = NSLock()
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
@@ -24,15 +23,11 @@ public final class ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryP
     }
 
     public func getProgress(videoId: String) async -> ShadowingProgressRecord? {
-        lock.lock()
-        defer { lock.unlock() }
-        return loadRecordsLocked()[videoId]
+        loadRecords()[videoId]
     }
 
     public func getAllProgress() async -> [String: ShadowingProgressRecord] {
-        lock.lock()
-        defer { lock.unlock() }
-        return loadRecordsLocked()
+        loadRecords()
     }
 
     public func recordCompletion(
@@ -40,10 +35,7 @@ public final class ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryP
         score: Double,
         sentenceScores: [String: Double]
     ) async throws {
-        lock.lock()
-        defer { lock.unlock() }
-
-        var records = loadRecordsLocked()
+        var records = loadRecords()
         let now = Date()
 
         if let existing = records[videoId] {
@@ -71,10 +63,10 @@ public final class ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryP
             records[videoId] = newRecord
         }
 
-        try saveRecordsLocked(records)
+        try saveRecords(records)
     }
 
-    private func loadRecordsLocked() -> [String: ShadowingProgressRecord] {
+    private func loadRecords() -> [String: ShadowingProgressRecord] {
         guard let data = userDefaults.data(forKey: storageKey) else {
             return [:]
         }
@@ -85,7 +77,7 @@ public final class ShadowingProgressRepositoryImpl: ShadowingProgressRepositoryP
         }
     }
 
-    private func saveRecordsLocked(_ records: [String: ShadowingProgressRecord]) throws {
+    private func saveRecords(_ records: [String: ShadowingProgressRecord]) throws {
         let data = try encoder.encode(records)
         userDefaults.set(data, forKey: storageKey)
     }
