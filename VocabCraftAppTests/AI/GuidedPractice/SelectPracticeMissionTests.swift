@@ -115,6 +115,64 @@ final class TestPracticeRepository: PracticeRepositoryProtocol, @unchecked Senda
         if let error = shouldThrowError { throw error }
         return storedActiveSession?.session.id == id ? storedActiveSession : nil
     }
+
+    func create(_ session: PracticeSession) async throws {
+        if let error = shouldThrowError { throw error }
+        storedActiveSession = PracticeSessionSnapshot(session: session)
+    }
+
+    func savePendingTurn(_ turn: PracticeTurn, checkpoint: PracticeCheckpoint, expectedRevision: Int) async throws {
+        if let error = shouldThrowError { throw error }
+    }
+
+    func commit(_ value: PracticeCommit) async throws -> PracticeSessionSnapshot {
+        if let error = shouldThrowError { throw error }
+        return storedActiveSession ?? PracticeFixtures.sessionSnapshot()
+    }
+
+    func preparePresentation(_ intent: PracticePresentationIntent, expectedRevision: Int) async throws {
+        if let error = shouldThrowError { throw error }
+    }
+
+    func confirmPresentation(id: UUID, exposure: SupportExposure, expectedRevision: Int) async throws {
+        if let error = shouldThrowError { throw error }
+    }
+
+    func revise(sessionId: UUID, expectedRevision: Int, checkpoint: PracticeCheckpoint) async throws -> Int {
+        if let error = shouldThrowError { throw error }
+        return expectedRevision + 1
+    }
+
+    func finalize(sessionId: UUID, completion: PracticeCompletion, expectedRevision: Int) async throws -> PracticeSummary {
+        if let error = shouldThrowError { throw error }
+        return PracticeSummary(
+            sessionId: sessionId,
+            status: completion == .completed ? .completed : .partial,
+            objectiveResults: [],
+            perWordProgress: [],
+            evidenceIds: [],
+            persisted: true
+        )
+    }
+
+    func deleteSession(id: UUID) async throws {
+        if let error = shouldThrowError { throw error }
+        if storedActiveSession?.session.id == id {
+            storedActiveSession = nil
+        }
+    }
+
+    func deleteAllPractice() async throws {
+        if let error = shouldThrowError { throw error }
+        storedActiveSession = nil
+        storedProgress.removeAll()
+        storedEvidence.removeAll()
+    }
+
+    func resetAllLearningProgress() async throws {
+        if let error = shouldThrowError { throw error }
+        try await deleteAllPractice()
+    }
 }
 
 // MARK: - Test Suite

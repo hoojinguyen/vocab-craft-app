@@ -44,6 +44,10 @@
 		30003A4000010004 /* SelectPracticeMissionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010004 /* SelectPracticeMissionUseCase.swift */; };
 		30003A4000010005 /* PracticeTemplateCatalogTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010005 /* PracticeTemplateCatalogTests.swift */; };
 		30003A4000010006 /* SelectPracticeMissionTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A4000010006 /* SelectPracticeMissionTests.swift */; };
+		30003A6000010001 /* PracticeRecordMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A6000010001 /* PracticeRecordMapper.swift */; };
+		30003A6000010002 /* PracticeModelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A6000010002 /* PracticeModelActor.swift */; };
+		30003A6000010003 /* PracticeModelActor+Mutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A6000010003 /* PracticeModelActor+Mutations.swift */; };
+		30003A6000010004 /* PracticeRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A6000010004 /* PracticeRepositoryTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -558,6 +562,10 @@
 		20003A4000010004 /* SelectPracticeMissionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectPracticeMissionUseCase.swift"; sourceTree = "<group>"; };
 		20003A4000010005 /* PracticeTemplateCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeTemplateCatalogTests.swift"; sourceTree = "<group>"; };
 		20003A4000010006 /* SelectPracticeMissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectPracticeMissionTests.swift"; sourceTree = "<group>"; };
+		20003A6000010001 /* PracticeRecordMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeRecordMapper.swift"; sourceTree = "<group>"; };
+		20003A6000010002 /* PracticeModelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeModelActor.swift"; sourceTree = "<group>"; };
+		20003A6000010003 /* PracticeModelActor+Mutations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeModelActor+Mutations.swift"; sourceTree = "<group>"; };
+		20003A6000010004 /* PracticeRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeRepositoryTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1255,6 +1263,9 @@
 			children = (
 				20003A4000010002 /* PracticeTemplateCatalog.swift */,
 				20003A4000010003 /* PracticeLearningContextReader.swift */,
+				20003A6000010001 /* PracticeRecordMapper.swift */,
+				20003A6000010002 /* PracticeModelActor.swift */,
+				20003A6000010003 /* PracticeModelActor+Mutations.swift */,
 			);
 			path = "GuidedPractice";
 			sourceTree = "<group>";
@@ -2167,6 +2178,7 @@
 				20003A3000010004 /* PracticeDifficultyPolicyTests.swift */,
 				20003A4000010005 /* PracticeTemplateCatalogTests.swift */,
 				20003A4000010006 /* SelectPracticeMissionTests.swift */,
+				20003A6000010004 /* PracticeRepositoryTests.swift */,
 			);
 			path = "GuidedPractice";
 			sourceTree = "<group>";
@@ -2620,6 +2632,9 @@
 				30003A4000010002 /* PracticeTemplateCatalog.swift in Sources */,
 				30003A4000010003 /* PracticeLearningContextReader.swift in Sources */,
 				30003A4000010004 /* SelectPracticeMissionUseCase.swift in Sources */,
+				30003A6000010001 /* PracticeRecordMapper.swift in Sources */,
+				30003A6000010002 /* PracticeModelActor.swift in Sources */,
+				30003A6000010003 /* PracticeModelActor+Mutations.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -3082,6 +3097,7 @@
 				30003A3000010004 /* PracticeDifficultyPolicyTests.swift in Test Sources */,
 				30003A4000010005 /* PracticeTemplateCatalogTests.swift in Test Sources */,
 				30003A4000010006 /* SelectPracticeMissionTests.swift in Test Sources */,
+				30003A6000010004 /* PracticeRepositoryTests.swift in Test Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
