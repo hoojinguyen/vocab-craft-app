@@ -17,6 +17,12 @@
 		30005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */; };
 		30005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift */; };
 		30005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift */; };
+		30005E3A3F7D00040001 /* DailyChallengeHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040001 /* DailyChallengeHeroCard.swift */; };
+		30005E3A3F7D00040002 /* LevelFilterChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040002 /* LevelFilterChipsView.swift */; };
+		30005E3A3F7D00040003 /* ShadowingVideoCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040003 /* ShadowingVideoCardView.swift */; };
+		30005E3A3F7D00040004 /* ShadowingHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040004 /* ShadowingHubView.swift */; };
+		30005E3A3F7D00040005 /* ShadowingHubViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */; };
+		30005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -490,6 +496,12 @@
 		20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryImpl.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryTests.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040001 /* DailyChallengeHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DailyChallengeHeroCard.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040002 /* LevelFilterChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LevelFilterChipsView.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040003 /* ShadowingVideoCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingVideoCardView.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040004 /* ShadowingHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubView.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubViewModel.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingHubViewModelTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1423,15 +1435,28 @@
 		40005E3A3F7D00000008 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				40005E3A3F7D00040001 /* Components */,
+				20005E3A3F7D00040004 /* ShadowingHubView.swift */,
 				20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */,
 				20005E3A3F7D0000000C /* ShadowingPracticeView.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";
 		};
+		40005E3A3F7D00040001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				20005E3A3F7D00040001 /* DailyChallengeHeroCard.swift */,
+				20005E3A3F7D00040002 /* LevelFilterChipsView.swift */,
+				20005E3A3F7D00040003 /* ShadowingVideoCardView.swift */,
+			);
+			path = "Components";
+			sourceTree = "<group>";
+		};
 		40005E3A3F7D00000007 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */,
 				20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */,
 			);
 			path = "ViewModels";
@@ -2103,6 +2128,7 @@
 		40005E3A3F7D00000003 /* Shadowing */ = {
 			isa = PBXGroup;
 			children = (
+				20005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift */,
 				20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */,
 				20005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift */,
 				20005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift */,
@@ -2514,6 +2540,11 @@
 				30005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift in Sources */,
 				30005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift in Sources */,
 				30005E3A3F7D0000000C /* ShadowingPracticeView.swift in Sources */,
+				30005E3A3F7D00040001 /* DailyChallengeHeroCard.swift in Sources */,
+				30005E3A3F7D00040002 /* LevelFilterChipsView.swift in Sources */,
+				30005E3A3F7D00040003 /* ShadowingVideoCardView.swift in Sources */,
+				30005E3A3F7D00040004 /* ShadowingHubView.swift in Sources */,
+				30005E3A3F7D00040005 /* ShadowingHubViewModel.swift in Sources */,
 				30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */,
 				300097FF38AEFBAF66A2 /* MixedReflexDrillItem.swift in Sources */,
 				30002627066D66426216 /* ModeSuccessStats.swift in Sources */,
@@ -2841,6 +2872,7 @@
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
 				30005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift in Test Sources */,
 				30005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift in Test Sources */,
+				30005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift in Test Sources */,
 				3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */,
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,

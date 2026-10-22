@@ -9,7 +9,7 @@ public enum ShadowingTopic: String, Sendable, Codable, CaseIterable {
     case cultureAndTravel
 }
 
-public struct ShadowingTopicItem: Identifiable, Sendable, Codable, Equatable {
+public struct ShadowingTopicItem: Identifiable, Sendable, Codable, Equatable, Hashable {
     public let id: String
     public let titleEn: String
     public let titleVi: String
