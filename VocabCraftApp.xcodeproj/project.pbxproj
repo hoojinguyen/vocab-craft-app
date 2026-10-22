@@ -13,6 +13,10 @@
 		30005E3A3F7D00010004 /* ShadowingCatalogRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010004 /* ShadowingCatalogRepository.swift */; };
 		30005E3A3F7D00010005 /* ShadowingCatalog.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010005 /* ShadowingCatalog.sqlite */; };
 		30005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift */; };
+		30005E3A3F7D00020001 /* ShadowingProgressRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020001 /* ShadowingProgressRecord.swift */; };
+		30005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */; };
+		30005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift */; };
+		30005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -481,6 +485,10 @@
 		20005E3A3F7D00010004 /* ShadowingCatalogRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingCatalogRepository.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010005 /* ShadowingCatalog.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ShadowingCatalog.sqlite"; sourceTree = "<group>"; };
 		20005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingCatalogRepositoryTests.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00020001 /* ShadowingProgressRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRecord.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryImpl.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingProgressRepositoryTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1248,6 +1256,7 @@
 			isa = PBXGroup;
 			children = (
 				20005E3A3F7D00010004 /* ShadowingCatalogRepository.swift */,
+				20005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift */,
 				20008C212FC0A55E8C58 /* MockUserProgressRepository.swift */,
 				2000FBE3EC435722C797 /* MockVocabularyRepository.swift */,
 				2000A635E2AF7701E27E /* QuickReflexAttemptRepositoryImpl.swift */,
@@ -1310,6 +1319,7 @@
 			children = (
 				20003027CCAD9A176722 /* ShadowingVideoModels.swift */,
 				20005E3A3F7D00010001 /* ShadowingWordTimestamp.swift */,
+				20005E3A3F7D00020001 /* ShadowingProgressRecord.swift */,
 			);
 			path = "Shadowing";
 			sourceTree = "<group>";
@@ -1335,6 +1345,7 @@
 			isa = PBXGroup;
 			children = (
 				20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */,
+				20005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift */,
 				20009C23C95C9E39A410 /* AIPackProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				2000DA7148B88C17BFA9 /* LLMProviderProtocol.swift */,
@@ -2256,6 +2267,7 @@
 			isa = PBXGroup;
 			children = (
 				20005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift */,
+				20005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift */,
 			);
 			path = "Data";
 			sourceTree = "<group>";
@@ -2403,6 +2415,9 @@
 				30005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift in Sources */,
 				30005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift in Sources */,
 				30005E3A3F7D00010004 /* ShadowingCatalogRepository.swift in Sources */,
+				30005E3A3F7D00020001 /* ShadowingProgressRecord.swift in Sources */,
+				30005E3A3F7D00020002 /* ShadowingProgressRepositoryProtocol.swift in Sources */,
+				30005E3A3F7D00020003 /* ShadowingProgressRepositoryImpl.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -2687,6 +2702,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift in Test Sources */,
+				30005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift in Test Sources */,
 				300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */,
 				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
