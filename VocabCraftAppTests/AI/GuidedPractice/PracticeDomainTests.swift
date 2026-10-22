@@ -4,7 +4,6 @@ import Testing
 
 @Suite("Practice Domain & Snapshot Tests")
 struct PracticeDomainTests {
-
     @Test("roundTripRetainsCheckpoint preserves session snapshot and revision")
     func roundTripRetainsCheckpoint() throws {
         let original = PracticeFixtures.sessionSnapshot(
@@ -162,6 +161,27 @@ struct PracticeDomainTests {
         _ = try await sleepTask.value
         #expect(flag.getFinished() == true)
         #expect(clock.now() == baseDate.addingTimeInterval(10))
+    }
+
+    @Test("ManualPracticeClock sleep throws CancellationError when task is cancelled")
+    func manualPracticeClockPreCancelledSleep() async throws {
+        let clock = ManualPracticeClock()
+        let cancelledTask = Task {
+            try await clock.sleep(for: .seconds(10))
+        }
+
+        cancelledTask.cancel()
+
+        do {
+            try await cancelledTask.value
+            Issue.record("Expected cancellation error was not thrown")
+        } catch is CancellationError {
+            // Expected
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        #expect(clock.waiterCount == 0)
     }
 
     @Test("difficulty validation rejects out-of-bounds values")

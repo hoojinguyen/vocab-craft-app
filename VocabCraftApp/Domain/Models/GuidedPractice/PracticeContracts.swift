@@ -101,6 +101,7 @@ public final class ManualPracticeClock: PracticeClock, @unchecked Sendable {
     }
 
     public func sleep(for duration: Duration) async throws {
+        try Task.checkCancellation()
         let seconds = duration.timeInterval
         if seconds <= 0 { return }
 

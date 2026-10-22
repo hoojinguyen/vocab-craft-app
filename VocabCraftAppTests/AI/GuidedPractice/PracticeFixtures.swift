@@ -6,7 +6,6 @@ public final class PracticeFixtureBundleAnchor: NSObject, @unchecked Sendable {}
 
 /// Centralized test fixtures providing deterministic domain snapshots and helpers.
 public enum PracticeFixtures {
-
     public static let baseDate = Date(timeIntervalSince1970: 1_700_000_000)
 
     public static func difficulty(
@@ -164,7 +163,7 @@ public enum PracticeFixtures {
                 policyVersion: 1
             )
         }
-        let ev = wordIds.map { id in
+        let evidenceList = wordIds.map { id in
             evidence(wordId: id)
         }
 
@@ -172,7 +171,7 @@ public enum PracticeFixtures {
             words: snapshots,
             progress: progress,
             communication: commProgress,
-            evidence: ev,
+            evidence: evidenceList,
             recentReflexWordIds: Set(wordIds)
         )
     }
@@ -204,12 +203,12 @@ public enum PracticeFixtures {
             sessionRevision: revision,
             timestamp: baseDate
         )
-        let ev = evidence(sessionId: sessionId, at: baseDate, mode: .voice, primed: false, wordId: wordId)
+        let evidenceRecord = evidence(sessionId: sessionId, at: baseDate, mode: .voice, primed: false, wordId: wordId)
         let comm = CommunicationProgress(
             wordId: wordId,
             inputMode: .voice,
             stage: .independentFamiliar,
-            independentEvidenceIds: [ev.id],
+            independentEvidenceIds: [evidenceRecord.id],
             lastIndependentUseAt: baseDate,
             nextPracticeAt: baseDate.addingTimeInterval(259_200),
             recentOutcome: PracticeOpportunityOutcome(
@@ -236,7 +235,7 @@ public enum PracticeFixtures {
             session: activeSession,
             turns: [turn],
             exposures: [],
-            evidence: [ev],
+            evidence: [evidenceRecord],
             progress: [comm],
             pendingPresentations: [intent]
         )
