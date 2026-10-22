@@ -1,8 +1,8 @@
 # AI Assistant: luyện giao tiếp từ vốn từ đã học
 
 - Ngày: 2026-10-22
-- Trạng thái: Chờ người dùng review written spec.
-- Thiết kế hội thoại đã được đồng ý; tài liệu này chưa được phê duyệt để lập implementation plan.
+- Trạng thái: Đã được người dùng phê duyệt ngày 2026-10-22, bao gồm các lựa chọn mục 15.
+- Được phép lập implementation plan; thực thi cần review kế hoạch và chọn execution method theo Superpowers.
 - Đối tượng đầu tiên: learner A2–B1.
 - Phạm vi: nhiệm vụ giao tiếp, giảm trợ giúp, bằng chứng vận dụng, tích hợp hệ thống học hiện có.
 
