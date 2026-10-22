@@ -32,6 +32,8 @@
 		30003A1000010007 /* PracticeContracts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010007 /* PracticeContracts.swift */; };
 		30003A1000010008 /* PracticeDomainTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010008 /* PracticeDomainTests.swift */; };
 		30003A1000010009 /* PracticeFixtures.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A1000010009 /* PracticeFixtures.swift */; };
+		30003A2000010001 /* CommunicationProgressPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A2000010001 /* CommunicationProgressPolicy.swift */; };
+		30003A2000010002 /* CommunicationProgressPolicyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A2000010002 /* CommunicationProgressPolicyTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -531,6 +533,8 @@
 		20003A1000010007 /* PracticeContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeContracts.swift"; sourceTree = "<group>"; };
 		20003A1000010008 /* PracticeDomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeDomainTests.swift"; sourceTree = "<group>"; };
 		20003A1000010009 /* PracticeFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeFixtures.swift"; sourceTree = "<group>"; };
+		20003A2000010001 /* CommunicationProgressPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommunicationProgressPolicy.swift"; sourceTree = "<group>"; };
+		20003A2000010002 /* CommunicationProgressPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommunicationProgressPolicyTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1405,9 +1409,18 @@
 		4000731A90F8FB364BE4 /* Policies */ = {
 			isa = PBXGroup;
 			children = (
+				40003A2000010000 /* GuidedPractice */,
 				20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */,
 			);
 			path = "Policies";
+			sourceTree = "<group>";
+		};
+		40003A2000010000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A2000010001 /* CommunicationProgressPolicy.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		40008F48FF4076AEA27E /* Protocols */ = {
@@ -2101,6 +2114,7 @@
 			children = (
 				20003A1000010008 /* PracticeDomainTests.swift */,
 				20003A1000010009 /* PracticeFixtures.swift */,
+				20003A2000010002 /* CommunicationProgressPolicyTests.swift */,
 			);
 			path = "GuidedPractice";
 			sourceTree = "<group>";
@@ -2546,6 +2560,7 @@
 				30003A1000010005 /* WordUseEvidence.swift in Sources */,
 				30003A1000010006 /* CommunicationProgress.swift in Sources */,
 				30003A1000010007 /* PracticeContracts.swift in Sources */,
+				30003A2000010001 /* CommunicationProgressPolicy.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -3000,6 +3015,7 @@
 				300084512C285C79A09D /* WidgetIntentsTests.swift in Test Sources */,
 				30003A1000010008 /* PracticeDomainTests.swift in Test Sources */,
 				30003A1000010009 /* PracticeFixtures.swift in Test Sources */,
+				30003A2000010002 /* CommunicationProgressPolicyTests.swift in Test Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
