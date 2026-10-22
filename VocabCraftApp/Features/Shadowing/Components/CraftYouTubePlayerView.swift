@@ -61,6 +61,7 @@ public struct CraftYouTubePlayerView: UIViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
+            print("[YouTubeBridge] Received: \(message.body)")
             guard let dict = message.body as? [String: Any] else { return }
             let parsed = YouTubePlayerBridgeMessage(dictionary: dict)
             Task { @MainActor in

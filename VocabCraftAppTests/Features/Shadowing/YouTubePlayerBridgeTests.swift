@@ -24,6 +24,9 @@ struct YouTubePlayerBridgeTests {
 
         let errorPayload: [String: Any] = ["type": "error", "code": 150]
         #expect(YouTubePlayerBridgeMessage(dictionary: errorPayload) == .error(code: 150))
+
+        let logPayload: [String: Any] = ["type": "log", "message": "API ready"]
+        #expect(YouTubePlayerBridgeMessage(dictionary: logPayload) == .log(message: "API ready"))
     }
 
     @Test("Verifies parsing of timeUpdate message")

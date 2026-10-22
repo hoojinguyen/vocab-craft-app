@@ -6,6 +6,7 @@ public enum YouTubePlayerBridgeMessage: Equatable, Sendable {
     case timeUpdate(currentTime: Double)
     case stateChange(state: Int)
     case error(code: Int)
+    case log(message: String)
     case unknown
 
     public init(dictionary: [String: Any]) {
@@ -28,6 +29,9 @@ public enum YouTubePlayerBridgeMessage: Equatable, Sendable {
         case "error":
             let code = Self.parseInt(dictionary["code"]) ?? -1
             self = .error(code: code)
+        case "log":
+            let msg = dictionary["message"] as? String ?? ""
+            self = .log(message: msg)
         default:
             self = .unknown
         }
@@ -71,9 +75,20 @@ public enum YouTubePlayerBridgeScript {
           </style>
         </head>
         <body>
-          <div id="player"></div>
-          <script src="https://www.youtube-nocookie.com/iframe_api"></script>
+          <iframe id="player"
+                  type="text/html"
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube-nocookie.com/embed/\(videoId)?enablejsapi=1&playsinline=1&controls=0&rel=0&modestbranding=1"
+                  frameborder="0"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+          </iframe>
+          <script src="https://www.youtube.com/iframe_api"></script>
           <script>
+            window.onerror = function(msg, url, line) {
+              window.webkit.messageHandlers.shadowingBridge.postMessage({ type: 'log', message: 'JS Err: ' + msg });
+            };
             \(corePlayerScript(videoId: videoId))
             \(playbackControlScript())
           </script>
@@ -87,15 +102,6 @@ public enum YouTubePlayerBridgeScript {
         var player, targetEndTime = 0, isMonitoring = false, hasSeeked = false, isReady = false, pendingSegment = null;
         function onYouTubeIframeAPIReady() {
           player = new YT.Player('player', {
-            videoId: '\(videoId)',
-            playerVars: {
-              'playsinline': 1,
-              'controls': 0,
-              'rel': 0,
-              'modestbranding': 1,
-              'disablekb': 1,
-              'fs': 0
-            },
             events: {
               'onReady': function() {
                 isReady = true;
