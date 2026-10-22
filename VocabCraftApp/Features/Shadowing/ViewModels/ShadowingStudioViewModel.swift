@@ -22,7 +22,13 @@ public final class ShadowingStudioViewModel: Identifiable {
     public var isPlaying: Bool = true
     public var playbackSpeed: Float = 1.0
     public var currentVideoTime: Double = 0.0
-    public var isHeadphonesConnected: Bool = false
+    public var isHeadphonesConnected: Bool = false {
+        didSet {
+            handleHeadphoneDisconnectionIfNeeded()
+        }
+    }
+    public var playbackError: String?
+    public var hasPlaybackError: Bool { playbackError != nil }
     public var currentSentenceIndex: Int = 0
     public var playbackPhase: ShadowingPlaybackPhase = .idle
     public var currentEvaluation: SpeechEvaluationResult?
@@ -75,10 +81,10 @@ public final class ShadowingStudioViewModel: Identifiable {
     }
 
     public let bridgeHolder: YouTubeBridgeHolder
-    private let assessmentService: any SpeechAssessmentProtocol
+    fileprivate let assessmentService: any SpeechAssessmentProtocol
     public let sessionCoordinator: ShadowingSessionCoordinator
-    private let toggleBookmarkUseCase: (any ToggleWordBookmarkUseCaseProtocol)?
-    private let progressRepository: (any ShadowingProgressRepositoryProtocol)?
+    fileprivate let toggleBookmarkUseCase: (any ToggleWordBookmarkUseCaseProtocol)?
+    fileprivate let progressRepository: (any ShadowingProgressRepositoryProtocol)?
 
     private var routeChangeTask: Task<Void, Never>?
 
@@ -232,6 +238,17 @@ public final class ShadowingStudioViewModel: Identifiable {
         }
         isHeadphonesConnected = hasHeadphones
         #endif
+        handleHeadphoneDisconnectionIfNeeded()
+    }
+
+    public func handleHeadphoneDisconnectionIfNeeded() {
+        if activeRound == .round2SpeedShadowing && !isHeadphonesConnected && sessionCoordinator.recorder.isRecording {
+            sessionCoordinator.recorder.stopRecording()
+            round2AudioURL = nil
+            Task { [sessionCoordinator] in
+                try? await sessionCoordinator.prepareForNativePlayback()
+            }
+        }
     }
 
     private func observeAudioRouteChanges() {
@@ -245,6 +262,33 @@ public final class ShadowingStudioViewModel: Identifiable {
         #endif
     }
 
+    // MARK: - Error Handling & Playback Recovery
+
+    public func handlePlaybackError(code: Int) {
+        playbackError = String(localized: "app.shadowing.error.playback_failed")
+        isPlaying = false
+    }
+
+    public func retryPlayback() {
+        playbackError = nil
+        bridgeHolder.reload()
+        startActiveRound()
+    }
+
+    public func cleanup() {
+        routeChangeTask?.cancel()
+        routeChangeTask = nil
+        bridgeHolder.pauseVideo()
+        assessmentService.stopAssessing()
+        Task { [sessionCoordinator] in
+            await sessionCoordinator.releaseAll()
+        }
+    }
+}
+
+// MARK: - Round Operations & Recording
+
+extension ShadowingStudioViewModel {
     // MARK: - Round 2 Speed Shadowing
 
     public func startRound2Playback() {
@@ -439,15 +483,5 @@ public final class ShadowingStudioViewModel: Identifiable {
         currentEvaluation = nil
         playbackPhase = .idle
         startCurrentSentence()
-    }
-
-    public func cleanup() {
-        routeChangeTask?.cancel()
-        routeChangeTask = nil
-        bridgeHolder.pauseVideo()
-        assessmentService.stopAssessing()
-        Task { [sessionCoordinator] in
-            await sessionCoordinator.releaseAll()
-        }
     }
 }

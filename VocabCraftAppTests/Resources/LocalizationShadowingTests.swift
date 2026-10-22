@@ -129,6 +129,10 @@ struct LocalizationShadowingTests {
         "app.shadowing.summary.retry_weak": ExpectedString(
             english: "Review Weak Sentences",
             vietnamese: "Luyện lại câu chưa đạt"
+        ),
+        "app.shadowing.error.playback_failed": ExpectedString(
+            english: "Unable to load video. Please try again.",
+            vietnamese: "Không thể tải video. Vui lòng thử lại."
         )
     ]
 
@@ -170,10 +174,10 @@ struct LocalizationShadowingTests {
         return matches.map { nsString.substring(with: $0.range) }
     }
 
-    @Test("Verify all 30 Shadowing Studio keys exist in catalog with manual extraction")
+    @Test("Verify all 31 Shadowing Studio keys exist in catalog with manual extraction")
     func testAllRequiredKeysExist() throws {
         let catalog = try loadCatalogStrings()
-        #expect(expectedStrings.count == 30, "Must test exactly 30 shadowing keys")
+        #expect(expectedStrings.count == 31, "Must test exactly 31 shadowing keys")
 
         for key in expectedStrings.keys {
             let entry = try #require(catalog[key], "Missing required key in catalog: \(key)")
@@ -182,7 +186,7 @@ struct LocalizationShadowingTests {
         }
     }
 
-    @Test("Verify 100% bilingual parity (EN & VI) for all 30 Shadowing Studio keys")
+    @Test("Verify 100% bilingual parity (EN & VI) for all 31 Shadowing Studio keys")
     func testBilingualCompletenessAndValues() throws {
         let catalog = try loadCatalogStrings()
 

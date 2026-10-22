@@ -1,8 +1,55 @@
+import CraftUIKit
 import Foundation
 import SwiftUI
 #if canImport(WebKit)
 import WebKit
 #endif
+
+// MARK: - Shadowing Playback Error Overlay
+
+public struct ShadowingPlaybackErrorOverlay: View {
+    @Environment(\.craftTheme) private var theme
+    public let message: String
+    public let onRetry: () -> Void
+
+    public init(
+        message: String,
+        onRetry: @escaping () -> Void
+    ) {
+        self.message = message
+        self.onRetry = onRetry
+    }
+
+    public var body: some View {
+        ZStack {
+            theme.colors.surfaceSubtle
+                .ignoresSafeArea()
+
+            VStack(spacing: theme.spacing.sm) {
+                CraftIcon(
+                    .warning,
+                    size: .lg,
+                    color: theme.colors.warning
+                )
+
+                Text(message)
+                    .font(theme.typography.bodyMedium)
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, theme.spacing.md)
+
+                CraftButton(
+                    String(localized: "app.shadowing.action.retry"),
+                    iconName: "arrow.clockwise",
+                    variant: .secondary,
+                    size: .sm,
+                    action: onRetry
+                )
+            }
+            .padding(theme.spacing.md)
+        }
+    }
+}
 
 #if canImport(UIKit)
 @MainActor
@@ -131,6 +178,10 @@ public final class YouTubeBridgeHolder {
         let script = "seekTo(\(seconds.description));"
         webView?.evaluateJavaScript(script)
     }
+
+    public func reload() {
+        webView?.reload()
+    }
 }
 #else
 @MainActor
@@ -166,5 +217,7 @@ public final class YouTubeBridgeHolder {
     public func seekTo(seconds: Double) {
         lastSeekTime = seconds
     }
+
+    public func reload() {}
 }
 #endif

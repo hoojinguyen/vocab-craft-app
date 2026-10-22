@@ -15,7 +15,8 @@ public struct DailyChallengeHeroCard: View {
     public var body: some View {
         CraftCard(
             style: .elevated,
-            cornerRadius: theme.radius.lg
+            cornerRadius: theme.radius.lg,
+            padding: 0
         ) {
             VStack(alignment: .leading, spacing: theme.spacing.md) {
                 HStack(spacing: theme.spacing.xs) {

@@ -14790,6 +14790,23 @@
           }
         }
       }
+    },
+    "app.shadowing.error.playback_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load video. Please try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải video. Vui lòng thử lại."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

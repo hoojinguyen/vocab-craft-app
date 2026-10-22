@@ -55,6 +55,11 @@ public struct ShadowingHubView: View {
         .task {
             await viewModel.loadCatalog()
         }
+        .onAppear {
+            Task {
+                await viewModel.loadCatalog()
+            }
+        }
     }
 
     // MARK: - Header Section

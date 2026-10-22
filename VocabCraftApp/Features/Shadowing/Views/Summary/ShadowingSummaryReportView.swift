@@ -48,7 +48,7 @@ public struct ShadowingSummaryReportView: View {
                     .frame(width: 80, height: 80)
 
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 38))
+                    .font(theme.typography.displayLarge)
                     .foregroundStyle(theme.colors.accent)
             }
 

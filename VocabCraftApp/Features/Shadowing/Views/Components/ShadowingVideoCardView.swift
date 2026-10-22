@@ -103,7 +103,7 @@ public struct ShadowingVideoCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: theme.radius.xs))
                 .padding(theme.spacing.xs)
         }
-        .aspectRatio(16 / 9, contentMode: .fit)
+        .aspectRatio(16.0 / 9.0, contentMode: .fit)
         .frame(maxWidth: .infinity)
         .clipped()
     }

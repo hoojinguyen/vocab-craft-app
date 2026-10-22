@@ -261,6 +261,59 @@ struct ShadowingStudioViewModelTests {
         #expect(sessionCoordinator.currentIntent != .speechCapture)
     }
 
+    @Test("Verifies headphone disconnection during Round 2 stops active recording")
+    @MainActor
+    func testHeadphoneDisconnectionDuringRound2StopsRecording() throws {
+        let sampleVideo = makeSampleVideo()
+        let sessionCoordinator = ShadowingSessionCoordinator()
+        let viewModel = ShadowingStudioViewModel(
+            video: sampleVideo,
+            sessionCoordinator: sessionCoordinator
+        )
+
+        viewModel.selectRound(.round2SpeedShadowing)
+        viewModel.isHeadphonesConnected = true
+
+        let url = try sessionCoordinator.recorder.startRecording(sentenceId: "round2_\(sampleVideo.id)")
+        viewModel.round2AudioURL = url
+        #expect(sessionCoordinator.recorder.isRecording)
+        #expect(viewModel.round2AudioURL != nil)
+
+        // Simulate headphone disconnection
+        viewModel.isHeadphonesConnected = false
+
+        #expect(!sessionCoordinator.recorder.isRecording)
+        #expect(viewModel.round2AudioURL == nil)
+    }
+
+    // MARK: - Playback Error Handling & Recovery
+
+    @Test("Verifies playback error sets error state and retry clears error and restarts playback")
+    @MainActor
+    func testPlaybackErrorHandlingAndRetry() {
+        let sampleVideo = makeSampleVideo()
+        let viewModel = ShadowingStudioViewModel(video: sampleVideo)
+
+        #expect(viewModel.playbackError == nil)
+        #expect(!viewModel.hasPlaybackError)
+        #expect(viewModel.isPlaying == true)
+
+        // Handle error from player
+        viewModel.handlePlaybackError(code: 150)
+
+        #expect(viewModel.playbackError != nil)
+        #expect(viewModel.hasPlaybackError)
+        #expect(viewModel.isPlaying == false)
+
+        // Retry playback
+        viewModel.retryPlayback()
+
+        #expect(viewModel.playbackError == nil)
+        #expect(!viewModel.hasPlaybackError)
+        #expect(viewModel.isPlaying == true)
+        #expect(viewModel.bridgeHolder.isPlaying == true)
+    }
+
     // MARK: - Round 3 Echo Drill Recording & Scoring
 
     @Test("Verifies Round 3 echo drilling records, evaluates with SpeechKit, and updates average mastery score")

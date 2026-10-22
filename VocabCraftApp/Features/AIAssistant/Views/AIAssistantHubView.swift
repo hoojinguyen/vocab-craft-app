@@ -142,10 +142,8 @@ public struct AIAssistantHubView: View {
             case .shadowingHub(let hubViewModel):
                 ShadowingHubModalView(
                     viewModel: hubViewModel,
-                    onDismiss: { activeDestination = nil },
-                    onSelectVideo: { video in
-                        activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
-                    }
+                    appContainer: appContainer,
+                    onDismiss: { activeDestination = nil }
                 )
             case .shadowingStudio(let studioViewModel):
                 ShadowingStudioContainerView(viewModel: studioViewModel)
@@ -173,10 +171,8 @@ public struct AIAssistantHubView: View {
             case .shadowingHub(let hubViewModel):
                 ShadowingHubModalView(
                     viewModel: hubViewModel,
-                    onDismiss: { activeDestination = nil },
-                    onSelectVideo: { video in
-                        activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
-                    }
+                    appContainer: appContainer,
+                    onDismiss: { activeDestination = nil }
                 )
             case .shadowingStudio(let studioViewModel):
                 ShadowingStudioContainerView(viewModel: studioViewModel)
@@ -406,15 +402,18 @@ public struct AIAssistantHubView: View {
 
 private struct ShadowingHubModalView: View {
     let viewModel: ShadowingHubViewModel
+    let appContainer: AppContainer
     let onDismiss: () -> Void
-    let onSelectVideo: (ShadowingVideo) -> Void
     @Environment(\.craftTheme) private var theme
+    @State private var selectedStudioViewModel: ShadowingStudioViewModel?
 
     var body: some View {
         NavigationStack {
             ShadowingHubView(
                 viewModel: viewModel,
-                onSelectVideo: onSelectVideo
+                onSelectVideo: { video in
+                    selectedStudioViewModel = appContainer.makeShadowingStudioViewModel(for: video)
+                }
             )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -426,6 +425,23 @@ private struct ShadowingHubModalView: View {
                     .accessibilityLabel(String(localized: "common.close"))
                 }
             }
+            #if os(iOS)
+            .fullScreenCover(item: $selectedStudioViewModel, onDismiss: {
+                Task {
+                    await viewModel.loadCatalog()
+                }
+            }) { studioViewModel in
+                ShadowingStudioContainerView(viewModel: studioViewModel)
+            }
+            #else
+            .sheet(item: $selectedStudioViewModel, onDismiss: {
+                Task {
+                    await viewModel.loadCatalog()
+                }
+            }) { studioViewModel in
+                ShadowingStudioContainerView(viewModel: studioViewModel)
+            }
+            #endif
         }
     }
 }

@@ -14,11 +14,15 @@ public final class ShadowingAudioRecorder: NSObject, AVAudioRecorderDelegate, AV
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
     private var playbackFinishedHandler: (@Sendable () -> Void)?
+    private var isActivelyRecording: Bool = false
 
     public private(set) var lastRecordedURL: URL?
 
     public var isRecording: Bool {
-        audioRecorder?.isRecording ?? false
+        if let recorder = audioRecorder, recorder.isRecording {
+            return true
+        }
+        return isActivelyRecording
     }
 
     public var isPlaying: Bool {
@@ -45,10 +49,12 @@ public final class ShadowingAudioRecorder: NSObject, AVAudioRecorderDelegate, AV
         recorder.record()
         self.audioRecorder = recorder
         self.lastRecordedURL = fileURL
+        self.isActivelyRecording = true
         return fileURL
     }
 
     public func stopRecording() {
+        isActivelyRecording = false
         audioRecorder?.stop()
         audioRecorder = nil
     }

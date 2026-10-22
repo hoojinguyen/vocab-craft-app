@@ -109,15 +109,31 @@ public struct ShadowingEchoView: View {
     // MARK: - Video Player Container
 
     private var playerContainer: some View {
-        CraftYouTubePlayerView(
-            videoId: viewModel.video.youtubeVideoId,
-            bridgeHolder: viewModel.bridgeHolder,
-            onMessage: { message in
-                if case .segmentFinished = message {
-                    viewModel.handleSegmentFinished()
+        ZStack {
+            CraftYouTubePlayerView(
+                videoId: viewModel.video.youtubeVideoId,
+                bridgeHolder: viewModel.bridgeHolder,
+                onMessage: { message in
+                    switch message {
+                    case .segmentFinished:
+                        viewModel.handleSegmentFinished()
+                    case .error(let code):
+                        viewModel.handlePlaybackError(code: code)
+                    default:
+                        break
+                    }
                 }
+            )
+
+            if let error = viewModel.playbackError {
+                ShadowingPlaybackErrorOverlay(
+                    message: error,
+                    onRetry: {
+                        viewModel.retryPlayback()
+                    }
+                )
             }
-        )
+        }
         .aspectRatio(16.0 / 9.0, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous))
         .overlay(
