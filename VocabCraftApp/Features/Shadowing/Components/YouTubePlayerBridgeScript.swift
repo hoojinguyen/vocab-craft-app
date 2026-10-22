@@ -144,6 +144,19 @@ public enum YouTubePlayerBridgeScript {
           if (player && player.pauseVideo) player.pauseVideo();
         }
 
+        function playVideo() {
+          isMonitoring = false;
+          if (player && player.playVideo) player.playVideo();
+        }
+
+        function setPlaybackRate(rate) {
+          if (player && player.setPlaybackRate) player.setPlaybackRate(rate);
+        }
+
+        function seekTo(seconds) {
+          if (player && player.seekTo) player.seekTo(seconds, true);
+        }
+
         function replaySegment(start, end, rate) {
           playSegment(start, end, rate);
         }

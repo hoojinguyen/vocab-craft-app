@@ -116,6 +116,7 @@
 		30005E3A3F7D00000006 /* ShadowingAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000006 /* ShadowingAudioRecorder.swift */; };
 		30005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift */; };
 		30005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */; };
+		30005E3A3F7D00060001 /* ShadowingStudioViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00060001 /* ShadowingStudioViewModel.swift */; };
 		30005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */; };
 		30005E3A3F7D0000000C /* ShadowingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D0000000C /* ShadowingPracticeView.swift */; };
 		30000BFE98509D30FF1D /* LessonPlanModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000BFE98509D30FF1D /* LessonPlanModels.swift */; };
@@ -434,6 +435,7 @@
 		30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */; };
 		30005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift */; };
 		30005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift */; };
+		30005E3A3F7D00060002 /* ShadowingStudioViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00060002 /* ShadowingStudioViewModelTests.swift */; };
 		30005E3A3F7D00050003 /* CraftShadowingTeleprompterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00050003 /* CraftShadowingTeleprompterTests.swift */; };
 		3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
@@ -603,6 +605,7 @@
 		20005E3A3F7D00000006 /* ShadowingAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingAudioRecorder.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingSessionCoordinator.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingPracticeViewModel.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00060001 /* ShadowingStudioViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingStudioViewModel.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingKeyWordPopoverView.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D0000000C /* ShadowingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingPracticeView.swift"; sourceTree = "<group>"; };
 		20000BFE98509D30FF1D /* LessonPlanModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonPlanModels.swift"; sourceTree = "<group>"; };
@@ -905,6 +908,7 @@
 		20005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubePlayerBridgeTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingSessionCoordinatorTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingPracticeViewModelTests.swift"; sourceTree = "<group>"; };
+		20005E3A3F7D00060002 /* ShadowingStudioViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingStudioViewModelTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00050003 /* CraftShadowingTeleprompterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CraftShadowingTeleprompterTests.swift"; sourceTree = "<group>"; };
 		2000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockCompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
@@ -1464,6 +1468,7 @@
 			children = (
 				20005E3A3F7D00040005 /* ShadowingHubViewModel.swift */,
 				20005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift */,
+				20005E3A3F7D00060001 /* ShadowingStudioViewModel.swift */,
 			);
 			path = "ViewModels";
 			sourceTree = "<group>";
@@ -2141,6 +2146,7 @@
 				20005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift */,
 				20005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift */,
 				20005E3A3F7D00050003 /* CraftShadowingTeleprompterTests.swift */,
+				20005E3A3F7D00060002 /* ShadowingStudioViewModelTests.swift */,
 			);
 			path = "Shadowing";
 			sourceTree = "<group>";
@@ -2549,6 +2555,7 @@
 				30005E3A3F7D00000006 /* ShadowingAudioRecorder.swift in Sources */,
 				30005E3A3F7D00000007 /* ShadowingSessionCoordinator.swift in Sources */,
 				30005E3A3F7D00000009 /* ShadowingPracticeViewModel.swift in Sources */,
+				30005E3A3F7D00060001 /* ShadowingStudioViewModel.swift in Sources */,
 				30005E3A3F7D0000000B /* ShadowingKeyWordPopoverView.swift in Sources */,
 				30005E3A3F7D0000000C /* ShadowingPracticeView.swift in Sources */,
 				30005E3A3F7D00040001 /* DailyChallengeHeroCard.swift in Sources */,
@@ -2883,6 +2890,7 @@
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
 				30005E3A3F7D00000008 /* ShadowingSessionCoordinatorTests.swift in Test Sources */,
 				30005E3A3F7D0000000A /* ShadowingPracticeViewModelTests.swift in Test Sources */,
+				30005E3A3F7D00060002 /* ShadowingStudioViewModelTests.swift in Test Sources */,
 				30005E3A3F7D00050003 /* CraftShadowingTeleprompterTests.swift in Test Sources */,
 				30005E3A3F7D00040006 /* ShadowingHubViewModelTests.swift in Test Sources */,
 				3000FA7F71F7E2528C09 /* MockCompleteLessonUseCase.swift in Test Sources */,

@@ -90,14 +90,28 @@ public struct CraftYouTubePlayerView: View {
 public final class YouTubeBridgeHolder {
     fileprivate weak var webView: WKWebView?
 
+    public private(set) var playbackRate: Float = 1.0
+    public private(set) var lastSeekTime: Double?
+    public private(set) var isPlaying: Bool = false
+
     public init() {}
 
     public func playSegment(start: Double, end: Double, rate: Float = 1.0) {
+        isPlaying = true
+        playbackRate = rate
+        lastSeekTime = start
         let script = "playSegment(\(start.description), \(end.description), \(rate.description));"
         webView?.evaluateJavaScript(script)
     }
 
+    public func playVideo() {
+        isPlaying = true
+        let script = "playVideo();"
+        webView?.evaluateJavaScript(script)
+    }
+
     public func pauseVideo() {
+        isPlaying = false
         let script = "pauseVideo();"
         webView?.evaluateJavaScript(script)
     }
@@ -105,16 +119,52 @@ public final class YouTubeBridgeHolder {
     public func replaySegment(start: Double, end: Double, rate: Float = 1.0) {
         playSegment(start: start, end: end, rate: rate)
     }
+
+    public func setPlaybackRate(_ rate: Float) {
+        playbackRate = rate
+        let script = "setPlaybackRate(\(rate.description));"
+        webView?.evaluateJavaScript(script)
+    }
+
+    public func seekTo(seconds: Double) {
+        lastSeekTime = seconds
+        let script = "seekTo(\(seconds.description));"
+        webView?.evaluateJavaScript(script)
+    }
 }
 #else
 @MainActor
 public final class YouTubeBridgeHolder {
+    public private(set) var playbackRate: Float = 1.0
+    public private(set) var lastSeekTime: Double?
+    public private(set) var isPlaying: Bool = false
+
     public init() {}
 
-    public func playSegment(start: Double, end: Double, rate: Float = 1.0) {}
+    public func playSegment(start: Double, end: Double, rate: Float = 1.0) {
+        isPlaying = true
+        playbackRate = rate
+        lastSeekTime = start
+    }
 
-    public func pauseVideo() {}
+    public func playVideo() {
+        isPlaying = true
+    }
 
-    public func replaySegment(start: Double, end: Double, rate: Float = 1.0) {}
+    public func pauseVideo() {
+        isPlaying = false
+    }
+
+    public func replaySegment(start: Double, end: Double, rate: Float = 1.0) {
+        playSegment(start: start, end: end, rate: rate)
+    }
+
+    public func setPlaybackRate(_ rate: Float) {
+        playbackRate = rate
+    }
+
+    public func seekTo(seconds: Double) {
+        lastSeekTime = seconds
+    }
 }
 #endif
