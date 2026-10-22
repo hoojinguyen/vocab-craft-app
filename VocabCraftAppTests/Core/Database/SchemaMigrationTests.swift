@@ -58,24 +58,24 @@ final class SchemaMigrationTests: XCTestCase {
         let v2Container = try ModelContainer(for: v2Schema, migrationPlan: AppMigrationPlan.self, configurations: [v2Config])
 
         // Step 3: Verify migrated records exist and match
-        let wordDesc = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == 101 })
+        let wordDesc = FetchDescriptor<SchemaV2.UserWordProgress>(predicate: #Predicate { $0.wordId == 101 })
         let words = try v2Container.mainContext.fetch(wordDesc)
         XCTAssertEqual(words.count, 1)
         XCTAssertEqual(words.first?.wordId, 101)
         XCTAssertEqual(words.first?.correctStreak, 3)
         XCTAssertTrue(words.first?.isBookmarked ?? false)
 
-        let sessionDesc = FetchDescriptor<ReflexSessionLog>(predicate: #Predicate { $0.id == sessionID })
+        let sessionDesc = FetchDescriptor<SchemaV2.ReflexSessionLog>(predicate: #Predicate { $0.id == sessionID })
         let sessions = try v2Container.mainContext.fetch(sessionDesc)
         XCTAssertEqual(sessions.count, 1)
         XCTAssertEqual(sessions.first?.drillId, 202)
 
         // Step 4: Verify new V2 model can be saved
-        let stageProgress = UserStageProgress(stageId: "stage_test_1", deckId: "deck_test", isCompleted: true, score: 100)
+        let stageProgress = SchemaV2.UserStageProgress(stageId: "stage_test_1", deckId: "deck_test", isCompleted: true, score: 100)
         v2Container.mainContext.insert(stageProgress)
         try v2Container.mainContext.save()
 
-        let stageDesc = FetchDescriptor<UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_test_1" })
+        let stageDesc = FetchDescriptor<SchemaV2.UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_test_1" })
         let stages = try v2Container.mainContext.fetch(stageDesc)
         XCTAssertEqual(stages.count, 1)
     }
@@ -220,7 +220,7 @@ final class SchemaMigrationTests: XCTestCase {
         in v2Container: ModelContainer,
         expectedDate: Date
     ) throws {
-        let widgetDesc = FetchDescriptor<WidgetCurrentState>()
+        let widgetDesc = FetchDescriptor<SchemaV2.WidgetCurrentState>()
         let widgets = try v2Container.mainContext.fetch(widgetDesc)
         XCTAssertEqual(widgets.count, 1)
 
@@ -240,7 +240,7 @@ final class SchemaMigrationTests: XCTestCase {
         date2: Date,
         date3: Date
     ) throws {
-        let wordDesc = FetchDescriptor<UserWordProgress>(sortBy: [SortDescriptor(\.wordId, order: .forward)])
+        let wordDesc = FetchDescriptor<SchemaV2.UserWordProgress>(sortBy: [SortDescriptor(\.wordId, order: .forward)])
         let words = try v2Container.mainContext.fetch(wordDesc)
         XCTAssertEqual(words.count, 3)
 
@@ -294,7 +294,7 @@ final class SchemaMigrationTests: XCTestCase {
         session1ID: UUID,
         session2ID: UUID
     ) throws {
-        let sessionDesc = FetchDescriptor<ReflexSessionLog>(sortBy: [SortDescriptor(\.drillId, order: .forward)])
+        let sessionDesc = FetchDescriptor<SchemaV2.ReflexSessionLog>(sortBy: [SortDescriptor(\.drillId, order: .forward)])
         let sessions = try v2Container.mainContext.fetch(sessionDesc)
         XCTAssertEqual(sessions.count, 2)
 
@@ -315,7 +315,7 @@ final class SchemaMigrationTests: XCTestCase {
 
     @MainActor
     private func verifyNewV2EntityOperations(in v2Container: ModelContainer) throws {
-        let stageProgress = UserStageProgress(
+        let stageProgress = SchemaV2.UserStageProgress(
             stageId: "stage_test_multi_1",
             deckId: "deck_test_multi",
             isCompleted: true,
@@ -326,7 +326,7 @@ final class SchemaMigrationTests: XCTestCase {
         v2Container.mainContext.insert(stageProgress)
 
         let attemptId = UUID()
-        let attemptRecord = QuickReflexAttemptRecord(
+        let attemptRecord = SchemaV2.QuickReflexAttemptRecord(
             id: attemptId,
             wordId: 101,
             recallWordTimeMs: 450,
@@ -345,7 +345,7 @@ final class SchemaMigrationTests: XCTestCase {
         v2Container.mainContext.insert(attemptRecord)
         try v2Container.mainContext.save()
 
-        let stageDesc = FetchDescriptor<UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_test_multi_1" })
+        let stageDesc = FetchDescriptor<SchemaV2.UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_test_multi_1" })
         let fetchedStages = try v2Container.mainContext.fetch(stageDesc)
         XCTAssertEqual(fetchedStages.count, 1)
         XCTAssertEqual(fetchedStages.first?.stageId, "stage_test_multi_1")
@@ -354,7 +354,7 @@ final class SchemaMigrationTests: XCTestCase {
         XCTAssertEqual(fetchedStages.first?.score, 95)
         XCTAssertEqual(fetchedStages.first?.progressFraction, 1.0)
 
-        let attemptDesc = FetchDescriptor<QuickReflexAttemptRecord>(predicate: #Predicate { $0.id == attemptId })
+        let attemptDesc = FetchDescriptor<SchemaV2.QuickReflexAttemptRecord>(predicate: #Predicate { $0.id == attemptId })
         let fetchedAttempts = try v2Container.mainContext.fetch(attemptDesc)
         XCTAssertEqual(fetchedAttempts.count, 1)
         XCTAssertEqual(fetchedAttempts.first?.wordId, 101)

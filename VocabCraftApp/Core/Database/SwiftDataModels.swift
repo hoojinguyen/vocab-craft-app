@@ -8,11 +8,18 @@ import SwiftData
 extension KeyPath: @unchecked @retroactive Sendable {}
 
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
-public typealias UserWordProgress = SchemaV2.UserWordProgress
-public typealias UserStageProgress = SchemaV2.UserStageProgress
-public typealias ReflexSessionLog = SchemaV2.ReflexSessionLog
-public typealias QuickReflexAttemptRecord = SchemaV2.QuickReflexAttemptRecord
-public typealias WidgetCurrentState = SchemaV2.WidgetCurrentState
+public typealias UserWordProgress = SchemaV3.UserWordProgress
+public typealias UserStageProgress = SchemaV3.UserStageProgress
+public typealias ReflexSessionLog = SchemaV3.ReflexSessionLog
+public typealias QuickReflexAttemptRecord = SchemaV3.QuickReflexAttemptRecord
+public typealias WidgetCurrentState = SchemaV3.WidgetCurrentState
+
+public typealias PracticeSessionRecord = SchemaV3.PracticeSessionRecord
+public typealias PracticeTurnRecord = SchemaV3.PracticeTurnRecord
+public typealias SupportExposureRecord = SchemaV3.SupportExposureRecord
+public typealias PracticePresentationRecord = SchemaV3.PracticePresentationRecord
+public typealias WordUseEvidenceRecord = SchemaV3.WordUseEvidenceRecord
+public typealias CommunicationProgressRecord = SchemaV3.CommunicationProgressRecord
 #else
 public final class UserWordProgress: @unchecked Sendable {
     public var wordId: Int64
@@ -246,6 +253,300 @@ public final class WidgetCurrentState: @unchecked Sendable {
         self.definitionVi = definitionVi
         self.exampleEn = exampleEn
         self.lastUpdated = lastUpdated
+    }
+}
+
+public final class PracticeSessionRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var id: UUID
+    public var revision: Int
+    public var statusRaw: String
+    public var initialInputModeRaw: String
+    public var policyVersion: Int
+    public var startedAt: Date
+    public var completedAt: Date?
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        id: UUID = UUID(),
+        revision: Int = 1,
+        statusRaw: String,
+        initialInputModeRaw: String,
+        policyVersion: Int = 1,
+        startedAt: Date = Date(),
+        completedAt: Date? = nil,
+        payloadJSON: Data = Data(),
+        formatVersion: Int = PracticeSessionRecord.currentFormatVersion
+    ) {
+        self.id = id
+        self.revision = revision
+        self.statusRaw = statusRaw
+        self.initialInputModeRaw = initialInputModeRaw
+        self.policyVersion = policyVersion
+        self.startedAt = startedAt
+        self.completedAt = completedAt
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "PracticeSessionRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
+    }
+}
+
+public final class PracticeTurnRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var id: UUID
+    public var sessionId: UUID
+    public var sequence: Int
+    public var speakerRaw: String
+    public var inputModeRaw: String
+    public var sessionRevision: Int
+    public var timestamp: Date
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        id: UUID = UUID(),
+        sessionId: UUID,
+        sequence: Int,
+        speakerRaw: String,
+        inputModeRaw: String,
+        sessionRevision: Int,
+        timestamp: Date = Date(),
+        payloadJSON: Data = Data(),
+        formatVersion: Int = PracticeTurnRecord.currentFormatVersion
+    ) {
+        self.id = id
+        self.sessionId = sessionId
+        self.sequence = sequence
+        self.speakerRaw = speakerRaw
+        self.inputModeRaw = inputModeRaw
+        self.sessionRevision = sessionRevision
+        self.timestamp = timestamp
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "PracticeTurnRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
+    }
+}
+
+public final class SupportExposureRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var id: UUID
+    public var sessionId: UUID
+    public var turnId: UUID?
+    public var targetWordIdsRaw: String
+    public var levelRaw: String
+    public var originRaw: String
+    public var channelRaw: String
+    public var presentedAt: Date
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        id: UUID = UUID(),
+        sessionId: UUID,
+        turnId: UUID? = nil,
+        targetWordIdsRaw: String = "",
+        levelRaw: String,
+        originRaw: String,
+        channelRaw: String,
+        presentedAt: Date = Date(),
+        payloadJSON: Data = Data(),
+        formatVersion: Int = SupportExposureRecord.currentFormatVersion
+    ) {
+        self.id = id
+        self.sessionId = sessionId
+        self.turnId = turnId
+        self.targetWordIdsRaw = targetWordIdsRaw
+        self.levelRaw = levelRaw
+        self.originRaw = originRaw
+        self.channelRaw = channelRaw
+        self.presentedAt = presentedAt
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "SupportExposureRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
+    }
+}
+
+public final class PracticePresentationRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var id: UUID
+    public var sessionId: UUID
+    public var turnId: UUID?
+    public var statusRaw: String
+    public var channelRaw: String
+    public var proposedLevelRaw: String
+    public var possibleWordIdsRaw: String
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        id: UUID = UUID(),
+        sessionId: UUID,
+        turnId: UUID? = nil,
+        statusRaw: String,
+        channelRaw: String,
+        proposedLevelRaw: String,
+        possibleWordIdsRaw: String = "",
+        payloadJSON: Data = Data(),
+        formatVersion: Int = PracticePresentationRecord.currentFormatVersion
+    ) {
+        self.id = id
+        self.sessionId = sessionId
+        self.turnId = turnId
+        self.statusRaw = statusRaw
+        self.channelRaw = channelRaw
+        self.proposedLevelRaw = proposedLevelRaw
+        self.possibleWordIdsRaw = possibleWordIdsRaw
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "PracticePresentationRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
+    }
+}
+
+public final class WordUseEvidenceRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var id: UUID
+    public var sessionId: UUID
+    public var turnId: UUID
+    public var wordId: Int64
+    public var objectiveId: String
+    public var usageVerdictRaw: String
+    public var intentVerdictRaw: String
+    public var transcriptReliabilityRaw: String
+    public var inputModeRaw: String
+    public var statusRaw: String
+    public var primed: Bool
+    public var timestamp: Date
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        id: UUID = UUID(),
+        sessionId: UUID,
+        turnId: UUID,
+        wordId: Int64,
+        objectiveId: String,
+        usageVerdictRaw: String,
+        intentVerdictRaw: String,
+        transcriptReliabilityRaw: String,
+        inputModeRaw: String,
+        statusRaw: String,
+        primed: Bool = false,
+        timestamp: Date = Date(),
+        payloadJSON: Data = Data(),
+        formatVersion: Int = WordUseEvidenceRecord.currentFormatVersion
+    ) {
+        self.id = id
+        self.sessionId = sessionId
+        self.turnId = turnId
+        self.wordId = wordId
+        self.objectiveId = objectiveId
+        self.usageVerdictRaw = usageVerdictRaw
+        self.intentVerdictRaw = intentVerdictRaw
+        self.transcriptReliabilityRaw = transcriptReliabilityRaw
+        self.inputModeRaw = inputModeRaw
+        self.statusRaw = statusRaw
+        self.primed = primed
+        self.timestamp = timestamp
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "WordUseEvidenceRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
+    }
+}
+
+public final class CommunicationProgressRecord: @unchecked Sendable {
+    public static let currentFormatVersion: Int = 1
+
+    public var logicalKey: String
+    public var wordId: Int64
+    public var inputModeRaw: String
+    public var stageRaw: String
+    public var lastIndependentUseAt: Date?
+    public var nextPracticeAt: Date?
+    public var policyVersion: Int
+    public var payloadJSON: Data
+    public var formatVersion: Int
+
+    public init(
+        logicalKey: String? = nil,
+        wordId: Int64,
+        inputModeRaw: String,
+        stageRaw: String,
+        lastIndependentUseAt: Date? = nil,
+        nextPracticeAt: Date? = nil,
+        policyVersion: Int = 1,
+        payloadJSON: Data = Data(),
+        formatVersion: Int = CommunicationProgressRecord.currentFormatVersion
+    ) {
+        self.logicalKey = logicalKey ?? "\(wordId)_\(inputModeRaw)"
+        self.wordId = wordId
+        self.inputModeRaw = inputModeRaw
+        self.stageRaw = stageRaw
+        self.lastIndependentUseAt = lastIndependentUseAt
+        self.nextPracticeAt = nextPracticeAt
+        self.policyVersion = policyVersion
+        self.payloadJSON = payloadJSON
+        self.formatVersion = formatVersion
+    }
+
+    public func validatePayloadFormatVersion() throws {
+        guard formatVersion == Self.currentFormatVersion else {
+            throw PracticePayloadError.unsupportedFormatVersion(
+                recordType: "CommunicationProgressRecord",
+                found: formatVersion,
+                supported: Self.currentFormatVersion
+            )
+        }
     }
 }
 #endif

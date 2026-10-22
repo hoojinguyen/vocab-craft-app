@@ -83,6 +83,7 @@
 		30007A83E5DDD413980D /* SampleVaultDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007A83E5DDD413980D /* SampleVaultDataSeeder.swift */; };
 		30008B2D46F266C6CB6D /* AppSchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008B2D46F266C6CB6D /* AppSchemaV1.swift */; };
 		30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000F28552F24FC2B4D /* AppSchemaV2.swift */; };
+		30003A5000010001 /* AppSchemaV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A5000010001 /* AppSchemaV3.swift */; };
 		30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */; };
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
@@ -322,6 +323,7 @@
 		30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */; };
 		300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20008B2D46F266C6CB6D /* AppSchemaV1.swift */; };
 		3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20000F28552F24FC2B4D /* AppSchemaV2.swift */; };
+		30013A5000010001 /* AppSchemaV3.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003A5000010001 /* AppSchemaV3.swift */; };
 		3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
 		3001A5AF673BCE0FB1CB /* AppLocalized.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003E23131D39F88BEF /* AppLocalized.swift */; };
@@ -377,6 +379,7 @@
 		300043205668E5B06335 /* LearningPathDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200043205668E5B06335 /* LearningPathDataSourceTests.swift */; };
 		3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */; };
 		3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */; };
+		30003A5000010002 /* GuidedPracticeMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A5000010002 /* GuidedPracticeMigrationTests.swift */; };
 		3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */; };
 		30002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */; };
 		30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */; };
@@ -599,6 +602,7 @@
 		20007A83E5DDD413980D /* SampleVaultDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleVaultDataSeeder.swift"; sourceTree = "<group>"; };
 		20008B2D46F266C6CB6D /* AppSchemaV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV1.swift"; sourceTree = "<group>"; };
 		20000F28552F24FC2B4D /* AppSchemaV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV2.swift"; sourceTree = "<group>"; };
+		20003A5000010001 /* AppSchemaV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV3.swift"; sourceTree = "<group>"; };
 		20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedAppGroupContainer.swift"; sourceTree = "<group>"; };
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels.swift"; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStore.swift"; sourceTree = "<group>"; };
@@ -877,6 +881,7 @@
 		200043205668E5B06335 /* LearningPathDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataSourceTests.swift"; sourceTree = "<group>"; };
 		2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchemaMigrationTests.swift"; sourceTree = "<group>"; };
+		20003A5000010002 /* GuidedPracticeMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GuidedPracticeMigrationTests.swift"; sourceTree = "<group>"; };
 		2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryConcurrencyTests.swift"; sourceTree = "<group>"; };
 		20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocolTests.swift"; sourceTree = "<group>"; };
 		20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechKitAdapterTests.swift"; sourceTree = "<group>"; };
@@ -1180,6 +1185,7 @@
 			children = (
 				20008B2D46F266C6CB6D /* AppSchemaV1.swift */,
 				20000F28552F24FC2B4D /* AppSchemaV2.swift */,
+				20003A5000010001 /* AppSchemaV3.swift */,
 			);
 			path = "Schemas";
 			sourceTree = "<group>";
@@ -2212,6 +2218,7 @@
 				200043205668E5B06335 /* LearningPathDataSourceTests.swift */,
 				2000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift */,
 				2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */,
+				20003A5000010002 /* GuidedPracticeMigrationTests.swift */,
 				2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */,
 				20002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift */,
 			);
@@ -2652,6 +2659,7 @@
 				30007A83E5DDD413980D /* SampleVaultDataSeeder.swift in Sources */,
 				30008B2D46F266C6CB6D /* AppSchemaV1.swift in Sources */,
 				30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */,
+				30003A5000010001 /* AppSchemaV3.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
@@ -2895,6 +2903,7 @@
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */,
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
 				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
+				30013A5000010001 /* AppSchemaV3.swift in Widget Sources */,
 				3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */,
 				3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */,
 				3001A5AF673BCE0FB1CB /* AppLocalized.swift in Widget Sources */,
@@ -2962,6 +2971,7 @@
 				300043205668E5B06335 /* LearningPathDataSourceTests.swift in Test Sources */,
 				3000106B3268E563EF12 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */,
+				30003A5000010002 /* GuidedPracticeMigrationTests.swift in Test Sources */,
 				3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */,
 				30002096593658D4E916 /* VocabularyDataSourceProtocolTests.swift in Test Sources */,
 				30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */,

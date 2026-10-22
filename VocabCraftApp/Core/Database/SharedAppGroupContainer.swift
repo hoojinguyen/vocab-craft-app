@@ -6,11 +6,12 @@ import SwiftData
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
 public enum AppMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self]
     }
     public static var stages: [MigrationStage] {
         [
-            .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)
+            .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
+            .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self)
         ]
     }
 }
@@ -107,7 +108,7 @@ public struct SharedAppGroupContainer {
         storeURL: URL? = nil,
         inMemory: Bool = false
     ) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        let schema = Schema(versionedSchema: SchemaV3.self)
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if inMemory || (isTesting && configuration == nil && storeURL == nil) {
@@ -160,7 +161,7 @@ public struct SharedAppGroupContainer {
             try? fileManager.removeItem(at: shm)
         }
 
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        let schema = Schema(versionedSchema: SchemaV3.self)
         try? fileManager.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let targetConfig = configuration ?? ModelConfiguration(schema: schema, url: storeURL)
 
@@ -194,6 +195,10 @@ public struct SharedAppGroupContainer {
         var attemptDesc = FetchDescriptor<QuickReflexAttemptRecord>()
         attemptDesc.fetchLimit = 1
         if (try? context.fetchCount(attemptDesc)) ?? 0 > 0 { return true }
+
+        var practiceDesc = FetchDescriptor<PracticeSessionRecord>()
+        practiceDesc.fetchLimit = 1
+        if (try? context.fetchCount(practiceDesc)) ?? 0 > 0 { return true }
 
         return false
     }
