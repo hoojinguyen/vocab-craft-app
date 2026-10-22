@@ -13,7 +13,9 @@ public final class AppRouter {
 
     public init(initialTab: TabItem = .home) {
         let args = ProcessInfo.processInfo.arguments
-        if args.contains("-tab-ai") || args.contains("-test-ai-config") || args.contains("-test-ai-room") || args.contains("-test-ai-voice") || args.contains("-test-ai-summary") {
+        let testAIArgs = ["-tab-ai", "-test-ai-config", "-test-ai-room", "-test-ai-voice", "-test-ai-summary"]
+        let testShadowingArgs = ["-test-shadowing", "-test-shadowing-hub"]
+        if testAIArgs.contains(where: { args.contains($0) }) || testShadowingArgs.contains(where: { args.contains($0) }) {
             self.selectedTab = .aiAssistant
         } else if args.contains("-tab-settings") {
             self.selectedTab = .settings

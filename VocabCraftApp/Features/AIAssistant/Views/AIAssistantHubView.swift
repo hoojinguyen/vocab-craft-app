@@ -91,9 +91,19 @@ public struct AIAssistantHubView: View {
                 await viewModel.loadScenarios()
             }
             let args = ProcessInfo.processInfo.arguments
-            if args.contains("-test-shadowing") {
+            if args.contains("-test-shadowing-hub") {
+                activeDestination = .shadowingHub(appContainer.makeShadowingHubViewModel())
+            } else if args.contains("-test-shadowing") {
                 let video = ShadowingVideoRepositoryImpl.sampleVideo
-                activeDestination = .shadowingStudio(appContainer.makeShadowingStudioViewModel(for: video))
+                let studioVM = appContainer.makeShadowingStudioViewModel(for: video)
+                if args.contains("-round2") {
+                    studioVM.selectRound(.round2SpeedShadowing)
+                } else if args.contains("-round3") {
+                    studioVM.selectRound(.round3EchoDrill)
+                } else if args.contains("-summary") {
+                    studioVM.selectRound(.summaryReport)
+                }
+                activeDestination = .shadowingStudio(studioVM)
             } else if args.contains("-test-ai-room") {
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
                     activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: scenario))

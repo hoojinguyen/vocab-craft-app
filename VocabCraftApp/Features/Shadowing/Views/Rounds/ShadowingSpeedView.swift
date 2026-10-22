@@ -44,30 +44,26 @@ public struct ShadowingSpeedView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            HStack(alignment: .center) {
-                Text(LocalizedStringKey("app.shadowing.round2.title"))
-                    .font(theme.typography.titleLarge)
-                    .foregroundStyle(theme.colors.textPrimary)
+            Text(LocalizedStringKey("app.shadowing.round2.title"))
+                .font(theme.typography.titleLarge)
+                .foregroundStyle(theme.colors.textPrimary)
 
-                Spacer()
-
-                if viewModel.isHeadphonesConnected {
-                    CraftBadge(
-                        String(localized: "app.shadowing.round2.headphone_connected"),
-                        iconName: "headphones",
-                        variant: .solid,
-                        tone: .success,
-                        size: .sm
-                    )
-                } else {
-                    CraftBadge(
-                        String(localized: "app.shadowing.round2.headphone_advisory"),
-                        iconName: "headphones",
-                        variant: .subtle,
-                        tone: .warning,
-                        size: .sm
-                    )
-                }
+            if viewModel.isHeadphonesConnected {
+                CraftBadge(
+                    String(localized: "app.shadowing.round2.headphone_connected"),
+                    iconName: "headphones",
+                    variant: .solid,
+                    tone: .success,
+                    size: .sm
+                )
+            } else {
+                CraftBadge(
+                    String(localized: "app.shadowing.round2.headphone_advisory"),
+                    iconName: "headphones",
+                    variant: .subtle,
+                    tone: .warning,
+                    size: .sm
+                )
             }
 
             if viewModel.round2AudioURL != nil {

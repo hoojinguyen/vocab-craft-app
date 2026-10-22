@@ -62,11 +62,13 @@ public struct ShadowingStudioContainerView: View {
     }
 
     private var stagePillsBar: some View {
-        HStack(spacing: theme.spacing.xs) {
+        HStack(spacing: theme.spacing.sm) {
             ForEach(ShadowingRoundStage.allCases) { stage in
-                CraftPill(
-                    stageTitle(for: stage),
+                StageStepButton(
+                    symbol: stageSymbol(for: stage),
                     isSelected: viewModel.activeRound == stage,
+                    accessibilityLabel: fullStageTitle(for: stage),
+                    theme: theme,
                     action: {
                         viewModel.selectRound(stage)
                     }
@@ -75,7 +77,20 @@ public struct ShadowingStudioContainerView: View {
         }
     }
 
-    private func stageTitle(for stage: ShadowingRoundStage) -> String {
+    private func stageSymbol(for stage: ShadowingRoundStage) -> String {
+        switch stage {
+        case .round1Immersion:
+            return "1"
+        case .round2SpeedShadowing:
+            return "2"
+        case .round3EchoDrill:
+            return "3"
+        case .summaryReport:
+            return "★"
+        }
+    }
+
+    private func fullStageTitle(for stage: ShadowingRoundStage) -> String {
         switch stage {
         case .round1Immersion:
             return String(localized: "app.shadowing.stage.round1")
@@ -87,7 +102,6 @@ public struct ShadowingStudioContainerView: View {
             return String(localized: "app.shadowing.stage.summary")
         }
     }
-
     // MARK: - Stage Content View
 
     @ViewBuilder
@@ -107,5 +121,33 @@ public struct ShadowingStudioContainerView: View {
                 }
             )
         }
+    }
+}
+
+private struct StageStepButton: View {
+    let symbol: String
+    let isSelected: Bool
+    let accessibilityLabel: String
+    let theme: CraftTheme
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle()
+                    .fill(isSelected ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+
+                Circle()
+                    .stroke(isSelected ? theme.colors.brandPrimary : theme.colors.borderDefault, lineWidth: 1)
+
+                Text(symbol)
+                    .font(theme.typography.label)
+                    .fontWeight(isSelected ? .bold : .medium)
+                    .foregroundStyle(isSelected ? theme.colors.textInverse : theme.colors.textSecondary)
+            }
+            .frame(width: 34, height: 34)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(accessibilityLabel)
     }
 }
