@@ -108,6 +108,11 @@ struct VocabCraftApp: App {
                 .environment(\.appContainer, appContainer)
                 .environment(\.appRouter, appContainer.appRouter)
                 .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-shadowing") {
+            ShadowingPracticeView(viewModel: appContainer.makeShadowingPracticeViewModel(for: ShadowingVideoRepositoryImpl.sampleVideo))
+                .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
+                .environment(\.ttsService, appContainer.ttsService)
         } else if args.contains("-show-settings") {
             SettingsView(viewModel: appContainer.makeSettingsViewModel())
                 .environment(\.appContainer, appContainer)

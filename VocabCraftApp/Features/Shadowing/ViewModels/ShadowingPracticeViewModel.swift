@@ -5,7 +5,8 @@ import SpeechKit
 
 @MainActor
 @Observable
-public final class ShadowingPracticeViewModel {
+public final class ShadowingPracticeViewModel: Identifiable {
+    public nonisolated var id: String { video.id }
     public let video: ShadowingVideo
     public private(set) var currentSentenceIndex: Int = 0
     public var playbackPhase: ShadowingPlaybackPhase = .idle

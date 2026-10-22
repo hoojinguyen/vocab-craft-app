@@ -61,4 +61,20 @@ public final class ShadowingVideoRepositoryImpl: ShadowingVideoRepositoryProtoco
     public func fetchVideo(byId id: String) async throws -> ShadowingVideo? {
         curatedVideos.first(where: { $0.id == id })
     }
+
+    public static var sampleVideo: ShadowingVideo {
+        let repo = ShadowingVideoRepositoryImpl()
+        if let first = repo.curatedVideos.first {
+            return first
+        }
+        return ShadowingVideo(
+            id: "fallback",
+            youtubeVideoId: "kJQP7kiw5Fk",
+            title: "Ordering at a Café",
+            topic: .dailyLife,
+            level: "A2",
+            durationSeconds: 32.0,
+            sentences: []
+        )
+    }
 }

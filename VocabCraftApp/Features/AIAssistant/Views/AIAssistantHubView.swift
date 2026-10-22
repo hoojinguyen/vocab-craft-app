@@ -10,12 +10,14 @@ public struct AIAssistantHubView: View {
         case room(RoleplayRoomViewModel)
         case voiceCall(RoleplayVoiceCallViewModel)
         case summary(RoleplaySessionSummary)
+        case shadowing(ShadowingPracticeViewModel)
 
         nonisolated var id: String {
             switch self {
             case .room(let vm): return "room-\(ObjectIdentifier(vm))"
             case .voiceCall(let vm): return "voice-\(ObjectIdentifier(vm))"
             case .summary(let summary): return "summary-\(summary.id)"
+            case .shadowing(let vm): return "shadowing-\(ObjectIdentifier(vm))"
             }
         }
     }
@@ -67,6 +69,8 @@ public struct AIAssistantHubView: View {
                             )
                         }
 
+                        shadowingHeroCard
+
                         topicFilterBar
 
                         scenarioListSection
@@ -83,7 +87,10 @@ public struct AIAssistantHubView: View {
                 await viewModel.loadScenarios()
             }
             let args = ProcessInfo.processInfo.arguments
-            if args.contains("-test-ai-room") {
+            if args.contains("-test-shadowing") {
+                let video = ShadowingVideoRepositoryImpl.sampleVideo
+                activeDestination = .shadowing(appContainer.makeShadowingPracticeViewModel(for: video))
+            } else if args.contains("-test-ai-room") {
                 if let scenario = viewModel.dailyScenario ?? viewModel.scenarios.first {
                     activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: scenario))
                 }
@@ -126,6 +133,8 @@ public struct AIAssistantHubView: View {
                 RoleplaySummaryView(summary: summary) {
                     activeDestination = nil
                 }
+            case .shadowing(let shadowingViewModel):
+                ShadowingPracticeView(viewModel: shadowingViewModel)
             }
         }
         #else
@@ -145,6 +154,8 @@ public struct AIAssistantHubView: View {
                 RoleplaySummaryView(summary: summary) {
                     activeDestination = nil
                 }
+            case .shadowing(let shadowingViewModel):
+                ShadowingPracticeView(viewModel: shadowingViewModel)
             }
         }
         #endif
@@ -162,6 +173,61 @@ public struct AIAssistantHubView: View {
             Button(AppStrings.Common.cancel, role: .cancel) {}
         } message: {
             Text(AppStrings.AIAssistant.permissionMessage)
+        }
+    }
+
+    private var shadowingHeroCard: some View {
+        CraftCard(
+            style: .outlined,
+            cornerRadius: theme.radii.xl,
+            padding: theme.spacing.lg
+        ) {
+            VStack(alignment: .leading, spacing: theme.spacing.md) {
+                HStack(spacing: theme.spacing.md) {
+                    ZStack {
+                        Circle()
+                            .fill(theme.colors.brandPrimary.opacity(0.12))
+                            .frame(width: 48, height: 48)
+
+                        Image(systemName: "play.tv.fill")
+                            .font(.title3)
+                            .foregroundStyle(theme.colors.brandPrimary)
+                    }
+
+                    VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                        CraftBadge(
+                            String(localized: "app.shadowing.title"),
+                            symbol: .practice,
+                            variant: .subtle,
+                            tone: .primary,
+                            size: .sm,
+                            customTint: theme.colors.brandPrimary
+                        )
+
+                        Text("Ordering at a Café")
+                            .font(theme.typography.headline)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+                }
+
+                Text(String(format: String(localized: "app.shadowing.progress_format"), 1, 3))
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textSecondary)
+
+                CraftButton(
+                    String(localized: "app.shadowing.title"),
+                    iconName: "play.fill",
+                    variant: .primary,
+                    size: .md
+                ) {
+                    let video = ShadowingVideoRepositoryImpl.sampleVideo
+                    activeDestination = .shadowing(appContainer.makeShadowingPracticeViewModel(for: video))
+                }
+            }
         }
     }
 
