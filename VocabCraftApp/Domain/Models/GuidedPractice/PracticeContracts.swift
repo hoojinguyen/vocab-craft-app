@@ -426,40 +426,105 @@ public struct PracticePresentationIntent: Codable, Sendable, Equatable, Hashable
 
 /// Pedagogical observation outcome for a single lexical opportunity.
 public struct PracticeOpportunityOutcome: Codable, Sendable, Equatable, Hashable {
-    public let wordId: Int64
-    public let objectiveId: String
-    public let success: Bool
+    public let opportunityId: String
+    public let wordId: Int64?
+    public let objectiveId: String?
+    public let intentVerdict: PracticeIntentVerdict
+    public let usageVerdict: PracticeUsageVerdict
     public let supportLevel: PracticeSupportLevel
     public let primed: Bool
+    public let eligible: Bool
+
+    public var success: Bool {
+        intentVerdict == .achieved && usageVerdict == .appropriate
+    }
 
     public init(
+        opportunityId: String = UUID().uuidString,
+        wordId: Int64? = nil,
+        objectiveId: String? = nil,
+        intentVerdict: PracticeIntentVerdict,
+        usageVerdict: PracticeUsageVerdict,
+        supportLevel: PracticeSupportLevel,
+        primed: Bool,
+        eligible: Bool = true
+    ) {
+        self.opportunityId = opportunityId
+        self.wordId = wordId
+        self.objectiveId = objectiveId
+        self.intentVerdict = intentVerdict
+        self.usageVerdict = usageVerdict
+        self.supportLevel = supportLevel
+        self.primed = primed
+        self.eligible = eligible
+    }
+
+    public init(
+        opportunityId: UUID,
+        wordId: Int64? = nil,
+        objectiveId: String? = nil,
+        intentVerdict: PracticeIntentVerdict,
+        usageVerdict: PracticeUsageVerdict,
+        supportLevel: PracticeSupportLevel,
+        primed: Bool,
+        eligible: Bool = true
+    ) {
+        self.opportunityId = opportunityId.uuidString
+        self.wordId = wordId
+        self.objectiveId = objectiveId
+        self.intentVerdict = intentVerdict
+        self.usageVerdict = usageVerdict
+        self.supportLevel = supportLevel
+        self.primed = primed
+        self.eligible = eligible
+    }
+
+    public init(
+        opportunityId: String = UUID().uuidString,
         wordId: Int64,
         objectiveId: String,
         success: Bool,
         supportLevel: PracticeSupportLevel,
-        primed: Bool
+        primed: Bool,
+        eligible: Bool = true
     ) {
+        self.opportunityId = opportunityId
         self.wordId = wordId
         self.objectiveId = objectiveId
-        self.success = success
+        self.intentVerdict = success ? .achieved : .notYet
+        self.usageVerdict = success ? .appropriate : .inappropriate
         self.supportLevel = supportLevel
         self.primed = primed
+        self.eligible = eligible
     }
 }
 
 /// Dynamic adaptation proposal adjusting support or difficulty.
 public struct PracticeAdaptationDecision: Codable, Sendable, Equatable, Hashable {
-    public let recommendedSupportLevel: PracticeSupportLevel
-    public let recommendedDifficulty: PracticeDifficulty
+    public let difficulty: PracticeDifficulty
+    public let suggestedSupport: PracticeSupportLevel
     public let explanationKey: String?
+
+    public var recommendedDifficulty: PracticeDifficulty { difficulty }
+    public var recommendedSupportLevel: PracticeSupportLevel { suggestedSupport }
+
+    public init(
+        difficulty: PracticeDifficulty,
+        suggestedSupport: PracticeSupportLevel = .none,
+        explanationKey: String? = nil
+    ) {
+        self.difficulty = difficulty
+        self.suggestedSupport = suggestedSupport
+        self.explanationKey = explanationKey
+    }
 
     public init(
         recommendedSupportLevel: PracticeSupportLevel,
         recommendedDifficulty: PracticeDifficulty,
         explanationKey: String? = nil
     ) {
-        self.recommendedSupportLevel = recommendedSupportLevel
-        self.recommendedDifficulty = recommendedDifficulty
+        self.difficulty = recommendedDifficulty
+        self.suggestedSupport = recommendedSupportLevel
         self.explanationKey = explanationKey
     }
 }
