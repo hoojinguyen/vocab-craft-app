@@ -61,7 +61,7 @@ struct VocabCraftApp: App {
                 }
             }
             .onOpenURL { url in
-                bootstrapper.appContainer?.appRouter.handleDeepLink(url: url)
+                bootstrapper.handleDeepLink(url)
             }
             .onChange(of: scenePhase) { _, newPhase in
                 guard newPhase == .background,

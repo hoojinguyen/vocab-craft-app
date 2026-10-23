@@ -157,6 +157,9 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         XCTAssertEqual(row?.intervalDays, expected.intervalDays)
         XCTAssertEqual(row?.easeFactor, expected.easeFactor)
         XCTAssertGreaterThan(row?.nextReviewDate ?? past, now)
+        let expectedDate = Calendar.current.date(byAdding: .day, value: expected.intervalDays, to: now) ?? now
+        let dateDelta = abs((row?.nextReviewDate ?? .distantPast).timeIntervalSince(expectedDate))
+        XCTAssertLessThan(dateDelta, 60)
     }
 
     func testMarkWordReviewedIncorrectSchedulesTomorrow() async throws {

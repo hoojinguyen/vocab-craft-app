@@ -8,6 +8,18 @@ import WidgetKit
 import VocabCraftApp
 #endif
 
+/// Failures a widget intent reports to the system instead of pretending to succeed.
+public enum WidgetIntentError: Error, CustomLocalizedStringResourceConvertible {
+    case storeUnavailable
+
+    public var localizedStringResource: LocalizedStringResource {
+        switch self {
+        case .storeUnavailable:
+            return "app.widget.intent.error.store_unavailable"
+        }
+    }
+}
+
 public struct GradeCardIntent: AppIntent {
     public static let title: LocalizedStringResource = "app.widget.intent.grade.title"
     public static let description = IntentDescription("app.widget.intent.grade.description")
@@ -45,11 +57,11 @@ public struct GradeCardIntent: AppIntent {
 
     @MainActor
     public func perform() async throws -> some IntentResult {
-        if let container = WidgetContainerHolder.sharedContainer {
-            try perform(store: .appGroup(), context: ModelContext(container), now: Date())
-        } else {
+        guard let container = WidgetContainerHolder.sharedContainer else {
             print("[GradeCardIntent] shared container unavailable; grade dropped")
+            throw WidgetIntentError.storeUnavailable
         }
+        try perform(store: .appGroup(), context: ModelContext(container), now: Date())
         WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.vocab)
         return .result()
     }

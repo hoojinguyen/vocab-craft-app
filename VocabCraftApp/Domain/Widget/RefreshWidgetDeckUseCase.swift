@@ -13,6 +13,7 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
     private let store: WidgetDeckStore
     private let reloader: WidgetReloading
     private let now: @Sendable () -> Date
+    private let serializer = RefreshSerializer()
 
     public init(
         fetchLearningPath: FetchLearningPathUseCaseProtocol,
@@ -30,7 +31,13 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
         self.now = now
     }
 
+    /// Refreshes run one at a time. A request that arrives while one is running is coalesced into
+    /// a single rerun, so the last request always wins and an older snapshot never overwrites a newer one.
     public func execute() async {
+        await serializer.run { await self.refresh() }
+    }
+
+    private func refresh() async {
         do {
             let currentDate = now()
             let curriculum = try await fetchLearningPath.execute()
@@ -63,6 +70,7 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
                     ? $0.wordId < $1.wordId
                     : $0.nextReviewDate < $1.nextReviewDate
             }
+            .prefix(WidgetDeckComposer.maxCards)
         guard !dueRows.isEmpty else { return [] }
         let resolved = try await dataSource.fetchWordsByIds(ids: Set(dueRows.map(\.wordId)))
         let byId = Dictionary(resolved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
@@ -108,5 +116,24 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
             }
         }
         return []
+    }
+}
+
+/// Runs a body one at a time; requests made while it runs collapse into one rerun.
+private actor RefreshSerializer {
+    private var isRunning = false
+    private var rerunRequested = false
+
+    func run(_ body: @Sendable () async -> Void) async {
+        if isRunning {
+            rerunRequested = true
+            return
+        }
+        isRunning = true
+        repeat {
+            rerunRequested = false
+            await body()
+        } while rerunRequested
+        isRunning = false
     }
 }

@@ -10082,6 +10082,23 @@
         }
       }
     },
+    "app.widget.accessibility.blank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "blank"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chỗ trống"
+          }
+        }
+      }
+    },
     "app.widget.action.forgot": {
       "extractionState": "manual",
       "localizations": {
@@ -10111,7 +10128,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nhớ"
+            "value": "Đã nhớ"
           }
         }
       }
@@ -10207,13 +10224,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld words to review"
+            "value": "Due for review: %lld"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld từ cần ôn"
+            "value": "Cần ôn: %lld"
           }
         }
       }
@@ -10282,6 +10299,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chấm thẻ"
+          }
+        }
+      }
+    },
+    "app.widget.intent.error.store_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your progress. Try again from the app."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không mở được tiến độ học. Hãy thử lại từ ứng dụng."
           }
         }
       }

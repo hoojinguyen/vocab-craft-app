@@ -59,13 +59,39 @@ public struct WidgetDeckStore: Sendable {
     private func write<T: Encodable>(_ value: T, to name: String) throws {
         try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(Self.makeFractionalFormatter().string(from: date))
+        }
         try encoder.encode(value).write(to: fileURL(name), options: .atomic)
     }
 
     private static func makeDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let text = try container.decode(String.self)
+            // Fractional seconds first; plain ISO 8601 keeps files written before the change loadable.
+            if let date = makeFractionalFormatter().date(from: text) ?? makePlainFormatter().date(from: text) {
+                return date
+            }
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid ISO 8601 date: \(text)"
+            )
+        }
         return decoder
+    }
+
+    private static func makeFractionalFormatter() -> ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }
+
+    private static func makePlainFormatter() -> ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
     }
 }

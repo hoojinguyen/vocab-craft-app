@@ -21,7 +21,7 @@ struct WidgetTimelineBuilderTests {
         WidgetDeck(
             generatedAt: now,
             pathId: nil,
-            cards: (1...count).map { card(Int64($0)) }
+            cards: (0..<count).map { card(Int64($0 + 1)) }
         )
     }
 
@@ -43,6 +43,13 @@ struct WidgetTimelineBuilderTests {
 
     @Test func nilDeckGivesPlaceholder() {
         let result = build(nil)
+        #expect(result.entries.count == 1)
+        #expect(result.entries[0].mode == .placeholder)
+        #expect(result.reload == .after(now.addingTimeInterval(3600)))
+    }
+
+    @Test func emptyDeckGivesPlaceholder() {
+        let result = build(deck(0))
         #expect(result.entries.count == 1)
         #expect(result.entries[0].mode == .placeholder)
         #expect(result.reload == .after(now.addingTimeInterval(3600)))

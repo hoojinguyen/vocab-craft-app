@@ -310,7 +310,8 @@ public struct VocabularyView: View {
         appRouter.pendingSmartReview = false
         Task {
             let dueWords = try? await appContainer.reviewWeakWordsUseCase.fetchDueWords(now: Date())
-            smartReviewWords = dueWords ?? []
+            // A failed fetch falls back to the loaded list instead of showing a misleading empty review.
+            smartReviewWords = dueWords ?? (vaultVM?.words.filter(\.needsReview) ?? [])
             isPresentingSmartReview = true
         }
     }

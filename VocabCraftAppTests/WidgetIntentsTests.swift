@@ -129,6 +129,20 @@ struct WidgetIntentsTests {
         #expect(timeline.entries.first?.dueCount == 0)
     }
 
+    @Test("providerWithoutContainerKeepsStoredReveal")
+    func providerWithoutContainerKeepsStoredReveal() throws {
+        let store = makeStore()
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+        let reveal = WidgetInteractionState(revealedWordId: 1, revealedAt: now.addingTimeInterval(-5))
+        try store.saveInteraction(reveal)
+
+        let provider = VocabWidgetProvider(store: store, container: nil)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(store.loadInteraction() == reveal)
+        #expect(timeline.policy == .after(now.addingTimeInterval(300)))
+    }
+
     @Test("providerWithoutDeckReturnsPlaceholder")
     func providerWithoutDeckReturnsPlaceholder() {
         let provider = VocabWidgetProvider(store: makeStore(), container: nil)

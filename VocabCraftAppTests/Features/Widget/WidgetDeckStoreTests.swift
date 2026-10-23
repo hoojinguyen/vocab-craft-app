@@ -52,4 +52,27 @@ struct WidgetDeckStoreTests {
         try store.saveInteraction(state)
         #expect(store.loadInteraction().revealedWordId == 7)
     }
+
+    @Test func interactionKeepsSubSecondPrecision() throws {
+        let store = makeStore()
+        let revealedAt = Date(timeIntervalSince1970: 1_700_000_000.25)
+        try store.saveInteraction(WidgetInteractionState(revealedWordId: 3, revealedAt: revealedAt))
+
+        let loaded = store.loadInteraction()
+
+        #expect(loaded.revealedWordId == 3)
+        #expect(abs((loaded.revealedAt?.timeIntervalSince1970 ?? 0) - 1_700_000_000.25) < 0.001)
+    }
+
+    @Test func legacyDateWithoutFractionStillDecodes() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let json = #"{"revealedWordId":9,"revealedAt":"2023-11-14T22:13:20Z"}"#
+        try Data(json.utf8).write(to: dir.appendingPathComponent("widget_interaction.json"))
+
+        let loaded = WidgetDeckStore(directoryURL: dir).loadInteraction()
+
+        #expect(loaded.revealedWordId == 9)
+        #expect(loaded.revealedAt == Date(timeIntervalSince1970: 1_700_000_000))
+    }
 }

@@ -168,6 +168,61 @@ struct RefreshWidgetDeckUseCaseTests {
         #expect(harness.store.loadDeck()?.cards.map(\.wordId) == [2, 1])
     }
 
+    @Test func overlappingRefreshesNeverRunConcurrentlyAndSecondIsHonored() async {
+        let curriculum = LearningPathCurriculum(
+            decks: [deck("d1", order: 1)],
+            stages: [stage("A", deck: "d1", order: 1)],
+            words: [word(1, stage: "A")],
+            progressList: []
+        )
+        let spy = SpyDataSource(words: curriculum.words)
+        let now = self.now
+        let useCase = RefreshWidgetDeckUseCase(
+            fetchLearningPath: MockFetchLearningPath(curriculum: curriculum),
+            progressRepository: MockProgressRepo(
+                progress: [UserWordProgressData(wordId: 1, nextReviewDate: now.addingTimeInterval(-60))]
+            ),
+            dataSource: spy,
+            store: makeStore(),
+            reloader: MockReloader(),
+            now: { now }
+        )
+
+        async let first: Void = useCase.execute()
+        async let second: Void = useCase.execute()
+        _ = await (first, second)
+
+        #expect(spy.maxConcurrent == 1)
+        #expect(spy.requests.count == 2)
+    }
+
+    @Test func dueBacklogIsCappedBeforeResolvingWords() async {
+        let ids = (1...60).map(Int64.init)
+        let words = ids.map { word($0, stage: "A") }
+        let curriculum = LearningPathCurriculum(
+            decks: [deck("d1", order: 1)],
+            stages: [stage("A", deck: "d1", order: 1)],
+            words: words,
+            progressList: []
+        )
+        let spy = SpyDataSource(words: words)
+        let now = self.now
+        let useCase = RefreshWidgetDeckUseCase(
+            fetchLearningPath: MockFetchLearningPath(curriculum: curriculum),
+            progressRepository: MockProgressRepo(
+                progress: ids.map { UserWordProgressData(wordId: $0, nextReviewDate: now.addingTimeInterval(-60)) }
+            ),
+            dataSource: spy,
+            store: makeStore(),
+            reloader: MockReloader(),
+            now: { now }
+        )
+
+        await useCase.execute()
+
+        #expect(spy.requests.map(\.count) == [WidgetDeckComposer.maxCards])
+    }
+
     @Test func failureDoesNotThrowOrWrite() async {
         let harness = makeHarness(curriculum: nil)
 
@@ -218,6 +273,38 @@ private struct MockProgressRepo: UserProgressRepositoryProtocol {
 
 private struct MockDataSource: VocabularyDataSourceProtocol {
     let words: [TopicWordDTO]
+
+    func fetchTopicDecks() async throws -> [TopicDeckDTO] { [] }
+    func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] { [] }
+    func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] { words.filter { $0.stageId == stageId } }
+    func searchWords(query: String) async throws -> [TopicWordDTO] { [] }
+    func fetchWordById(id: Int64) async throws -> TopicWordDTO? { words.first { $0.id == id } }
+}
+
+private final class SpyDataSource: VocabularyDataSourceProtocol, @unchecked Sendable {
+    private let words: [TopicWordDTO]
+    private let lock = NSLock()
+    private var current = 0
+    private var peak = 0
+    private var recordedRequests: [Set<Int64>] = []
+
+    init(words: [TopicWordDTO]) {
+        self.words = words
+    }
+
+    var maxConcurrent: Int { lock.withLock { peak } }
+    var requests: [Set<Int64>] { lock.withLock { recordedRequests } }
+
+    func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
+        lock.withLock {
+            current += 1
+            peak = max(peak, current)
+            recordedRequests.append(ids)
+        }
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        lock.withLock { current -= 1 }
+        return words.filter { ids.contains($0.id) }
+    }
 
     func fetchTopicDecks() async throws -> [TopicDeckDTO] { [] }
     func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] { [] }

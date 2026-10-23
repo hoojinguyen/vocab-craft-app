@@ -30,6 +30,23 @@ private final class SpyRefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtoco
 
 @Suite("WidgetRefreshingCompleteLessonUseCase")
 struct RefreshingCompleteLessonTests {
+    /// Waits up to one second for the spy's refresh signal.
+    private func awaitRefresh(_ spy: SpyRefreshWidgetDeckUseCase) async -> Bool {
+        await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                var iterator = spy.stream.makeAsyncIterator()
+                return await iterator.next() != nil
+            }
+            group.addTask {
+                try? await Task.sleep(for: .seconds(1))
+                return false
+            }
+            let first = await group.next() ?? false
+            group.cancelAll()
+            return first
+        }
+    }
+
     @Test("refreshes after successful lesson")
     func refreshesAfterSuccessfulLesson() async throws {
         let wrapped = MockCompleteLessonUseCase()
@@ -45,19 +62,7 @@ struct RefreshingCompleteLessonTests {
         #expect(result.score == 3)
         #expect(wrapped.executedCefrLevel == "A1")
 
-        let fired = await withTaskGroup(of: Bool.self) { group in
-            group.addTask {
-                var iterator = spy.stream.makeAsyncIterator()
-                return await iterator.next() != nil
-            }
-            group.addTask {
-                try? await Task.sleep(for: .seconds(1))
-                return false
-            }
-            let first = await group.next() ?? false
-            group.cancelAll()
-            return first
-        }
+        let fired = await awaitRefresh(spy)
         #expect(fired)
         #expect(spy.count == 1)
     }
@@ -73,6 +78,10 @@ struct RefreshingCompleteLessonTests {
             weakWordIds: [], progressFraction: 1.0
         )
         #expect(wrapped.executeCallCount == 1)
+
+        let fired = await awaitRefresh(spy)
+        #expect(fired)
+        #expect(spy.count == 1)
     }
 
     @Test("does not refresh when lesson fails")

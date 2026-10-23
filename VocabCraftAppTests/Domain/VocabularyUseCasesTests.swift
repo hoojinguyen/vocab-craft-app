@@ -392,7 +392,7 @@ final class VocabularyUseCasesTests: XCTestCase {
         XCTAssertEqual(dueWords.map(\.id), [2, 3, 1])
     }
 
-    func forgotWordStaysInDueListCorrectWordLeaves() async throws {
+    func testForgotWordStaysInDueListCorrectWordLeaves() async throws {
         let now = Date()
         let past = now.addingTimeInterval(-86_400)
         let progressRepo = MockUserProgressRepository(initialData: [

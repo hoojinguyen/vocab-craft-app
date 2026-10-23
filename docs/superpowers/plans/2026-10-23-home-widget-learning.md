@@ -138,7 +138,7 @@
 Input rules:
 - **due** = progress rows with `nextReviewDate <= now`, sorted by `nextReviewDate` ascending, resolved via `fetchWordsByIds`. Order follows the sorted ids; ids the data source cannot resolve are skipped.
 - **recent** = words (from `curriculum.words`, grouped by `stageId`) of stages whose `progressList` entry `isCompleted`, ordered by `completedAt` descending, then by word order within the stage.
-- **upcoming** = words of incomplete stages in path order (deck `sortOrder`, then stage `sortOrder`), continuing into later stages until 36 words are collected.
+- **upcoming** = words of the FIRST incomplete stage in path order (deck `sortOrder`, then stage `sortOrder`), falling through only to the next incomplete stage that has words (spec D3). It does not continue into later stages to fill 36 words.
 - `pathId` = `curriculum.activePath?.id`.
 
 - [ ] **Step 1: Write failing tests** with in-file mocks `MockFetchLearningPath`, `MockProgressRepo` (only `fetchAllProgress` is meaningful; other requirements `fatalError` or no-op), the existing test data source mock if one exists in `VocabCraftAppTests/Mocks` (check first), and `MockReloader` recording kinds:
@@ -297,7 +297,7 @@ Remove: `app.widget.next`, `app.widget.mastered`, `app.widget.level_format`, `ap
 
 **Interfaces:**
 - Consumes: `VocabWidgetEntry`, `WidgetEntryMode` (Task 5), `RevealCardIntent(wordId:)`, `GradeCardIntent(wordId:remembered:)` (Task 7), `CraftBadge(_:symbol:variant:tone:size:)`, `CraftSymbol` (`.eye`, `.checkmarkCircle`, `.wrongCircle`, `.sparkles`, `.refresh`).
-- Produces: `public struct VocabWidgetView: View { init(entry: VocabWidgetEntry) }` with one private subview per family × mode, laid out per spec §3. Badge: `.upcoming` → `app.widget.badge.new` / `.sparkles` / tone `.primary`; `.recent`/`.due` → `app.widget.badge.review` / `.refresh` / tone `.success`. Medium front masks the lemma in `exampleEn` (case-insensitive) as `"_____"` via `static func maskedExample(_ example: String, lemma: String) -> String`. Lock rectangular in flashcard modes and the placeholder use `.widgetURL(URL(string: "vocabcraft://review"))` / `"vocabcraft://home"`. Use `.containerBackground(theme.colors.surfaceCard, for: .widget)` and `.widgetAccentable()` on lemma text and badges. The `app.widget.due_count_format` line appears only in flashcard modes. Passive mode implies zero due words, which corrects the spec §3 table's passive-medium cell. Buttons reuse their action keys as `accessibilityLabel`. The masked example sets `.accessibilityLabel(Text("app.widget.hidden_meaning"))`, so VoiceOver never reads the answer. The `WidgetInteractionState` and `VocabWidgetEntry` initialisers used by intents and views must be explicit `public init`s.
+- Produces: `public struct VocabWidgetView: View { init(entry: VocabWidgetEntry) }` with one private subview per family × mode, laid out per spec §3. Badge: `.upcoming` → `app.widget.badge.new` / `.sparkles` / tone `.primary`; `.recent`/`.due` → `app.widget.badge.review` / `.refresh` / tone `.success`. Medium front masks the lemma in `exampleEn` (case-insensitive) as `"_____"` via `static func maskedExample(_ example: String, lemma: String) -> String`. Lock rectangular in flashcard modes and the placeholder use `.widgetURL(URL(string: "vocabcraft://review"))` / `"vocabcraft://home"`. Use `.containerBackground(theme.colors.surfaceCard, for: .widget)` and `.widgetAccentable()` on lemma text and badges. The `app.widget.due_count_format` line appears only in flashcard modes. Passive mode implies zero due words, which corrects the spec §3 table's passive-medium cell. Buttons reuse their action keys as `accessibilityLabel`. The masked example sets its `.accessibilityLabel` to the masked sentence with the mask token replaced by the localized word `app.widget.accessibility.blank`, so VoiceOver never reads the answer. The `WidgetInteractionState` and `VocabWidgetEntry` initialisers used by intents and views must be explicit `public init`s.
 
 - [ ] **Step 1: Write failing tests:**
   - `WidgetLocalizationTests.widgetKeysHaveFullParity`: every key in the table above resolves to a non-key value in `en` and `vi`, using the existing loop pattern.
@@ -322,6 +322,8 @@ Remove: `app.widget.next`, `app.widget.mastered`, `app.widget.level_format`, `ap
 - [ ] **Step 3: Implement** the router branch and the view hook.
 - [ ] **Step 4: Run** `AppRouterTests`. Expected: pass.
 - [ ] **Step 5: Commit** `feat(widget): route review deep link to smart review`.
+
+Note: cold-launch replay (a link that arrives before the app container exists) is handled in `AppBootstrapper.handleDeepLink(_:)`, which stores a pending URL and routes it once `bootstrap()` succeeds; `.onOpenURL` calls it instead of the router directly.
 
 ---
 

@@ -594,7 +594,17 @@ extension AppContainer {
         defaults.set(10, forKey: "daily_goal_count")
         defaults.set(true, forKey: "has_completed_onboarding")
         let settings = UserSettingsStore(defaults: defaults)
-        return AppContainer(useMockData: true, useSampleData: true, userSettingsStore: settings)
+        return AppContainer(
+            useMockData: true,
+            useSampleData: true,
+            refreshWidgetDeckUseCase: NoOpRefreshWidgetDeckUseCase(),
+            userSettingsStore: settings
+        )
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
+}
+
+/// Keeps previews and tests from reading or writing the real App Group widget deck.
+private struct NoOpRefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
+    func execute() async {}
 }

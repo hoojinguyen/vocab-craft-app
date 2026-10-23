@@ -68,6 +68,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
 
         var dueWordIds: Set<Int64> = []
         var nextDueDate: Date?
+        var dueQuerySucceeded = false
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
         if let deck, let container {
             let context = ModelContext(container)
@@ -78,11 +79,12 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             ) {
                 dueWordIds = status.due
                 nextDueDate = status.nextDueDate
+                dueQuerySucceeded = true
             }
         }
         #endif
 
-        if let revealedId = interaction.revealedWordId, !dueWordIds.contains(revealedId) {
+        if dueQuerySucceeded, let revealedId = interaction.revealedWordId, !dueWordIds.contains(revealedId) {
             // Stale reveal state: the word is no longer due, so it must not reopen on the answer side later.
             interaction = .empty
             try? store.saveInteraction(.empty)
@@ -95,8 +97,15 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             interaction: interaction,
             now: now
         )
-        return Timeline(entries: plan.entries, policy: Self.reloadPolicy(for: plan.reload))
+        // Without a successful due query the state is unknown: keep it untouched and retry soon.
+        let policy: TimelineReloadPolicy = dueQuerySucceeded
+            ? Self.reloadPolicy(for: plan.reload)
+            : .after(now.addingTimeInterval(Self.retryInterval))
+        return Timeline(entries: plan.entries, policy: policy)
     }
+
+    /// Retry delay when the due query could not run (seconds).
+    static let retryInterval: TimeInterval = 300
 
     static func reloadPolicy(for plan: WidgetReloadPlan) -> TimelineReloadPolicy {
         switch plan {

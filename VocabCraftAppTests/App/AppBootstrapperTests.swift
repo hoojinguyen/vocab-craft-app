@@ -133,5 +133,29 @@ final class AppBootstrapperTests: XCTestCase {
             XCTFail("Expected .error state when catalog is missing, got \(sut.state)")
         }
     }
+
+    func test_deepLinkHandledBeforeBootstrapIsReplayedAfterReady() throws {
+        let sut = AppBootstrapper(inMemoryOnly: true)
+        let url = try XCTUnwrap(URL(string: "vocabcraft://review"))
+
+        sut.handleDeepLink(url)
+        XCTAssertNil(sut.appContainer)
+
+        sut.bootstrap()
+
+        XCTAssertEqual(sut.state, .ready)
+        XCTAssertEqual(sut.appContainer?.appRouter.pendingSmartReview, true)
+        XCTAssertEqual(sut.appContainer?.appRouter.selectedTab, .vocabulary)
+    }
+
+    func test_deepLinkHandledAfterBootstrapRoutesImmediately() throws {
+        let sut = AppBootstrapper(inMemoryOnly: true)
+        sut.bootstrap()
+        XCTAssertEqual(sut.appContainer?.appRouter.pendingSmartReview, false)
+
+        sut.handleDeepLink(try XCTUnwrap(URL(string: "vocabcraft://review")))
+
+        XCTAssertEqual(sut.appContainer?.appRouter.pendingSmartReview, true)
+    }
 }
 #endif

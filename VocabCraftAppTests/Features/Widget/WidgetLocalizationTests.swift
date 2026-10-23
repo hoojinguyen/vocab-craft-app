@@ -4,8 +4,21 @@ import Testing
 
 @Suite("Widget Localization Tests")
 struct WidgetLocalizationTests {
-    @Test("Widget keys exist in catalog with EN and VI translations")
+    private func loadCatalogStrings() throws -> [String: Any] {
+        let url = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
+        let data = try Data(contentsOf: url)
+        let root = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        return try #require(root["strings"] as? [String: Any])
+    }
+
+    @Test("Widget keys exist in catalog with translated EN and VI values")
     func widgetKeysHaveFullParity() throws {
+        let strings = try loadCatalogStrings()
         let keys = [
             "app.widget.description",
             "app.widget.badge.new",
@@ -22,27 +35,25 @@ struct WidgetLocalizationTests {
             "app.widget.intent.grade.title",
             "app.widget.intent.grade.description",
             "app.widget.intent.param.word",
-            "app.widget.intent.param.remembered"
+            "app.widget.intent.param.remembered",
+            "app.widget.intent.error.store_unavailable",
+            "app.widget.accessibility.blank"
         ]
         for key in keys {
-            let englishValue = String(localized: String.LocalizationValue(key), locale: Locale(identifier: "en"))
-            let vietnameseValue = String(localized: String.LocalizationValue(key), locale: Locale(identifier: "vi"))
-            #expect(!englishValue.isEmpty && englishValue != key)
-            #expect(!vietnameseValue.isEmpty && vietnameseValue != key)
+            let entry = try #require(strings[key] as? [String: Any], "Missing key \(key)")
+            let localizations = try #require(entry["localizations"] as? [String: [String: Any]], "No localizations for \(key)")
+            for language in ["en", "vi"] {
+                let unit = localizations[language]?["stringUnit"] as? [String: Any]
+                let value = unit?["value"] as? String ?? ""
+                #expect(!value.isEmpty, "\(key) has no \(language) value")
+                #expect(unit?["state"] as? String == "translated", "\(key) \(language) is not translated")
+            }
         }
     }
 
     @Test("Removed widget keys are gone from the catalog")
     func removedKeysAreGone() throws {
-        let url = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
-        let data = try Data(contentsOf: url)
-        let root = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
-        let strings = try #require(root["strings"] as? [String: Any])
+        let strings = try loadCatalogStrings()
         let removed = [
             "app.widget.next",
             "app.widget.mastered",

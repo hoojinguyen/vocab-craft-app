@@ -110,7 +110,7 @@ All styling uses `CraftColor`/`CraftFont`/`CraftSpacingTokens`/`CraftRadiusToken
 | Family | Passive | Flashcard |
 |---|---|---|
 | `systemSmall` | Lemma, IPA, definition (2 lines), source badge (New / Review) | Front: lemma, IPA, hidden meaning, **Reveal** button. Back: meaning, icon buttons **Forgot ✗ / Remembered ✓** |
-| `systemMedium` | Lemma, IPA, definition, example, source badge, "N words to review" line | Front: lemma, IPA, example with the target word masked, **Reveal**. Back: meaning, labelled **Forgot / Remembered** buttons |
+| `systemMedium` | Lemma, IPA, definition, example, source badge (passive implies zero due words, so there is no due-count line) | Front: lemma, IPA, example with the target word masked, **Reveal**. Back: meaning, labelled **Forgot / Remembered** buttons |
 | `accessoryRectangular` | Lemma, IPA, definition (1 line) | Lemma + "Open to review" hint; taps deep-link to review (no buttons on Lock Screen) |
 | `accessoryInline` | `lemma: definition` | `N words to review` |
 | Empty / error | "Open VocabCraft to start" placeholder, deep-links to home | — |
@@ -135,7 +135,7 @@ Accessibility: buttons get localized `accessibilityLabel`s; the masked example e
 | Case | Behaviour |
 |---|---|
 | Deck missing / corrupt / version mismatch | Placeholder entry; wait for the app to rebuild the deck. |
-| App Group unavailable | Existing in-memory fallback in `SharedAppGroupContainer`; placeholder shown. |
+| App Group unavailable | Production falls back to Application Support, then the temporary directory, via `SharedAppGroupContainer.persistedStoreURL` and `WidgetDeckStore.appGroup()`. When the deck file is missing the widget shows the placeholder; it is not an in-memory container. |
 | SRS write fails in `GradeCardIntent` | Throw; interaction state is left untouched so the user can retry. |
 | Stale grade (word no longer due or no longer revealed) | No-op; reload. |
 | `RefreshWidgetDeckUseCase` fails in-app | Log and swallow; never block lesson completion or backgrounding. |
