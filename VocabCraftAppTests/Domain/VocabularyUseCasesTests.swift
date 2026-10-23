@@ -359,6 +359,39 @@ final class VocabularyUseCasesTests: XCTestCase {
         XCTAssertEqual(updatedProgress?.masteryLevel, 2)
     }
 
+    func test_reviewWeakWordsUseCase_fetchDueWords_includesPastDueAndFlaggedAndExcludesFuture() async throws {
+        let now = Date()
+        let day: TimeInterval = 86_400
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 2, nextReviewDate: now.addingTimeInterval(-2 * day)),
+            UserWordProgressData(wordId: 2, masteryLevel: 1, nextReviewDate: now.addingTimeInterval(3 * day), needsReview: true),
+            UserWordProgressData(wordId: 3, masteryLevel: 3, nextReviewDate: now.addingTimeInterval(3 * day))
+        ])
+        let sut = ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let dueWords = try await sut.fetchDueWords(now: now)
+        XCTAssertEqual(dueWords.map(\.id), [1, 2])
+        XCTAssertEqual(dueWords.first?.needsReview, false)
+
+        let weakWords = try await sut.fetchWeakWords()
+        XCTAssertEqual(weakWords.map(\.id), [2])
+    }
+
+    func test_reviewWeakWordsUseCase_fetchDueWords_ordersMostOverdueFirstWithWordIdTieBreak() async throws {
+        let now = Date()
+        let day: TimeInterval = 86_400
+        let tied = now.addingTimeInterval(-day)
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 3, nextReviewDate: tied),
+            UserWordProgressData(wordId: 1, nextReviewDate: now.addingTimeInterval(-day / 2)),
+            UserWordProgressData(wordId: 2, nextReviewDate: tied)
+        ])
+        let sut = ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let dueWords = try await sut.fetchDueWords(now: now)
+        XCTAssertEqual(dueWords.map(\.id), [2, 3, 1])
+    }
+
     func test_toggleWordBookmarkUseCase_updatesBookmarkFlag() async throws {
         let progressRepo = MockUserProgressActor(initialData: [
             UserWordProgressData(wordId: 1, masteryLevel: 2, isBookmarked: false)
