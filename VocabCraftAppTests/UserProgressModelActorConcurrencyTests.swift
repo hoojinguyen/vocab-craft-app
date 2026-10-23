@@ -138,6 +138,80 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         XCTAssertTrue(mockRepo.resetAllProgressCalled)
     }
 
+    func testMarkWordReviewedCorrectReschedulesDueWord() async throws {
+        let now = Date()
+        let past = now.addingTimeInterval(-3 * 86_400)
+        try await actor.saveProgress(wordId: 60, masteryLevel: 2, nextReviewDate: past, easeFactor: 2.5, intervalDays: 1)
+
+        try await actor.markWordReviewed(wordId: 60, isCorrect: true)
+
+        let expected = SRSEngine.calculateNextInterval(
+            currentMastery: 2,
+            easeFactor: 2.5,
+            isCorrect: true,
+            responseTimeMs: SmartReviewScheduling.responseTimeMs
+        )
+        let row = try await actor.getProgressData(wordId: 60)
+        XCTAssertEqual(row?.masteryLevel, 3)
+        XCTAssertEqual(row?.needsReview, false)
+        XCTAssertEqual(row?.intervalDays, expected.intervalDays)
+        XCTAssertEqual(row?.easeFactor, expected.easeFactor)
+        XCTAssertGreaterThan(row?.nextReviewDate ?? past, now)
+    }
+
+    func testMarkWordReviewedIncorrectSchedulesTomorrow() async throws {
+        let before = Date()
+        try await actor.saveProgress(wordId: 61, masteryLevel: 3, nextReviewDate: before.addingTimeInterval(-86_400), intervalDays: 6)
+
+        try await actor.markWordReviewed(wordId: 61, isCorrect: false)
+
+        let row = try await actor.getProgressData(wordId: 61)
+        XCTAssertEqual(row?.needsReview, true)
+        XCTAssertEqual(row?.mistakeCount, 1)
+        XCTAssertEqual(row?.intervalDays, 1)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: before) ?? before
+        let delta = abs((row?.nextReviewDate ?? .distantPast).timeIntervalSince(tomorrow))
+        XCTAssertLessThan(delta, 60)
+    }
+
+    func testMarkWordReviewedWithoutRowInsertsScheduledProgress() async throws {
+        let before = Date()
+        try await actor.markWordReviewed(wordId: 62, isCorrect: true)
+
+        let row = try await actor.getProgressData(wordId: 62)
+        XCTAssertEqual(row?.masteryLevel, 1)
+        XCTAssertEqual(row?.totalReviews, 1)
+        XCTAssertEqual(row?.intervalDays, 1)
+        XCTAssertGreaterThan(row?.nextReviewDate ?? before, before)
+    }
+
+    func testClearNeedsReviewDoesNotChangeSchedule() async throws {
+        let scheduled = Date().addingTimeInterval(5 * 86_400)
+        try await actor.saveProgress(wordId: 63, masteryLevel: 2, nextReviewDate: scheduled, easeFactor: 2.1, intervalDays: 5)
+
+        try await actor.clearNeedsReview(wordId: 63)
+
+        let row = try await actor.getProgressData(wordId: 63)
+        XCTAssertEqual(row?.masteryLevel, 3)
+        XCTAssertEqual(row?.intervalDays, 5)
+        XCTAssertEqual(row?.easeFactor, 2.1)
+        XCTAssertEqual(row?.nextReviewDate, scheduled)
+    }
+
+    func testReviewedWordIsNoLongerDueAfterGrading() async throws {
+        let now = Date()
+        try await actor.saveProgress(wordId: 1, masteryLevel: 2, nextReviewDate: now.addingTimeInterval(-86_400))
+        let useCase = ReviewWeakWordsUseCase(dataSource: BundledVocabularyDataSource(), progressRepo: actor)
+
+        let dueBefore = try await useCase.fetchDueWords(now: now)
+        XCTAssertEqual(dueBefore.map(\.id), [1])
+
+        try await useCase.markWordReviewed(wordId: 1, isCorrect: true)
+
+        let dueAfter = try await useCase.fetchDueWords(now: now)
+        XCTAssertTrue(dueAfter.isEmpty)
+    }
+
     func testAppContainerWiresProgressActorToVocabRepo() async throws {
         let appContainer = AppContainer(modelContainer: container)
         let decks = try await appContainer.vocabularyDataSource.fetchTopicDecks()
