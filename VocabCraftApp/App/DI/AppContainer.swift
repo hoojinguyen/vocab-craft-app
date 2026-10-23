@@ -473,6 +473,58 @@ extension AppContainer {
         )
     }
 
+    // MARK: - Guided Communication Practice Factories
+
+    @MainActor
+    public func makePracticeHubViewModel() -> PracticeHubViewModel {
+        let repo = self.practiceRepository ?? MockPracticeRepository()
+        let reader = PracticeLearningContextReader(
+            vocabularyDataSource: self.vocabularyDataSource,
+            progressRepository: self.userProgressRepository,
+            practiceRepository: repo
+        )
+        return PracticeHubViewModel(
+            contextReader: reader,
+            repository: repo,
+            selector: SelectPracticeMissionUseCase(),
+            clock: SystemPracticeClock()
+        )
+    }
+
+    @MainActor
+    public func makePracticeSessionCoordinator(
+        policy: PracticePolicyConfiguration = .v1
+    ) -> PracticeSessionCoordinator {
+        let activePack = (try? aiPackRegistry.resolveActivePack()) ?? aiPackRegistry.pack(for: .appleDefault)
+        let llm = (try? activePack?.makeLLMProvider()) ?? IntelligentMockLLMProvider()
+        let tts = (try? activePack?.makeTTSEngine()) ?? AppleTTSEngineAdapter(coordinator: audioSessionCoordinator)
+        let stt = (try? activePack?.makeSTTEngine()) ?? AppleSTTEngineAdapter(coordinator: audioSessionCoordinator)
+
+        let aiCapability: PracticeCapability = (llm is MockLLMProvider || llm is IntelligentMockLLMProvider)
+            ? .standardCloud
+            : PracticeCapability(
+                canGenerateDialogue: true,
+                canAssessUsage: true,
+                canCaptureSpeech: true,
+                canPlaySpeech: true,
+                providerIdentity: "active-provider"
+            )
+        let aiAdapter = PracticeAIAdapter(provider: llm, capability: aiCapability)
+        let speechAdapter = PracticeSpeechAdapter(
+            sttEngine: stt,
+            ttsEngine: tts,
+            audioCoordinator: audioSessionCoordinator
+        )
+        let repo = self.practiceRepository ?? MockPracticeRepository()
+        return PracticeSessionCoordinator(
+            repository: repo,
+            ai: aiAdapter,
+            speech: speechAdapter,
+            clock: SystemPracticeClock(),
+            policy: policy
+        )
+    }
+
     public static func getProductionDataSource() -> VocabularyDataSourceProtocol {
         do {
             let fileManager = FileManager.default

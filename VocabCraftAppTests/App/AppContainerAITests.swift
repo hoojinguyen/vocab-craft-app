@@ -97,4 +97,38 @@ struct AppContainerAITests {
             #expect(offlineEntry?.status == .needsDownload(sizeDescription: "~975MB"))
         }
     }
+
+    @Test("AppContainer creates practice hub view model")
+    @MainActor
+    func testAppContainerCreatesPracticeHubViewModel() {
+        let container = AppContainer()
+        let hubVM = container.makePracticeHubViewModel()
+        #expect(hubVM.shownTargetWords.isEmpty)
+        #expect(!hubVM.templates.isEmpty)
+    }
+
+    @Test("AppContainer creates practice session coordinator")
+    @MainActor
+    func testAppContainerCreatesPracticeSessionCoordinator() {
+        let container = AppContainer()
+        let coordinator = container.makePracticeSessionCoordinator()
+        #expect(coordinator.state == .preparing)
+        #expect(coordinator.session == nil)
+        #expect(coordinator.policy == .v1)
+    }
+
+    @Test("Guided practice feature flag defaults to false and toggles cleanly")
+    @MainActor
+    func testGuidedPracticeFeatureFlagToggle() {
+        GuidedPracticeFeatureConfiguration.reset()
+        defer { GuidedPracticeFeatureConfiguration.reset() }
+
+        #expect(!GuidedPracticeFeatureConfiguration.enabled)
+
+        GuidedPracticeFeatureConfiguration.enabled = true
+        #expect(GuidedPracticeFeatureConfiguration.enabled)
+
+        GuidedPracticeFeatureConfiguration.enabled = false
+        #expect(!GuidedPracticeFeatureConfiguration.enabled)
+    }
 }

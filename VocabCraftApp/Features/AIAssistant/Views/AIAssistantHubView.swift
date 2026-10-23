@@ -13,6 +13,7 @@ public struct AIAssistantHubView: View {
         case shadowing(ShadowingPracticeViewModel)
         case shadowingHub(ShadowingHubViewModel)
         case shadowingStudio(ShadowingStudioViewModel)
+        case guidedSession(PracticeSessionCoordinator)
 
         nonisolated var id: String {
             switch self {
@@ -22,6 +23,7 @@ public struct AIAssistantHubView: View {
             case .shadowing(let vm): return "shadowing-\(ObjectIdentifier(vm))"
             case .shadowingHub(let vm): return "hub-\(ObjectIdentifier(vm))"
             case .shadowingStudio(let vm): return "studio-\(ObjectIdentifier(vm))"
+            case .guidedSession(let coord): return "guided-\(ObjectIdentifier(coord))"
             }
         }
     }
@@ -29,6 +31,8 @@ public struct AIAssistantHubView: View {
     @State private var viewModel: AIAssistantHubViewModel
     @State private var activeDestination: ActiveAIDestination?
     @State private var showPermissionDeniedAlert: Bool = false
+    @AppStorage(GuidedPracticeFeatureConfiguration.userDefaultsKey)
+    private var isGuidedPracticeStoredEnabled: Bool = false
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
@@ -40,6 +44,10 @@ public struct AIAssistantHubView: View {
         self.customStore = store
     }
 
+    private var isGuidedPracticeEnabled: Bool {
+        GuidedPracticeFeatureConfiguration.enabled
+    }
+
     private var settingsStore: UserSettingsStore {
         customStore ?? appContainer.userSettingsStore
     }
@@ -49,48 +57,41 @@ public struct AIAssistantHubView: View {
             theme.colors.canvasBackground
                 .ignoresSafeArea()
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: theme.spacing.lg) {
-                    CraftPageHeader(
-                        AppStrings.AIAssistant.hubTitle,
-                        alignment: .leading,
-                        enableScrollFade: false
-                    ) {
-                        activePackPill
-                    }
-
-                    VStack(spacing: theme.spacing.lg) {
-                        if let daily = viewModel.dailyScenario {
-                            CompanionHeroCard(
-                                scenario: daily,
-                                wordsLearnedCount: settingsStore.todayWordsLearned,
-                                onStartCall: {
-                                    startVoiceCall(for: daily)
-                                },
-                                onStartChat: {
-                                    activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: daily))
-                                }
-                            )
+            if isGuidedPracticeEnabled {
+                PracticeHubView(
+                    viewModel: appContainer.makePracticeHubViewModel(),
+                    onStart: { mission, mode in
+                        let coordinator = appContainer.makePracticeSessionCoordinator()
+                        Task {
+                            await coordinator.start(mission: mission, mode: mode)
                         }
-
-                        shadowingHeroCard
-
-                        topicFilterBar
-
-                        scenarioListSection
-
-                        Spacer(minLength: theme.spacing.xxl + 88)
+                        activeDestination = .guidedSession(coordinator)
+                    },
+                    onResume: { sessionId in
+                        let coordinator = appContainer.makePracticeSessionCoordinator()
+                        Task {
+                            await coordinator.resume(sessionId: sessionId)
+                        }
+                        activeDestination = .guidedSession(coordinator)
+                    },
+                    onOpenLesson: {
+                        appRouter.navigateToVocabulary()
                     }
-                    .padding(.horizontal, theme.spacing.base)
-                }
-                .padding(.top, theme.spacing.xs)
+                )
+            } else {
+                legacyHubContent
             }
         }
         .task {
-            if viewModel.scenarios.isEmpty {
-                await viewModel.loadScenarios()
-            }
             let args = ProcessInfo.processInfo.arguments
+            if args.contains("-test-guided-practice") {
+                GuidedPracticeFeatureConfiguration.enabled = true
+            }
+            if !isGuidedPracticeEnabled {
+                if viewModel.scenarios.isEmpty {
+                    await viewModel.loadScenarios()
+                }
+            }
             if args.contains("-test-shadowing-hub") {
                 activeDestination = .shadowingHub(appContainer.makeShadowingHubViewModel())
             } else if args.contains("-test-shadowing") {
@@ -132,61 +133,11 @@ public struct AIAssistantHubView: View {
         }
         #if os(iOS)
         .fullScreenCover(item: $activeDestination) { destination in
-            switch destination {
-            case .room(let roomViewModel):
-                RoleplayRoomView(
-                    viewModel: roomViewModel,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .voiceCall(let voiceCallViewModel):
-                RoleplayVoiceCallView(
-                    viewModel: voiceCallViewModel,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .summary(let summary):
-                RoleplaySummaryView(summary: summary) {
-                    activeDestination = nil
-                }
-            case .shadowing(let shadowingViewModel):
-                ShadowingPracticeView(viewModel: shadowingViewModel)
-            case .shadowingHub(let hubViewModel):
-                ShadowingHubModalView(
-                    viewModel: hubViewModel,
-                    appContainer: appContainer,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .shadowingStudio(let studioViewModel):
-                ShadowingStudioContainerView(viewModel: studioViewModel)
-            }
+            destinationView(for: destination)
         }
         #else
         .sheet(item: $activeDestination) { destination in
-            switch destination {
-            case .room(let roomViewModel):
-                RoleplayRoomView(
-                    viewModel: roomViewModel,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .voiceCall(let voiceCallViewModel):
-                RoleplayVoiceCallView(
-                    viewModel: voiceCallViewModel,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .summary(let summary):
-                RoleplaySummaryView(summary: summary) {
-                    activeDestination = nil
-                }
-            case .shadowing(let shadowingViewModel):
-                ShadowingPracticeView(viewModel: shadowingViewModel)
-            case .shadowingHub(let hubViewModel):
-                ShadowingHubModalView(
-                    viewModel: hubViewModel,
-                    appContainer: appContainer,
-                    onDismiss: { activeDestination = nil }
-                )
-            case .shadowingStudio(let studioViewModel):
-                ShadowingStudioContainerView(viewModel: studioViewModel)
-            }
+            destinationView(for: destination)
         }
         #endif
         .alert(
@@ -203,6 +154,83 @@ public struct AIAssistantHubView: View {
             Button(AppStrings.Common.cancel, role: .cancel) {}
         } message: {
             Text(AppStrings.AIAssistant.permissionMessage)
+        }
+    }
+}
+
+// MARK: - Subviews & Routing Extension
+
+private extension AIAssistantHubView {
+    var legacyHubContent: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: theme.spacing.lg) {
+                CraftPageHeader(
+                    AppStrings.AIAssistant.hubTitle,
+                    alignment: .leading,
+                    enableScrollFade: false
+                ) {
+                    activePackPill
+                }
+
+                VStack(spacing: theme.spacing.lg) {
+                    if let daily = viewModel.dailyScenario {
+                        CompanionHeroCard(
+                            scenario: daily,
+                            wordsLearnedCount: settingsStore.todayWordsLearned,
+                            onStartCall: {
+                                startVoiceCall(for: daily)
+                            },
+                            onStartChat: {
+                                activeDestination = .room(appContainer.makeRoleplayRoomViewModel(for: daily))
+                            }
+                        )
+                    }
+
+                    shadowingHeroCard
+
+                    topicFilterBar
+
+                    scenarioListSection
+
+                    Spacer(minLength: theme.spacing.xxl + 88)
+                }
+                .padding(.horizontal, theme.spacing.base)
+            }
+            .padding(.top, theme.spacing.xs)
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(for destination: ActiveAIDestination) -> some View {
+        switch destination {
+        case .room(let roomViewModel):
+            RoleplayRoomView(
+                viewModel: roomViewModel,
+                onDismiss: { activeDestination = nil }
+            )
+        case .voiceCall(let voiceCallViewModel):
+            RoleplayVoiceCallView(
+                viewModel: voiceCallViewModel,
+                onDismiss: { activeDestination = nil }
+            )
+        case .summary(let summary):
+            RoleplaySummaryView(summary: summary) {
+                activeDestination = nil
+            }
+        case .shadowing(let shadowingViewModel):
+            ShadowingPracticeView(viewModel: shadowingViewModel)
+        case .shadowingHub(let hubViewModel):
+            ShadowingHubModalView(
+                viewModel: hubViewModel,
+                appContainer: appContainer,
+                onDismiss: { activeDestination = nil }
+            )
+        case .shadowingStudio(let studioViewModel):
+            ShadowingStudioContainerView(viewModel: studioViewModel)
+        case .guidedSession(let coordinator):
+            PracticeSessionView(coordinator: coordinator) {
+                activeDestination = nil
+            }
         }
     }
 
