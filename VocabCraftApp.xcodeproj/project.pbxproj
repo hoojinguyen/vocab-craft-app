@@ -7,6 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B700002000D /* WidgetDueQuery.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000D /* WidgetDueQuery.swift */; };
+		30003B700002000E /* WidgetReviewRecorder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000E /* WidgetReviewRecorder.swift */; };
+		30003B700003000D /* WidgetDueQuery.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000D /* WidgetDueQuery.swift */; };
+		30003B700003000E /* WidgetReviewRecorder.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000E /* WidgetReviewRecorder.swift */; };
+		30003B7000020010 /* RevealCardIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010010 /* RevealCardIntent.swift */; };
+		30003B7000030010 /* RevealCardIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010010 /* RevealCardIntent.swift */; };
+		30003B7000020011 /* GradeCardIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010011 /* GradeCardIntent.swift */; };
+		30003B7000030011 /* GradeCardIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010011 /* GradeCardIntent.swift */; };
+		30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010012 /* VocabWidgetViewTests.swift */; };
+		30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000F /* WidgetReviewRecorderTests.swift */; };
+		30003B700002000B /* WidgetTimelineBuilder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
+		30003B700003000B /* WidgetTimelineBuilder.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
+		30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000C /* WidgetTimelineBuilderTests.swift */; };
+		30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */; };
+		30003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */; };
+		30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */; };
+		30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010007 /* RefreshWidgetDeckUseCase.swift */; };
+		30003B7000010006 /* WidgetReloading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010006 /* WidgetReloading.swift */; };
+		30003B7000010004 /* WidgetDeckComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010004 /* WidgetDeckComposer.swift */; };
+		30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010005 /* WidgetDeckComposerTests.swift */; };
+		30003B7000010001 /* WidgetDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
+		30003B7000020001 /* WidgetDeck.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
+		30003B7000010002 /* WidgetDeckStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010002 /* WidgetDeckStore.swift */; };
+		30003B7000020002 /* WidgetDeckStore.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010002 /* WidgetDeckStore.swift */; };
+		30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010003 /* WidgetDeckStoreTests.swift */; };
 		30005E3A3F7D00010001 /* ShadowingWordTimestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010001 /* ShadowingWordTimestamp.swift */; };
 		30005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */; };
 		30005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift */; };
@@ -345,10 +370,6 @@
 		3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
 		30006F0DCF97A12E9EBA /* vocabulary_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 20006F0DCF97A12E9EBA /* vocabulary_catalog.json */; };
 		3000A1B2C3D4E5F60099 /* vocab_content.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2000A1B2C3D4E5F60099 /* vocab_content.sqlite */; };
-		300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
-		300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
-		3000C94DD80FE52023FA /* NextWordIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
-		3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
 		3000473CACA7476916FA /* VocabWidget.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000473CACA7476916FA /* VocabWidget.swift */; };
 		300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000473CACA7476916FA /* VocabWidget.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -366,9 +387,7 @@
 		3001AD5FDFF5088D97A2 /* UserStageProgressData.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
 		300133566896AB346563 /* VocabularyDataSourceProtocol.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */; };
 		3001472D6115BA34C2E4 /* VocabularyCatalogDTO.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000060D5207497D6BC6 /* VocabularyCatalogDTO.swift */; };
-		3001E137FEFBE77015F7 /* BundledVocabularyDataSource.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C853CBC6D67FA386 /* BundledVocabularyDataSource.swift */; };
 		3001DAC94ACE4AFC4259 /* Localizable.xcstrings in Widget Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
-		3001264FAADACF4FCA7C /* vocabulary_catalog.json in Widget Resources */ = {isa = PBXBuildFile; fileRef = 20006F0DCF97A12E9EBA /* vocabulary_catalog.json */; };
 		3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */; };
 		3000A65D87BF85A411BF /* AIAssistantViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */; };
 		300028004FD41CBE4E9A /* AIDomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */; };
@@ -493,7 +512,6 @@
 		300051810A7B65A07F9A /* VocabularyModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200051810A7B65A07F9A /* VocabularyModelsTests.swift */; };
 		30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */; };
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
-		300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200029F58E9AE9045086 /* NextWordIntentTests.swift */; };
 		3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */; };
 		30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000669E2AEEB9C9048 /* AppStringsParityTests.swift */; };
 		30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00000002 /* ShadowingLocalizationTests.swift */; };
@@ -521,6 +539,7 @@
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
 		900000000000000000000003 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000004 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
+		90000000000000000000000A /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000007 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 		900000000000000000000008 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 /* End PBXBuildFile section */
@@ -557,6 +576,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B700001000D /* WidgetDueQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDueQuery.swift"; sourceTree = "<group>"; };
+		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
+		20003B7000010012 /* VocabWidgetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetViewTests.swift"; sourceTree = "<group>"; };
+		20003B700001000F /* WidgetReviewRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorderTests.swift"; sourceTree = "<group>"; };
+		20003B7000010010 /* RevealCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RevealCardIntent.swift"; sourceTree = "<group>"; };
+		20003B7000010011 /* GradeCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GradeCardIntent.swift"; sourceTree = "<group>"; };
+		20003B700001000B /* WidgetTimelineBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetTimelineBuilder.swift"; sourceTree = "<group>"; };
+		20003B700001000C /* WidgetTimelineBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetTimelineBuilderTests.swift"; sourceTree = "<group>"; };
+		20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetRefreshingCompleteLessonUseCaseTests.swift"; sourceTree = "<group>"; };
+		20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetRefreshingCompleteLessonUseCase.swift"; sourceTree = "<group>"; };
+		20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCaseTests.swift"; sourceTree = "<group>"; };
+		20003B7000010007 /* RefreshWidgetDeckUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCase.swift"; sourceTree = "<group>"; };
+		20003B7000010006 /* WidgetReloading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReloading.swift"; sourceTree = "<group>"; };
+		20003B7000010004 /* WidgetDeckComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposer.swift"; sourceTree = "<group>"; };
+		20003B7000010005 /* WidgetDeckComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposerTests.swift"; sourceTree = "<group>"; };
+		20003B7000010001 /* WidgetDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeck.swift"; sourceTree = "<group>"; };
+		20003B7000010002 /* WidgetDeckStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStore.swift"; sourceTree = "<group>"; };
+		20003B7000010003 /* WidgetDeckStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStoreTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010001 /* ShadowingWordTimestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingWordTimestamp.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingCatalogRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingSQLiteDatabase.swift"; sourceTree = "<group>"; };
@@ -900,8 +937,6 @@
 		2000B135085E448B7AE0 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Localizable.xcstrings"; sourceTree = "<group>"; };
 		20006F0DCF97A12E9EBA /* vocabulary_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "vocabulary_catalog.json"; sourceTree = "<group>"; };
 		2000A1B2C3D4E5F60099 /* vocab_content.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "vocab_content.sqlite"; sourceTree = "<group>"; };
-		200014ABEEFD5E14865F /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkLearnedIntent.swift"; sourceTree = "<group>"; };
-		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntent.swift"; sourceTree = "<group>"; };
 		200017F5C24B744B988C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftWidgetExtension.entitlements"; sourceTree = "<group>"; };
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
@@ -1031,7 +1066,6 @@
 		200051810A7B65A07F9A /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyModelsTests.swift"; sourceTree = "<group>"; };
 		20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRedesignViewTests.swift"; sourceTree = "<group>"; };
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
-		200029F58E9AE9045086 /* NextWordIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntentTests.swift"; sourceTree = "<group>"; };
 		2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetLocalizationTests.swift"; sourceTree = "<group>"; };
 		20000669E2AEEB9C9048 /* AppStringsParityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStringsParityTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00000002 /* ShadowingLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -1072,6 +1106,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90000000000000000000000A /* CraftUIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1170,6 +1205,7 @@
 				4000708EDD22EDA5F946 /* Models */,
 				40005E0B94C63E2ECD1F /* Notifications */,
 				4000DA48C316E1ADA496 /* SRS */,
+				40003B7000010001 /* Widget */,
 			);
 			path = "Core";
 			sourceTree = "<group>";
@@ -1217,6 +1253,26 @@
 				200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */,
 			);
 			path = "Audio";
+			sourceTree = "<group>";
+		};
+		40003B7000010002 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				20003B7000010004 /* WidgetDeckComposer.swift */,
+				20003B7000010006 /* WidgetReloading.swift */,
+				20003B7000010007 /* RefreshWidgetDeckUseCase.swift */,
+				20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */,
+			);
+			path = "Widget";
+			sourceTree = "<group>";
+		};
+		40003B7000010001 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				20003B7000010001 /* WidgetDeck.swift */,
+				20003B7000010002 /* WidgetDeckStore.swift */,
+			);
+			path = "Widget";
 			sourceTree = "<group>";
 		};
 		4000B9FD3CB2F2042047 /* Database */ = {
@@ -1458,6 +1514,7 @@
 				4000731A90F8FB364BE4 /* Policies */,
 				40008F48FF4076AEA27E /* Protocols */,
 				40008298FFEC52A63E9E /* UseCases */,
+				40003B7000010002 /* Widget */,
 			);
 			path = "Domain";
 			sourceTree = "<group>";
@@ -2183,6 +2240,8 @@
 			isa = PBXGroup;
 			children = (
 				4000704340C95D48EEDA /* AppIntents */,
+				40003B7000010003 /* Timeline */,
+				40003B7000010004 /* Review */,
 				200017F5C24B744B988C /* Info.plist */,
 				2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */,
 				2000473CACA7476916FA /* VocabWidget.swift */,
@@ -2192,11 +2251,28 @@
 			path = "VocabCraftWidgetExtension";
 			sourceTree = "<group>";
 		};
+		40003B7000010004 /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				20003B700001000D /* WidgetDueQuery.swift */,
+				20003B700001000E /* WidgetReviewRecorder.swift */,
+			);
+			path = "Review";
+			sourceTree = "<group>";
+		};
+		40003B7000010003 /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				20003B700001000B /* WidgetTimelineBuilder.swift */,
+			);
+			path = "Timeline";
+			sourceTree = "<group>";
+		};
 		4000704340C95D48EEDA /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
-				200014ABEEFD5E14865F /* MarkLearnedIntent.swift */,
-				2000C94DD80FE52023FA /* NextWordIntent.swift */,
+				20003B7000010010 /* RevealCardIntent.swift */,
+				20003B7000010011 /* GradeCardIntent.swift */,
 			);
 			path = "AppIntents";
 			sourceTree = "<group>";
@@ -2516,8 +2592,14 @@
 		4000BCC709DD8E699FBE /* Widget */ = {
 			isa = PBXGroup;
 			children = (
-				200029F58E9AE9045086 /* NextWordIntentTests.swift */,
 				2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */,
+				20003B7000010003 /* WidgetDeckStoreTests.swift */,
+				20003B7000010005 /* WidgetDeckComposerTests.swift */,
+				20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */,
+				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
+				20003B700001000C /* WidgetTimelineBuilderTests.swift */,
+				20003B700001000F /* WidgetReviewRecorderTests.swift */,
+				20003B7000010012 /* VocabWidgetViewTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2631,6 +2713,9 @@
 			dependencies = (
 			);
 			name = VocabCraftWidgetExtension;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+			);
 			productName = VocabCraftWidgetExtension;
 			productReference = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -2721,7 +2806,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3001DAC94ACE4AFC4259 /* Localizable.xcstrings in Widget Resources */,
-				3001264FAADACF4FCA7C /* vocabulary_catalog.json in Widget Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2823,6 +2907,12 @@
 				30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */,
 				30003A5000010001 /* AppSchemaV3.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
+				30003B7000010001 /* WidgetDeck.swift in Sources */,
+				30003B7000010002 /* WidgetDeckStore.swift in Sources */,
+				30003B7000010004 /* WidgetDeckComposer.swift in Sources */,
+				30003B7000010006 /* WidgetReloading.swift in Sources */,
+				30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */,
+				30003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
@@ -3056,13 +3146,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Widget Sources */,
-				3000C94DD80FE52023FA /* NextWordIntent.swift in Widget Sources */,
 				3000473CACA7476916FA /* VocabWidget.swift in Widget Sources */,
 				300002284C02A8E338C2 /* VocabWidgetBundle.swift in Widget Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Widget Sources */,
 				3001EB503B69BE532101 /* DatabaseStoreError.swift in Widget Sources */,
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */,
+				30003B7000020001 /* WidgetDeck.swift in Widget Sources */,
+				30003B7000020002 /* WidgetDeckStore.swift in Widget Sources */,
+				30003B700002000B /* WidgetTimelineBuilder.swift in Widget Sources */,
+				30003B700002000D /* WidgetDueQuery.swift in Widget Sources */,
+				30003B700002000E /* WidgetReviewRecorder.swift in Widget Sources */,
+				30003B7000020010 /* RevealCardIntent.swift in Widget Sources */,
+				30003B7000020011 /* GradeCardIntent.swift in Widget Sources */,
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
 				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
 				30013A5000010001 /* AppSchemaV3.swift in Widget Sources */,
@@ -3072,7 +3167,6 @@
 				3001AD5FDFF5088D97A2 /* UserStageProgressData.swift in Widget Sources */,
 				300133566896AB346563 /* VocabularyDataSourceProtocol.swift in Widget Sources */,
 				3001472D6115BA34C2E4 /* VocabularyCatalogDTO.swift in Widget Sources */,
-				3001E137FEFBE77015F7 /* BundledVocabularyDataSource.swift in Widget Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3082,9 +3176,13 @@
 			files = (
 				30005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift in Test Sources */,
 				30005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift in Test Sources */,
-				300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */,
-				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
+				30003B700003000B /* WidgetTimelineBuilder.swift in Test Sources */,
+				30003B700003000D /* WidgetDueQuery.swift in Test Sources */,
+				30003B700003000E /* WidgetReviewRecorder.swift in Test Sources */,
+				30003B7000030010 /* RevealCardIntent.swift in Test Sources */,
+				30003B7000030011 /* GradeCardIntent.swift in Test Sources */,
+				30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,
@@ -3211,8 +3309,13 @@
 				300051810A7B65A07F9A /* VocabularyModelsTests.swift in Test Sources */,
 				30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */,
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
-				300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */,
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
+				30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */,
+				30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */,
+				30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */,
+				30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */,
+				30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */,
+				30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,

@@ -46,5 +46,37 @@ struct AppRouterTests {
         router.handleDeepLink(url: URL(string: "vocabcraft://unknown")!)
         #expect(router.selectedTab == .home)
     }
+
+    @Test("Review deep link opens smart review")
+    func reviewDeepLinkOpensSmartReview() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://review")!)
+        #expect(router.selectedTab == .vocabulary)
+        #expect(router.pendingSmartReview == true)
+    }
+
+    @Test("Settings link alone does not request smart review")
+    func settingsLinkAloneDoesNotRequestSmartReview() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://settings")!)
+        #expect(router.selectedTab == .settings)
+        #expect(router.pendingSmartReview == false)
+    }
+
+    @Test("Settings link after review link switches tab and leaves the pending flag for the view to consume")
+    func settingsLinkAfterReviewLinkSwitchesTabAndKeepsPendingFlag() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://review")!)
+        #expect(router.selectedTab == .vocabulary)
+        #expect(router.pendingSmartReview == true)
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://settings")!)
+        #expect(router.selectedTab == .settings)
+        // The router never clears the flag; only the Vocabulary view consumes it.
+        #expect(router.pendingSmartReview == true)
+    }
 }
 #endif

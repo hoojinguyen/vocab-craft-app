@@ -3,6 +3,9 @@ import CraftUIKit
 import SwiftData
 #endif
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 #if !SWIFT_PACKAGE
 @main
@@ -10,6 +13,7 @@ import SwiftUI
 struct VocabCraftApp: App {
     @State private var themeManager = CraftThemeManager.shared
     @State private var bootstrapper = AppBootstrapper()
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {}
 
@@ -57,11 +61,33 @@ struct VocabCraftApp: App {
                 }
             }
             .onOpenURL { url in
-                bootstrapper.appContainer?.appRouter.handleDeepLink(url: url)
+                bootstrapper.handleDeepLink(url)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .background,
+                      let refresh = bootstrapper.appContainer?.refreshWidgetDeckUseCase else { return }
+                Self.refreshWidgetDeckInBackground(refresh)
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)
         }
+    }
+
+    /// Keeps the process alive long enough for the widget deck refresh to finish after backgrounding.
+    @MainActor
+    private static func refreshWidgetDeckInBackground(_ refresh: any RefreshWidgetDeckUseCaseProtocol) {
+        #if canImport(UIKit)
+        let holder = BackgroundTaskHolder()
+        holder.id = UIApplication.shared.beginBackgroundTask(withName: "RefreshWidgetDeck") {
+            holder.end()
+        }
+        Task { @MainActor in
+            await refresh.execute()
+            holder.end()
+        }
+        #else
+        Task { await refresh.execute() }
+        #endif
     }
 
     @ViewBuilder
@@ -133,3 +159,17 @@ struct VocabCraftApp: App {
         }
     }
 }
+
+#if canImport(UIKit)
+/// Main-actor box so the expiration handler and the refresh task can end the same background task once.
+@MainActor
+private final class BackgroundTaskHolder {
+    var id = UIBackgroundTaskIdentifier.invalid
+
+    func end() {
+        guard id != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(id)
+        id = .invalid
+    }
+}
+#endif
