@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7000010004 /* WidgetDeckComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010004 /* WidgetDeckComposer.swift */; };
+		30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010005 /* WidgetDeckComposerTests.swift */; };
 		30003B7000010001 /* WidgetDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
 		30003B7000020001 /* WidgetDeck.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
 		30003B7000010002 /* WidgetDeckStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010002 /* WidgetDeckStore.swift */; };
@@ -562,6 +564,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B7000010004 /* WidgetDeckComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposer.swift"; sourceTree = "<group>"; };
+		20003B7000010005 /* WidgetDeckComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposerTests.swift"; sourceTree = "<group>"; };
 		20003B7000010001 /* WidgetDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeck.swift"; sourceTree = "<group>"; };
 		20003B7000010002 /* WidgetDeckStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStore.swift"; sourceTree = "<group>"; };
 		20003B7000010003 /* WidgetDeckStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStoreTests.swift"; sourceTree = "<group>"; };
@@ -1228,6 +1232,14 @@
 			path = "Audio";
 			sourceTree = "<group>";
 		};
+		40003B7000010002 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				20003B7000010004 /* WidgetDeckComposer.swift */,
+			);
+			path = "Widget";
+			sourceTree = "<group>";
+		};
 		40003B7000010001 /* Widget */ = {
 			isa = PBXGroup;
 			children = (
@@ -1476,6 +1488,7 @@
 				4000731A90F8FB364BE4 /* Policies */,
 				40008F48FF4076AEA27E /* Protocols */,
 				40008298FFEC52A63E9E /* UseCases */,
+				40003B7000010002 /* Widget */,
 			);
 			path = "Domain";
 			sourceTree = "<group>";
@@ -2537,6 +2550,7 @@
 				200029F58E9AE9045086 /* NextWordIntentTests.swift */,
 				2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */,
 				20003B7000010003 /* WidgetDeckStoreTests.swift */,
+				20003B7000010005 /* WidgetDeckComposerTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2844,6 +2858,7 @@
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
 				30003B7000010001 /* WidgetDeck.swift in Sources */,
 				30003B7000010002 /* WidgetDeckStore.swift in Sources */,
+				30003B7000010004 /* WidgetDeckComposer.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
@@ -3237,6 +3252,7 @@
 				300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */,
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
 				30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */,
+				30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
