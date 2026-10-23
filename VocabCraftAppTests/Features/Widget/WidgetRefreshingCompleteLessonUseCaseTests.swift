@@ -15,21 +15,15 @@ private final class SpyRefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtoco
     }
 
     var count: Int {
-        lock.lock()
-        defer { lock.unlock() }
-        return _count
+        lock.withLock { _count }
     }
 
     var isEmpty: Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return _count < 1
+        lock.withLock { _count < 1 }
     }
 
     func execute() async {
-        lock.lock()
-        _count += 1
-        lock.unlock()
+        lock.withLock { _count += 1 }
         continuation.yield()
     }
 }
