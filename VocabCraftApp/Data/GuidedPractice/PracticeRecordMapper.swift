@@ -49,6 +49,7 @@ public enum PracticeRecordMapper {
     struct PresentationPayload: Codable {
         let content: String
         let possibleWordIds: [Int64]
+        var origin: SupportOrigin?
     }
 
     struct EvidencePayload: Codable {
@@ -230,7 +231,11 @@ public enum PracticeRecordMapper {
     // MARK: - PracticePresentation Mapping
 
     public static func toRecord(_ intent: PracticePresentationIntent) throws -> SchemaV3.PracticePresentationRecord {
-        let payload = PresentationPayload(content: intent.content, possibleWordIds: intent.possibleWordIds)
+        let payload = PresentationPayload(
+            content: intent.content,
+            possibleWordIds: intent.possibleWordIds,
+            origin: intent.origin
+        )
         let data = try encoder.encode(payload)
         let possibleWordIdsRaw = intent.possibleWordIds.map(String.init).joined(separator: ",")
         return SchemaV3.PracticePresentationRecord(
@@ -247,7 +252,11 @@ public enum PracticeRecordMapper {
     }
 
     public static func updateRecord(_ record: SchemaV3.PracticePresentationRecord, from intent: PracticePresentationIntent) throws {
-        let payload = PresentationPayload(content: intent.content, possibleWordIds: intent.possibleWordIds)
+        let payload = PresentationPayload(
+            content: intent.content,
+            possibleWordIds: intent.possibleWordIds,
+            origin: intent.origin
+        )
         record.turnId = intent.turnId
         record.statusRaw = intent.status.rawValue
         record.channelRaw = intent.channel.rawValue
@@ -267,6 +276,7 @@ public enum PracticeRecordMapper {
         let status = PracticePresentationStatus(rawValue: record.statusRaw) ?? .pending
         let channel = PracticePresentationChannel(rawValue: record.channelRaw) ?? .visual
         let proposedLevel = PracticeSupportLevel(rawValue: record.proposedLevelRaw) ?? .none
+        let origin = payload.origin ?? .coachSuggested
         return PracticePresentationIntent(
             id: record.id,
             sessionId: record.sessionId,
@@ -275,7 +285,8 @@ public enum PracticeRecordMapper {
             channel: channel,
             possibleWordIds: payload.possibleWordIds,
             proposedLevel: proposedLevel,
-            status: status
+            status: status,
+            origin: origin
         )
     }
 

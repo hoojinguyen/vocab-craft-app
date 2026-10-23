@@ -8,10 +8,10 @@ public final class PracticeSessionCoordinator {
     // MARK: - Observable State
 
     public private(set) var state: PracticeSessionState = .preparing
-    public private(set) var session: PracticeSession?
+    public internal(set) var session: PracticeSession?
     public private(set) var turns: [PracticeTurn] = []
-    public private(set) var exposures: [SupportExposure] = []
-    public private(set) var currentSupport: PracticeSupportLevel = .none
+    public internal(set) var exposures: [SupportExposure] = []
+    public internal(set) var currentSupport: PracticeSupportLevel = .none
     public private(set) var currentInputMode: PracticeInputMode = .voice
     public private(set) var summary: PracticeSummary?
     public private(set) var failure: PracticeFailure?
@@ -19,6 +19,8 @@ public final class PracticeSessionCoordinator {
     public private(set) var characterReply: String = ""
     public private(set) var coachFeedback: String?
     public private(set) var activeOperationToken: PracticeOperationToken?
+    public internal(set) var pendingPresentations: [PracticePresentationIntent] = []
+    internal var isRequestingHelp: Bool = false
 
     // MARK: - Injected Dependencies
 
@@ -30,7 +32,7 @@ public final class PracticeSessionCoordinator {
     public let policy: PracticePolicyConfiguration
 
     private let validator: AssessPracticeTurnUseCase
-    private let supportPolicy: SupportPolicy
+    internal let supportPolicy: SupportPolicy
     private let difficultyPolicy: PracticeDifficultyPolicy
 
     // MARK: - Task Handles
@@ -131,6 +133,7 @@ public final class PracticeSessionCoordinator {
         self.session = snapshot.session
         self.turns = snapshot.turns
         self.exposures = snapshot.exposures
+        self.pendingPresentations = snapshot.pendingPresentations
         self.currentSupport = snapshot.session.checkpoint.currentSupportLevel
         self.currentInputMode = snapshot.session.initialInputMode
     }
@@ -298,6 +301,8 @@ extension PracticeSessionCoordinator {
         self.currentSupport = .none
         self.turns = []
         self.exposures = []
+        self.pendingPresentations = []
+        self.isRequestingHelp = false
         self.state = .preparing
     }
 
@@ -448,6 +453,7 @@ extension PracticeSessionCoordinator {
             self.session = snapshot.session
             self.turns = snapshot.turns
             self.exposures = snapshot.exposures
+            self.pendingPresentations = snapshot.pendingPresentations
             self.characterReply = aiResponse.characterReply
             self.coachFeedback = aiResponse.coachFeedback
             self.activeTurnText = ""
@@ -464,6 +470,20 @@ extension PracticeSessionCoordinator {
         let speechCapability = speech.capability()
         guard speechCapability.canPlaySpeech, !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
+        var speechIntent: PracticePresentationIntent?
+        if let session = self.session {
+            let matchedWordIds = findTargetWordIds(in: reply, mission: session.missionSnapshot)
+            if !matchedWordIds.isEmpty {
+                speechIntent = await preparePresentation(
+                    content: reply,
+                    channel: .audio,
+                    origin: .characterSpeech,
+                    wordIds: matchedWordIds,
+                    level: .lexical
+                )
+            }
+        }
+
         self.state = .playingCharacter
         let voice = VoiceConfiguration(gender: .female, style: .friendly)
         let stream = speech.play(text: reply, voice: voice)
@@ -472,6 +492,11 @@ extension PracticeSessionCoordinator {
                 guard self.activeOperationToken == token else {
                     await speech.stop()
                     return
+                }
+                if case .playbackStarted = event {
+                    if let speechIntent {
+                        await confirmPresented(intentId: speechIntent.id, at: clock.now())
+                    }
                 }
                 if case .playbackFinished = event { break }
             }
@@ -483,6 +508,18 @@ extension PracticeSessionCoordinator {
     private func handleCoachFeedback(coachFeedback: String?, token: PracticeOperationToken) async {
         guard self.activeOperationToken == token else { return }
         if let feedback = coachFeedback, !feedback.isEmpty {
+            if let session = self.session {
+                let matchedWordIds = findTargetWordIds(in: feedback, mission: session.missionSnapshot)
+                if !matchedWordIds.isEmpty {
+                    _ = await preparePresentation(
+                        content: feedback,
+                        channel: .visual,
+                        origin: .coachSuggested,
+                        wordIds: matchedWordIds,
+                        level: .lexical
+                    )
+                }
+            }
             self.state = .coaching
             await Task.yield()
             guard self.activeOperationToken == token else { return }

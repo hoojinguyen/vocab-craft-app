@@ -388,9 +388,7 @@ public struct PracticeSummary: Codable, Sendable, Equatable {
 
 /// Scaffolding or character prompt reserved prior to actual rendering.
 public enum PracticePresentationStatus: String, Codable, Sendable, CaseIterable, Equatable, Hashable {
-    case pending
-    case confirmed
-    case cancelled
+    case pending, confirmed, cancelled
 }
 
 public struct PracticePresentationIntent: Codable, Sendable, Equatable, Hashable {
@@ -402,6 +400,7 @@ public struct PracticePresentationIntent: Codable, Sendable, Equatable, Hashable
     public let possibleWordIds: [Int64]
     public let proposedLevel: PracticeSupportLevel
     public let status: PracticePresentationStatus
+    public let origin: SupportOrigin
 
     public init(
         id: UUID,
@@ -411,7 +410,8 @@ public struct PracticePresentationIntent: Codable, Sendable, Equatable, Hashable
         channel: PracticePresentationChannel,
         possibleWordIds: [Int64],
         proposedLevel: PracticeSupportLevel,
-        status: PracticePresentationStatus = .pending
+        status: PracticePresentationStatus = .pending,
+        origin: SupportOrigin = .coachSuggested
     ) {
         self.id = id
         self.sessionId = sessionId
@@ -421,6 +421,7 @@ public struct PracticePresentationIntent: Codable, Sendable, Equatable, Hashable
         self.possibleWordIds = possibleWordIds
         self.proposedLevel = proposedLevel
         self.status = status
+        self.origin = origin
     }
 }
 

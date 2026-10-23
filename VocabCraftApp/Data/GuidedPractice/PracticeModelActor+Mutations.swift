@@ -244,7 +244,8 @@ extension PracticeModelActor {
                         channel: item.channel,
                         possibleWordIds: item.possibleWordIds,
                         proposedLevel: item.proposedLevel,
-                        status: .confirmed
+                        status: .confirmed,
+                        origin: item.origin
                     )
                 }
                 return item
