@@ -6,6 +6,7 @@ import SwiftUI
 /// top review action button, active recall word rows, and a detail sheet.
 public struct VocabularyView: View {
     @Environment(\.appContainer) private var appContainer
+    @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
 
     @State private var vaultVM: PersonalVaultViewModel?
@@ -293,7 +294,20 @@ public struct VocabularyView: View {
                     await vm.loadData()
                 }
             }
+            .onChange(of: appRouter.pendingSmartReview) { _, _ in
+                consumePendingSmartReview()
+            }
+            .onAppear {
+                consumePendingSmartReview()
+            }
         }
+    }
+
+    /// Opens smart review when a `vocabcraft://review` deep link set the router flag.
+    private func consumePendingSmartReview() {
+        guard appRouter.pendingSmartReview else { return }
+        isPresentingSmartReview = true
+        appRouter.pendingSmartReview = false
     }
 
     // MARK: - Word List Content

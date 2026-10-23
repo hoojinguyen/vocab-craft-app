@@ -46,5 +46,23 @@ struct AppRouterTests {
         router.handleDeepLink(url: URL(string: "vocabcraft://unknown")!)
         #expect(router.selectedTab == .home)
     }
+
+    @Test("Review deep link opens smart review")
+    func reviewDeepLinkOpensSmartReview() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://review")!)
+        #expect(router.selectedTab == .vocabulary)
+        #expect(router.pendingSmartReview == true)
+    }
+
+    @Test("Review deep link does not disturb other links")
+    func reviewDeepLinkDoesNotDisturbOtherLinks() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://settings")!)
+        #expect(router.selectedTab == .settings)
+        #expect(router.pendingSmartReview == false)
+    }
 }
 #endif
