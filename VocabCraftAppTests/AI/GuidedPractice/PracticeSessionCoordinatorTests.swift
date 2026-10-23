@@ -508,6 +508,20 @@ struct PracticeSessionCoordinatorTests {
         #expect(repo.persistedEvidence.isEmpty)
     }
 
+    @Test("committedEvidenceRetainsActiveProviderIdentity")
+    func committedEvidenceRetainsActiveProviderIdentity() async throws {
+        let (coordinator, repo, _, _, _) = makeSUT(canAssessUsage: true)
+        let mission = try PracticeFixtures.mission(wordIds: [101])
+        await coordinator.start(mission: mission, mode: .voice)
+
+        await coordinator.submit(text: "I want pasta", mode: .voice)
+
+        let committedEvidence = try #require(repo.commits.first?.assessment?.evidence)
+        #expect(!committedEvidence.isEmpty)
+        #expect(committedEvidence.first?.providerIdentity == "test-provider")
+        #expect(repo.persistedEvidence.first?.providerIdentity == "test-provider")
+    }
+
     @Test("voiceCaptureStreamsTranscripts")
     func voiceCaptureStreamsTranscripts() async throws {
         let (coordinator, repo, _, speech, _) = makeSUT()

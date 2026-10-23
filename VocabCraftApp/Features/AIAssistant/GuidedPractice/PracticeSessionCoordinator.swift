@@ -160,8 +160,21 @@ public final class PracticeSessionCoordinator {
         let aiCapability = await ai.capability()
         guard self.activeOperationToken == token else { return }
 
-        guard let aiResponse = await queryAI(learnerTurn: learnerTurn, session: session, token: token, providerIdentity: aiCapability.providerIdentity) else { return }
-        guard let assessment = validateAssessmentSafely(aiResponse: aiResponse, learnerTurn: learnerTurn, session: session, token: token, canAssessUsage: aiCapability.canAssessUsage) else { return }
+        let aiRequest = PracticeAIRequest(
+            mission: session.missionSnapshot,
+            acceptedTurns: Array((self.turns + [learnerTurn]).suffix(8)),
+            supportBudget: self.currentSupport,
+            providerIdentity: aiCapability.providerIdentity
+        )
+
+        guard let aiResponse = await queryAI(request: aiRequest, token: token) else { return }
+        guard let assessment = validateAssessmentSafely(
+            aiResponse: aiResponse,
+            request: aiRequest,
+            learnerTurn: learnerTurn,
+            token: token,
+            canAssessUsage: aiCapability.canAssessUsage
+        ) else { return }
 
         guard await commitTurn(learnerTurn: learnerTurn, aiResponse: aiResponse, assessment: assessment, token: token) else { return }
 
@@ -339,22 +352,11 @@ extension PracticeSessionCoordinator {
     }
 
     private func queryAI(
-        learnerTurn: PracticeTurn,
-        session: PracticeSession,
-        token: PracticeOperationToken,
-        providerIdentity: String
+        request: PracticeAIRequest,
+        token: PracticeOperationToken
     ) async -> PracticeAIResponse? {
-        let allTurns = self.turns + [learnerTurn]
-        let history = Array(allTurns.suffix(8))
-        let aiRequest = PracticeAIRequest(
-            mission: session.missionSnapshot,
-            acceptedTurns: history,
-            supportBudget: self.currentSupport,
-            providerIdentity: providerIdentity
-        )
-
         do {
-            let response = try await ai.respond(to: aiRequest)
+            let response = try await ai.respond(to: request)
             guard self.activeOperationToken == token else { return nil }
             return response
         } catch {
@@ -366,8 +368,8 @@ extension PracticeSessionCoordinator {
 
     private func validateAssessmentSafely(
         aiResponse: PracticeAIResponse,
+        request: PracticeAIRequest,
         learnerTurn: PracticeTurn,
-        session: PracticeSession,
         token: PracticeOperationToken,
         canAssessUsage: Bool
     ) -> PracticeAssessment? {
@@ -375,20 +377,14 @@ extension PracticeSessionCoordinator {
             return PracticeAssessment(evidence: [], objectiveResults: [], response: aiResponse)
         }
 
-        let aiRequest = PracticeAIRequest(
-            mission: session.missionSnapshot,
-            acceptedTurns: Array((self.turns + [learnerTurn]).suffix(8)),
-            supportBudget: self.currentSupport,
-            providerIdentity: ""
-        )
-
+        let uncertainWordIds = self.session?.checkpoint.exposureUncertainWordIds ?? []
         do {
             return try validator.validate(
                 response: aiResponse,
-                request: aiRequest,
+                request: request,
                 turn: learnerTurn,
                 exposures: self.exposures,
-                uncertainWordIds: session.checkpoint.exposureUncertainWordIds
+                uncertainWordIds: uncertainWordIds
             )
         } catch {
             guard self.activeOperationToken == token else { return nil }
