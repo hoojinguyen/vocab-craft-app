@@ -11,7 +11,7 @@ public enum WidgetReviewRecorder {
 
     #if canImport(SwiftDataMacros) || canImport(SwiftData)
     /// Applies a widget flashcard grade to an existing progress row.
-    /// Returns `false` (writing nothing) when the word was not revealed or has no row.
+    /// Returns `false` (writing nothing) when the word was not revealed, has no row, or is no longer due.
     @MainActor
     @discardableResult
     public static func grade(
@@ -28,6 +28,7 @@ public enum WidgetReviewRecorder {
         var descriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
         descriptor.fetchLimit = 1
         guard let progress = try context.fetch(descriptor).first else { return false }
+        guard progress.nextReviewDate <= now else { return false }
 
         let elapsedMs = Int((now.timeIntervalSince(revealedAt) * 1000).rounded())
         let responseTimeMs = min(responseTimeRange.upperBound, max(responseTimeRange.lowerBound, elapsedMs))

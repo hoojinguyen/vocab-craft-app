@@ -8,7 +8,7 @@ public enum WidgetEntryMode: Equatable, Sendable {
     case placeholder, passive, flashcardFront, flashcardBack
 }
 
-public struct VocabWidgetEntry: TimelineEntry, Equatable {
+public struct VocabWidgetEntry: TimelineEntry, Equatable, Sendable {
     public let date: Date
     public let card: WidgetCard?
     public let mode: WidgetEntryMode
@@ -29,13 +29,13 @@ public struct VocabWidgetEntry: TimelineEntry, Equatable {
 public enum WidgetReloadPlan: Equatable, Sendable {
     case atEnd
     case after(Date)
-    case never
 }
 
 public enum WidgetTimelineBuilder {
     public static let rotationInterval: TimeInterval = 300
     public static let maxEntries = 36
     static let placeholderRetry: TimeInterval = 3600
+    public static let flashcardRefresh: TimeInterval = 3600
 
     public static func build(
         deck: WidgetDeck?,
@@ -52,7 +52,7 @@ public enum WidgetTimelineBuilder {
         if let first = dueCards.first {
             let mode: WidgetEntryMode = interaction.revealedWordId == first.wordId ? .flashcardBack : .flashcardFront
             let entry = VocabWidgetEntry(date: now, card: first, mode: mode, dueCount: dueCards.count)
-            return ([entry], .never)
+            return ([entry], .after(now.addingTimeInterval(flashcardRefresh)))
         }
 
         let cards = deck.cards

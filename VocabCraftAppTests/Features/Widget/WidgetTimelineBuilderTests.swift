@@ -76,7 +76,7 @@ struct WidgetTimelineBuilderTests {
         #expect(result.entries[0].card?.wordId == 2)
         #expect(result.entries[0].mode == .flashcardFront)
         #expect(result.entries[0].dueCount == 1)
-        #expect(result.reload == .never)
+        #expect(result.reload == .after(now.addingTimeInterval(3600)))
     }
 
     @Test func revealStateFlipsOnlyMatchingCard() {

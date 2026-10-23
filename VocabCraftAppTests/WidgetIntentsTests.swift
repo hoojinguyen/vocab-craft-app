@@ -73,12 +73,15 @@ struct WidgetIntentsTests {
         let container = try makeContainer()
         defer { withExtendedLifetime(container) {} }
         let context = container.mainContext
-        try insertRow(5, nextReview: now.addingTimeInterval(-60), in: context)
+        let row = try insertRow(5, nextReview: now.addingTimeInterval(-60), in: context)
         try RevealCardIntent(wordId: 5).perform(store: store, now: now.addingTimeInterval(-3))
 
         try GradeCardIntent(wordId: 6, remembered: true).perform(store: store, context: context, now: now)
 
         #expect(store.loadInteraction().revealedWordId == 5)
+        #expect(row.totalReviews == 4)
+        #expect(row.masteryLevel == 1)
+        #expect(row.nextReviewDate == now.addingTimeInterval(-60))
     }
 
     @Test("providerTimelineUsesDeckAndDueRows")
@@ -96,6 +99,22 @@ struct WidgetIntentsTests {
         #expect(timeline.entries.first?.card?.wordId == 2)
         #expect(timeline.entries.first?.mode == .flashcardFront)
         #expect(timeline.entries.first?.dueCount == 1)
+    }
+
+    @Test("providerClearsStaleRevealState")
+    func providerClearsStaleRevealState() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        try insertRow(2, nextReview: now.addingTimeInterval(86_400), in: container.mainContext)
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+        try store.saveInteraction(WidgetInteractionState(revealedWordId: 2, revealedAt: now.addingTimeInterval(-3)))
+
+        let provider = VocabWidgetProvider(store: store, container: container)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(timeline.entries.first?.mode != .flashcardBack)
+        #expect(store.loadInteraction() == .empty)
     }
 
     @Test("providerWithoutContainerTreatsNothingDue")

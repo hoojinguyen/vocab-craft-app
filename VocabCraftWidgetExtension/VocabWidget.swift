@@ -64,7 +64,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
     @MainActor
     func makeTimeline(now: Date) -> Timeline<VocabWidgetEntry> {
         let deck = store.loadDeck()
-        let interaction = store.loadInteraction()
+        var interaction = store.loadInteraction()
 
         var dueWordIds: Set<Int64> = []
         var nextDueDate: Date?
@@ -82,6 +82,12 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
         }
         #endif
 
+        if let revealedId = interaction.revealedWordId, !dueWordIds.contains(revealedId) {
+            // Stale reveal state: the word is no longer due, so it must not reopen on the answer side later.
+            interaction = .empty
+            try? store.saveInteraction(.empty)
+        }
+
         let plan = WidgetTimelineBuilder.build(
             deck: deck,
             dueWordIds: dueWordIds,
@@ -96,7 +102,6 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
         switch plan {
         case .atEnd: return .atEnd
         case .after(let date): return .after(date)
-        case .never: return .never
         }
     }
 }

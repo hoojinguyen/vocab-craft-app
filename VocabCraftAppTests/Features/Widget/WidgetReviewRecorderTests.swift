@@ -140,6 +140,25 @@ struct WidgetReviewRecorderTests {
         #expect(row.nextReviewDate == now.addingTimeInterval(-60))
     }
 
+    @Test("gradeRejectedWhenNotDue")
+    func gradeRejectedWhenNotDue() throws {
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
+        let future = now.addingTimeInterval(86_400)
+        let row = try insertRow(1, nextReview: future, in: context)
+
+        let applied = try WidgetReviewRecorder.grade(
+            wordId: 1, remembered: true, interaction: revealed(1, secondsAgo: 3), now: now, in: context
+        )
+
+        #expect(applied == false)
+        #expect(row.masteryLevel == 1)
+        #expect(row.totalReviews == 4)
+        #expect(row.nextReviewDate == future)
+        #expect(row.lastReviewDate == now.addingTimeInterval(-86_400))
+    }
+
     @Test("missingProgressInsertsNothing")
     func missingProgressInsertsNothing() throws {
         let container = try makeContainer()
