@@ -17,12 +17,14 @@ public enum WidgetDueQuery {
         now: Date
     ) throws -> (due: Set<Int64>, nextDueDate: Date?) {
         guard !wordIds.isEmpty else { return ([], nil) }
-        let wanted = Set(wordIds)
-        let rows = try context.fetch(FetchDescriptor<UserWordProgress>())
+        let wanted = Array(Set(wordIds))
+        let rows = try context.fetch(
+            FetchDescriptor<UserWordProgress>(predicate: #Predicate { wanted.contains($0.wordId) })
+        )
 
         var due: Set<Int64> = []
         var nextDueDate: Date?
-        for row in rows where wanted.contains(row.wordId) {
+        for row in rows {
             if row.nextReviewDate <= now {
                 due.insert(row.wordId)
             } else if nextDueDate.map({ row.nextReviewDate < $0 }) ?? true {
