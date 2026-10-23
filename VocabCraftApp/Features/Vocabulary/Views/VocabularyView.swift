@@ -435,7 +435,7 @@ public struct VocabularyView: View {
                 activeDrillViewModel = drillVM
             }
         } else if state.starts(with: "smart-review") {
-            smartReviewWords = currentVaultVM.words.filter(\.needsReview)
+            smartReviewWords = vaultVM?.words.filter(\.needsReview) ?? []
             isPresentingSmartReview = true
         }
     }
