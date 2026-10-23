@@ -133,6 +133,38 @@ struct RefreshWidgetDeckUseCaseTests {
         #expect(harness.store.loadDeck()?.cards.map(\.wordId) == [2, 1])
     }
 
+    @Test func upcomingIsOnlyTheNextLesson() async {
+        let words = [word(1, stage: "S1"), word(2, stage: "S1"), word(3, stage: "S2"), word(4, stage: "S2")]
+        let curriculum = LearningPathCurriculum(
+            decks: [deck("d1", order: 1)],
+            stages: [stage("S1", deck: "d1", order: 1), stage("S2", deck: "d1", order: 2)],
+            words: words,
+            progressList: []
+        )
+        let harness = makeHarness(curriculum: curriculum)
+
+        await harness.useCase.execute()
+
+        let cards = harness.store.loadDeck()?.cards
+        #expect(cards?.map(\.wordId) == [1, 2])
+        #expect(cards?.allSatisfy { $0.source == .upcoming } == true)
+    }
+
+    @Test func recentTiesBreakByStageId() async {
+        let words = [word(1, stage: "B"), word(2, stage: "A")]
+        let curriculum = LearningPathCurriculum(
+            decks: [deck("d1", order: 1)],
+            stages: [stage("B", deck: "d1", order: 1), stage("A", deck: "d1", order: 2)],
+            words: words,
+            progressList: [done("B", deck: "d1", at: now), done("A", deck: "d1", at: now)]
+        )
+        let harness = makeHarness(curriculum: curriculum)
+
+        await harness.useCase.execute()
+
+        #expect(harness.store.loadDeck()?.cards.map(\.wordId) == [2, 1])
+    }
+
     @Test func failureDoesNotThrowOrWrite() async {
         let harness = makeHarness(curriculum: nil)
 

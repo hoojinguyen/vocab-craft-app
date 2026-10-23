@@ -75,7 +75,11 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
     ) -> [TopicWordDTO] {
         curriculum.progressList
             .filter(\.isCompleted)
-            .sorted { $0.completedAt > $1.completedAt }
+            .sorted {
+                $0.completedAt == $1.completedAt
+                    ? $0.stageId < $1.stageId
+                    : $0.completedAt > $1.completedAt
+            }
             .flatMap { wordsByStage[$0.stageId] ?? [] }
     }
 
@@ -97,11 +101,12 @@ public final class RefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol {
                 return $0.sortOrder < $1.sortOrder
             }
 
-        var result: [TopicWordDTO] = []
+        // Only the next upcoming lesson: the first incomplete stage in path order that has words.
         for stage in orderedStages {
-            result.append(contentsOf: wordsByStage[stage.id] ?? [])
-            if result.count >= WidgetDeckComposer.maxCards { break }
+            if let words = wordsByStage[stage.id], !words.isEmpty {
+                return Array(words.prefix(WidgetDeckComposer.maxCards))
+            }
         }
-        return Array(result.prefix(WidgetDeckComposer.maxCards))
+        return []
     }
 }
