@@ -7,31 +7,33 @@ import Observation
 public final class PracticeSessionCoordinator {
     // MARK: - Observable State
 
-    public private(set) var state: PracticeSessionState = .preparing
+    public internal(set) var state: PracticeSessionState = .preparing
     public internal(set) var session: PracticeSession?
-    public private(set) var turns: [PracticeTurn] = []
+    public internal(set) var turns: [PracticeTurn] = []
     public internal(set) var exposures: [SupportExposure] = []
     public internal(set) var currentSupport: PracticeSupportLevel = .none
-    public private(set) var currentInputMode: PracticeInputMode = .voice
-    public private(set) var summary: PracticeSummary?
-    public private(set) var failure: PracticeFailure?
+    public internal(set) var currentInputMode: PracticeInputMode = .voice
+    public internal(set) var summary: PracticeSummary?
+    public internal(set) var failure: PracticeFailure?
     public var activeTurnText: String = ""
-    public private(set) var characterReply: String = ""
-    public private(set) var coachFeedback: String?
-    public private(set) var activeOperationToken: PracticeOperationToken?
+    public internal(set) var characterReply: String = ""
+    public internal(set) var coachFeedback: String?
+    public internal(set) var activeOperationToken: PracticeOperationToken?
     public internal(set) var pendingPresentations: [PracticePresentationIntent] = []
     internal var isRequestingHelp: Bool = false
+    internal var lastFailedCommit: PracticeCommit?
 
     // MARK: - Injected Dependencies
 
     public let repository: any PracticeRepositoryProtocol
     // swiftlint:disable:next identifier_name
-    public let ai: any PracticeAIProtocol
+    public internal(set) var ai: any PracticeAIProtocol
     public let speech: any PracticeSpeechProtocol
     public let clock: any PracticeClock
     public let policy: PracticePolicyConfiguration
+    public let privacyStore: PracticePrivacyStore
 
-    private let validator: AssessPracticeTurnUseCase
+    internal let validator: AssessPracticeTurnUseCase
     internal let supportPolicy: SupportPolicy
     private let difficultyPolicy: PracticeDifficultyPolicy
 
@@ -50,7 +52,8 @@ public final class PracticeSessionCoordinator {
         clock: any PracticeClock,
         policy: PracticePolicyConfiguration = .v1,
         supportPolicy: SupportPolicy = SupportPolicy(),
-        difficultyPolicy: PracticeDifficultyPolicy = PracticeDifficultyPolicy()
+        difficultyPolicy: PracticeDifficultyPolicy = PracticeDifficultyPolicy(),
+        privacyStore: PracticePrivacyStore = PracticePrivacyStore()
     ) {
         self.repository = repository
         self.ai = ai
@@ -59,6 +62,7 @@ public final class PracticeSessionCoordinator {
         self.policy = policy
         self.supportPolicy = supportPolicy
         self.difficultyPolicy = difficultyPolicy
+        self.privacyStore = privacyStore
         self.validator = AssessPracticeTurnUseCase(supportPolicy: supportPolicy)
     }
 
@@ -97,32 +101,6 @@ public final class PracticeSessionCoordinator {
             try await repository.create(newSession)
             self.session = newSession
             self.state = .awaitingLearner
-        } catch {
-            setFailure(error, code: .storage)
-        }
-    }
-
-    /// Resumes an existing practice session from repository snapshot.
-    public func resume(sessionId: UUID) async {
-        await stopActiveAudio()
-        self.failure = nil
-        self.summary = nil
-        self.state = .preparing
-        do {
-            guard let snapshot = try await repository.loadSession(id: sessionId) else {
-                throw PracticeFailure(code: .storage, message: "Session \(sessionId) not found")
-            }
-            syncFromSnapshot(snapshot)
-            switch snapshot.session.status {
-            case .completed:
-                self.state = .completed
-            case .partial:
-                self.state = .partial
-            case .abandoned:
-                self.state = .recoverableError
-            case .inProgress:
-                self.state = .awaitingLearner
-            }
         } catch {
             setFailure(error, code: .storage)
         }
@@ -288,10 +266,10 @@ public final class PracticeSessionCoordinator {
     }
 }
 
-// MARK: - Private Processing Helpers
+// MARK: - Internal Processing Helpers
 
 extension PracticeSessionCoordinator {
-    private func resetState(mode: PracticeInputMode) {
+    internal func resetState(mode: PracticeInputMode = .voice) {
         self.failure = nil
         self.summary = nil
         self.activeTurnText = ""
@@ -304,6 +282,8 @@ extension PracticeSessionCoordinator {
         self.pendingPresentations = []
         self.isRequestingHelp = false
         self.state = .preparing
+        self.session = nil
+        self.lastFailedCommit = nil
     }
 
     private func makeLearnerTurn(
@@ -356,7 +336,7 @@ extension PracticeSessionCoordinator {
         return self.activeOperationToken == token
     }
 
-    private func queryAI(
+    internal func queryAI(
         request: PracticeAIRequest,
         token: PracticeOperationToken
     ) async -> PracticeAIResponse? {
@@ -371,7 +351,7 @@ extension PracticeSessionCoordinator {
         }
     }
 
-    private func validateAssessmentSafely(
+    internal func validateAssessmentSafely(
         aiResponse: PracticeAIResponse,
         request: PracticeAIRequest,
         learnerTurn: PracticeTurn,
@@ -398,7 +378,7 @@ extension PracticeSessionCoordinator {
         }
     }
 
-    private func commitTurn(
+    internal func commitTurn(
         learnerTurn: PracticeTurn,
         aiResponse: PracticeAIResponse,
         assessment: PracticeAssessment,
@@ -450,6 +430,7 @@ extension PracticeSessionCoordinator {
         do {
             let snapshot = try await repository.commit(commitPayload)
             guard self.activeOperationToken == token else { return false }
+            self.lastFailedCommit = nil
             self.session = snapshot.session
             self.turns = snapshot.turns
             self.exposures = snapshot.exposures
@@ -460,12 +441,13 @@ extension PracticeSessionCoordinator {
             return true
         } catch {
             guard self.activeOperationToken == token else { return false }
+            self.lastFailedCommit = commitPayload
             setFailure(error, code: .storage)
             return false
         }
     }
 
-    private func playCharacterSpeechIfSupported(reply: String, token: PracticeOperationToken) async {
+    internal func playCharacterSpeechIfSupported(reply: String, token: PracticeOperationToken) async {
         guard self.activeOperationToken == token else { return }
         let speechCapability = speech.capability()
         guard speechCapability.canPlaySpeech, !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -505,7 +487,7 @@ extension PracticeSessionCoordinator {
         }
     }
 
-    private func handleCoachFeedback(coachFeedback: String?, token: PracticeOperationToken) async {
+    internal func handleCoachFeedback(coachFeedback: String?, token: PracticeOperationToken) async {
         guard self.activeOperationToken == token else { return }
         if let feedback = coachFeedback, !feedback.isEmpty {
             if let session = self.session {
@@ -529,7 +511,7 @@ extension PracticeSessionCoordinator {
         }
     }
 
-    private func setFailure(_ error: Error, code: PracticeFailure.Code) {
+    internal func setFailure(_ error: Error, code: PracticeFailure.Code) {
         self.state = .recoverableError
         self.failure = (error as? PracticeFailure) ?? PracticeFailure(
             code: code,
@@ -537,7 +519,7 @@ extension PracticeSessionCoordinator {
         )
     }
 
-    private func stopActiveAudio() async {
+    internal func stopActiveAudio() async {
         captureTask?.cancel()
         captureTask = nil
         playbackTask?.cancel()

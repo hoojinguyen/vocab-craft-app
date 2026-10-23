@@ -8,12 +8,21 @@ public protocol ResetUserProgressUseCaseProtocol: AnyObject, Sendable {
 @MainActor
 public final class ResetUserProgressUseCase: ResetUserProgressUseCaseProtocol {
     private let srsRepository: SRSRepositoryProtocol
+    private let practiceRepository: (any PracticeRepositoryProtocol)?
 
-    public init(srsRepository: SRSRepositoryProtocol) {
+    public init(
+        srsRepository: SRSRepositoryProtocol,
+        practiceRepository: (any PracticeRepositoryProtocol)? = nil
+    ) {
         self.srsRepository = srsRepository
+        self.practiceRepository = practiceRepository
     }
 
     public func executeResetAllProgress() async throws {
-        try await srsRepository.resetAllProgress()
+        if let practiceRepository {
+            try await practiceRepository.resetAllLearningProgress()
+        } else {
+            try await srsRepository.resetAllProgress()
+        }
     }
 }

@@ -19,6 +19,7 @@ public final class AppContainer {
     public let srsRepository: SRSRepositoryProtocol
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
     public let shadowingProgressRepository: any ShadowingProgressRepositoryProtocol
+    public let practiceRepository: (any PracticeRepositoryProtocol)?
 
     // MARK: - Services
     public let audioSessionCoordinator: any AudioSessionCoordinating
@@ -47,6 +48,7 @@ public final class AppContainer {
     public let appRouter: AppRouter
     public let aiPackRegistry: AIPackRegistry
 
+    // swiftlint:disable:next function_body_length
     public init(
         modelContainer: ModelContainer? = nil,
         useMockData: Bool? = nil,
@@ -68,7 +70,8 @@ public final class AppContainer {
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil,
         aiPackRegistry: AIPackRegistry? = nil,
-        shadowingProgressRepository: (any ShadowingProgressRepositoryProtocol)? = nil
+        shadowingProgressRepository: (any ShadowingProgressRepositoryProtocol)? = nil,
+        practiceRepository: (any PracticeRepositoryProtocol)? = nil
     ) {
         self.useSampleData = useSampleData
         self.modelContainer = modelContainer
@@ -90,7 +93,14 @@ public final class AppContainer {
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
             ? MockVocabularyRepository()
             : VocabularyRepositoryImpl(dataSource: resolvedDataSource, progressActor: progressActor)
-        let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
+        let resolvedPracticeRepo: (any PracticeRepositoryProtocol)? = practiceRepository
+            ?? (modelContainer.map { PracticeModelActor(modelContainer: $0) })
+        self.practiceRepository = resolvedPracticeRepo
+
+        let srsRepo = SRSRepositoryImpl(
+            modelContext: modelContainer?.mainContext,
+            practiceRepository: resolvedPracticeRepo
+        )
         let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
         self.vocabularyRepository = vocabRepo
@@ -121,7 +131,10 @@ public final class AppContainer {
 
         // Existing Use Cases
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
-        self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
+        self.resetUserProgressUseCase = ResetUserProgressUseCase(
+            srsRepository: srsRepo,
+            practiceRepository: resolvedPracticeRepo
+        )
 
         // Learning Path Use Cases
         self.fetchLearningPathUseCase = fetchLearningPathUseCase ?? FetchLearningPathUseCase(

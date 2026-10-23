@@ -292,6 +292,26 @@ extension UserProgressModelActor {
     }
 
     public func resetAllProgress() throws {
+        let entityNames = Set(modelContext.container.schema.entities.map(\.name))
+        if entityNames.contains("PracticeSessionRecord") {
+            try? modelContext.delete(model: SchemaV3.PracticeSessionRecord.self)
+        }
+        if entityNames.contains("PracticeTurnRecord") {
+            try? modelContext.delete(model: SchemaV3.PracticeTurnRecord.self)
+        }
+        if entityNames.contains("SupportExposureRecord") {
+            try? modelContext.delete(model: SchemaV3.SupportExposureRecord.self)
+        }
+        if entityNames.contains("PracticePresentationRecord") {
+            try? modelContext.delete(model: SchemaV3.PracticePresentationRecord.self)
+        }
+        if entityNames.contains("WordUseEvidenceRecord") {
+            try? modelContext.delete(model: SchemaV3.WordUseEvidenceRecord.self)
+        }
+        if entityNames.contains("CommunicationProgressRecord") {
+            try? modelContext.delete(model: SchemaV3.CommunicationProgressRecord.self)
+        }
+
         try modelContext.delete(model: UserWordProgress.self)
         try modelContext.delete(model: ReflexSessionLog.self)
         try modelContext.delete(model: QuickReflexAttemptRecord.self)
