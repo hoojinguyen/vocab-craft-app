@@ -18,6 +18,7 @@ public struct VocabularyView: View {
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
     @State private var isPresentingSmartReview: Bool = false
+    @State private var smartReviewWords: [PersonalWord] = []
 
     @MainActor
     public init(
@@ -272,7 +273,7 @@ public struct VocabularyView: View {
             .sheet(isPresented: $isPresentingSmartReview) {
                 SmartReviewSessionView(
                     viewModel: appContainer.makeSmartReviewViewModel(
-                        weakWords: currentVaultVM.words.filter(\.needsReview)
+                        weakWords: smartReviewWords
                     ),
                     onDismiss: {
                         isPresentingSmartReview = false
@@ -306,8 +307,12 @@ public struct VocabularyView: View {
     /// Opens smart review when a `vocabcraft://review` deep link set the router flag.
     private func consumePendingSmartReview() {
         guard appRouter.pendingSmartReview else { return }
-        isPresentingSmartReview = true
         appRouter.pendingSmartReview = false
+        Task {
+            let dueWords = try? await appContainer.reviewWeakWordsUseCase.fetchDueWords(now: Date())
+            smartReviewWords = dueWords ?? []
+            isPresentingSmartReview = true
+        }
     }
 
     // MARK: - Word List Content
@@ -430,6 +435,7 @@ public struct VocabularyView: View {
                 activeDrillViewModel = drillVM
             }
         } else if state.starts(with: "smart-review") {
+            smartReviewWords = currentVaultVM.words.filter(\.needsReview)
             isPresentingSmartReview = true
         }
     }
