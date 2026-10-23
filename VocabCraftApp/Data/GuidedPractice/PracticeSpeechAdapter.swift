@@ -99,10 +99,11 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
 
     // MARK: - Lease Management
 
-    private func acquireLease(for intent: AudioSessionIntent) async throws {
+    @discardableResult
+    private func acquireLease(for intent: AudioSessionIntent) async throws -> AudioSessionLease? {
         if let existing = activeLease {
             if existing.intent == intent {
-                return
+                return existing
             }
             await audioCoordinator?.release(existing)
             activeLease = nil
@@ -112,22 +113,32 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
             guard !Task.isCancelled,
                   (intent == .speechCapture && isCapturing) || (intent == .playback && isPlaying) else {
                 await coordinator.release(lease)
-                return
+                throw CancellationError()
             }
             activeLease = lease
+            return lease
         }
+        return nil
     }
 
-    private func releaseLease() async {
-        if let lease = activeLease {
+    private func releaseLease(_ lease: AudioSessionLease? = nil) async {
+        if let leaseToRelease = lease {
+            if activeLease?.id == leaseToRelease.id {
+                activeLease = nil
+            }
+            await audioCoordinator?.release(leaseToRelease)
+        } else if let current = activeLease {
             activeLease = nil
-            await audioCoordinator?.release(lease)
+            await audioCoordinator?.release(current)
         }
     }
 
     // MARK: - Capture
 
     public func capture(locale: String) -> AsyncThrowingStream<PracticeSpeechEvent, Error> {
+        let previousCaptureTask = activeCaptureTask
+        let previousPlaybackTask = activePlaybackTask
+
         stopPlaybackInternal()
         stopCapture()
 
@@ -139,8 +150,23 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
             let captureTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
+                // Await previous tasks completion so their lease releases finish
+                if let previousPlayback = previousPlaybackTask {
+                    _ = await previousPlayback.result
+                }
+                if let previousCapture = previousCaptureTask {
+                    _ = await previousCapture.result
+                }
+
+                var capturedLease: AudioSessionLease?
                 do {
-                    try await self.acquireLease(for: .speechCapture)
+                    capturedLease = try await self.acquireLease(for: .speechCapture)
+                } catch is CancellationError {
+                    self.isCapturing = false
+                    continuation.yield(.captureStopped)
+                    continuation.finish()
+                    self.activeCaptureContinuation = nil
+                    return
                 } catch {
                     self.isCapturing = false
                     continuation.yield(.failed(PracticeFailure(code: .audio, message: error.localizedDescription)))
@@ -187,7 +213,7 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
                     continuation.finish()
                     self.activeCaptureContinuation = nil
                 }
-                await self.releaseLease()
+                await self.releaseLease(capturedLease)
             }
 
             self.activeCaptureTask = captureTask
@@ -214,6 +240,9 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     // MARK: - Playback
 
     public func play(text: String, voice: VoiceConfiguration) -> AsyncThrowingStream<PracticeSpeechEvent, Error> {
+        let previousCaptureTask = activeCaptureTask
+        let previousPlaybackTask = activePlaybackTask
+
         return AsyncThrowingStream { continuation in
             let playTask = Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -226,83 +255,24 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
                     return
                 }
 
-                // 2. Stop capture before playback starts
-                if self.isCapturing {
+                // 2. Stop capture before playback starts and await prior capture
+                if self.isCapturing || previousCaptureTask != nil {
                     self.stopCapture()
-                    _ = await self.activeCaptureTask?.result
-                    self.activeCaptureTask = nil
+                    _ = await previousCaptureTask?.result
                 }
 
-                // 3. Stop existing playback
-                self.stopPlaybackInternal()
-
-                self.isPlaying = true
-                self.activePlaybackContinuation = continuation
-
-                // 4. Acquire playback audio lease
-                do {
-                    try await self.acquireLease(for: .playback)
-                } catch {
-                    self.isPlaying = false
-                    continuation.yield(.failed(PracticeFailure(code: .audio, message: error.localizedDescription)))
-                    continuation.finish()
-                    self.activePlaybackContinuation = nil
-                    return
+                // 3. Stop existing playback and await prior playback
+                if self.isPlaying || previousPlaybackTask != nil {
+                    self.stopPlaybackInternal()
+                    _ = await previousPlaybackTask?.result
                 }
 
-                let tracker = PlaybackTracker()
-
-                // 5. Preparation timeout task
-                let timeoutTask = Task { [clock = self.clock, timeout = self.ttsPreparationTimeout, weak self] in
-                    do {
-                        try await clock.sleep(for: .seconds(timeout))
-                        guard !Task.isCancelled else { return }
-                        if tracker.markTimedOut() {
-                            await MainActor.run {
-                                self?.activePlaybackTask?.cancel()
-                                self?.ttsEngine.stop()
-                                continuation.yield(.failed(PracticeFailure(code: .timeout, message: "TTS preparation timed out")))
-                                continuation.finish()
-                                self?.isPlaying = false
-                                self?.activePlaybackContinuation = nil
-                            }
-                        }
-                    } catch {
-                        // Sleep cancelled
-                    }
-                }
-                self.activeTimeoutTask = timeoutTask
-
-                // 6. Synthesize and play
-                do {
-                    try await reportingTTS.synthesizeAndPlay(text: text, voice: voice) {
-                        if tracker.markStarted() {
-                            timeoutTask.cancel()
-                            continuation.yield(.playbackStarted)
-                        }
-                    }
-
-                    timeoutTask.cancel()
-
-                    if !tracker.hasTimedOut, self.isPlaying {
-                        self.isPlaying = false
-                        continuation.yield(.playbackFinished)
-                        continuation.finish()
-                        self.activePlaybackContinuation = nil
-                    }
-                } catch is CancellationError {
-                    // Cancelled by timeout or stop
-                } catch {
-                    timeoutTask.cancel()
-                    if !tracker.hasTimedOut, self.isPlaying {
-                        self.isPlaying = false
-                        continuation.yield(.failed(PracticeFailure(code: .audio, message: error.localizedDescription)))
-                        continuation.finish()
-                        self.activePlaybackContinuation = nil
-                    }
-                }
-
-                await self.releaseLease()
+                await self.runPlayback(
+                    reportingTTS: reportingTTS,
+                    text: text,
+                    voice: voice,
+                    continuation: continuation
+                )
             }
 
             self.activePlaybackTask = playTask
@@ -312,6 +282,87 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
                 }
             }
         }
+    }
+
+    private func runPlayback(
+        reportingTTS: PlaybackReportingTTSEngineProtocol,
+        text: String,
+        voice: VoiceConfiguration,
+        continuation: AsyncThrowingStream<PracticeSpeechEvent, Error>.Continuation
+    ) async {
+        self.isPlaying = true
+        self.activePlaybackContinuation = continuation
+
+        // Acquire playback audio lease
+        var playbackLease: AudioSessionLease?
+        do {
+            playbackLease = try await self.acquireLease(for: .playback)
+        } catch is CancellationError {
+            self.isPlaying = false
+            continuation.finish()
+            self.activePlaybackContinuation = nil
+            return
+        } catch {
+            self.isPlaying = false
+            continuation.yield(.failed(PracticeFailure(code: .audio, message: error.localizedDescription)))
+            continuation.finish()
+            self.activePlaybackContinuation = nil
+            return
+        }
+
+        let tracker = PlaybackTracker()
+
+        // Preparation timeout task
+        let timeoutTask = Task { [clock = self.clock, timeout = self.ttsPreparationTimeout, weak self] in
+            do {
+                try await clock.sleep(for: .seconds(timeout))
+                guard !Task.isCancelled else { return }
+                if tracker.markTimedOut() {
+                    await MainActor.run {
+                        self?.activePlaybackTask?.cancel()
+                        self?.ttsEngine.stop()
+                        continuation.yield(.failed(PracticeFailure(code: .timeout, message: "TTS preparation timed out")))
+                        continuation.finish()
+                        self?.isPlaying = false
+                        self?.activePlaybackContinuation = nil
+                    }
+                }
+            } catch {
+                // Sleep cancelled
+            }
+        }
+        self.activeTimeoutTask = timeoutTask
+
+        // Synthesize and play
+        do {
+            try await reportingTTS.synthesizeAndPlay(text: text, voice: voice) {
+                if tracker.markStarted() {
+                    timeoutTask.cancel()
+                    continuation.yield(.playbackStarted)
+                }
+            }
+
+            timeoutTask.cancel()
+
+            if !tracker.hasTimedOut, self.isPlaying {
+                self.isPlaying = false
+                continuation.yield(.playbackFinished)
+                continuation.finish()
+                self.activePlaybackContinuation = nil
+            }
+        } catch is CancellationError {
+            // Cancelled by timeout or stop
+        } catch {
+            timeoutTask.cancel()
+            if !tracker.hasTimedOut, self.isPlaying {
+                self.isPlaying = false
+                continuation.yield(.failed(PracticeFailure(code: .audio, message: error.localizedDescription)))
+                continuation.finish()
+                self.activePlaybackContinuation = nil
+            }
+        }
+
+        await self.releaseLease(playbackLease)
     }
 
     private func stopPlaybackInternal() {
