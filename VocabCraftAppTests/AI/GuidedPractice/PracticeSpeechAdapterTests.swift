@@ -624,4 +624,102 @@ struct PracticeSpeechAdapterTests {
         _ = await task2.result
         #expect(safeEvents2.events.contains(.captureStopped))
     }
+
+    @Test("Cancellation during capture setup aborts before lease acquisition or engine start")
+    @MainActor
+    func test_cancellationDuringCaptureSetup_abortsCleanly() async throws {
+        let stt = PracticeTestSTTEngine()
+        let tts = PracticeTestReportingTTSEngine()
+        let coordinator = PracticeTestAudioCoordinator()
+        let clock = ManualPracticeClock()
+
+        let adapter = PracticeSpeechAdapter(
+            sttEngine: stt,
+            ttsEngine: tts,
+            audioCoordinator: coordinator,
+            clock: clock
+        )
+
+        final class SafeEvents: @unchecked Sendable {
+            var events: [PracticeSpeechEvent] = []
+        }
+
+        // Start first capture
+        let safeEvents1 = SafeEvents()
+        let stream1 = adapter.capture(locale: "en-US")
+        let task1 = Task { @MainActor in
+            for try await event in stream1 {
+                safeEvents1.events.append(event)
+            }
+        }
+
+        while !safeEvents1.events.contains(.captureStarted) {
+            await Task.yield()
+        }
+
+        // Start second capture, but immediately stop capture while it is still in setup
+        let safeEvents2 = SafeEvents()
+        let stream2 = adapter.capture(locale: "en-US")
+        let task2 = Task { @MainActor in
+            for try await event in stream2 {
+                safeEvents2.events.append(event)
+            }
+        }
+
+        // Cancel while stream2 is still in setup
+        adapter.stopCapture()
+
+        _ = await task1.result
+        _ = await task2.result
+
+        #expect(safeEvents2.events.contains(.captureStopped))
+        #expect(!safeEvents2.events.contains(.captureStarted))
+        #expect(adapter.isCapturing == false)
+    }
+
+    @Test("Cancellation during playback setup aborts before synthesis or lease acquisition")
+    @MainActor
+    func test_cancellationDuringPlaybackSetup_abortsCleanly() async throws {
+        let stt = PracticeTestSTTEngine()
+        let tts = PracticeTestReportingTTSEngine()
+        let coordinator = PracticeTestAudioCoordinator()
+        let clock = ManualPracticeClock()
+
+        let adapter = PracticeSpeechAdapter(
+            sttEngine: stt,
+            ttsEngine: tts,
+            audioCoordinator: coordinator,
+            clock: clock
+        )
+
+        final class SafeEvents: @unchecked Sendable {
+            var events: [PracticeSpeechEvent] = []
+        }
+
+        // Start capture so playback has to wait for capture to stop
+        let stream1 = adapter.capture(locale: "en-US")
+        let task1 = Task { @MainActor in
+            for try await _ in stream1 {}
+        }
+        await Task.yield()
+
+        // Start playback and immediately stop before capture teardown finishes
+        let safeEvents2 = SafeEvents()
+        let voice = VoiceConfiguration(gender: .female, style: .friendly)
+        let stream2 = adapter.play(text: "Hello", voice: voice)
+        let task2 = Task { @MainActor in
+            for try await event in stream2 {
+                safeEvents2.events.append(event)
+            }
+        }
+
+        // Stop playback during setup
+        await adapter.stop()
+
+        _ = await task1.result
+        _ = await task2.result
+
+        #expect(!safeEvents2.events.contains(.playbackStarted))
+        #expect(adapter.isPlaying == false)
+    }
 }

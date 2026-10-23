@@ -103,6 +103,8 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
 
     @discardableResult
     private func acquireLease(for intent: AudioSessionIntent) async throws -> AudioSessionLease? {
+        guard !Task.isCancelled else { throw CancellationError() }
+
         if let existing = activeLease {
             if existing.intent == intent {
                 return existing
@@ -110,6 +112,9 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
             await audioCoordinator?.release(existing)
             activeLease = nil
         }
+
+        guard !Task.isCancelled else { throw CancellationError() }
+
         if let coordinator = audioCoordinator {
             let lease = try await coordinator.acquire(intent)
             guard !Task.isCancelled,
@@ -141,6 +146,7 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
         let previousCaptureTask = activeCaptureTask
         let previousPlaybackTask = activePlaybackTask
         let captureId = UUID()
+        self.activeCaptureId = captureId
 
         return AsyncThrowingStream { continuation in
             let captureTask = Task { @MainActor [weak self] in
@@ -151,6 +157,12 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
 
                 // 2. Stop prior capture and await prior capture task
                 await self.stopPreviousCapture(previousCaptureTask)
+
+                guard !Task.isCancelled, self.activeCaptureId == captureId else {
+                    continuation.yield(.captureStopped)
+                    continuation.finish()
+                    return
+                }
 
                 await self.runCapture(
                     captureId: captureId,
@@ -171,7 +183,6 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     private func stopPreviousCapture(_ previousTask: Task<Void, Never>?) async {
         if isCapturing {
             isCapturing = false
-            activeCaptureId = nil
             sttEngine.stopRecognition()
             if let cont = activeCaptureContinuation {
                 activeCaptureContinuation = nil
@@ -186,7 +197,6 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     private func stopPreviousPlayback(_ previousTask: Task<Void, Never>?) async {
         if isPlaying {
             isPlaying = false
-            activePlaybackId = nil
             activeTimeoutTask?.cancel()
             activeTimeoutTask = nil
             ttsEngine.stop()
@@ -204,7 +214,12 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
         locale: String,
         continuation: AsyncThrowingStream<PracticeSpeechEvent, Error>.Continuation
     ) async {
-        self.activeCaptureId = captureId
+        guard !Task.isCancelled, self.activeCaptureId == captureId else {
+            continuation.yield(.captureStopped)
+            continuation.finish()
+            return
+        }
+
         self.isCapturing = true
         self.activeCaptureContinuation = continuation
 
@@ -275,11 +290,13 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     }
 
     private func stopCaptureInternal(for id: UUID?) {
-        guard isCapturing else { return }
         if let id, activeCaptureId != id { return }
+        let wasCapturing = isCapturing
         isCapturing = false
         activeCaptureId = nil
-        sttEngine.stopRecognition()
+        if wasCapturing {
+            sttEngine.stopRecognition()
+        }
         if let cont = activeCaptureContinuation {
             activeCaptureContinuation = nil
             cont.yield(.captureStopped)
@@ -294,6 +311,7 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
         let previousCaptureTask = activeCaptureTask
         let previousPlaybackTask = activePlaybackTask
         let playbackId = UUID()
+        self.activePlaybackId = playbackId
 
         return AsyncThrowingStream { continuation in
             let playTask = Task { @MainActor [weak self] in
@@ -312,6 +330,11 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
 
                 // 3. Stop existing playback and await prior playback
                 await self.stopPreviousPlayback(previousPlaybackTask)
+
+                guard !Task.isCancelled, self.activePlaybackId == playbackId else {
+                    continuation.finish()
+                    return
+                }
 
                 await self.runPlayback(
                     playbackId: playbackId,
@@ -338,7 +361,11 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
         voice: VoiceConfiguration,
         continuation: AsyncThrowingStream<PracticeSpeechEvent, Error>.Continuation
     ) async {
-        self.activePlaybackId = playbackId
+        guard !Task.isCancelled, self.activePlaybackId == playbackId else {
+            continuation.finish()
+            return
+        }
+
         self.isPlaying = true
         self.activePlaybackContinuation = continuation
 
@@ -418,13 +445,15 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     }
 
     private func stopPlaybackInternal(for id: UUID? = nil) {
-        guard isPlaying else { return }
         if let id, activePlaybackId != id { return }
+        let wasPlaying = isPlaying
         isPlaying = false
         activePlaybackId = nil
         activeTimeoutTask?.cancel()
         activeTimeoutTask = nil
-        ttsEngine.stop()
+        if wasPlaying {
+            ttsEngine.stop()
+        }
         if let cont = activePlaybackContinuation {
             activePlaybackContinuation = nil
             cont.finish()
@@ -435,9 +464,11 @@ public final class PracticeSpeechAdapter: PracticeSpeechProtocol {
     // MARK: - Lifecycle
 
     public func stop() async {
+        stopCapture()
         await stopPreviousCapture(activeCaptureTask)
         activeCaptureTask = nil
 
+        stopPlaybackInternal()
         await stopPreviousPlayback(activePlaybackTask)
         activePlaybackTask = nil
 
