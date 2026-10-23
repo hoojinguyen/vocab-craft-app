@@ -20,64 +20,83 @@ public enum WidgetContainerHolder {
 #endif
 
 public struct VocabWidgetProvider: TimelineProvider {
-    public init() {}
+    private let store: WidgetDeckStore
+    #if canImport(SwiftDataMacros) || canImport(SwiftData)
+    private let container: ModelContainer?
 
-    public func placeholder(in context: Context) -> VocabWidgetEntry {
-        makePlaceholder()
+    public init() {
+        self.init(store: .appGroup(), container: WidgetContainerHolder.sharedContainer)
     }
 
-    public func makePlaceholder() -> VocabWidgetEntry {
+    /// Injectable for tests. A `nil` container means nothing is due.
+    init(store: WidgetDeckStore, container: ModelContainer?) {
+        self.store = store
+        self.container = container
+    }
+    #else
+    public init() {
+        self.store = .appGroup()
+    }
+    #endif
+
+    public func placeholder(in context: Context) -> VocabWidgetEntry {
         VocabWidgetEntry.placeholder(at: Date())
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
-        #if canImport(SwiftDataMacros) || canImport(SwiftData)
-        if let entry = fetchCurrentEntry() {
-            completion(entry)
-        } else {
-            completion(makePlaceholder())
+        nonisolated(unsafe) let done = completion
+        Task { @MainActor in
+            let now = Date()
+            let first = makeTimeline(now: now).entries.first
+            done(first ?? VocabWidgetEntry.placeholder(at: now))
         }
-        #else
-        completion(makePlaceholder())
-        #endif
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
+        nonisolated(unsafe) let done = completion
+        Task { @MainActor in
+            done(makeTimeline(now: Date()))
+        }
+    }
+
+    @MainActor
+    func makeTimeline(now: Date) -> Timeline<VocabWidgetEntry> {
+        let deck = store.loadDeck()
+        let interaction = store.loadInteraction()
+
+        var dueWordIds: Set<Int64> = []
+        var nextDueDate: Date?
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
-        let entry = fetchCurrentEntry() ?? makePlaceholder()
-        #else
-        let entry = makePlaceholder()
+        if let deck, let container {
+            let context = ModelContext(container)
+            if let status = try? WidgetDueQuery.dueStatus(
+                for: deck.cards.map(\.wordId),
+                in: context,
+                now: now
+            ) {
+                dueWordIds = status.due
+                nextDueDate = status.nextDueDate
+            }
+        }
         #endif
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
-    }
 
-    #if canImport(SwiftDataMacros) || canImport(SwiftData)
-    public func fetchCurrentEntry(in container: ModelContainer? = nil) -> VocabWidgetEntry? {
-        guard let targetContainer = container ?? WidgetContainerHolder.sharedContainer else {
-            return nil
-        }
-        let context = ModelContext(targetContainer)
-        guard let state = try? context.fetch(FetchDescriptor<WidgetCurrentState>()).first else {
-            return nil
-        }
-
-        return VocabWidgetEntry(
-            date: state.lastUpdated,
-            card: WidgetCard(
-                wordId: state.currentWordId,
-                lemma: state.lemma,
-                ipa: state.ipaUs,
-                definitionVi: state.definitionVi,
-                exampleEn: state.exampleEn,
-                source: .recent
-            ),
-            mode: .passive,
-            dueCount: 0
+        let plan = WidgetTimelineBuilder.build(
+            deck: deck,
+            dueWordIds: dueWordIds,
+            nextDueDate: nextDueDate,
+            interaction: interaction,
+            now: now
         )
+        return Timeline(entries: plan.entries, policy: Self.reloadPolicy(for: plan.reload))
     }
-    #endif
+
+    static func reloadPolicy(for plan: WidgetReloadPlan) -> TimelineReloadPolicy {
+        switch plan {
+        case .atEnd: return .atEnd
+        case .after(let date): return .after(date)
+        case .never: return .never
+        }
+    }
 }
 
 public struct VocabWidget: Widget {

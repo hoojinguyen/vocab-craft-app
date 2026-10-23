@@ -66,25 +66,6 @@ public struct VocabWidgetView: View {
                 .foregroundColor(.primary)
                 .lineLimit(2)
 
-            Spacer()
-
-            HStack(spacing: 8) {
-                Button(intent: NextWordIntent()) {
-                    Image(systemName: "arrow.forward.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(.blue)
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Button(intent: MarkLearnedIntent()) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(.green)
-                }
-                .buttonStyle(.plain)
-            }
         }
         .padding(12)
     }
@@ -116,34 +97,6 @@ public struct VocabWidgetView: View {
                     .lineLimit(2)
             }
 
-            Spacer()
-
-            HStack {
-                Button(intent: NextWordIntent()) {
-                    Label(LocalizedStringKey("app.widget.next"), systemImage: "arrow.forward.circle.fill")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.blue.opacity(0.15))
-                        .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Button(intent: MarkLearnedIntent()) {
-                    Label(LocalizedStringKey("app.widget.mastered"), systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.green.opacity(0.15))
-                        .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-            }
         }
         .padding(14)
     }
