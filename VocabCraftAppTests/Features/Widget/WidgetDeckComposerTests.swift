@@ -33,6 +33,34 @@ struct WidgetDeckComposerTests {
         WidgetDeckComposer.compose(due: due, recent: recent, upcoming: upcoming, pathId: "path", now: now)
     }
 
+    @Test("cards carry path id and word fields")
+    func cardsCarryPathIdAndWordFields() throws {
+        let source = TopicWordDTO(
+            id: 42,
+            stageId: "stage",
+            lemma: "serendipity",
+            phonetic: "/ˌser.ənˈdɪp.ə.ti/",
+            pos: "noun",
+            cefrLevel: "C1",
+            definitionVi: "su tinh co may man",
+            definitionEn: "a happy accident",
+            exampleEn: "Finding it was pure serendipity.",
+            exampleVi: "Tim thay no that may man."
+        )
+
+        let deck = WidgetDeckComposer.compose(due: [source], recent: [], upcoming: [], pathId: "path-7", now: now)
+
+        #expect(deck.pathId == "path-7")
+        #expect(deck.version == WidgetDeck.currentVersion)
+        let card = try #require(deck.cards.first)
+        #expect(card.wordId == 42)
+        #expect(card.lemma == "serendipity")
+        #expect(card.ipa == "/ˌser.ənˈdɪp.ə.ti/")
+        #expect(card.definitionVi == "su tinh co may man")
+        #expect(card.exampleEn == "Finding it was pure serendipity.")
+        #expect(card.source == .due)
+    }
+
     @Test("due words come first")
     func dueWordsComeFirst() {
         let deck = compose(due: [word(1), word(2)], recent: [word(3)], upcoming: [word(4)])

@@ -243,7 +243,10 @@ public struct VocabWidgetView: View {
                 .font(theme.typography.bodySerif)
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(2)
-                .accessibilityLabel(Text("app.widget.hidden_meaning"))
+                .accessibilityLabel(
+                    Text(verbatim: Self.maskedExample(card.exampleEn, lemma: card.lemma)
+                        .replacingOccurrences(of: Self.maskToken, with: String(localized: "app.widget.accessibility.blank")))
+                )
         } else {
             Text(card.exampleEn)
                 .font(theme.typography.bodySerif)
@@ -289,6 +292,7 @@ public struct VocabWidgetView: View {
     private func inlineView(_ card: WidgetCard) -> some View {
         if isFlashcard {
             Text(verbatim: dueCountString)
+                .widgetURL(URL(string: "vocabcraft://review"))
         } else {
             Text(verbatim: "\(card.lemma): \(card.definitionVi)")
         }

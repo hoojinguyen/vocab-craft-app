@@ -207,7 +207,7 @@ struct HomeLocalizationTests {
             "app.ai_assistant.feature_pronunciation_title": ("Huấn luyện viên Ngữ điệu & Phát âm", "Phonetic & Tone Coach"),
             "app.widget.display_name": ("Widget Phản xạ VocabCraft", "VocabCraft Reflex Widget"),
             "app.widget.badge.review": ("Ôn", "Review"),
-            "app.widget.due_count_format": ("%lld từ cần ôn", "%lld words to review")
+            "app.widget.due_count_format": ("Cần ôn: %lld", "Due for review: %lld")
         ]
 
         for (key, expected) in expectedAIAssistantAndKeys {
