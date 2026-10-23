@@ -130,7 +130,10 @@ struct RefreshWidgetDeckUseCaseTests {
 
         await harness.useCase.execute()
 
-        #expect(harness.store.loadDeck()?.cards.map(\.wordId) == [2, 1])
+        // Only the first incomplete stage in path order (d1/S1) is used; d2/S2 comes later.
+        let ids = harness.store.loadDeck()?.cards.map(\.wordId)
+        #expect(ids == [2])
+        #expect(ids?.contains(1) == false)
     }
 
     @Test func upcomingIsOnlyTheNextLesson() async {
