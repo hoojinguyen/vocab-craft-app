@@ -15,6 +15,7 @@
 		30003B7000030010 /* RevealCardIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010010 /* RevealCardIntent.swift */; };
 		30003B7000020011 /* GradeCardIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010011 /* GradeCardIntent.swift */; };
 		30003B7000030011 /* GradeCardIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010011 /* GradeCardIntent.swift */; };
+		30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010012 /* VocabWidgetViewTests.swift */; };
 		30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000F /* WidgetReviewRecorderTests.swift */; };
 		30003B700002000B /* WidgetTimelineBuilder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
 		30003B700003000B /* WidgetTimelineBuilder.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
@@ -538,6 +539,7 @@
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
 		900000000000000000000003 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000004 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
+		90000000000000000000000A /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000007 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 		900000000000000000000008 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 /* End PBXBuildFile section */
@@ -576,6 +578,7 @@
 /* Begin PBXFileReference section */
 		20003B700001000D /* WidgetDueQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDueQuery.swift"; sourceTree = "<group>"; };
 		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
+		20003B7000010012 /* VocabWidgetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetViewTests.swift"; sourceTree = "<group>"; };
 		20003B700001000F /* WidgetReviewRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorderTests.swift"; sourceTree = "<group>"; };
 		20003B7000010010 /* RevealCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RevealCardIntent.swift"; sourceTree = "<group>"; };
 		20003B7000010011 /* GradeCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GradeCardIntent.swift"; sourceTree = "<group>"; };
@@ -1103,6 +1106,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90000000000000000000000A /* CraftUIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2595,6 +2599,7 @@
 				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
 				20003B700001000C /* WidgetTimelineBuilderTests.swift */,
 				20003B700001000F /* WidgetReviewRecorderTests.swift */,
+				20003B7000010012 /* VocabWidgetViewTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2708,6 +2713,9 @@
 			dependencies = (
 			);
 			name = VocabCraftWidgetExtension;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+			);
 			productName = VocabCraftWidgetExtension;
 			productReference = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -3174,6 +3182,7 @@
 				30003B700003000E /* WidgetReviewRecorder.swift in Test Sources */,
 				30003B7000030010 /* RevealCardIntent.swift in Test Sources */,
 				30003B7000030011 /* GradeCardIntent.swift in Test Sources */,
+				30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,

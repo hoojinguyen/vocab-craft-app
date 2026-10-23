@@ -1,4 +1,5 @@
 import AppIntents
+import CraftUIKit
 import SwiftUI
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
 import VocabCraftApp
@@ -7,112 +8,272 @@ import WidgetKit
 
 public struct VocabWidgetView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.craftTheme) private var theme
     public var entry: VocabWidgetEntry
+
+    /// Data punctuation, not a user-facing word.
+    static let maskToken = "_____"
 
     public init(entry: VocabWidgetEntry) {
         self.entry = entry
     }
 
-    private var lemma: String {
-        entry.card?.lemma ?? String(localized: "app.widget.placeholder.lemma")
-    }
-
-    private var ipa: String {
-        entry.card?.ipa ?? String(localized: "app.widget.placeholder.ipa")
-    }
-
-    private var definitionVi: String {
-        entry.card?.definitionVi ?? String(localized: "app.widget.placeholder.definition")
-    }
-
-    private var exampleEn: String {
-        entry.card?.exampleEn ?? String(localized: "app.widget.placeholder.example")
+    /// Replaces every case-insensitive occurrence of `lemma` in `example` with the mask token.
+    static func maskedExample(_ example: String, lemma: String) -> String {
+        guard !lemma.isEmpty else { return example }
+        return example.replacingOccurrences(of: lemma, with: maskToken, options: .caseInsensitive)
     }
 
     public var body: some View {
-        switch family {
-        case .systemSmall:
-            smallWidgetView
-        case .systemMedium:
-            mediumWidgetView
-        #if os(iOS)
-        case .accessoryCircular:
-            accessoryCircularView
-        case .accessoryInline:
-            accessoryInlineView
-        #endif
-        default:
-            mediumWidgetView
-        }
+        content
+            .containerBackground(theme.colors.surfaceCard, for: .widget)
     }
 
-    private var smallWidgetView: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(lemma)
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .lineLimit(1)
-                Spacer()
-                if !ipa.isEmpty {
-                    Text(ipa)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
+    @ViewBuilder
+    private var content: some View {
+        if entry.mode == .placeholder || entry.card == nil {
+            emptyView
+        } else if let card = entry.card {
+            switch family {
+            case .systemSmall:
+                smallView(card)
+            #if os(iOS)
+            case .accessoryRectangular:
+                rectangularView(card)
+            case .accessoryInline:
+                inlineView(card)
+            #endif
+            default:
+                mediumView(card)
             }
-
-            Text(definitionVi)
-                .font(.subheadline)
-                .foregroundColor(.primary)
-                .lineLimit(2)
-
         }
-        .padding(12)
     }
 
-    private var mediumWidgetView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(lemma)
-                    .font(.title2)
-                    .fontWeight(.bold)
+    private var isFlashcard: Bool {
+        entry.mode == .flashcardFront || entry.mode == .flashcardBack
+    }
 
-                if !ipa.isEmpty {
-                    Text(ipa)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+    private func showsBack(_ card: WidgetCard) -> Bool {
+        entry.mode != .flashcardFront
+    }
+
+    // MARK: Pieces
+
+    private func badge(_ card: WidgetCard) -> some View {
+        Group {
+            switch card.source {
+            case .upcoming:
+                CraftBadge("app.widget.badge.new", symbol: .sparkles, tone: .primary, size: .sm)
+            case .recent, .due:
+                CraftBadge("app.widget.badge.review", symbol: .refresh, tone: .success, size: .sm)
             }
-
-            Text(definitionVi)
-                .font(.body)
-                .foregroundColor(.primary)
-                .lineLimit(2)
-
-            if !exampleEn.isEmpty {
-                Text(exampleEn)
-                    .font(.caption)
-                    .italic()
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-
         }
-        .padding(14)
+        .widgetAccentable()
     }
 
-    private var accessoryCircularView: some View {
-        VStack(spacing: 2) {
-            Image(systemName: "character.book.closed.fill")
-                .font(.system(size: 16))
-            Text(lemma)
-                .font(.system(size: 10, weight: .bold))
-                .lineLimit(1)
-        }
+    private func lemmaText(_ card: WidgetCard, font: Font) -> some View {
+        Text(card.lemma)
+            .font(font)
+            .foregroundStyle(theme.colors.textPrimary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .widgetAccentable()
     }
 
-    private var accessoryInlineView: some View {
-        Text("\(lemma): \(definitionVi)")
+    private func ipaText(_ card: WidgetCard) -> some View {
+        Text(card.ipa)
+            .font(theme.typography.caption)
+            .foregroundStyle(theme.colors.textMuted)
             .lineLimit(1)
     }
+
+    private func definitionText(_ card: WidgetCard, lines: Int) -> some View {
+        Text(card.definitionVi)
+            .font(theme.typography.bodyMedium)
+            .foregroundStyle(theme.colors.textPrimary)
+            .lineLimit(lines)
+    }
+
+    private var dueCountText: some View {
+        Text(verbatim: String(format: String(localized: "app.widget.due_count_format"), entry.dueCount))
+            .font(theme.typography.caption)
+            .foregroundStyle(theme.colors.textSecondary)
+            .lineLimit(1)
+    }
+
+    private func actionLabel(
+        _ key: LocalizedStringKey,
+        symbol: CraftSymbol,
+        color: Color,
+        showsTitle: Bool
+    ) -> some View {
+        HStack(spacing: theme.spacing.xs) {
+            CraftIcon(symbol, size: .sm, color: color)
+            if showsTitle {
+                Text(key)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(color)
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, theme.spacing.xs)
+        .background(theme.colors.surfaceSubtle, in: RoundedRectangle(cornerRadius: theme.radius.md))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(key))
+    }
+
+    private func revealButton(_ card: WidgetCard) -> some View {
+        Button(intent: RevealCardIntent(wordId: card.wordId)) {
+            actionLabel("app.widget.action.reveal", symbol: .eye, color: theme.colors.brandPrimary, showsTitle: true)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func gradeButtons(_ card: WidgetCard, showsTitle: Bool) -> some View {
+        HStack(spacing: theme.spacing.sm) {
+            Button(intent: GradeCardIntent(wordId: card.wordId, remembered: false)) {
+                actionLabel(
+                    "app.widget.action.forgot",
+                    symbol: .wrongCircle,
+                    color: theme.colors.statusDanger,
+                    showsTitle: showsTitle
+                )
+            }
+            .buttonStyle(.plain)
+            Button(intent: GradeCardIntent(wordId: card.wordId, remembered: true)) {
+                actionLabel(
+                    "app.widget.action.remembered",
+                    symbol: .checkmarkCircle,
+                    color: theme.colors.statusSuccess,
+                    showsTitle: showsTitle
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: Empty
+
+    private var emptyView: some View {
+        VStack(spacing: theme.spacing.sm) {
+            CraftIcon(.sparkles, size: .lg, color: theme.colors.brandPrimary)
+            Text("app.widget.empty.title")
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textPrimary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .widgetURL(URL(string: "vocabcraft://home"))
+    }
+
+    // MARK: Small
+
+    private func smallView(_ card: WidgetCard) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            badge(card)
+            lemmaText(card, font: theme.typography.titleMedium)
+            if entry.mode == .flashcardBack {
+                definitionText(card, lines: 2)
+                Spacer(minLength: 0)
+                gradeButtons(card, showsTitle: false)
+            } else if entry.mode == .flashcardFront {
+                ipaText(card)
+                Spacer(minLength: 0)
+                dueCountText
+                revealButton(card)
+            } else {
+                ipaText(card)
+                definitionText(card, lines: 3)
+                Spacer(minLength: 0)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    // MARK: Medium
+
+    private func mediumView(_ card: WidgetCard) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: theme.spacing.sm) {
+                lemmaText(card, font: theme.typography.titleLarge)
+                ipaText(card)
+                Spacer(minLength: 0)
+                badge(card)
+            }
+            if showsBack(card) {
+                definitionText(card, lines: 2)
+            }
+            if !card.exampleEn.isEmpty {
+                exampleText(card)
+            }
+            Spacer(minLength: 0)
+            if isFlashcard {
+                dueCountText
+            }
+            switch entry.mode {
+            case .flashcardFront:
+                revealButton(card)
+            case .flashcardBack:
+                gradeButtons(card, showsTitle: true)
+            default:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    @ViewBuilder
+    private func exampleText(_ card: WidgetCard) -> some View {
+        if entry.mode == .flashcardFront {
+            Text(Self.maskedExample(card.exampleEn, lemma: card.lemma))
+                .font(theme.typography.bodySerif)
+                .foregroundStyle(theme.colors.textSecondary)
+                .lineLimit(2)
+                .accessibilityLabel(Text("app.widget.hidden_meaning"))
+        } else {
+            Text(card.exampleEn)
+                .font(theme.typography.bodySerif)
+                .foregroundStyle(theme.colors.textSecondary)
+                .lineLimit(2)
+        }
+    }
+
+    #if os(iOS)
+    // MARK: Lock Screen
+
+    private func rectangularView(_ card: WidgetCard) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+            Text(card.lemma)
+                .font(theme.typography.headline)
+                .lineLimit(1)
+                .widgetAccentable()
+            if entry.mode == .flashcardFront {
+                Text("app.widget.hidden_meaning")
+                    .font(theme.typography.caption)
+                    .lineLimit(2)
+            } else {
+                Text(card.definitionVi)
+                    .font(theme.typography.caption)
+                    .lineLimit(2)
+            }
+            if isFlashcard {
+                Text("app.widget.lock.open_to_review")
+                    .font(theme.typography.caption)
+                    .lineLimit(1)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .widgetURL(isFlashcard ? URL(string: "vocabcraft://review") : nil)
+    }
+
+    @ViewBuilder
+    private func inlineView(_ card: WidgetCard) -> some View {
+        if entry.mode == .flashcardFront {
+            Text(card.lemma)
+        } else {
+            Text("\(card.lemma): \(card.definitionVi)")
+        }
+    }
+    #endif
 }

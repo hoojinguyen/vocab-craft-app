@@ -113,7 +113,7 @@ public struct VocabWidget: Widget {
         .configurationDisplayName(LocalizedStringKey("app.widget.display_name"))
         .description(LocalizedStringKey("app.widget.description"))
         #if os(iOS)
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryInline])
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
         #else
         .supportedFamilies([.systemSmall, .systemMedium])
         #endif
