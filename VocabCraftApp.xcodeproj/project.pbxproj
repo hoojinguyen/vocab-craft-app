@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7000010001 /* WidgetDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
+		30003B7000020001 /* WidgetDeck.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
+		30003B7000010002 /* WidgetDeckStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010002 /* WidgetDeckStore.swift */; };
+		30003B7000020002 /* WidgetDeckStore.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010002 /* WidgetDeckStore.swift */; };
+		30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010003 /* WidgetDeckStoreTests.swift */; };
 		30005E3A3F7D00010001 /* ShadowingWordTimestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010001 /* ShadowingWordTimestamp.swift */; };
 		30005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */; };
 		30005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift */; };
@@ -557,6 +562,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B7000010001 /* WidgetDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeck.swift"; sourceTree = "<group>"; };
+		20003B7000010002 /* WidgetDeckStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStore.swift"; sourceTree = "<group>"; };
+		20003B7000010003 /* WidgetDeckStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckStoreTests.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010001 /* ShadowingWordTimestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingWordTimestamp.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingCatalogRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		20005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ShadowingSQLiteDatabase.swift"; sourceTree = "<group>"; };
@@ -1170,6 +1178,7 @@
 				4000708EDD22EDA5F946 /* Models */,
 				40005E0B94C63E2ECD1F /* Notifications */,
 				4000DA48C316E1ADA496 /* SRS */,
+				40003B7000010001 /* Widget */,
 			);
 			path = "Core";
 			sourceTree = "<group>";
@@ -1217,6 +1226,15 @@
 				200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */,
 			);
 			path = "Audio";
+			sourceTree = "<group>";
+		};
+		40003B7000010001 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				20003B7000010001 /* WidgetDeck.swift */,
+				20003B7000010002 /* WidgetDeckStore.swift */,
+			);
+			path = "Widget";
 			sourceTree = "<group>";
 		};
 		4000B9FD3CB2F2042047 /* Database */ = {
@@ -2518,6 +2536,7 @@
 			children = (
 				200029F58E9AE9045086 /* NextWordIntentTests.swift */,
 				2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */,
+				20003B7000010003 /* WidgetDeckStoreTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2823,6 +2842,8 @@
 				30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */,
 				30003A5000010001 /* AppSchemaV3.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
+				30003B7000010001 /* WidgetDeck.swift in Sources */,
+				30003B7000010002 /* WidgetDeckStore.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
@@ -3063,6 +3084,8 @@
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Widget Sources */,
 				3001EB503B69BE532101 /* DatabaseStoreError.swift in Widget Sources */,
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */,
+				30003B7000020001 /* WidgetDeck.swift in Widget Sources */,
+				30003B7000020002 /* WidgetDeckStore.swift in Widget Sources */,
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
 				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
 				30013A5000010001 /* AppSchemaV3.swift in Widget Sources */,
@@ -3213,6 +3236,7 @@
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
 				300029F58E9AE9045086 /* NextWordIntentTests.swift in Test Sources */,
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
+				30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
