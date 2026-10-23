@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */; };
+		30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010007 /* RefreshWidgetDeckUseCase.swift */; };
+		30003B7000010006 /* WidgetReloading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010006 /* WidgetReloading.swift */; };
 		30003B7000010004 /* WidgetDeckComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010004 /* WidgetDeckComposer.swift */; };
 		30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010005 /* WidgetDeckComposerTests.swift */; };
 		30003B7000010001 /* WidgetDeck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010001 /* WidgetDeck.swift */; };
@@ -564,6 +567,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCaseTests.swift"; sourceTree = "<group>"; };
+		20003B7000010007 /* RefreshWidgetDeckUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCase.swift"; sourceTree = "<group>"; };
+		20003B7000010006 /* WidgetReloading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReloading.swift"; sourceTree = "<group>"; };
 		20003B7000010004 /* WidgetDeckComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposer.swift"; sourceTree = "<group>"; };
 		20003B7000010005 /* WidgetDeckComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeckComposerTests.swift"; sourceTree = "<group>"; };
 		20003B7000010001 /* WidgetDeck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDeck.swift"; sourceTree = "<group>"; };
@@ -1236,6 +1242,8 @@
 			isa = PBXGroup;
 			children = (
 				20003B7000010004 /* WidgetDeckComposer.swift */,
+				20003B7000010006 /* WidgetReloading.swift */,
+				20003B7000010007 /* RefreshWidgetDeckUseCase.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2551,6 +2559,7 @@
 				2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */,
 				20003B7000010003 /* WidgetDeckStoreTests.swift */,
 				20003B7000010005 /* WidgetDeckComposerTests.swift */,
+				20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2859,6 +2868,8 @@
 				30003B7000010001 /* WidgetDeck.swift in Sources */,
 				30003B7000010002 /* WidgetDeckStore.swift in Sources */,
 				30003B7000010004 /* WidgetDeckComposer.swift in Sources */,
+				30003B7000010006 /* WidgetReloading.swift in Sources */,
+				30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
@@ -3253,6 +3264,7 @@
 				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
 				30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */,
 				30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */,
+				30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
