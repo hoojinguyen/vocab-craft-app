@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B700002000D /* WidgetDueQuery.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000D /* WidgetDueQuery.swift */; };
+		30003B700002000E /* WidgetReviewRecorder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000E /* WidgetReviewRecorder.swift */; };
+		30003B700003000D /* WidgetDueQuery.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000D /* WidgetDueQuery.swift */; };
+		30003B700003000E /* WidgetReviewRecorder.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000E /* WidgetReviewRecorder.swift */; };
+		30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000F /* WidgetReviewRecorderTests.swift */; };
 		30003B700002000B /* WidgetTimelineBuilder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
 		30003B700003000B /* WidgetTimelineBuilder.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000B /* WidgetTimelineBuilder.swift */; };
 		30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000C /* WidgetTimelineBuilderTests.swift */; };
@@ -572,6 +577,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B700001000D /* WidgetDueQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDueQuery.swift"; sourceTree = "<group>"; };
+		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
+		20003B700001000F /* WidgetReviewRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorderTests.swift"; sourceTree = "<group>"; };
 		20003B700001000B /* WidgetTimelineBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetTimelineBuilder.swift"; sourceTree = "<group>"; };
 		20003B700001000C /* WidgetTimelineBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetTimelineBuilderTests.swift"; sourceTree = "<group>"; };
 		20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetRefreshingCompleteLessonUseCaseTests.swift"; sourceTree = "<group>"; };
@@ -2233,6 +2241,7 @@
 			children = (
 				4000704340C95D48EEDA /* AppIntents */,
 				40003B7000010003 /* Timeline */,
+				40003B7000010004 /* Review */,
 				200017F5C24B744B988C /* Info.plist */,
 				2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */,
 				2000473CACA7476916FA /* VocabWidget.swift */,
@@ -2240,6 +2249,15 @@
 				200075A9C43B4E98CD5D /* VocabWidgetView.swift */,
 			);
 			path = "VocabCraftWidgetExtension";
+			sourceTree = "<group>";
+		};
+		40003B7000010004 /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				20003B700001000D /* WidgetDueQuery.swift */,
+				20003B700001000E /* WidgetReviewRecorder.swift */,
+			);
+			path = "Review";
 			sourceTree = "<group>";
 		};
 		40003B7000010003 /* Timeline */ = {
@@ -2581,6 +2599,7 @@
 				20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */,
 				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
 				20003B700001000C /* WidgetTimelineBuilderTests.swift */,
+				20003B700001000F /* WidgetReviewRecorderTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -3135,6 +3154,8 @@
 				30003B7000020001 /* WidgetDeck.swift in Widget Sources */,
 				30003B7000020002 /* WidgetDeckStore.swift in Widget Sources */,
 				30003B700002000B /* WidgetTimelineBuilder.swift in Widget Sources */,
+				30003B700002000D /* WidgetDueQuery.swift in Widget Sources */,
+				30003B700002000E /* WidgetReviewRecorder.swift in Widget Sources */,
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
 				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
 				30013A5000010001 /* AppSchemaV3.swift in Widget Sources */,
@@ -3158,6 +3179,8 @@
 				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
 				30003B700003000B /* WidgetTimelineBuilder.swift in Test Sources */,
+				30003B700003000D /* WidgetDueQuery.swift in Test Sources */,
+				30003B700003000E /* WidgetReviewRecorder.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,
@@ -3291,6 +3314,7 @@
 				30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */,
 				30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */,
 				30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */,
+				30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
