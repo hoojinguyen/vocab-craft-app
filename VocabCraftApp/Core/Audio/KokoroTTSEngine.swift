@@ -15,7 +15,27 @@ public protocol KokoroAudioSynthesizing: AnyObject, Sendable {
     var isSpeaking: Bool { get }
     var isReady: Bool { get }
     func synthesizeAndPlay(text: String, persona: VoicePersona) async throws
+    func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        onPlaybackStarted: (@Sendable () -> Void)?
+    ) async throws
     func stop()
+}
+
+public extension KokoroAudioSynthesizing {
+    func synthesizeAndPlay(text: String, persona: VoicePersona) async throws {
+        try await synthesizeAndPlay(text: text, persona: persona, onPlaybackStarted: nil)
+    }
+
+    func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        onPlaybackStarted: (@Sendable () -> Void)?
+    ) async throws {
+        try await synthesizeAndPlay(text: text, persona: persona)
+        onPlaybackStarted?()
+    }
 }
 
 @MainActor
@@ -57,7 +77,11 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
         KokoroInferenceWorker.speakerId(for: persona)
     }
 
-    public func synthesizeAndPlay(text: String, persona: VoicePersona) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil
+    ) async throws {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             Self.logger.debug("KokoroTTSEngine: synthesizeAndPlay called with empty text, skipping synthesis")
@@ -69,10 +93,14 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
         }
 
         let speakerId = KokoroInferenceWorker.speakerId(for: persona)
-        try await performSynthesisAndPlayback(text: trimmed, speakerId: speakerId)
+        try await performSynthesisAndPlayback(text: trimmed, speakerId: speakerId, onPlaybackStarted: onPlaybackStarted)
     }
 
-    public func synthesizeAndPlay(text: String, speaker: String) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        speaker: String,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil
+    ) async throws {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             Self.logger.debug("KokoroTTSEngine: synthesizeAndPlay called with empty text, skipping synthesis")
@@ -84,10 +112,15 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
         }
 
         let speakerId = KokoroInferenceWorker.speakerId(for: speaker)
-        try await performSynthesisAndPlayback(text: trimmed, speakerId: speakerId)
+        try await performSynthesisAndPlayback(text: trimmed, speakerId: speakerId, onPlaybackStarted: onPlaybackStarted)
     }
 
-    private func performSynthesisAndPlayback(text: String, speakerId: Int, speed: Float = 1.0) async throws {
+    private func performSynthesisAndPlayback(
+        text: String,
+        speakerId: Int,
+        speed: Float = 1.0,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil
+    ) async throws {
         stop()
 
         guard isReady else {
@@ -125,6 +158,8 @@ public final class KokoroTTSEngine: NSObject, AVAudioPlayerDelegate, KokoroAudio
                         self.audioPlayer = nil
                         self.activeContinuation = nil
                         continuation.resume()
+                    } else {
+                        onPlaybackStarted?()
                     }
                 }
             } onCancel: {

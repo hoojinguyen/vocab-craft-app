@@ -1,6 +1,6 @@
 import Foundation
 
-public final class GeminiTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable {
+public final class GeminiTTSEngineAdapter: PlaybackReportingTTSEngineProtocol, @unchecked Sendable {
     public let engineName: String = "Gemini Studio TTS"
     private let apiKey: String
     private let underlyingEngine: GeminiAudioSpeechEngine
@@ -23,12 +23,25 @@ public final class GeminiTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendabl
         }
     }
 
-    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        voice: VoiceConfiguration,
+        onPlaybackStarted: @escaping @Sendable () -> Void
+    ) async throws {
         guard isReady else {
             throw AIPackError.apiKeyRequired(providerName: "Gemini")
         }
         let persona: VoicePersona = voice.gender == .male ? .friendlyMale : .friendlyFemale
-        try await underlyingEngine.synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+        try await underlyingEngine.synthesizeAndPlay(
+            text: text,
+            persona: persona,
+            apiKey: apiKey,
+            onPlaybackStarted: onPlaybackStarted
+        )
+    }
+
+    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+        try await synthesizeAndPlay(text: text, voice: voice, onPlaybackStarted: {})
     }
 
     public func stop() {

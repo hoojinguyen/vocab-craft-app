@@ -14,7 +14,29 @@ private final class AudioPlayerTransferBox: @unchecked Sendable {
 public protocol GeminiAudioSynthesizing: AnyObject, Sendable {
     var isSpeaking: Bool { get }
     func synthesizeAndPlay(text: String, persona: VoicePersona, apiKey: String) async throws
+    func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        apiKey: String,
+        onPlaybackStarted: (@Sendable () -> Void)?
+    ) async throws
     func stop()
+}
+
+public extension GeminiAudioSynthesizing {
+    func synthesizeAndPlay(text: String, persona: VoicePersona, apiKey: String) async throws {
+        try await synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey, onPlaybackStarted: nil)
+    }
+
+    func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        apiKey: String,
+        onPlaybackStarted: (@Sendable () -> Void)?
+    ) async throws {
+        try await synthesizeAndPlay(text: text, persona: persona, apiKey: apiKey)
+        onPlaybackStarted?()
+    }
 }
 
 @MainActor
@@ -131,7 +153,12 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
         return request
     }
 
-    public func synthesizeAndPlay(text: String, persona: VoicePersona, apiKey: String) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        persona: VoicePersona,
+        apiKey: String,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil
+    ) async throws {
         stop()
 
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -179,10 +206,10 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting { return }
 
-        try await playAudioData(audioData)
+        try await playAudioData(audioData, onPlaybackStarted: onPlaybackStarted)
     }
 
-    private func playAudioData(_ data: Data) async throws {
+    private func playAudioData(_ data: Data, onPlaybackStarted: (@Sendable () -> Void)? = nil) async throws {
         let player = try AVAudioPlayer(data: data)
         self.audioPlayer = player
         isSpeaking = true
@@ -196,6 +223,8 @@ public final class GeminiAudioSpeechEngine: NSObject, AVAudioPlayerDelegate, Gem
                 self.audioPlayer = nil
                 self.isSpeaking = false
                 continuation.resume(throwing: URLError(.cannotDecodeContentData))
+            } else {
+                onPlaybackStarted?()
             }
         }
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-public final class KokoroTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable {
+public final class KokoroTTSEngineAdapter: PlaybackReportingTTSEngineProtocol, @unchecked Sendable {
     public let engineName: String = "Kokoro Neural TTS"
     private let underlyingEngine: (any KokoroAudioSynthesizing)?
     private let isReadyProvider: (@Sendable () -> Bool)?
@@ -24,7 +24,11 @@ public final class KokoroTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendabl
         self.isReadyProvider = isReadyProvider
     }
 
-    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        voice: VoiceConfiguration,
+        onPlaybackStarted: @escaping @Sendable () -> Void
+    ) async throws {
         guard isReady else {
             throw AIPackError.downloadRequired(packName: "Kokoro TTS", sizeDescription: "~85MB")
         }
@@ -43,7 +47,7 @@ public final class KokoroTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendabl
             persona = .friendlyFemale
         }
         do {
-            try await engine.synthesizeAndPlay(text: text, persona: persona)
+            try await engine.synthesizeAndPlay(text: text, persona: persona, onPlaybackStarted: onPlaybackStarted)
         } catch is CancellationError {
             throw CancellationError()
         } catch let packError as AIPackError {
@@ -51,6 +55,10 @@ public final class KokoroTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendabl
         } catch {
             throw AIPackError.ttsFailed(packName: "Offline AI Pack", underlyingMessage: error.localizedDescription)
         }
+    }
+
+    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+        try await synthesizeAndPlay(text: text, voice: voice, onPlaybackStarted: {})
     }
 
     public func stop() {

@@ -15,6 +15,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
     public private(set) var isSpeaking: Bool = false
     public private(set) var currentUtterance: AVSpeechUtterance?
     private var onFinishedCallback: (@Sendable () -> Void)?
+    private var onPlaybackStartedCallback: (@Sendable () -> Void)?
 
     public override init() {
         self.synthesizer = AVSpeechSynthesizer()
@@ -99,6 +100,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         persona: VoicePersona? = nil,
         voiceIdentifier: String? = nil,
         pitch: Float? = nil,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil,
         onFinished: (@Sendable () -> Void)? = nil
     ) {
         guard let utterance = makeUtterance(
@@ -116,6 +118,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
 
         isSpeaking = true
         currentUtterance = utterance
+        onPlaybackStartedCallback = onPlaybackStarted
         onFinishedCallback = onFinished
 
         let isTesting = NSClassFromString("XCTestCase") != nil ||
@@ -125,13 +128,35 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         synthesizer.speak(utterance)
     }
 
+    public func speak(
+        text: String,
+        rate: Float = 1.0,
+        locale: String = "en-US",
+        persona: VoicePersona? = nil,
+        voiceIdentifier: String? = nil,
+        pitch: Float? = nil,
+        onFinished: (@Sendable () -> Void)? = nil
+    ) {
+        speak(
+            text: text,
+            rate: rate,
+            locale: locale,
+            persona: persona,
+            voiceIdentifier: voiceIdentifier,
+            pitch: pitch,
+            onPlaybackStarted: nil,
+            onFinished: onFinished
+        )
+    }
+
     public func speakAsync(
         text: String,
         rate: Float = 1.0,
         locale: String = "en-US",
         persona: VoicePersona? = nil,
         voiceIdentifier: String? = nil,
-        pitch: Float? = nil
+        pitch: Float? = nil,
+        onPlaybackStarted: (@Sendable () -> Void)? = nil
     ) async {
         guard let utterance = makeUtterance(
             text: text,
@@ -149,6 +174,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         stop()
         isSpeaking = true
         currentUtterance = utterance
+        onPlaybackStartedCallback = onPlaybackStarted
 
         let isTesting = NSClassFromString("XCTestCase") != nil ||
             ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil ||
@@ -171,6 +197,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
         }
         isSpeaking = false
         currentUtterance = nil
+        onPlaybackStartedCallback = nil
         if let continuation = activeContinuation {
             activeContinuation = nil
             continuation.resume()
@@ -183,12 +210,24 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
 
     // MARK: - AVSpeechSynthesizerDelegate
 
+    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        let box = UtteranceTransferBox(utterance)
+        Task { @MainActor [weak self] in
+            guard let self, self.currentUtterance === box.utterance else { return }
+            if let callback = self.onPlaybackStartedCallback {
+                self.onPlaybackStartedCallback = nil
+                callback()
+            }
+        }
+    }
+
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         let box = UtteranceTransferBox(utterance)
         Task { @MainActor [weak self] in
             guard let self, self.currentUtterance === box.utterance else { return }
             self.currentUtterance = nil
             self.isSpeaking = false
+            self.onPlaybackStartedCallback = nil
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
                 continuation.resume()
@@ -206,6 +245,7 @@ public final class AppleEnhancedTTSEngine: NSObject, AVSpeechSynthesizerDelegate
             guard let self, self.currentUtterance === box.utterance else { return }
             self.currentUtterance = nil
             self.isSpeaking = false
+            self.onPlaybackStartedCallback = nil
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
                 continuation.resume()

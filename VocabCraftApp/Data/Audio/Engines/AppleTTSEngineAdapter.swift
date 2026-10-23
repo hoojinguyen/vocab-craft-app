@@ -1,7 +1,7 @@
 import AVFoundation
 import Foundation
 
-public final class AppleTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable {
+public final class AppleTTSEngineAdapter: PlaybackReportingTTSEngineProtocol, @unchecked Sendable {
     public let engineName: String = "Apple Enhanced TTS"
     public var isReady: Bool { true }
     private let engine: AppleEnhancedTTSEngine
@@ -21,7 +21,11 @@ public final class AppleTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable
         }
     }
 
-    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+    public func synthesizeAndPlay(
+        text: String,
+        voice: VoiceConfiguration,
+        onPlaybackStarted: @escaping @Sendable () -> Void
+    ) async throws {
         let voiceId = AppleVoiceSelector.selectVoice(
             locale: voice.locale,
             gender: voice.gender == .male ? .male : .female
@@ -33,8 +37,13 @@ public final class AppleTTSEngineAdapter: TTSEngineProtocol, @unchecked Sendable
             locale: voice.locale,
             persona: nil,
             voiceIdentifier: voiceId,
-            pitch: 1.0
+            pitch: 1.0,
+            onPlaybackStarted: onPlaybackStarted
         )
+    }
+
+    public func synthesizeAndPlay(text: String, voice: VoiceConfiguration) async throws {
+        try await synthesizeAndPlay(text: text, voice: voice, onPlaybackStarted: {})
     }
 
     public func stop() {
