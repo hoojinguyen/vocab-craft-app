@@ -178,11 +178,30 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         let before = Date()
         try await actor.markWordReviewed(wordId: 62, isCorrect: true)
 
+        let expected = SmartReviewScheduling.schedule(masteryBefore: 0, easeFactor: 2.5, isCorrect: true, now: before)
         let row = try await actor.getProgressData(wordId: 62)
         XCTAssertEqual(row?.masteryLevel, 1)
         XCTAssertEqual(row?.totalReviews, 1)
-        XCTAssertEqual(row?.intervalDays, 1)
-        XCTAssertGreaterThan(row?.nextReviewDate ?? before, before)
+        XCTAssertEqual(row?.intervalDays, expected.intervalDays)
+        XCTAssertEqual(row?.easeFactor, expected.easeFactor)
+        // A bare insert defaults nextReviewDate to "now"; scheduling must push it about a day out.
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: before) ?? before
+        let delta = abs((row?.nextReviewDate ?? .distantPast).timeIntervalSince(tomorrow))
+        XCTAssertLessThan(delta, 60)
+    }
+
+    func testMarkWordReviewedIncorrectWithoutRowLowersEaseAndSchedulesTomorrow() async throws {
+        let before = Date()
+        try await actor.markWordReviewed(wordId: 64, isCorrect: false)
+
+        let expected = SmartReviewScheduling.schedule(masteryBefore: 0, easeFactor: 2.5, isCorrect: false, now: before)
+        let row = try await actor.getProgressData(wordId: 64)
+        XCTAssertEqual(row?.needsReview, true)
+        XCTAssertEqual(row?.easeFactor, expected.easeFactor)
+        XCTAssertLessThan(row?.easeFactor ?? 2.5, 2.5)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: before) ?? before
+        let delta = abs((row?.nextReviewDate ?? .distantPast).timeIntervalSince(tomorrow))
+        XCTAssertLessThan(delta, 60)
     }
 
     func testClearNeedsReviewDoesNotChangeSchedule() async throws {

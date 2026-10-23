@@ -392,6 +392,23 @@ final class VocabularyUseCasesTests: XCTestCase {
         XCTAssertEqual(dueWords.map(\.id), [2, 3, 1])
     }
 
+    func forgotWordStaysInDueListCorrectWordLeaves() async throws {
+        let now = Date()
+        let past = now.addingTimeInterval(-86_400)
+        let progressRepo = MockUserProgressRepository(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 2, nextReviewDate: past),
+            UserWordProgressData(wordId: 2, masteryLevel: 2, nextReviewDate: past)
+        ])
+        let sut = ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        try await sut.markWordReviewed(wordId: 1, isCorrect: false)
+        try await sut.markWordReviewed(wordId: 2, isCorrect: true)
+
+        let dueWords = try await sut.fetchDueWords(now: now)
+        XCTAssertEqual(dueWords.map(\.id), [1])
+        XCTAssertEqual(dueWords.first?.needsReview, true)
+    }
+
     func test_toggleWordBookmarkUseCase_updatesBookmarkFlag() async throws {
         let progressRepo = MockUserProgressActor(initialData: [
             UserWordProgressData(wordId: 1, masteryLevel: 2, isBookmarked: false)
