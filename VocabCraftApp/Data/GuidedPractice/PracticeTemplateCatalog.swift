@@ -177,4 +177,9 @@ public struct PracticeTemplateCatalog: Sendable {
     public static func template(withId id: String) -> PracticeTemplate? {
         templates.first { $0.id == id }
     }
+
+    /// Curated templates available for mission selection.
+    public static var curatedTemplates: [PracticeTemplate] {
+        templates
+    }
 }

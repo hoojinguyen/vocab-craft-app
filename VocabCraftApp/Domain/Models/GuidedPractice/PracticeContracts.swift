@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 
 // MARK: - Duration Helpers
@@ -17,6 +18,12 @@ public protocol PracticeClock: Sendable {
     func sleep(for duration: Duration) async throws
 }
 
+extension PracticeClock {
+    public var now: Date {
+        self.now()
+    }
+}
+
 /// Production implementation backed by Foundation Date and standard Task sleep.
 public struct ProductionPracticeClock: PracticeClock {
     public init() {}
@@ -29,6 +36,8 @@ public struct ProductionPracticeClock: PracticeClock {
         try await Task.sleep(for: duration)
     }
 }
+
+public typealias SystemPracticeClock = ProductionPracticeClock
 
 /// Deterministic, synchronized test clock allowing explicit time advancement.
 public final class ManualPracticeClock: PracticeClock, @unchecked Sendable {
@@ -627,6 +636,15 @@ public struct PracticeFailure: Error, Codable, Sendable, Equatable {
         self.message = message
         self.underlyingError = underlyingError
     }
+
+    public init(
+        code: Code,
+        underlyingError: String? = nil
+    ) {
+        self.code = code
+        self.message = underlyingError ?? code.rawValue
+        self.underlyingError = underlyingError
+    }
 }
 
 /// Real-time audio and speech recognition lifecycle events.
@@ -663,6 +681,14 @@ public struct PracticeCapability: Codable, Sendable, Equatable, Hashable {
         self.providerIdentity = providerIdentity
         self.unavailableReason = unavailableReason
     }
+
+    public static let standardCloud = PracticeCapability(
+        canGenerateDialogue: true,
+        canAssessUsage: true,
+        canCaptureSpeech: true,
+        canPlaySpeech: true,
+        providerIdentity: "standardCloud"
+    )
 }
 
 /// Selection outcome produced by the mission selection use case.

@@ -120,7 +120,7 @@ public enum PracticeSelectionReason: String, Codable, Sendable, CaseIterable, Eq
 }
 
 /// Immutable snapshot defining a practice assignment session.
-public struct PracticeMission: Codable, Sendable, Equatable, Hashable {
+public struct PracticeMission: Codable, Sendable, Equatable, Hashable, Identifiable {
     public let id: UUID
     public let templateId: String
     public let templateVersion: Int

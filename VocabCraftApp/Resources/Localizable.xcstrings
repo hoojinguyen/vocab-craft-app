@@ -15215,6 +15215,839 @@
           }
         }
       }
+    },
+    "app.ai_assistant.guided.hub.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guided Communication"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giao tiếp có hướng dẫn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice conversational reflexes with an AI assistant in realistic scenarios"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thực hành phản xạ giao tiếp với trợ lý AI trong các tình huống thực tế"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.resume_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue Practice Session"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục phiên luyện"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.resume_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have an unfinished practice session"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đang có một buổi luyện tập chưa hoàn thành"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.resume_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Progress"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang dở"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.recommended_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đề xuất"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.hub.other_scenarios": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Scenarios"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tình huống khác"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.needs_vocab_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More Vocabulary Needed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần thêm từ vựng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.needs_vocab_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn at least 2 vocabulary words to unlock guided communication practice."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hãy học thêm ít nhất 2 từ vựng để mở khóa các bài luyện tập giao tiếp."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.needs_vocab_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to Lessons"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đến bài học"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.no_template_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Compatible Scenarios"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có tình huống phù hợp"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.no_template_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The words you have learned do not match any available scenario. Keep learning new words!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các từ bạn đã học chưa khớp với các tình huống giao tiếp hiện có. Hãy tiếp tục học thêm từ mới!"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.empty.no_template_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore Vocabulary"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khám phá từ vựng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.error.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to Load Practice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải bài luyện"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.error.desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An error occurred while loading practice data. Please try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã xảy ra lỗi khi tải dữ liệu bài luyện tập. Vui lòng thử lại."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.error.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Again"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử lại"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice Brief"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuẩn bị tình huống"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.your_role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your role: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vai của bạn: %@"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.partner_role": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation partner: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đối tác giao tiếp: %@"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.objectives_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Communication Objectives"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mục tiêu giao tiếp"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.mode_voice_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Mode"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nói trực tiếp"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.mode_voice_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice pronunciation and immediate reflexes with speech"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luyện phát âm và phản xạ tức thì bằng giọng nói"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.mode_text_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Mode"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhập văn bản"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.mode_text_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice conversation by typing, ideal for quiet environments"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luyện giao tiếp bằng cách gõ phím, phù hợp nơi công cộng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.review_words_first": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review words first"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn từ trước"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.review_words_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target Vocabulary"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ vựng mục tiêu"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.review_words_done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xong"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.start_practice": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Practice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu luyện tập"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.voice_permission_required": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone permission is required for voice mode. You can enable it in Settings or switch to text mode."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần quyền truy cập micro để sử dụng chế độ nói. Bạn có thể cấp quyền trong Cài đặt hoặc chuyển sang chế độ gõ phím."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.llm_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The AI assistant is currently unavailable to generate dialogue. Please check your network connection and try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trợ lý AI hiện không sẵn sàng tạo hội thoại. Vui lòng kiểm tra kết nối mạng và thử lại sau."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.preparation.switch_to_text": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to Text"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển sang gõ phím"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.order_food": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order food and drinks"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gọi món và đồ uống"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.express_gratitude": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Express gratitude"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bày tỏ lời cảm ơn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.ask_recommendation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask for recommendations"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi gợi ý món ăn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.resolve_order_issue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resolve food order issue"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phản hồi vấn đề về món ăn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.reach_compromise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach a compromise"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thống nhất phương án điều chỉnh"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.confirm_resolution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm resolution"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xác nhận giải pháp xử lý"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.inquire_item": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inquire about an item"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi thông tin sản phẩm"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.request_discount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request a discount"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi ưu đãi hoặc giảm giá"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.complete_purchase": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete the purchase"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoàn tất việc thanh toán"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.request_return": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request an item return"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yêu cầu đổi trả sản phẩm"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.negotiate_exchange": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negotiate exchange terms"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trao đổi về phương án đổi trả"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.finalize_resolution": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalize return resolution"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xác nhận kết quả xử lý đổi hàng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.propose_activity": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propose an activity"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đề xuất hoạt động hoặc cuộc hẹn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.coordinate_schedule": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coordinate schedules"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sắp xếp thời gian phù hợp"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.confirm_plan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm agreed plan"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xác nhận kế hoạch đã thống nhất"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.address_schedule_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address schedule conflict"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trao đổi về trùng lịch"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.adjust_timeline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust the timeline"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điều chỉnh mốc thời gian"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.guided.objective.reaffirm_commitment": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaffirm commitment"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tái xác nhận cam kết tham gia"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
