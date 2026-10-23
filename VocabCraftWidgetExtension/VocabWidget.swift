@@ -27,14 +27,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func makePlaceholder() -> VocabWidgetEntry {
-        VocabWidgetEntry(
-            date: Date(),
-            lemma: String(localized: "app.widget.placeholder.lemma"),
-            ipaUs: String(localized: "app.widget.placeholder.ipa"),
-            definitionVi: String(localized: "app.widget.placeholder.definition"),
-            exampleEn: String(localized: "app.widget.placeholder.example"),
-            masteryLevel: 0
-        )
+        VocabWidgetEntry.placeholder(at: Date())
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
@@ -70,20 +63,18 @@ public struct VocabWidgetProvider: TimelineProvider {
             return nil
         }
 
-        let wordId = state.currentWordId
-        var fetchDescriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
-        fetchDescriptor.fetchLimit = 1
-        fetchDescriptor.propertiesToFetch = [\.masteryLevel]
-
-        let mastery = (try? context.fetch(fetchDescriptor))?.first?.masteryLevel ?? 0
-
         return VocabWidgetEntry(
             date: state.lastUpdated,
-            lemma: state.lemma,
-            ipaUs: state.ipaUs,
-            definitionVi: state.definitionVi,
-            exampleEn: state.exampleEn,
-            masteryLevel: mastery
+            card: WidgetCard(
+                wordId: state.currentWordId,
+                lemma: state.lemma,
+                ipa: state.ipaUs,
+                definitionVi: state.definitionVi,
+                exampleEn: state.exampleEn,
+                source: .recent
+            ),
+            mode: .passive,
+            dueCount: 0
         )
     }
     #endif

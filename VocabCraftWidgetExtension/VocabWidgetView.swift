@@ -5,37 +5,28 @@ import VocabCraftApp
 #endif
 import WidgetKit
 
-public struct VocabWidgetEntry: TimelineEntry {
-    public let date: Date
-    public let lemma: String
-    public let ipaUs: String
-    public let definitionVi: String
-    public let exampleEn: String
-    public let masteryLevel: Int
-
-    public init(
-        date: Date = Date(),
-        lemma: String,
-        ipaUs: String = "",
-        definitionVi: String,
-        exampleEn: String = "",
-        masteryLevel: Int = 0
-    ) {
-        self.date = date
-        self.lemma = lemma
-        self.ipaUs = ipaUs
-        self.definitionVi = definitionVi
-        self.exampleEn = exampleEn
-        self.masteryLevel = masteryLevel
-    }
-}
-
 public struct VocabWidgetView: View {
     @Environment(\.widgetFamily) private var family
     public var entry: VocabWidgetEntry
 
     public init(entry: VocabWidgetEntry) {
         self.entry = entry
+    }
+
+    private var lemma: String {
+        entry.card?.lemma ?? String(localized: "app.widget.placeholder.lemma")
+    }
+
+    private var ipa: String {
+        entry.card?.ipa ?? String(localized: "app.widget.placeholder.ipa")
+    }
+
+    private var definitionVi: String {
+        entry.card?.definitionVi ?? String(localized: "app.widget.placeholder.definition")
+    }
+
+    private var exampleEn: String {
+        entry.card?.exampleEn ?? String(localized: "app.widget.placeholder.example")
     }
 
     public var body: some View {
@@ -58,19 +49,19 @@ public struct VocabWidgetView: View {
     private var smallWidgetView: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(entry.lemma)
+                Text(lemma)
                     .font(.headline)
                     .fontWeight(.bold)
                     .lineLimit(1)
                 Spacer()
-                if !entry.ipaUs.isEmpty {
-                    Text(entry.ipaUs)
+                if !ipa.isEmpty {
+                    Text(ipa)
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
             }
 
-            Text(entry.definitionVi)
+            Text(definitionVi)
                 .font(.subheadline)
                 .foregroundColor(.primary)
                 .lineLimit(2)
@@ -101,36 +92,24 @@ public struct VocabWidgetView: View {
     private var mediumWidgetView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(entry.lemma)
+                Text(lemma)
                     .font(.title2)
                     .fontWeight(.bold)
 
-                if !entry.ipaUs.isEmpty {
-                    Text(entry.ipaUs)
+                if !ipa.isEmpty {
+                    Text(ipa)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundColor(.yellow)
-                    Text(String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld"), entry.masteryLevel))
-                        .font(.caption)
-                        .fontWeight(.semibold)
                         .foregroundColor(.secondary)
                 }
             }
 
-            Text(entry.definitionVi)
+            Text(definitionVi)
                 .font(.body)
                 .foregroundColor(.primary)
                 .lineLimit(2)
 
-            if !entry.exampleEn.isEmpty {
-                Text(entry.exampleEn)
+            if !exampleEn.isEmpty {
+                Text(exampleEn)
                     .font(.caption)
                     .italic()
                     .foregroundColor(.secondary)
@@ -173,14 +152,14 @@ public struct VocabWidgetView: View {
         VStack(spacing: 2) {
             Image(systemName: "character.book.closed.fill")
                 .font(.system(size: 16))
-            Text(entry.lemma)
+            Text(lemma)
                 .font(.system(size: 10, weight: .bold))
                 .lineLimit(1)
         }
     }
 
     private var accessoryInlineView: some View {
-        Text("\(entry.lemma): \(entry.definitionVi)")
+        Text("\(lemma): \(definitionVi)")
             .lineLimit(1)
     }
 }

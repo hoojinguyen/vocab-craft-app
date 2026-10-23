@@ -84,8 +84,8 @@ final class WidgetIntentsTests: XCTestCase {
     func testVocabWidgetProviderPlaceholderAndFetch() throws {
         let provider = VocabWidgetProvider()
         let placeholder = provider.makePlaceholder()
-        XCTAssertEqual(placeholder.lemma, "Abandon")
-        XCTAssertFalse(placeholder.definitionVi.isEmpty)
+        XCTAssertEqual(placeholder.mode, .placeholder)
+        XCTAssertNil(placeholder.card)
 
         // Populate SwiftData container state
         let state = WidgetCurrentState(
@@ -103,19 +103,23 @@ final class WidgetIntentsTests: XCTestCase {
 
         let fetchedEntry = provider.fetchCurrentEntry(in: container)
         XCTAssertNotNil(fetchedEntry)
-        XCTAssertEqual(fetchedEntry?.lemma, "Resilient")
-        XCTAssertEqual(fetchedEntry?.definitionVi, "Kiên cường")
-        XCTAssertEqual(fetchedEntry?.masteryLevel, 4)
+        XCTAssertEqual(fetchedEntry?.card?.lemma, "Resilient")
+        XCTAssertEqual(fetchedEntry?.card?.definitionVi, "Kiên cường")
     }
 
     func testVocabWidgetViewInstantiation() {
         let entry = VocabWidgetEntry(
             date: Date(),
-            lemma: "Eloquent",
-            ipaUs: "/ˈel.ə.kwənt/",
-            definitionVi: "Hùng hồn",
-            exampleEn: "An eloquent speaker.",
-            masteryLevel: 3
+            card: WidgetCard(
+                wordId: 1,
+                lemma: "Eloquent",
+                ipa: "/ˈel.ə.kwənt/",
+                definitionVi: "Hùng hồn",
+                exampleEn: "An eloquent speaker.",
+                source: .recent
+            ),
+            mode: .passive,
+            dueCount: 0
         )
         let view = VocabWidgetView(entry: entry)
         XCTAssertNotNil(view.body)
@@ -148,9 +152,8 @@ final class WidgetIntentsTests: XCTestCase {
         let provider = VocabWidgetProvider()
         let fetched = provider.fetchCurrentEntry()
         XCTAssertNotNil(fetched)
-        XCTAssertEqual(fetched?.lemma, "Persistent")
-        XCTAssertEqual(fetched?.definitionVi, "Bền bỉ")
-        XCTAssertEqual(fetched?.masteryLevel, 2)
+        XCTAssertEqual(fetched?.card?.lemma, "Persistent")
+        XCTAssertEqual(fetched?.card?.definitionVi, "Bền bỉ")
     }
 }
 
