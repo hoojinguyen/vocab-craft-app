@@ -1,11 +1,11 @@
 # AI Assistant Guided Communication Practice: Technical Verification Report
 
-**Document ID:** QA-VERIF-AI-GUIDED-PRACTICE-001  
-**Date:** 2026-10-23  
-**Status:** PASS (Automated Verification Gate Complete)  
-**Git Commit SHA:** `a1aecd7abf8bee5cfc6f27ddbf18a3b09fe550b5`  
-**Base Branch:** `main`  
-**Specification:** `docs/superpowers/specs/2026-10-22-ai-assistant-guided-communication-design.md` (Sections 13, 14, 15)  
+**Document ID:** QA-VERIF-AI-GUIDED-PRACTICE-001
+**Date:** 2026-10-23
+**Status:** PASS (Automated Verification Gate Complete)
+**Git Commit SHA:** `3e204eb9ea4341accb87b1408688dac46f7d6b97`
+**Base Branch:** `main`
+**Specification:** `docs/superpowers/specs/2026-10-22-ai-assistant-guided-communication-design.md` (Sections 13, 14, 15)
 
 ---
 
@@ -67,7 +67,7 @@ The specification defines 18 mandatory acceptance criteria (Section 13) governin
 
 ## 4. AI Evaluation & Safety Test Corpus
 
-The AI adapter and pedagogical validation engine were tested against an exhaustive fixture suite (`VocabCraftAppTests/AI/GuidedPractice/Fixtures/practice_assessment_fixtures.json`) and targeted adversarial test scenarios:
+The AI adapter and pedagogical validation engine were tested against an exhaustive fixture suite (`VocabCraftAppTests/AI/GuidedPractice/Fixtures/practice-assessment-cases.json`) and targeted adversarial test scenarios:
 
 1. **Semantic Accuracy**: Target word used correctly in context -> Verified as `usage: .independent` or `usage: .supported`.
 2. **Semantic Inaccuracy / Misuse**: Word used with wrong meaning or grammatical role -> Flagged as `usage: .incorrect` or `usage: .notObserved`.

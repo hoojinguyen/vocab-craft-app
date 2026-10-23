@@ -1,10 +1,10 @@
 # AI Assistant Guided Communication Practice: Physical Device & Pilot Learner Protocol
 
-**Document ID:** QA-PILOT-AI-GUIDED-PRACTICE-001  
-**Date:** 2026-10-23  
-**Status:** PROTOCOL DEFINED / PENDING PILOT COHORT EXECUTION  
-**Feature Flag:** `GuidedPracticeFeatureConfiguration.enabled` (Default: `false`)  
-**Specification:** `docs/superpowers/specs/2026-10-22-ai-assistant-guided-communication-design.md` (Sections 14 & 15)  
+**Document ID:** QA-PILOT-AI-GUIDED-PRACTICE-001
+**Date:** 2026-10-23
+**Status:** PROTOCOL DEFINED / PENDING PILOT COHORT EXECUTION
+**Feature Flag:** `GuidedPracticeFeatureConfiguration.enabled` (Default: `false`)
+**Specification:** `docs/superpowers/specs/2026-10-22-ai-assistant-guided-communication-design.md` (Sections 14 & 15)
 
 ---
 
