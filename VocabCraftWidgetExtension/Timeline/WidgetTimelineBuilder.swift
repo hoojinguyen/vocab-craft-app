@@ -58,10 +58,11 @@ public enum WidgetTimelineBuilder {
         let cards = deck.cards
         let slot = Int(now.timeIntervalSince1970 / rotationInterval)
         var entries: [VocabWidgetEntry] = []
+        let cap = nextDueDate.flatMap { $0 > now ? $0 : nil }
         var dropped = false
         for i in 0..<maxEntries {
             let date = i == 0 ? now : Date(timeIntervalSince1970: Double(slot + i) * rotationInterval)
-            if i > 0, let nextDueDate, date >= nextDueDate {
+            if let cap, date >= cap {
                 dropped = true
                 break
             }
@@ -69,8 +70,8 @@ public enum WidgetTimelineBuilder {
                 VocabWidgetEntry(date: date, card: cards[(slot + i) % cards.count], mode: .passive, dueCount: 0)
             )
         }
-        if dropped, let nextDueDate {
-            return (entries, .after(nextDueDate))
+        if dropped, let cap {
+            return (entries, .after(cap))
         }
         return (entries, .atEnd)
     }

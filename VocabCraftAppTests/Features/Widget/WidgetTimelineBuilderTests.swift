@@ -103,4 +103,12 @@ struct WidgetTimelineBuilderTests {
         #expect(result.entries.allSatisfy { $0.date < cap })
         #expect(result.reload == .after(cap))
     }
+
+    @Test func pastNextDueDateIsIgnored() {
+        for nextDue in [now.addingTimeInterval(-60), now] {
+            let result = build(deck(3), nextDue: nextDue)
+            #expect(result.entries.count == 36)
+            #expect(result.reload == .atEnd)
+        }
+    }
 }
