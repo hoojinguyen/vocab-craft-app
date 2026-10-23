@@ -92,7 +92,7 @@ Files: `<AppGroup>/widget/widget_deck.json`, `<AppGroup>/widget/widget_interacti
 ### 2.4 Data flow
 1. **App → deck.** `RefreshWidgetDeckUseCase` runs when `scenePhase` becomes `.background`, and after `CompleteLessonUseCase` / `EvaluateSRSUseCase` succeed. It writes the deck and requests `reloadTimelines(ofKind: "VocabWidget")`. Failures are logged and swallowed — they must never break the lesson flow.
 2. **Deck → timeline.** `VocabWidgetProvider.getTimeline` reads the deck, the interaction state and the `UserWordProgress` rows for the deck's word IDs (`nextReviewDate <= now`). Due status is recomputed here, so a stale deck still follows the real schedule.
-   - **Passive**: no due words → one entry per non-due card, every 5 minutes, starting at a rotation offset derived from `now` so consecutive reloads continue rather than restart; policy `.atEnd`. The timeline is capped at the earliest upcoming `nextReviewDate` among deck words (or 36 entries ≈ 3 h, whichever is sooner), so a word that becomes due mid-timeline switches the widget to flashcard mode on the next reload.
+   - **Passive**: no due words (or, if due status cannot be read, treated as none) → one entry per non-due card, every 5 minutes, starting at a rotation offset derived from `now` so consecutive reloads continue rather than restart; policy `.atEnd`. The timeline is capped at the earliest upcoming `nextReviewDate` among deck words (or 36 entries ≈ 3 h, whichever is sooner), so a word that becomes due mid-timeline switches the widget to flashcard mode on the next reload.
    - **Flashcard**: ≥1 due word → a single entry for the first due card; policy `.never` (the intents trigger the reload).
 3. **Reveal.** `RevealCardIntent(wordId)` writes `revealedWordId` and `revealedAt`, then reloads.
 4. **Grade.** `GradeCardIntent(wordId, remembered)` is valid only if `revealedWordId == wordId`. It calls `WidgetReviewRecorder`, clears the interaction state and reloads. The next due card is shown, or passive rotation resumes.
@@ -110,7 +110,7 @@ All styling uses `CraftColor`/`CraftFont`/`CraftSpacingTokens`/`CraftRadiusToken
 | Family | Passive | Flashcard |
 |---|---|---|
 | `systemSmall` | Lemma, IPA, definition (2 lines), source badge (New / Review) | Front: lemma, IPA, hidden meaning, **Reveal** button. Back: meaning, icon buttons **Forgot ✗ / Remembered ✓** |
-| `systemMedium` | Lemma, IPA, definition, example, source badge (passive implies zero due words, so there is no due-count line) | Front: lemma, IPA, example with the target word masked, **Reveal**. Back: meaning, labelled **Forgot / Remembered** buttons |
+| `systemMedium` | Lemma, IPA, definition, example, source badge (passive shows no review-count line; it normally means nothing is due, and if due status cannot be read the widget keeps showing passive cards and retries in 5 minutes, only when a deck exists) | Front: lemma, IPA, example with the target word masked, **Reveal**. Back: meaning, labelled **Forgot / Remembered** buttons |
 | `accessoryRectangular` | Lemma, IPA, definition (1 line) | Lemma + "Open to review" hint; taps deep-link to review (no buttons on Lock Screen) |
 | `accessoryInline` | `lemma: definition` | `N words to review` |
 | Empty / error | "Open VocabCraft to start" placeholder, deep-links to home | — |
@@ -136,6 +136,7 @@ Accessibility: buttons get localized `accessibilityLabel`s; the masked example e
 |---|---|
 | Deck missing / corrupt / version mismatch | Placeholder entry; wait for the app to rebuild the deck. |
 | App Group unavailable | Production falls back to Application Support, then the temporary directory, via `SharedAppGroupContainer.persistedStoreURL` and `WidgetDeckStore.appGroup()`. When the deck file is missing the widget shows the placeholder; it is not an in-memory container. |
+| Due status unreadable (query fails or no container) with a deck present | Passive cards keep showing, the reveal state is left untouched, and the timeline reloads in 5 minutes. With no deck the placeholder policy (1 hour) applies. |
 | SRS write fails in `GradeCardIntent` | Throw; interaction state is left untouched so the user can retry. |
 | Stale grade (word no longer due or no longer revealed) | No-op; reload. |
 | `RefreshWidgetDeckUseCase` fails in-app | Log and swallow; never block lesson completion or backgrounding. |

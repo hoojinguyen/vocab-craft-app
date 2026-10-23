@@ -97,10 +97,12 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             interaction: interaction,
             now: now
         )
-        // Without a successful due query the state is unknown: keep it untouched and retry soon.
-        let policy: TimelineReloadPolicy = dueQuerySucceeded
-            ? Self.reloadPolicy(for: plan.reload)
-            : .after(now.addingTimeInterval(Self.retryInterval))
+        // With a deck but unreadable due status, keep the state untouched and retry soon.
+        // Without a deck the app reloads timelines once it writes one, so the builder's policy stands.
+        let deckPresent = deck?.cards.isEmpty == false
+        let policy: TimelineReloadPolicy = (deckPresent && !dueQuerySucceeded)
+            ? .after(now.addingTimeInterval(Self.retryInterval))
+            : Self.reloadPolicy(for: plan.reload)
         return Timeline(entries: plan.entries, policy: policy)
     }
 

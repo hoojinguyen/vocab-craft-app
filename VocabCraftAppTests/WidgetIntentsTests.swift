@@ -150,6 +150,7 @@ struct WidgetIntentsTests {
         let timeline = provider.makeTimeline(now: now)
 
         #expect(timeline.entries == [.placeholder(at: now)])
+        #expect(timeline.policy == .after(now.addingTimeInterval(3600)))
     }
 
     @Test("sharedContainerIsAvailable")
