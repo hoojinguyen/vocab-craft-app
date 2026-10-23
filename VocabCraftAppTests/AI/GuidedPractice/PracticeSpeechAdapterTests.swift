@@ -555,4 +555,73 @@ struct PracticeSpeechAdapterTests {
         #expect(cap3.canCaptureSpeech == false)
         #expect(cap3.canPlaySpeech == false)
     }
+
+    @Test("Consecutive capture calls seamlessly transition without state clobbering or cancellation")
+    @MainActor
+    func test_consecutiveCapture_transitionsCleanly() async throws {
+        let stt = PracticeTestSTTEngine()
+        let tts = PracticeTestReportingTTSEngine()
+        let coordinator = PracticeTestAudioCoordinator()
+        let clock = ManualPracticeClock()
+
+        let adapter = PracticeSpeechAdapter(
+            sttEngine: stt,
+            ttsEngine: tts,
+            audioCoordinator: coordinator,
+            clock: clock
+        )
+
+        final class SafeEvents: @unchecked Sendable {
+            var events: [PracticeSpeechEvent] = []
+        }
+
+        // Start first capture
+        let safeEvents1 = SafeEvents()
+        let stream1 = adapter.capture(locale: "en-US")
+        let task1 = Task { @MainActor in
+            for try await event in stream1 {
+                safeEvents1.events.append(event)
+            }
+        }
+
+        // Wait until first capture has started
+        while !safeEvents1.events.contains(.captureStarted) {
+            await Task.yield()
+        }
+
+        // Immediately start second capture while first is still active
+        let safeEvents2 = SafeEvents()
+        let stream2 = adapter.capture(locale: "en-US")
+        let task2 = Task { @MainActor in
+            for try await event in stream2 {
+                safeEvents2.events.append(event)
+            }
+        }
+
+        // Wait until second capture has started
+        while !safeEvents2.events.contains(.captureStarted) {
+            await Task.yield()
+        }
+
+        // First capture should have stopped cleanly without failure
+        _ = await task1.result
+        #expect(safeEvents1.events.contains(.captureStarted))
+        #expect(safeEvents1.events.contains(.captureStopped))
+        #expect(!safeEvents1.events.contains(where: {
+            if case .failed = $0 { return true }
+            return false
+        }))
+
+        // Second capture is running properly without failure
+        #expect(safeEvents2.events.contains(.captureStarted))
+        #expect(!safeEvents2.events.contains(where: {
+            if case .failed = $0 { return true }
+            return false
+        }))
+
+        // Stop adapter
+        adapter.stopCapture()
+        _ = await task2.result
+        #expect(safeEvents2.events.contains(.captureStopped))
+    }
 }
