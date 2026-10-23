@@ -260,6 +260,13 @@ extension AppStrings {
         public static var statusNotYet: LocalizedStringKey { "app.ai_assistant.guided.status.not_yet" }
         public static var statusNotObserved: LocalizedStringKey { "app.ai_assistant.guided.status.not_observed" }
 
+        // MARK: - Communication Stages
+
+        public static var stageNoEvidence: LocalizedStringKey { "app.ai_assistant.guided.stage.no_evidence" }
+        public static var stagePracticing: LocalizedStringKey { "app.ai_assistant.guided.stage.practicing" }
+        public static var stageIndependentFamiliar: LocalizedStringKey { "app.ai_assistant.guided.stage.independent_familiar" }
+        public static var stageTransferred: LocalizedStringKey { "app.ai_assistant.guided.stage.transferred" }
+
         // MARK: - Input Modes
 
         public static var modeVoice: LocalizedStringKey { "app.ai_assistant.guided.mode.voice" }

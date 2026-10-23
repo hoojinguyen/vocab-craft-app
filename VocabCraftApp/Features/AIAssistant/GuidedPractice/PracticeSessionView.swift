@@ -89,7 +89,7 @@ public struct PracticeSessionView: View {
             let pendingVisual = coordinator.pendingPresentations.filter { intent in
                 intent.channel == .visual && intent.status == .pending
             }
-            if let pending = pendingVisual.last {
+            for pending in pendingVisual {
                 await coordinator.confirmPresented(intentId: pending.id, at: coordinator.clock.now())
             }
         }
@@ -218,6 +218,7 @@ private extension PracticeSessionView {
             primaryButtonTitleKey: AppStrings.GuidedPractice.sessionEditTranscriptSave,
             primaryButtonVariant: .primary,
             primaryAction: {
+                showEditDialog = false
                 if let turnId = editingTurnId {
                     let text = editingText
                     editingTurnId = nil
@@ -230,6 +231,7 @@ private extension PracticeSessionView {
             cancelButtonTitleKey: AppStrings.GuidedPractice.sessionEditTranscriptCancel,
             cancelButtonVariant: .outline,
             cancelAction: {
+                showEditDialog = false
                 editingTurnId = nil
                 editingText = ""
             }

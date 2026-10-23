@@ -135,4 +135,39 @@ struct PracticeSummaryTests {
         )
         #expect(PracticeSummaryView.formattedQuotedSpan(for: evidenceEmptySpan) == nil)
     }
+
+    @Test("Stage title and tone mapping for all communication stages")
+    func stageTitleAndToneMapping() {
+        #expect(PracticeSummaryView.stageTitle(for: .noEvidence) == AppStrings.GuidedPractice.stageNoEvidence)
+        #expect(PracticeSummaryView.stageTitle(for: .practicing) == AppStrings.GuidedPractice.stagePracticing)
+        #expect(PracticeSummaryView.stageTitle(for: .independentFamiliar) == AppStrings.GuidedPractice.stageIndependentFamiliar)
+        #expect(PracticeSummaryView.stageTitle(for: .transferred) == AppStrings.GuidedPractice.stageTransferred)
+
+        #expect(PracticeSummaryView.stageTone(for: .noEvidence) == .neutral)
+        #expect(PracticeSummaryView.stageTone(for: .practicing) == .warning)
+        #expect(PracticeSummaryView.stageTone(for: .independentFamiliar) == .success)
+        #expect(PracticeSummaryView.stageTone(for: .transferred) == .success)
+    }
+
+    @Test("Per-word progress is populated on summary with communication stage")
+    func perWordProgressRetainsStageAndModality() {
+        let progress = CommunicationProgress(
+            wordId: 42,
+            inputMode: .voice,
+            stage: .independentFamiliar
+        )
+        let summary = PracticeSummary(
+            sessionId: UUID(),
+            status: .completed,
+            objectiveResults: [],
+            perWordProgress: [progress],
+            evidenceIds: [],
+            persisted: true
+        )
+
+        #expect(summary.perWordProgress.count == 1)
+        #expect(summary.perWordProgress.first?.wordId == 42)
+        #expect(summary.perWordProgress.first?.stage == .independentFamiliar)
+        #expect(summary.perWordProgress.first?.inputMode == .voice)
+    }
 }

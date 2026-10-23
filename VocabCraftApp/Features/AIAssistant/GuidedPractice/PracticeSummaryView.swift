@@ -95,10 +95,12 @@ public struct PracticeSummaryView: View {
             cancelAction: {}
         )
     }
+}
 
-    // MARK: - Subviews
+// MARK: - Subviews
 
-    private var headerSection: some View {
+private extension PracticeSummaryView {
+    var headerSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             HStack(spacing: theme.spacing.sm) {
                 CraftText(
@@ -199,13 +201,71 @@ public struct PracticeSummaryView: View {
                 color: theme.colors.textPrimary
             )
 
-            if relevantEvidence.isEmpty {
+            if summary.perWordProgress.isEmpty && relevantEvidence.isEmpty {
                 CraftCard(style: .flat) {
                     CraftText(
                         AppStrings.GuidedPractice.summaryEmptyEvidence,
                         style: .bodyMedium,
                         color: theme.colors.textSecondary
                     )
+                }
+            } else if !summary.perWordProgress.isEmpty {
+                ForEach(summary.perWordProgress, id: \.self) { progress in
+                    let matchingEvidence = relevantEvidence.filter { $0.wordId == progress.wordId }
+                    CraftCard(style: .elevated) {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftText(
+                                    Self.wordTitle(for: progress.wordId),
+                                    style: .headline,
+                                    color: theme.colors.textPrimary
+                                )
+
+                                Spacer()
+
+                                CraftBadge(
+                                    Self.inputModeBadgeTitle(for: progress.inputMode),
+                                    tone: .primary,
+                                    size: .sm
+                                )
+
+                                CraftBadge(
+                                    Self.stageTitle(for: progress.stage),
+                                    tone: Self.stageTone(for: progress.stage),
+                                    size: .sm
+                                )
+                            }
+
+                            if !matchingEvidence.isEmpty {
+                                ForEach(matchingEvidence, id: \.id) { item in
+                                    VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                                        HStack(spacing: theme.spacing.xs) {
+                                            CraftBadge(
+                                                Self.supportBadgeTitle(primed: item.primed),
+                                                tone: item.primed ? .warning : .success,
+                                                size: .sm
+                                            )
+
+                                            CraftText(
+                                                AppStrings.GuidedPractice.objectiveTitle(for: item.objectiveId),
+                                                style: .caption,
+                                                color: theme.colors.textSecondary
+                                            )
+                                        }
+
+                                        if let quoted = Self.formattedQuotedSpan(for: item) {
+                                            CraftText(
+                                                verbatim: quoted,
+                                                style: .bodyMedium,
+                                                color: theme.colors.brandPrimary
+                                            )
+                                        }
+                                    }
+                                    .padding(.top, theme.spacing.xxs)
+                                }
+                            }
+                        }
+                    }
                 }
             } else {
                 ForEach(relevantEvidence, id: \.id) { item in
@@ -273,10 +333,12 @@ public struct PracticeSummaryView: View {
         }
         .padding(.top, theme.spacing.sm)
     }
+}
 
-    // MARK: - Presentation Logic & Pure Transformation Helpers
+// MARK: - Presentation Logic & Pure Transformation Helpers
 
-    public nonisolated static func objectiveStatus(
+public extension PracticeSummaryView {
+    nonisolated static func objectiveStatus(
         for result: PracticeObjectiveResult,
         sessionStatus: PracticeSessionStatus
     ) -> PracticeObjectiveDisplayStatus {
@@ -291,7 +353,7 @@ public struct PracticeSummaryView: View {
         }
     }
 
-    public nonisolated static func inputModeBadgeTitle(for mode: PracticeInputMode) -> LocalizedStringKey {
+    nonisolated static func inputModeBadgeTitle(for mode: PracticeInputMode) -> LocalizedStringKey {
         switch mode {
         case .voice:
             return AppStrings.GuidedPractice.modeVoice
@@ -302,16 +364,40 @@ public struct PracticeSummaryView: View {
         }
     }
 
-    public nonisolated static func supportBadgeTitle(primed: Bool) -> LocalizedStringKey {
+    nonisolated static func supportBadgeTitle(primed: Bool) -> LocalizedStringKey {
         primed ? AppStrings.GuidedPractice.supportPrimed : AppStrings.GuidedPractice.supportIndependent
     }
 
-    public nonisolated static func formattedQuotedSpan(for evidence: WordUseEvidence) -> String? {
+    nonisolated static func stageTitle(for stage: CommunicationStage) -> LocalizedStringKey {
+        switch stage {
+        case .noEvidence:
+            return AppStrings.GuidedPractice.stageNoEvidence
+        case .practicing:
+            return AppStrings.GuidedPractice.stagePracticing
+        case .independentFamiliar:
+            return AppStrings.GuidedPractice.stageIndependentFamiliar
+        case .transferred:
+            return AppStrings.GuidedPractice.stageTransferred
+        }
+    }
+
+    nonisolated static func stageTone(for stage: CommunicationStage) -> CraftBadgeTone {
+        switch stage {
+        case .noEvidence:
+            return .neutral
+        case .practicing:
+            return .warning
+        case .independentFamiliar, .transferred:
+            return .success
+        }
+    }
+
+    nonisolated static func formattedQuotedSpan(for evidence: WordUseEvidence) -> String? {
         guard let span = evidence.quotedSpan, !span.isEmpty else { return nil }
         return "\"\(span)\""
     }
 
-    public nonisolated static func wordTitle(for wordId: Int64) -> LocalizedStringKey {
+    nonisolated static func wordTitle(for wordId: Int64) -> LocalizedStringKey {
         AppStrings.GuidedPractice.wordLabel(for: wordId)
     }
 }
