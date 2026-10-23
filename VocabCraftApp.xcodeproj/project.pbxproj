@@ -58,6 +58,8 @@
 		30003A8000010001 /* PracticeSpeechProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A8000010001 /* PracticeSpeechProtocol.swift */; };
 		30003A8000010002 /* PracticeSpeechAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A8000010002 /* PracticeSpeechAdapter.swift */; };
 		30003A8000010003 /* PracticeSpeechAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A8000010003 /* PracticeSpeechAdapterTests.swift */; };
+		30003A9000010001 /* PracticeSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003A9000010001 /* PracticeSessionCoordinator.swift */; };
+		30003A9000010002 /* PracticeSessionCoordinatorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003A9000010002 /* PracticeSessionCoordinatorTests.swift */; };
 		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
@@ -586,6 +588,8 @@
 		20003A8000010001 /* PracticeSpeechProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSpeechProtocol.swift"; sourceTree = "<group>"; };
 		20003A8000010002 /* PracticeSpeechAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSpeechAdapter.swift"; sourceTree = "<group>"; };
 		20003A8000010003 /* PracticeSpeechAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSpeechAdapterTests.swift"; sourceTree = "<group>"; };
+		20003A9000010001 /* PracticeSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSessionCoordinator.swift"; sourceTree = "<group>"; };
+		20003A9000010002 /* PracticeSessionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSessionCoordinatorTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1659,11 +1663,20 @@
 		40009832B6EBBEFE8B72 /* AIAssistant */ = {
 			isa = PBXGroup;
 			children = (
+				40003A9000020000 /* GuidedPractice */,
 				4000569EA1BE2D9DD721 /* Services */,
 				400096855B20125568DD /* ViewModels */,
 				400077F7E07D3729FF5D /* Views */,
 			);
 			path = "AIAssistant";
+			sourceTree = "<group>";
+		};
+		40003A9000020000 /* GuidedPractice */ = {
+			isa = PBXGroup;
+			children = (
+				20003A9000010001 /* PracticeSessionCoordinator.swift */,
+			);
+			path = "GuidedPractice";
 			sourceTree = "<group>";
 		};
 		4000569EA1BE2D9DD721 /* Services */ = {
@@ -2196,6 +2209,7 @@
 		40003A1000020000 /* GuidedPractice */ = {
 			isa = PBXGroup;
 			children = (
+				20003A9000010002 /* PracticeSessionCoordinatorTests.swift */,
 				20003A8000010003 /* PracticeSpeechAdapterTests.swift */,
 				40003A7000010000 /* Fixtures */,
 				20003A7000010004 /* PracticeAIAdapterTests.swift */,
@@ -2687,6 +2701,7 @@
 				30003A7000010003 /* AssessPracticeTurnUseCase.swift in Sources */,
 				30003A8000010001 /* PracticeSpeechProtocol.swift in Sources */,
 				30003A8000010002 /* PracticeSpeechAdapter.swift in Sources */,
+				30003A9000010001 /* PracticeSessionCoordinator.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -3154,6 +3169,7 @@
 				30003A7000010004 /* PracticeAIAdapterTests.swift in Test Sources */,
 				30003A7000010005 /* PracticeAssessmentTests.swift in Test Sources */,
 				30003A8000010003 /* PracticeSpeechAdapterTests.swift in Test Sources */,
+				30003A9000010002 /* PracticeSessionCoordinatorTests.swift in Test Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
