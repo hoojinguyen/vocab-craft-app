@@ -10,6 +10,7 @@ import SwiftUI
 struct VocabCraftApp: App {
     @State private var themeManager = CraftThemeManager.shared
     @State private var bootstrapper = AppBootstrapper()
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {}
 
@@ -58,6 +59,11 @@ struct VocabCraftApp: App {
             }
             .onOpenURL { url in
                 bootstrapper.appContainer?.appRouter.handleDeepLink(url: url)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .background,
+                      let refresh = bootstrapper.appContainer?.refreshWidgetDeckUseCase else { return }
+                Task { await refresh.execute() }
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)

@@ -31,6 +31,7 @@ public final class AppContainer {
 
     public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
     public let completeLessonUseCase: CompleteLessonUseCaseProtocol
+    public let refreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol
     public let claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol
     public let fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol
 
@@ -58,6 +59,7 @@ public final class AppContainer {
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
+        refreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtocol? = nil,
         claimTreasureRewardUseCase: ClaimTreasureRewardUseCaseProtocol? = nil,
         fastTrackUnitUseCase: FastTrackUnitUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
@@ -137,14 +139,28 @@ public final class AppContainer {
         )
 
         // Learning Path Use Cases
-        self.fetchLearningPathUseCase = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
+        let resolvedFetchLearningPath: FetchLearningPathUseCaseProtocol = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
             dataSource: resolvedDataSource,
             stageRepo: resolvedStageRepo,
             userSettings: effectiveUserSettingsStore
         )
-        self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
-            stageRepo: resolvedStageRepo,
-            progressRepo: resolvedUserProgressRepo
+        self.fetchLearningPathUseCase = resolvedFetchLearningPath
+        // Constructing is side-effect free; the App Group is only touched when execute() runs.
+        let resolvedRefreshWidgetDeck: RefreshWidgetDeckUseCaseProtocol = refreshWidgetDeckUseCase ?? RefreshWidgetDeckUseCase(
+            fetchLearningPath: resolvedFetchLearningPath,
+            progressRepository: resolvedUserProgressRepo,
+            dataSource: resolvedDataSource,
+            store: .appGroup(),
+            reloader: WidgetCenterReloader()
+        )
+        self.refreshWidgetDeckUseCase = resolvedRefreshWidgetDeck
+        // Only the production default is decorated; injected use cases stay untouched so tests have no widget side effects.
+        self.completeLessonUseCase = completeLessonUseCase ?? WidgetRefreshingCompleteLessonUseCase(
+            wrapped: CompleteLessonUseCase(
+                stageRepo: resolvedStageRepo,
+                progressRepo: resolvedUserProgressRepo
+            ),
+            refresh: resolvedRefreshWidgetDeck
         )
         self.claimTreasureRewardUseCase = claimTreasureRewardUseCase ?? ClaimTreasureRewardUseCase(
             stageRepo: resolvedStageRepo

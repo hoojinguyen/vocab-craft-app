@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */; };
+		30003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */; };
 		30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */; };
 		30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010007 /* RefreshWidgetDeckUseCase.swift */; };
 		30003B7000010006 /* WidgetReloading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003B7000010006 /* WidgetReloading.swift */; };
@@ -567,6 +569,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetRefreshingCompleteLessonUseCaseTests.swift"; sourceTree = "<group>"; };
+		20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetRefreshingCompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCaseTests.swift"; sourceTree = "<group>"; };
 		20003B7000010007 /* RefreshWidgetDeckUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RefreshWidgetDeckUseCase.swift"; sourceTree = "<group>"; };
 		20003B7000010006 /* WidgetReloading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReloading.swift"; sourceTree = "<group>"; };
@@ -1244,6 +1248,7 @@
 				20003B7000010004 /* WidgetDeckComposer.swift */,
 				20003B7000010006 /* WidgetReloading.swift */,
 				20003B7000010007 /* RefreshWidgetDeckUseCase.swift */,
+				20003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2560,6 +2565,7 @@
 				20003B7000010003 /* WidgetDeckStoreTests.swift */,
 				20003B7000010005 /* WidgetDeckComposerTests.swift */,
 				20003B7000010008 /* RefreshWidgetDeckUseCaseTests.swift */,
+				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
 			);
 			path = "Widget";
 			sourceTree = "<group>";
@@ -2870,6 +2876,7 @@
 				30003B7000010004 /* WidgetDeckComposer.swift in Sources */,
 				30003B7000010006 /* WidgetReloading.swift in Sources */,
 				30003B7000010007 /* RefreshWidgetDeckUseCase.swift in Sources */,
+				30003B7000010009 /* WidgetRefreshingCompleteLessonUseCase.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
@@ -3265,6 +3272,7 @@
 				30003B7000030003 /* WidgetDeckStoreTests.swift in Test Sources */,
 				30003B7000030005 /* WidgetDeckComposerTests.swift in Test Sources */,
 				30003B7000030008 /* RefreshWidgetDeckUseCaseTests.swift in Test Sources */,
+				30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
 				30005E3A3F7D00000003 /* YouTubePlayerBridgeTests.swift in Test Sources */,
