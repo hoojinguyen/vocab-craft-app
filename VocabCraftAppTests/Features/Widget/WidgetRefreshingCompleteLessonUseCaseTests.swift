@@ -20,6 +20,12 @@ private final class SpyRefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtoco
         return _count
     }
 
+    var isEmpty: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return _count < 1
+    }
+
     func execute() async {
         lock.lock()
         _count += 1
@@ -29,7 +35,7 @@ private final class SpyRefreshWidgetDeckUseCase: RefreshWidgetDeckUseCaseProtoco
 }
 
 @Suite("WidgetRefreshingCompleteLessonUseCase")
-struct WidgetRefreshingCompleteLessonUseCaseTests {
+struct RefreshingCompleteLessonTests {
     @Test("refreshes after successful lesson")
     func refreshesAfterSuccessfulLesson() async throws {
         let wrapped = MockCompleteLessonUseCase()
@@ -89,6 +95,6 @@ struct WidgetRefreshingCompleteLessonUseCaseTests {
             )
         }
         try await Task.sleep(for: .milliseconds(200))
-        #expect(spy.count == 0)
+        #expect(spy.isEmpty)
     }
 }

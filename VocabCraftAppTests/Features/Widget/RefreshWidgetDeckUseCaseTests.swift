@@ -169,10 +169,12 @@ private struct MockProgressRepo: UserProgressRepositoryProtocol {
     func recordBatchLessonResults(
         practicedWordIds: [Int64], weakWordIds: Set<Int64>, stageId: String?, deckId: String?, cefrLevel: String?
     ) async throws {}
+    // swiftlint:disable:next function_parameter_count
     func recordDrillResult(
         wordId: Int64, isCorrect: Bool, newStreak: Int, newModes: Set<ReflexBlitzMode>,
         isMastered: Bool, modeStats: ModeSuccessStats?
     ) async throws {}
+    // swiftlint:disable:next function_parameter_count
     func saveProgress(
         wordId: Int64, cefrLevel: String, masteryLevel: Int, isBookmarked: Bool, needsReview: Bool,
         mistakeCount: Int, sourceDeckId: String?, sourceNodeId: String?
