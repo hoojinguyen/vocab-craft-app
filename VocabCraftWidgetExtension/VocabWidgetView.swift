@@ -12,14 +12,14 @@ public struct VocabWidgetView: View {
     public var entry: VocabWidgetEntry
 
     /// Data punctuation, not a user-facing word.
-    static let maskToken = "_____"
+    nonisolated static let maskToken = "_____"
 
     public init(entry: VocabWidgetEntry) {
         self.entry = entry
     }
 
     /// Replaces every case-insensitive occurrence of `lemma` in `example` with the mask token.
-    static func maskedExample(_ example: String, lemma: String) -> String {
+    nonisolated static func maskedExample(_ example: String, lemma: String) -> String {
         guard !lemma.isEmpty else { return example }
         return example.replacingOccurrences(of: lemma, with: maskToken, options: .caseInsensitive)
     }
@@ -53,7 +53,7 @@ public struct VocabWidgetView: View {
         entry.mode == .flashcardFront || entry.mode == .flashcardBack
     }
 
-    private func showsBack(_ card: WidgetCard) -> Bool {
+    private var showsBack: Bool {
         entry.mode != .flashcardFront
     }
 
@@ -63,9 +63,9 @@ public struct VocabWidgetView: View {
         Group {
             switch card.source {
             case .upcoming:
-                CraftBadge("app.widget.badge.new", symbol: .sparkles, tone: .primary, size: .sm)
+                CraftBadge(LocalizedStringKey("app.widget.badge.new"), symbol: .sparkles, tone: .primary, size: .sm)
             case .recent, .due:
-                CraftBadge("app.widget.badge.review", symbol: .refresh, tone: .success, size: .sm)
+                CraftBadge(LocalizedStringKey("app.widget.badge.review"), symbol: .refresh, tone: .success, size: .sm)
             }
         }
         .widgetAccentable()
@@ -94,8 +94,12 @@ public struct VocabWidgetView: View {
             .lineLimit(lines)
     }
 
+    private var dueCountString: String {
+        String(format: String(localized: "app.widget.due_count_format"), entry.dueCount)
+    }
+
     private var dueCountText: some View {
-        Text(verbatim: String(format: String(localized: "app.widget.due_count_format"), entry.dueCount))
+        Text(verbatim: dueCountString)
             .font(theme.typography.caption)
             .foregroundStyle(theme.colors.textSecondary)
             .lineLimit(1)
@@ -179,12 +183,16 @@ public struct VocabWidgetView: View {
                 gradeButtons(card, showsTitle: false)
             } else if entry.mode == .flashcardFront {
                 ipaText(card)
+                Text("app.widget.hidden_meaning")
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textMuted)
+                    .lineLimit(2)
                 Spacer(minLength: 0)
                 dueCountText
                 revealButton(card)
             } else {
                 ipaText(card)
-                definitionText(card, lines: 3)
+                definitionText(card, lines: 2)
                 Spacer(minLength: 0)
             }
         }
@@ -201,7 +209,7 @@ public struct VocabWidgetView: View {
                 Spacer(minLength: 0)
                 badge(card)
             }
-            if showsBack(card) {
+            if showsBack {
                 definitionText(card, lines: 2)
             }
             if !card.exampleEn.isEmpty {
@@ -253,9 +261,14 @@ public struct VocabWidgetView: View {
                     .font(theme.typography.caption)
                     .lineLimit(2)
             } else {
+                if entry.mode == .passive {
+                    Text(card.ipa)
+                        .font(theme.typography.caption)
+                        .lineLimit(1)
+                }
                 Text(card.definitionVi)
                     .font(theme.typography.caption)
-                    .lineLimit(2)
+                    .lineLimit(entry.mode == .passive ? 1 : 2)
             }
             if isFlashcard {
                 Text("app.widget.lock.open_to_review")
@@ -269,10 +282,10 @@ public struct VocabWidgetView: View {
 
     @ViewBuilder
     private func inlineView(_ card: WidgetCard) -> some View {
-        if entry.mode == .flashcardFront {
-            Text(card.lemma)
+        if isFlashcard {
+            Text(verbatim: dueCountString)
         } else {
-            Text("\(card.lemma): \(card.definitionVi)")
+            Text(verbatim: "\(card.lemma): \(card.definitionVi)")
         }
     }
     #endif
