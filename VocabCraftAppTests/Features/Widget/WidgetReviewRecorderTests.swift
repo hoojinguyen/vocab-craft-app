@@ -9,9 +9,8 @@ import Testing
 struct WidgetReviewRecorderTests {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-    private func makeContext() throws -> ModelContext {
-        let container = try SharedAppGroupContainer.createContainer(inMemory: true)
-        return container.mainContext
+    private func makeContainer() throws -> ModelContainer {
+        try SharedAppGroupContainer.createContainer(inMemory: true)
     }
 
     @discardableResult
@@ -41,7 +40,9 @@ struct WidgetReviewRecorderTests {
 
     @Test("dueStatusSplitsDueAndNext")
     func dueStatusSplitsDueAndNext() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         try insertRow(1, nextReview: now.addingTimeInterval(-60), in: context)
         try insertRow(2, nextReview: now.addingTimeInterval(3_600), in: context)
 
@@ -53,7 +54,9 @@ struct WidgetReviewRecorderTests {
 
     @Test("rememberedAdvancesSchedule")
     func rememberedAdvancesSchedule() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let row = try insertRow(1, mastery: 1, nextReview: now.addingTimeInterval(-60), in: context)
 
         let applied = try WidgetReviewRecorder.grade(
@@ -71,7 +74,9 @@ struct WidgetReviewRecorderTests {
 
     @Test("forgotResetsAndFlags")
     func forgotResetsAndFlags() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let row = try insertRow(1, mastery: 3, nextReview: now.addingTimeInterval(-60), in: context)
         row.consecutiveCorrectStreak = 2
         let mistakesBefore = row.mistakeCount
@@ -101,7 +106,9 @@ struct WidgetReviewRecorderTests {
         )
         #expect(fast.easeFactor != slow.easeFactor)
 
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let fastRow = try insertRow(1, nextReview: now, in: context)
         let slowRow = try insertRow(2, nextReview: now, in: context)
 
@@ -118,7 +125,9 @@ struct WidgetReviewRecorderTests {
 
     @Test("gradeWithoutRevealIsRejected")
     func gradeWithoutRevealIsRejected() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let row = try insertRow(1, nextReview: now.addingTimeInterval(-60), in: context)
 
         let applied = try WidgetReviewRecorder.grade(
@@ -133,7 +142,9 @@ struct WidgetReviewRecorderTests {
 
     @Test("missingProgressInsertsNothing")
     func missingProgressInsertsNothing() throws {
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         try insertRow(1, nextReview: now, in: context)
 
         let applied = try WidgetReviewRecorder.grade(
@@ -148,7 +159,9 @@ struct WidgetReviewRecorderTests {
     func gradeAppliesAfterDeckRebuilt() throws {
         // The interaction state is independent of the deck: grading must work
         // even when no deck exists (e.g. the app rebuilt/cleared it meanwhile).
-        let context = try makeContext()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
         let row = try insertRow(1, mastery: 1, nextReview: now.addingTimeInterval(-60), in: context)
 
         let applied = try WidgetReviewRecorder.grade(
