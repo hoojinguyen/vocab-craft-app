@@ -14,6 +14,7 @@ public final class PracticeSessionCoordinator {
     public internal(set) var currentSupport: PracticeSupportLevel = .none
     public internal(set) var currentInputMode: PracticeInputMode = .voice
     public internal(set) var summary: PracticeSummary?
+    public internal(set) var sessionEvidence: [WordUseEvidence] = []
     public internal(set) var failure: PracticeFailure?
     public var activeTurnText: String = ""
     public internal(set) var characterReply: String = ""
@@ -204,6 +205,28 @@ public final class PracticeSessionCoordinator {
         self.state = .paused
     }
 
+    /// Resumes the practice session from .paused state into .awaitingLearner.
+    public func resume() {
+        guard state == .paused else { return }
+        self.state = .awaitingLearner
+    }
+
+    /// Replays character speech utterance using speech synthesizer if supported.
+    public func replaySpeech(text: String) async {
+        guard state != .processing, state != .capturing else { return }
+        let speechCapability = speech.capability()
+        guard speechCapability.canPlaySpeech, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let voice = VoiceConfiguration(gender: .female, style: .friendly)
+        let stream = speech.play(text: text, voice: voice)
+        do {
+            for try await event in stream {
+                if case .playbackFinished = event { break }
+            }
+        } catch {
+            // Replay error non-fatal
+        }
+    }
+
     /// Switches the active input modality without mutating past turns or initial session input mode.
     public func switchInput(to mode: PracticeInputMode) async {
         guard currentInputMode != mode else { return }
@@ -256,6 +279,9 @@ public final class PracticeSessionCoordinator {
                 completion: completion,
                 expectedRevision: session.revision
             )
+            if self.sessionEvidence.isEmpty, let repoEvidence = try? await repository.evidence() {
+                self.sessionEvidence = repoEvidence.filter { $0.sessionId == session.id }
+            }
             self.summary = finalSummary
             self.state = (completion == .completed) ? .completed : .partial
             return finalSummary
@@ -272,6 +298,7 @@ extension PracticeSessionCoordinator {
     internal func resetState(mode: PracticeInputMode = .voice) {
         self.failure = nil
         self.summary = nil
+        self.sessionEvidence = []
         self.activeTurnText = ""
         self.characterReply = ""
         self.coachFeedback = nil
@@ -438,6 +465,12 @@ extension PracticeSessionCoordinator {
             self.characterReply = aiResponse.characterReply
             self.coachFeedback = aiResponse.coachFeedback
             self.activeTurnText = ""
+            self.sessionEvidence.removeAll { existingEvidence in
+                assessment.evidence.contains { newEvidence in
+                    newEvidence.wordId == existingEvidence.wordId && newEvidence.turnId == existingEvidence.turnId
+                }
+            }
+            self.sessionEvidence.append(contentsOf: assessment.evidence)
             return true
         } catch {
             guard self.activeOperationToken == token else { return false }
@@ -450,7 +483,24 @@ extension PracticeSessionCoordinator {
     internal func playCharacterSpeechIfSupported(reply: String, token: PracticeOperationToken) async {
         guard self.activeOperationToken == token else { return }
         let speechCapability = speech.capability()
-        guard speechCapability.canPlaySpeech, !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        guard speechCapability.canPlaySpeech, currentInputMode == .voice, !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            // Register visual intent for characterReply in typed mode or when TTS disabled
+            if let session = self.session {
+                let matchedWordIds = findTargetWordIds(in: reply, mission: session.missionSnapshot)
+                if !matchedWordIds.isEmpty {
+                    if let visualIntent = await preparePresentation(
+                        content: reply,
+                        channel: .visual,
+                        origin: .characterSpeech,
+                        wordIds: matchedWordIds,
+                        level: .lexical
+                    ) {
+                        await confirmPresented(intentId: visualIntent.id, at: clock.now())
+                    }
+                }
+            }
+            return
+        }
 
         var speechIntent: PracticePresentationIntent?
         if let session = self.session {
@@ -463,6 +513,8 @@ extension PracticeSessionCoordinator {
                     wordIds: matchedWordIds,
                     level: .lexical
                 )
+                // Deferred requirement from Task 10: Skip audio playback if matched target words failed to prepare speech presentation intent
+                guard speechIntent != nil else { return }
             }
         }
 

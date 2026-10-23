@@ -189,5 +189,101 @@ extension AppStrings {
             let fallback = id.replacingOccurrences(of: "_", with: " ").capitalized
             return Bundle.module.localizedString(forKey: key, value: fallback, table: nil)
         }
+
+        // MARK: - Session Controls & Interaction
+
+        public static var sessionPause: LocalizedStringKey { "app.ai_assistant.guided.session.pause" }
+        public static var sessionResume: LocalizedStringKey { "app.ai_assistant.guided.session.resume" }
+        public static var sessionPausedBadge: LocalizedStringKey { "app.ai_assistant.guided.session.paused_badge" }
+        public static var sessionPausedBadgeText: String {
+            String(localized: "app.ai_assistant.guided.session.paused_badge", defaultValue: "Paused", bundle: .module)
+        }
+        public static var sessionPausedMessage: LocalizedStringKey { "app.ai_assistant.guided.session.paused_message" }
+        public static var sessionCloseTitle: LocalizedStringKey { "app.ai_assistant.guided.session.close_title" }
+        public static var sessionCloseMessage: LocalizedStringKey { "app.ai_assistant.guided.session.close_message" }
+        public static var sessionCloseConfirm: LocalizedStringKey { "app.ai_assistant.guided.session.close_confirm" }
+        public static var sessionCloseCancel: LocalizedStringKey { "app.ai_assistant.guided.session.close_cancel" }
+        public static var sessionListening: LocalizedStringKey { "app.ai_assistant.guided.session.listening" }
+        public static var sessionProcessing: LocalizedStringKey { "app.ai_assistant.guided.session.processing" }
+        public static var sessionProcessingText: String {
+            String(localized: "app.ai_assistant.guided.session.processing", defaultValue: "Processing response...", bundle: .module)
+        }
+        public static var sessionTapToSpeak: LocalizedStringKey { "app.ai_assistant.guided.session.tap_to_speak" }
+        public static var sessionTapToSpeakText: String {
+            String(localized: "app.ai_assistant.guided.session.tap_to_speak", defaultValue: "Tap to speak", bundle: .module)
+        }
+        public static var sessionTapToFinish: LocalizedStringKey { "app.ai_assistant.guided.session.tap_to_finish" }
+        public static var sessionTapToFinishText: String {
+            String(localized: "app.ai_assistant.guided.session.tap_to_finish", defaultValue: "Tap to finish", bundle: .module)
+        }
+        public static var sessionInputPlaceholder: LocalizedStringKey { "app.ai_assistant.guided.session.input_placeholder" }
+        public static var sessionSend: LocalizedStringKey { "app.ai_assistant.guided.session.send" }
+        public static var sessionReplayAudio: LocalizedStringKey { "app.ai_assistant.guided.session.replay_audio" }
+        public static var sessionEditTranscript: LocalizedStringKey { "app.ai_assistant.guided.session.edit_transcript" }
+        public static var sessionEditTranscriptTitle: LocalizedStringKey { "app.ai_assistant.guided.session.edit_transcript_title" }
+        public static var sessionEditTranscriptSave: LocalizedStringKey { "app.ai_assistant.guided.session.edit_transcript_save" }
+        public static var sessionEditTranscriptCancel: LocalizedStringKey { "app.ai_assistant.guided.session.edit_transcript_cancel" }
+        public static var sessionCoachNote: LocalizedStringKey { "app.ai_assistant.guided.session.coach_feedback_title" }
+
+        // MARK: - Scaffolding & Assistance
+
+        public static var scaffoldingDrawerTitle: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.drawer_title" }
+        public static var helpButton: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.help_button" }
+        public static var fullModelButton: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.full_model_button" }
+        public static var retryLessSupport: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.retry_less_support" }
+        public static var supportNone: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.level_none" }
+        public static var supportIntent: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.level_intent" }
+        public static var supportLexical: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.level_lexical" }
+        public static var supportFrame: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.level_frame" }
+        public static var supportModel: LocalizedStringKey { "app.ai_assistant.guided.scaffolding.level_model" }
+
+        // MARK: - Summary & Retrospective
+
+        public static var summaryTitle: LocalizedStringKey { "app.ai_assistant.guided.summary.title" }
+        public static var summarySubtitle: LocalizedStringKey { "app.ai_assistant.guided.summary.subtitle" }
+        public static var summaryUnsavedBadge: LocalizedStringKey { "app.ai_assistant.guided.summary.unsaved_badge" }
+        public static var summaryUnsavedMessage: LocalizedStringKey { "app.ai_assistant.guided.summary.unsaved_message" }
+        public static var summaryObjectivesTitle: LocalizedStringKey { "app.ai_assistant.guided.summary.objectives_title" }
+        public static var summaryEvidenceTitle: LocalizedStringKey { "app.ai_assistant.guided.summary.evidence_title" }
+        public static var summaryEmptyEvidence: LocalizedStringKey { "app.ai_assistant.guided.summary.empty_evidence" }
+        public static var summaryContinue: LocalizedStringKey { "app.ai_assistant.guided.summary.continue" }
+        public static var summaryDeleteSession: LocalizedStringKey { "app.ai_assistant.guided.summary.delete_session" }
+        public static var summaryDeleteConfirmTitle: LocalizedStringKey { "app.ai_assistant.guided.summary.delete_confirm_title" }
+        public static var summaryDeleteConfirmMessage: LocalizedStringKey { "app.ai_assistant.guided.summary.delete_confirm_message" }
+        public static var summaryDeleteConfirmAction: LocalizedStringKey { "app.ai_assistant.guided.summary.delete_confirm_action" }
+        public static var summaryStatusCompleted: LocalizedStringKey { "app.ai_assistant.guided.summary.status_completed" }
+        public static var summaryStatusPartial: LocalizedStringKey { "app.ai_assistant.guided.summary.status_partial" }
+
+        // MARK: - Verdicts & Badges
+
+        public static var statusAchieved: LocalizedStringKey { "app.ai_assistant.guided.status.achieved" }
+        public static var statusNotYet: LocalizedStringKey { "app.ai_assistant.guided.status.not_yet" }
+        public static var statusNotObserved: LocalizedStringKey { "app.ai_assistant.guided.status.not_observed" }
+
+        // MARK: - Input Modes
+
+        public static var modeVoice: LocalizedStringKey { "app.ai_assistant.guided.mode.voice" }
+        public static var modeTyped: LocalizedStringKey { "app.ai_assistant.guided.mode.typed" }
+        public static var modeEdited: LocalizedStringKey { "app.ai_assistant.guided.mode.edited" }
+
+        // MARK: - Support Status
+
+        public static var supportPrimed: LocalizedStringKey { "app.ai_assistant.guided.support.primed" }
+        public static var supportIndependent: LocalizedStringKey { "app.ai_assistant.guided.support.independent" }
+
+        // MARK: - Context Family
+
+        public static var contextDining: LocalizedStringKey { "app.ai_assistant.guided.context.dining" }
+        public static var contextShopping: LocalizedStringKey { "app.ai_assistant.guided.context.shopping" }
+        public static var contextPlanning: LocalizedStringKey { "app.ai_assistant.guided.context.planning" }
+        public static var contextSocial: LocalizedStringKey { "app.ai_assistant.guided.context.social" }
+        public static var contextTravel: LocalizedStringKey { "app.ai_assistant.guided.context.travel" }
+        public static var contextWork: LocalizedStringKey { "app.ai_assistant.guided.context.work" }
+
+        // MARK: - Word Label Helper
+
+        public static func wordLabel(for wordId: Int64) -> LocalizedStringKey {
+            LocalizedStringKey("app.ai_assistant.guided.word.format \(wordId)")
+        }
     }
 }
