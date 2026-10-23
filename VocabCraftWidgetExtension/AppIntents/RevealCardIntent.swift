@@ -8,8 +8,9 @@ import VocabCraftApp
 public struct RevealCardIntent: AppIntent {
     public static let title: LocalizedStringResource = "app.widget.intent.reveal.title"
     public static let description = IntentDescription("app.widget.intent.reveal.description")
+    public static let isDiscoverable = false
 
-    @Parameter(title: "Word")
+    @Parameter(title: "app.widget.intent.param.word")
     public var wordId: Int
 
     public init() {}

@@ -20,7 +20,9 @@ struct WidgetLocalizationTests {
             "app.widget.intent.reveal.title",
             "app.widget.intent.reveal.description",
             "app.widget.intent.grade.title",
-            "app.widget.intent.grade.description"
+            "app.widget.intent.grade.description",
+            "app.widget.intent.param.word",
+            "app.widget.intent.param.remembered"
         ]
         for key in keys {
             let englishValue = String(localized: String.LocalizationValue(key), locale: Locale(identifier: "en"))

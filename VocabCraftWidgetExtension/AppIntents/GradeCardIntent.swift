@@ -11,11 +11,12 @@ import VocabCraftApp
 public struct GradeCardIntent: AppIntent {
     public static let title: LocalizedStringResource = "app.widget.intent.grade.title"
     public static let description = IntentDescription("app.widget.intent.grade.description")
+    public static let isDiscoverable = false
 
-    @Parameter(title: "Word")
+    @Parameter(title: "app.widget.intent.param.word")
     public var wordId: Int
 
-    @Parameter(title: "Remembered")
+    @Parameter(title: "app.widget.intent.param.remembered")
     public var remembered: Bool
 
     public init() {}
@@ -46,6 +47,8 @@ public struct GradeCardIntent: AppIntent {
     public func perform() async throws -> some IntentResult {
         if let container = WidgetContainerHolder.sharedContainer {
             try perform(store: .appGroup(), context: ModelContext(container), now: Date())
+        } else {
+            print("[GradeCardIntent] shared container unavailable; grade dropped")
         }
         WidgetCenter.shared.reloadTimelines(ofKind: WidgetKind.vocab)
         return .result()

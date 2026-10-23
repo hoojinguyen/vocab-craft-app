@@ -10286,6 +10286,40 @@
         }
       }
     },
+    "app.widget.intent.param.remembered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remembered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhớ"
+          }
+        }
+      }
+    },
+    "app.widget.intent.param.word": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ"
+          }
+        }
+      }
+    },
     "app.widget.intent.reveal.description": {
       "extractionState": "manual",
       "localizations": {

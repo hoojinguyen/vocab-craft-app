@@ -9,6 +9,7 @@ import WidgetKit
 public struct VocabWidgetView: View {
     @Environment(\.widgetFamily) private var family
     @Environment(\.craftTheme) private var theme
+    @Environment(\.widgetRenderingMode) private var renderingMode
     public var entry: VocabWidgetEntry
 
     /// Data punctuation, not a user-facing word.
@@ -122,7 +123,11 @@ public struct VocabWidgetView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, theme.spacing.xs)
-        .background(theme.colors.surfaceSubtle, in: RoundedRectangle(cornerRadius: theme.radius.md))
+        .background {
+            if renderingMode == .fullColor {
+                RoundedRectangle(cornerRadius: theme.radius.md).fill(theme.colors.surfaceSubtle)
+            }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(key))
     }
@@ -261,7 +266,7 @@ public struct VocabWidgetView: View {
                     .font(theme.typography.caption)
                     .lineLimit(2)
             } else {
-                if entry.mode == .passive {
+                if entry.mode == .passive, !card.ipa.isEmpty {
                     Text(card.ipa)
                         .font(theme.typography.caption)
                         .lineLimit(1)
