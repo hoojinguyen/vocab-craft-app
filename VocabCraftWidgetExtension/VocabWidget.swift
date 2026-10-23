@@ -19,7 +19,7 @@ public enum WidgetContainerHolder {
 }
 #endif
 
-public struct VocabWidgetProvider: TimelineProvider {
+public struct VocabWidgetProvider: TimelineProvider, Sendable {
     private let store: WidgetDeckStore
     #if canImport(SwiftDataMacros) || canImport(SwiftData)
     private let container: ModelContainer?
@@ -44,6 +44,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
+        // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
         nonisolated(unsafe) let done = completion
         Task { @MainActor in
             let now = Date()
@@ -53,6 +54,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
+        // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
         nonisolated(unsafe) let done = completion
         Task { @MainActor in
             done(makeTimeline(now: Date()))
