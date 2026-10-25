@@ -19,6 +19,7 @@ public struct VocabWidgetView: View {
 
     public var body: some View {
         content
+            .environment(\.colorScheme, WidgetAppearance.colorScheme(for: renderingMode, system: colorScheme))
             .containerBackground(for: .widget) { WidgetBackground(entry: entry, family: family) }
     }
 
@@ -51,7 +52,7 @@ public struct VocabWidgetView: View {
     // MARK: Empty
 
     private var emptyView: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
         return VStack(spacing: theme.spacing.sm) {
             CraftIcon(.sparkles, size: .lg, color: palette.isFullColor ? theme.colors.accent : palette.foreground)
                 .widgetAccentable()
@@ -71,11 +72,10 @@ public struct VocabWidgetView: View {
     }
 }
 
-/// Gradient (full color) or card surface behind the widget content, with the faint depth glyph.
+/// Brand gradient with a bottom scrim (full color) or card surface behind the widget content, plus the faint depth glyph.
 struct WidgetBackground: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let family: WidgetFamily
@@ -88,6 +88,7 @@ struct WidgetBackground: View {
         if renderingMode == .fullColor {
             ZStack(alignment: .bottomTrailing) {
                 Rectangle().fill(theme.gradients.brandHero)
+                Rectangle().fill(theme.gradients.fadeBottom)
                 if let card = entry.card, entry.mode != .placeholder, isSystemFamily {
                     WidgetDepthGlyph(lemma: card.lemma, scale: family == .systemSmall ? 3 : 4)
                         .offset(x: theme.spacing.lg, y: theme.spacing.lg)

@@ -11,7 +11,6 @@ import WidgetKit
 struct WidgetRevealButton: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let wordId: Int64
 
@@ -61,7 +60,6 @@ struct WidgetGradeButtons: View {
 private struct WidgetLemmaText: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let lemma: String
     let font: Font
@@ -69,7 +67,7 @@ private struct WidgetLemmaText: View {
     var body: some View {
         Text(lemma)
             .font(font)
-            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme).foreground)
+            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode).foreground)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             .widgetAccentable()
@@ -79,7 +77,6 @@ private struct WidgetLemmaText: View {
 private struct WidgetDefinitionText: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let text: String
     let lines: Int
@@ -87,7 +84,7 @@ private struct WidgetDefinitionText: View {
     var body: some View {
         Text(text)
             .font(theme.typography.bodyMedium)
-            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme).foreground)
+            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode).foreground)
             .lineLimit(lines)
             .transition(.opacity)
     }
@@ -102,13 +99,12 @@ private func progressLabel(practiced: Int, total: Int) -> String {
 struct WidgetSmallView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let card: WidgetCard
 
     private var palette: WidgetPalette {
-        WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+        WidgetPalette(theme: theme, renderingMode: renderingMode)
     }
     private var progress: WidgetProgress.Snapshot {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
@@ -201,7 +197,6 @@ struct WidgetSmallView: View {
 struct WidgetMediumView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
-    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let card: WidgetCard
@@ -210,7 +205,7 @@ struct WidgetMediumView: View {
     private static let leftShare: CGFloat = 0.55
 
     private var palette: WidgetPalette {
-        WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+        WidgetPalette(theme: theme, renderingMode: renderingMode)
     }
     private var progress: WidgetProgress.Snapshot {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
