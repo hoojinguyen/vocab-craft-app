@@ -38,4 +38,18 @@ enum WidgetCardMeta {
         let trimmed = ipa.trimmingCharacters(in: .whitespacesAndNewlines)
         return (WidgetPartOfSpeech.abbreviationKey(for: partOfSpeech), trimmed.isEmpty ? nil : trimmed)
     }
+
+    /// Single plain-text line ("n. · /ipa/") for Lock Screen widgets, `nil` when there is nothing to show.
+    static func line(abbreviation: String?, ipa: String?) -> String? {
+        let parts = [abbreviation, ipa].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+}
+
+enum WidgetInlineText {
+    /// "lemma (n.): definition", dropping the part of speech when the card has none.
+    static func passive(lemma: String, abbreviation: String?, definition: String) -> String {
+        guard let abbreviation else { return "\(lemma): \(definition)" }
+        return "\(lemma) (\(abbreviation)): \(definition)"
+    }
 }

@@ -54,4 +54,16 @@ struct WidgetPresentationTests {
         #expect(WidgetProgress.showsPracticedFooter(0) == false)
         #expect(WidgetProgress.showsPracticedFooter(1) == true)
     }
+
+    @Test func inlineTextOmitsMissingPartOfSpeech() {
+        #expect(WidgetInlineText.passive(lemma: "run", abbreviation: "v.", definition: "chạy") == "run (v.): chạy")
+        #expect(WidgetInlineText.passive(lemma: "run", abbreviation: nil, definition: "chạy") == "run: chạy")
+    }
+
+    @Test func metaLineJoinsPresentParts() {
+        #expect(WidgetCardMeta.line(abbreviation: "n.", ipa: "/ab/") == "n. · /ab/")
+        #expect(WidgetCardMeta.line(abbreviation: nil, ipa: "/ab/") == "/ab/")
+        #expect(WidgetCardMeta.line(abbreviation: "n.", ipa: nil) == "n.")
+        #expect(WidgetCardMeta.line(abbreviation: nil, ipa: nil) == nil)
+    }
 }

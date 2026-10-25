@@ -55,9 +55,9 @@ public struct VocabWidgetView: View {
                     WidgetSmallView(entry: entry, card: card)
                 #if os(iOS)
                 case .accessoryRectangular:
-                    rectangularView(card)
+                    WidgetRectangularView(entry: entry, card: card)
                 case .accessoryInline:
-                    inlineView(card)
+                    WidgetInlineView(entry: entry, card: card)
                 #endif
                 default:
                     WidgetMediumView(entry: entry, card: card)
@@ -66,14 +66,6 @@ public struct VocabWidgetView: View {
             .id(card.wordId)
             .transition(.push(from: .trailing))
         }
-    }
-
-    private var isFlashcard: Bool {
-        entry.mode == .flashcardFront || entry.mode == .flashcardBack
-    }
-
-    private var dueCountString: String {
-        String(format: String(localized: "app.widget.due_count_format"), entry.dueCount)
     }
 
     // MARK: Empty
@@ -95,47 +87,4 @@ public struct VocabWidgetView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .widgetURL(URL(string: "vocabcraft://home"))
     }
-
-    #if os(iOS)
-    // MARK: Lock Screen
-
-    private func rectangularView(_ card: WidgetCard) -> some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-            Text(card.lemma)
-                .font(theme.typography.headline)
-                .lineLimit(1)
-                .widgetAccentable()
-            if entry.mode == .flashcardFront {
-                Text("app.widget.hidden_meaning")
-                    .font(theme.typography.caption)
-                    .lineLimit(2)
-            } else {
-                if entry.mode == .passive, !card.ipa.isEmpty {
-                    Text(card.ipa)
-                        .font(theme.typography.caption)
-                        .lineLimit(1)
-                }
-                Text(card.definitionVi)
-                    .font(theme.typography.caption)
-                    .lineLimit(entry.mode == .passive ? 1 : 2)
-            }
-            if isFlashcard {
-                Text("app.widget.lock.open_to_review")
-                    .font(theme.typography.caption)
-                    .lineLimit(1)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .widgetURL(isFlashcard ? URL(string: "vocabcraft://review") : nil)
-    }
-
-    @ViewBuilder
-    private func inlineView(_ card: WidgetCard) -> some View {
-        if isFlashcard {
-            Text(verbatim: dueCountString)
-        } else {
-            Text(verbatim: "\(card.lemma): \(card.definitionVi)")
-        }
-    }
-    #endif
 }
