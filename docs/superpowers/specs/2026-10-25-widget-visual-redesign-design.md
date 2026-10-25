@@ -88,11 +88,11 @@ Motion: `.contentTransition(.numericText())` on counts; the card container gets 
 
 ### 3.2 Layouts
 
-**Fitting (small and medium).** Both layouts use `ViewThatFits(in: .vertical)` and drop decoration in a fixed order until the content fits a 158 pt-tall widget. Small: accent bar → IPA/POS row → (compact lemma) → the header row last, because the header carries the source chip and the progress. Medium: accent bar → source chip → one definition line. The definition and the progress indicators are the last things to go.
+**Fitting (small and medium).** Both layouts use `ViewThatFits(in: .vertical)` and drop decoration in a fixed order until the content fits a 158 pt-tall widget. Small: accent bar → IPA/POS row → (compact lemma) → the header row last, because the header carries the source chip and the progress. Medium: accent bar → source chip → one definition line; only the left column is fitted. The bottom row (Reveal and the `n/m` progress text, or Forgot / Remembered) sits outside `ViewThatFits` and is always shown, so the fitting budget is the widget height minus that row. In both sizes the definition is the last text to shrink.
 
 
 **systemSmall**
-- *Passive*: top row source chip + a compact practice badge (checkmark and number; VoiceOver reads `app.widget.practiced_today_format`, "Hôm nay: %d từ"); lemma; POS chip · IPA; accent bar; definition (up to 3 lines).
+- *Passive*: top row source chip + a compact practice badge (checkmark and number; VoiceOver reads `app.widget.practiced_today_format`, "Hôm nay: %d từ"), shown only when `practicedToday > 0`; lemma; POS chip · IPA; accent bar; definition (up to 3 lines).
 - *Front*: top row source chip + progress dots; lemma; POS chip · IPA; accent bar; a redacted placeholder bar (two rounded capsules at 30% opacity) labelled for VoiceOver with `app.widget.hidden_meaning`; Reveal capsule.
 - *Back*: lemma (one step smaller); accent bar; definition (3 lines); icon-only Forgot ✗ / Remembered ✓ capsules side by side.
 
