@@ -72,10 +72,12 @@ public struct VocabWidgetView: View {
     }
 }
 
-/// Brand gradient with a bottom scrim (full color) or card surface behind the widget content, plus the faint depth glyph.
+/// Brand gradient with scrims (full color) or card surface behind the widget content, plus the faint depth glyph.
+/// White text needs the scrims: the top one for the header row, `fadeBottom` for the rows near the buttons.
 struct WidgetBackground: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let family: WidgetFamily
@@ -84,18 +86,33 @@ struct WidgetBackground: View {
         family == .systemSmall || family == .systemMedium
     }
 
+    /// Dark enough at the top that white caption text reaches 4.5:1 on the orange gradient.
+    private static let topScrimOpacity = 0.3
+
+    private var topScrim: LinearGradient {
+        LinearGradient(
+            colors: [theme.colors.textPrimary.opacity(Self.topScrimOpacity), theme.colors.textPrimary.opacity(0)],
+            startPoint: .top,
+            endPoint: UnitPoint(x: 0.5, y: 0.6)
+        )
+    }
+
     var body: some View {
-        if renderingMode == .fullColor {
-            ZStack(alignment: .bottomTrailing) {
-                Rectangle().fill(theme.gradients.brandHero)
-                Rectangle().fill(theme.gradients.fadeBottom)
-                if let card = entry.card, entry.mode != .placeholder, isSystemFamily {
-                    WidgetDepthGlyph(lemma: card.lemma, scale: family == .systemSmall ? 3 : 4)
-                        .offset(x: theme.spacing.lg, y: theme.spacing.lg)
+        Group {
+            if renderingMode == .fullColor {
+                ZStack(alignment: .bottomTrailing) {
+                    Rectangle().fill(theme.gradients.brandHero)
+                    Rectangle().fill(topScrim)
+                    Rectangle().fill(theme.gradients.fadeBottom)
+                    if let card = entry.card, entry.mode != .placeholder, isSystemFamily {
+                        WidgetDepthGlyph(lemma: card.lemma, scale: family == .systemSmall ? 3 : 4)
+                            .offset(x: theme.spacing.lg, y: theme.spacing.lg)
+                    }
                 }
+            } else {
+                theme.colors.surfaceCard
             }
-        } else {
-            theme.colors.surfaceCard
         }
+        .environment(\.colorScheme, WidgetAppearance.colorScheme(for: renderingMode, system: colorScheme))
     }
 }

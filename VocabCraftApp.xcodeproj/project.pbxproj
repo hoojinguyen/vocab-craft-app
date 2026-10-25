@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7100030009 /* WidgetBackgroundContrastTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010009 /* WidgetBackgroundContrastTests.swift */; };
 		30003B7100020007 /* VocabWidgetPreviews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
 		30003B7100030007 /* VocabWidgetPreviews.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
 		30003B7100020006 /* WidgetAccessoryViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010006 /* WidgetAccessoryViews.swift */; };
@@ -592,6 +593,7 @@
 		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
 		20003B7000010012 /* VocabWidgetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetViewTests.swift"; sourceTree = "<group>"; };
 		20003B700001000F /* WidgetReviewRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorderTests.swift"; sourceTree = "<group>"; };
+		20003B7100010009 /* WidgetBackgroundContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetBackgroundContrastTests.swift"; path = "WidgetBackgroundContrastTests.swift"; sourceTree = "<group>"; };
 		20003B7100010002 /* WidgetPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetPresentationTests.swift"; path = "WidgetPresentationTests.swift"; sourceTree = "<group>"; };
 		20003B7100010001 /* WidgetDueQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetDueQueryTests.swift"; path = "WidgetDueQueryTests.swift"; sourceTree = "<group>"; };
 		20003B7000010010 /* RevealCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RevealCardIntent.swift"; sourceTree = "<group>"; };
@@ -2623,6 +2625,7 @@
 				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
 				20003B700001000C /* WidgetTimelineBuilderTests.swift */,
 				20003B700001000F /* WidgetReviewRecorderTests.swift */,
+				20003B7100010009 /* WidgetBackgroundContrastTests.swift */,
 				20003B7100010002 /* WidgetPresentationTests.swift */,
 				20003B7100010001 /* WidgetDueQueryTests.swift */,
 				20003B7000010012 /* VocabWidgetViewTests.swift */,
@@ -3352,6 +3355,7 @@
 				30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */,
 				30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */,
 				30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */,
+				30003B7100030009 /* WidgetBackgroundContrastTests.swift in Test Sources */,
 				30003B7100030002 /* WidgetPresentationTests.swift in Test Sources */,
 				30003B7100030001 /* WidgetDueQueryTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
