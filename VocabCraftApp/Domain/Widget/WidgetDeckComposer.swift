@@ -58,7 +58,8 @@ public enum WidgetDeckComposer {
             ipa: word.phonetic,
             definitionVi: word.definitionVi,
             exampleEn: word.exampleEn,
-            source: source
+            source: source,
+            partOfSpeech: word.pos.isEmpty ? nil : word.pos
         )
     }
 }

@@ -75,4 +75,40 @@ struct WidgetDeckStoreTests {
         #expect(loaded.revealedWordId == 9)
         #expect(loaded.revealedAt == Date(timeIntervalSince1970: 1_700_000_000))
     }
+
+    @Test func partOfSpeechRoundTrips() throws {
+        let store = makeStore()
+        let deck = WidgetDeck(
+            generatedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            pathId: nil,
+            cards: [
+                WidgetCard(
+                    wordId: 1, lemma: "apple", ipa: "/ap/", definitionVi: "qua tao", exampleEn: "An apple.",
+                    source: .due, partOfSpeech: "noun"
+                )
+            ]
+        )
+        try store.saveDeck(deck)
+        #expect(store.loadDeck()?.cards.first?.partOfSpeech == "noun")
+    }
+
+    @Test func versionOneDeckIsRejected() throws {
+        let store = makeStore()
+        try store.saveDeck(makeDeck(version: 1))
+        #expect(store.loadDeck() == nil)
+    }
+
+    @Test func cardWithoutPartOfSpeechKeyDecodes() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let json = """
+        {"version":2,"generatedAt":"2023-11-14T22:13:20Z","pathId":null,"cards":[
+        {"wordId":1,"lemma":"apple","ipa":"/ap/","definitionVi":"qua tao","exampleEn":"An apple.","source":"due"}]}
+        """
+        try Data(json.utf8).write(to: dir.appendingPathComponent("widget_deck.json"))
+
+        let card = try #require(WidgetDeckStore(directoryURL: dir).loadDeck()?.cards.first)
+
+        #expect(card.partOfSpeech == nil)
+    }
 }

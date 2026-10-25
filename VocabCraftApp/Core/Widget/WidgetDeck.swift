@@ -15,6 +15,8 @@ public struct WidgetCard: Codable, Sendable, Equatable, Identifiable {
     public var definitionVi: String
     public var exampleEn: String
     public var source: Source
+    /// Raw `senses.part_of_speech` value; `nil` when the catalog has none.
+    public var partOfSpeech: String?
 
     public var id: Int64 { wordId }
 
@@ -24,7 +26,8 @@ public struct WidgetCard: Codable, Sendable, Equatable, Identifiable {
         ipa: String,
         definitionVi: String,
         exampleEn: String,
-        source: Source
+        source: Source,
+        partOfSpeech: String? = nil
     ) {
         self.wordId = wordId
         self.lemma = lemma
@@ -32,11 +35,12 @@ public struct WidgetCard: Codable, Sendable, Equatable, Identifiable {
         self.definitionVi = definitionVi
         self.exampleEn = exampleEn
         self.source = source
+        self.partOfSpeech = partOfSpeech
     }
 }
 
 public struct WidgetDeck: Codable, Sendable, Equatable {
-    public static let currentVersion = 1
+    public static let currentVersion = 2
 
     public var version: Int
     public var generatedAt: Date

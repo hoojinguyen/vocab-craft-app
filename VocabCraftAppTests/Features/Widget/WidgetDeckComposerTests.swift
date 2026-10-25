@@ -6,13 +6,13 @@ import Testing
 struct WidgetDeckComposerTests {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-    private func word(_ id: Int64) -> TopicWordDTO {
+    private func word(_ id: Int64, pos: String = "noun") -> TopicWordDTO {
         TopicWordDTO(
             id: id,
             stageId: "stage",
             lemma: "word\(id)",
             phonetic: "/w\(id)/",
-            pos: "noun",
+            pos: pos,
             cefrLevel: "A1",
             definitionVi: "nghia \(id)",
             definitionEn: "meaning \(id)",
@@ -22,7 +22,7 @@ struct WidgetDeckComposerTests {
     }
 
     private func words(_ range: ClosedRange<Int64>) -> [TopicWordDTO] {
-        range.map(word)
+        range.map { word($0) }
     }
 
     private func compose(
@@ -116,5 +116,17 @@ struct WidgetDeckComposerTests {
         #expect(deck.cards.isEmpty)
         #expect(deck.version == WidgetDeck.currentVersion)
         #expect(deck.generatedAt == now)
+    }
+
+    @Test("cards carry part of speech")
+    func cardsCarryPartOfSpeech() throws {
+        let deck = compose(due: [word(1, pos: "verb")])
+        #expect(try #require(deck.cards.first).partOfSpeech == "verb")
+    }
+
+    @Test("empty part of speech becomes nil")
+    func emptyPartOfSpeechIsNil() throws {
+        let deck = compose(due: [word(1, pos: "")])
+        #expect(try #require(deck.cards.first).partOfSpeech == nil)
     }
 }
