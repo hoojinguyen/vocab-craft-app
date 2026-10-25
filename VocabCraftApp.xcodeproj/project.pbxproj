@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7100020007 /* VocabWidgetPreviews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
+		30003B7100030007 /* VocabWidgetPreviews.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
 		30003B7100020006 /* WidgetAccessoryViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010006 /* WidgetAccessoryViews.swift */; };
 		30003B7100030006 /* WidgetAccessoryViews.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010006 /* WidgetAccessoryViews.swift */; };
 		30003B7100020005 /* WidgetSystemViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010005 /* WidgetSystemViews.swift */; };
@@ -954,6 +956,7 @@
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
 		200002284C02A8E338C2 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetBundle.swift"; sourceTree = "<group>"; };
 		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "VocabWidgetView.swift"; path = "Views/VocabWidgetView.swift"; sourceTree = "<group>"; };
+		20003B7100010007 /* VocabWidgetPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "VocabWidgetPreviews.swift"; path = "Views/VocabWidgetPreviews.swift"; sourceTree = "<group>"; };
 		20003B7100010006 /* WidgetAccessoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetAccessoryViews.swift"; path = "Views/WidgetAccessoryViews.swift"; sourceTree = "<group>"; };
 		20003B7100010005 /* WidgetSystemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetSystemViews.swift"; path = "Views/WidgetSystemViews.swift"; sourceTree = "<group>"; };
 		20003B7100010004 /* WidgetCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetCardComponents.swift"; path = "Views/WidgetCardComponents.swift"; sourceTree = "<group>"; };
@@ -2263,6 +2266,7 @@
 				2000473CACA7476916FA /* VocabWidget.swift */,
 				200002284C02A8E338C2 /* VocabWidgetBundle.swift */,
 				200075A9C43B4E98CD5D /* VocabWidgetView.swift */,
+				20003B7100010007 /* VocabWidgetPreviews.swift */,
 				20003B7100010006 /* WidgetAccessoryViews.swift */,
 				20003B7100010005 /* WidgetSystemViews.swift */,
 				20003B7100010004 /* WidgetCardComponents.swift */,
@@ -3171,6 +3175,7 @@
 				3000473CACA7476916FA /* VocabWidget.swift in Widget Sources */,
 				300002284C02A8E338C2 /* VocabWidgetBundle.swift in Widget Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Widget Sources */,
+				30003B7100020007 /* VocabWidgetPreviews.swift in Widget Sources */,
 				30003B7100020006 /* WidgetAccessoryViews.swift in Widget Sources */,
 				30003B7100020005 /* WidgetSystemViews.swift in Widget Sources */,
 				30003B7100020004 /* WidgetCardComponents.swift in Widget Sources */,
@@ -3211,6 +3216,7 @@
 				30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
+				30003B7100030007 /* VocabWidgetPreviews.swift in Test Sources */,
 				30003B7100030006 /* WidgetAccessoryViews.swift in Test Sources */,
 				30003B7100030005 /* WidgetSystemViews.swift in Test Sources */,
 				30003B7100030004 /* WidgetCardComponents.swift in Test Sources */,

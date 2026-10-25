@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import VocabCraftApp
 
@@ -66,4 +67,38 @@ struct WidgetPresentationTests {
         #expect(WidgetCardMeta.line(abbreviation: "n.", ipa: nil) == "n.")
         #expect(WidgetCardMeta.line(abbreviation: nil, ipa: nil) == nil)
     }
+
+    private func rgb(_ hex: UInt32) -> WidgetContrast.RGB {
+        WidgetContrast.RGB(
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255
+        )
+    }
+
+    @Test func contrastRatioOfBlackAndWhiteIsTwentyOne() {
+        #expect(abs(WidgetContrast.ratio(rgb(0xFFFFFF), rgb(0x000000)) - 21) < 0.01)
+        #expect(abs(WidgetContrast.ratio(rgb(0x000000), rgb(0xFFFFFF)) - 21) < 0.01)
+    }
+
+    @Test func darkTextWinsOnTheDefaultOrange() {
+        #expect(WidgetContrast.bestIndex(on: rgb(0xE06D3B), candidates: [rgb(0xFFFFFF), rgb(0x18181B)]) == 1)
+    }
+
+    @Test func lightTextWinsOnNavy() {
+        #expect(WidgetContrast.bestIndex(on: rgb(0x1E3A8A), candidates: [rgb(0xFFFFFF), rgb(0x18181B)]) == 0)
+    }
+
+    @Test func chosenForegroundReachesAATextContrastOnTheDefaultBrand() {
+        let candidates = [rgb(0xFFFFFF), rgb(0x18181B)]
+        let index = WidgetContrast.bestIndex(on: rgb(0xE06D3B), candidates: candidates)
+        #expect(WidgetContrast.ratio(rgb(0xE06D3B), candidates[index]) >= 4.5)
+    }
+
+    #if canImport(UIKit)
+    @Test func colorResolvesToItsRGBComponents() {
+        let resolved = WidgetContrast.rgb(of: Color(red: 1, green: 0.5, blue: 0), scheme: .light)
+        #expect(abs(resolved.red - 1) < 0.01 && abs(resolved.green - 0.5) < 0.01 && abs(resolved.blue) < 0.01)
+    }
+    #endif
 }

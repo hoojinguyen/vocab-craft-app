@@ -10,10 +10,20 @@ import WidgetKit
 struct WidgetPalette {
     let theme: any CraftTheme
     let renderingMode: WidgetRenderingMode
+    let colorScheme: ColorScheme
 
     var isFullColor: Bool { renderingMode == .fullColor }
-    var foreground: Color { isFullColor ? theme.colors.textInverse : .primary }
-    var secondary: Color { foreground.opacity(0.75) }
+
+    /// On the brand gradient: whichever text token reads best on the brand color (WCAG contrast).
+    var foreground: Color {
+        guard isFullColor else { return .primary }
+        return WidgetContrast.foreground(
+            on: theme.colors.brandPrimary,
+            candidates: [theme.colors.textInverse, theme.colors.textPrimary],
+            scheme: colorScheme
+        )
+    }
+    var secondary: Color { foreground.opacity(0.9) }
     var dimmed: Color { foreground.opacity(0.30) }
 }
 
@@ -21,9 +31,10 @@ struct WidgetPalette {
 struct WidgetCapsuleBackground: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         if palette.isFullColor {
             Capsule().fill(theme.gradients.surfaceGlass)
         } else {
@@ -35,12 +46,13 @@ struct WidgetCapsuleBackground: View {
 struct WidgetChip: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let titleKey: LocalizedStringKey
     var symbol: CraftSymbol?
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         HStack(spacing: theme.spacing.xxs) {
             if let symbol {
                 CraftIcon(symbol, size: .sm, color: palette.foreground)
@@ -74,12 +86,13 @@ struct WidgetSourceChip: View {
 struct WidgetMetaRow: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let card: WidgetCard
 
     var body: some View {
         let parts = WidgetCardMeta.parts(partOfSpeech: card.partOfSpeech, ipa: card.ipa)
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         if parts.posKey != nil || parts.ipa != nil {
             HStack(spacing: theme.spacing.xs) {
                 if let key = parts.posKey {
@@ -113,6 +126,7 @@ struct WidgetAccentBar: View {
 struct WidgetDepthGlyph: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let lemma: String
     let scale: CGFloat
@@ -122,7 +136,7 @@ struct WidgetDepthGlyph: View {
             Text(String(first).uppercased())
                 .font(theme.typography.displayHero)
                 .scaleEffect(scale)
-                .foregroundStyle(theme.colors.textInverse.opacity(0.08))
+                .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme).foreground.opacity(0.08))
                 .rotationEffect(.degrees(-12))
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
@@ -133,12 +147,13 @@ struct WidgetDepthGlyph: View {
 struct WidgetProgressDots: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let filled: Int
     let label: String
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         HStack(spacing: theme.spacing.xxs) {
             ForEach(0..<WidgetProgress.dotCount, id: \.self) { index in
                 if index < filled {
@@ -154,9 +169,11 @@ struct WidgetProgressDots: View {
 }
 
 /// Label for a full-width pill button. The caller wraps it in `Button(intent:)`.
+/// Full color: opaque card-surface pill with a tinted icon, so red/green stay legible on the gradient.
 struct WidgetPillLabel: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let titleKey: LocalizedStringKey
     let symbol: CraftSymbol
@@ -164,19 +181,26 @@ struct WidgetPillLabel: View {
     let showsTitle: Bool
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
-        let color = palette.isFullColor ? tint : palette.foreground
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+        let iconColor = palette.isFullColor ? tint : palette.foreground
+        let titleColor = palette.isFullColor ? theme.colors.textPrimary : palette.foreground
         HStack(spacing: theme.spacing.xs) {
-            CraftIcon(symbol, size: .sm, color: color).widgetAccentable()
+            CraftIcon(symbol, size: .md, color: iconColor).widgetAccentable()
             if showsTitle {
                 Text(titleKey)
-                    .font(theme.typography.caption)
-                    .foregroundStyle(color)
+                    .font(theme.typography.label)
+                    .foregroundStyle(titleColor)
                     .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, minHeight: 36)
-        .background { WidgetCapsuleBackground() }
+        .background {
+            if palette.isFullColor {
+                Capsule().fill(theme.colors.surfaceCard)
+            } else {
+                WidgetCapsuleBackground()
+            }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(titleKey))
     }
@@ -186,9 +210,10 @@ struct WidgetPillLabel: View {
 struct WidgetHiddenMeaningBar: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             Capsule().fill(palette.dimmed).frame(height: theme.spacing.sm)
             Capsule().fill(palette.dimmed).frame(height: theme.spacing.sm).padding(.trailing, theme.spacing.xl)
@@ -202,6 +227,7 @@ struct WidgetHiddenMeaningBar: View {
 struct MaskedExampleText: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     /// Data punctuation, not a user-facing word.
     nonisolated static let maskToken = "_____"
@@ -237,7 +263,7 @@ struct MaskedExampleText: View {
     }
 
     var body: some View {
-        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode)
+        let palette = WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
         let highlight = palette.isFullColor ? theme.colors.accent.opacity(0.35) : palette.foreground.opacity(0.25)
         Text(Self.maskedAttributed(example, lemma: lemma, highlight: highlight))
             .font(theme.typography.bodySerif)

@@ -11,6 +11,7 @@ import WidgetKit
 struct WidgetRevealButton: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let wordId: Int64
 
@@ -19,7 +20,7 @@ struct WidgetRevealButton: View {
             WidgetPillLabel(
                 titleKey: "app.widget.action.reveal",
                 symbol: .eye,
-                tint: WidgetPalette(theme: theme, renderingMode: renderingMode).foreground,
+                tint: theme.colors.brandPrimary,
                 showsTitle: true
             )
         }
@@ -60,6 +61,7 @@ struct WidgetGradeButtons: View {
 private struct WidgetLemmaText: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let lemma: String
     let font: Font
@@ -67,7 +69,7 @@ private struct WidgetLemmaText: View {
     var body: some View {
         Text(lemma)
             .font(font)
-            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode).foreground)
+            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme).foreground)
             .lineLimit(1)
             .minimumScaleFactor(0.6)
             .widgetAccentable()
@@ -77,6 +79,7 @@ private struct WidgetLemmaText: View {
 private struct WidgetDefinitionText: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let text: String
     let lines: Int
@@ -84,7 +87,7 @@ private struct WidgetDefinitionText: View {
     var body: some View {
         Text(text)
             .font(theme.typography.bodyMedium)
-            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode).foreground)
+            .foregroundStyle(WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme).foreground)
             .lineLimit(lines)
             .transition(.opacity)
     }
@@ -99,26 +102,43 @@ private func progressLabel(practiced: Int, total: Int) -> String {
 struct WidgetSmallView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let card: WidgetCard
 
-    private var palette: WidgetPalette { WidgetPalette(theme: theme, renderingMode: renderingMode) }
-    private var progress: (fraction: Double, filledDots: Int, total: Int) {
+    private var palette: WidgetPalette {
+        WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+    }
+    private var progress: WidgetProgress.Snapshot {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
     }
 
+    /// Sheds the accent bar, then the source chip row, then the IPA row, so the definition keeps its lines.
     var body: some View {
+        ViewThatFits(in: .vertical) {
+            layout(showsHeader: true, showsMeta: true, showsAccentBar: true)
+            layout(showsHeader: true, showsMeta: true, showsAccentBar: false)
+            layout(showsHeader: false, showsMeta: true, showsAccentBar: false)
+            layout(showsHeader: false, showsMeta: false, showsAccentBar: false)
+        }
+    }
+
+    private func layout(showsHeader: Bool, showsMeta: Bool, showsAccentBar: Bool) -> some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            header
+            if showsHeader {
+                header
+            }
             WidgetLemmaText(
                 lemma: card.lemma,
                 font: entry.mode == .flashcardBack ? theme.typography.titleMedium : theme.typography.titleLarge
             )
-            if entry.mode != .flashcardBack {
+            if showsMeta, entry.mode != .flashcardBack {
                 WidgetMetaRow(card: card)
             }
-            WidgetAccentBar()
+            if showsAccentBar {
+                WidgetAccentBar()
+            }
             switch entry.mode {
             case .flashcardFront:
                 WidgetHiddenMeaningBar()
@@ -129,9 +149,8 @@ struct WidgetSmallView: View {
                 Spacer(minLength: 0)
                 WidgetGradeButtons(wordId: card.wordId, showsTitle: false)
             default:
-                WidgetDefinitionText(text: card.definitionVi, lines: 2)
+                WidgetDefinitionText(text: card.definitionVi, lines: 3)
                 Spacer(minLength: 0)
-                practicedFooter
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -146,22 +165,25 @@ struct WidgetSmallView: View {
                     filled: progress.filledDots,
                     label: progressLabel(practiced: entry.practicedToday, total: progress.total)
                 )
+            } else if entry.mode == .passive, WidgetProgress.showsPracticedFooter(entry.practicedToday) {
+                practicedBadge
             }
         }
     }
 
-    @ViewBuilder
-    private var practicedFooter: some View {
-        if WidgetProgress.showsPracticedFooter(entry.practicedToday) {
-            Text(verbatim: String(
-                format: String(localized: "app.widget.practiced_today_format"),
-                entry.practicedToday
-            ))
-            .font(theme.typography.caption)
-            .foregroundStyle(palette.secondary)
-            .lineLimit(1)
-            .contentTransition(.numericText())
+    private var practicedBadge: some View {
+        HStack(spacing: theme.spacing.xxs) {
+            CraftIcon(.checkmarkCircle, size: .sm, color: palette.secondary)
+            Text(verbatim: "\(entry.practicedToday)")
+                .font(theme.typography.label)
+                .foregroundStyle(palette.foreground)
+                .contentTransition(.numericText())
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: String(
+            format: String(localized: "app.widget.practiced_today_format"),
+            entry.practicedToday
+        )))
     }
 }
 
@@ -170,74 +192,102 @@ struct WidgetSmallView: View {
 struct WidgetMediumView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
+    @Environment(\.colorScheme) private var colorScheme
 
     let entry: VocabWidgetEntry
     let card: WidgetCard
 
-    private var palette: WidgetPalette { WidgetPalette(theme: theme, renderingMode: renderingMode) }
-    private var progress: (fraction: Double, filledDots: Int, total: Int) {
+    /// Left / right column split when the card has an example sentence.
+    private static let leftShare: CGFloat = 0.55
+
+    private var palette: WidgetPalette {
+        WidgetPalette(theme: theme, renderingMode: renderingMode, colorScheme: colorScheme)
+    }
+    private var progress: WidgetProgress.Snapshot {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
     }
     private var showsDefinition: Bool { entry.mode != .flashcardFront }
 
     var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.sm) {
-            HStack(alignment: .top, spacing: theme.spacing.md) {
-                leftColumn
-                if !card.exampleEn.isEmpty {
-                    exampleCard
-                }
-            }
-            switch entry.mode {
-            case .flashcardFront:
-                HStack(spacing: theme.spacing.sm) {
-                    WidgetRevealButton(wordId: card.wordId)
-                    if progress.total > 0 {
-                        Text(verbatim: progressLabel(practiced: entry.practicedToday, total: progress.total))
-                            .font(theme.typography.caption)
-                            .foregroundStyle(palette.secondary)
-                            .contentTransition(.numericText())
-                            .accessibilityLabel(Text(verbatim: progressLabel(
-                                practiced: entry.practicedToday,
-                                total: progress.total
-                            )))
+            GeometryReader { geometry in
+                let available = geometry.size.width - theme.spacing.md
+                HStack(alignment: .top, spacing: theme.spacing.md) {
+                    if card.exampleEn.isEmpty {
+                        leftColumn.frame(width: geometry.size.width)
+                    } else {
+                        leftColumn.frame(width: available * Self.leftShare)
+                        exampleCard.frame(width: available * (1 - Self.leftShare))
                     }
                 }
-            case .flashcardBack:
-                WidgetGradeButtons(wordId: card.wordId, showsTitle: true)
-            default:
-                EmptyView()
+                .frame(maxHeight: .infinity, alignment: .top)
             }
+            bottomRow
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private var leftColumn: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            HStack {
-                WidgetSourceChip(source: card.source)
-                if WidgetProgress.showsPracticedFooter(entry.practicedToday), entry.mode == .passive {
-                    Text(verbatim: String(
-                        format: String(localized: "app.widget.practiced_today_format"),
-                        entry.practicedToday
-                    ))
-                    .font(theme.typography.caption)
-                    .foregroundStyle(palette.secondary)
-                    .lineLimit(1)
-                    .contentTransition(.numericText())
+    @ViewBuilder
+    private var bottomRow: some View {
+        switch entry.mode {
+        case .flashcardFront:
+            HStack(spacing: theme.spacing.sm) {
+                WidgetRevealButton(wordId: card.wordId)
+                if progress.total > 0 {
+                    Text(verbatim: progressLabel(practiced: entry.practicedToday, total: progress.total))
+                        .font(theme.typography.label)
+                        .foregroundStyle(palette.foreground)
+                        .contentTransition(.numericText())
                 }
             }
-            WidgetLemmaText(lemma: card.lemma, font: theme.typography.displayLarge)
+        case .flashcardBack:
+            WidgetGradeButtons(wordId: card.wordId, showsTitle: true)
+        default:
+            EmptyView()
+        }
+    }
+
+    /// Tries the richest column first and sheds the accent bar, the source chip and a definition
+    /// line, in that order, until it fits above the button row.
+    private var leftColumn: some View {
+        ViewThatFits(in: .vertical) {
+            column(showsChip: true, showsAccentBar: true, definitionLines: 2)
+            column(showsChip: true, showsAccentBar: false, definitionLines: 2)
+            column(showsChip: false, showsAccentBar: false, definitionLines: 2)
+            column(showsChip: false, showsAccentBar: false, definitionLines: 1)
+        }
+    }
+
+    private func column(showsChip: Bool, showsAccentBar: Bool, definitionLines: Int) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            if showsChip {
+                HStack {
+                    WidgetSourceChip(source: card.source)
+                    if entry.mode == .passive, WidgetProgress.showsPracticedFooter(entry.practicedToday) {
+                        Text(verbatim: String(
+                            format: String(localized: "app.widget.practiced_today_format"),
+                            entry.practicedToday
+                        ))
+                        .font(theme.typography.caption)
+                        .foregroundStyle(palette.secondary)
+                        .lineLimit(1)
+                        .contentTransition(.numericText())
+                    }
+                }
+            }
+            WidgetLemmaText(lemma: card.lemma, font: theme.typography.titleLarge)
             WidgetMetaRow(card: card)
-            WidgetAccentBar()
+            if showsAccentBar {
+                WidgetAccentBar()
+            }
             if showsDefinition {
-                WidgetDefinitionText(text: card.definitionVi, lines: 2)
+                WidgetDefinitionText(text: card.definitionVi, lines: definitionLines)
             } else {
                 WidgetHiddenMeaningBar()
             }
             Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var exampleCard: some View {
@@ -250,16 +300,17 @@ struct WidgetMediumView: View {
                     .foregroundStyle(palette.foreground)
             }
         }
-        .lineLimit(5)
+        .lineLimit(4)
+        .minimumScaleFactor(0.7)
         .padding(theme.spacing.sm)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background {
             if palette.isFullColor {
                 RoundedRectangle(cornerRadius: theme.radius.lg).fill(theme.gradients.surfaceGlass)
             } else {
-                RoundedRectangle(cornerRadius: theme.radius.lg).strokeBorder(palette.foreground.opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: theme.radius.lg)
+                    .strokeBorder(palette.foreground.opacity(0.5), lineWidth: 1)
             }
         }
-        .containerRelativeFrame(.horizontal) { width, _ in width * 0.45 }
     }
 }

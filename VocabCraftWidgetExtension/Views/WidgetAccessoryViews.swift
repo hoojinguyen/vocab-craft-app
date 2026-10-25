@@ -20,7 +20,7 @@ struct WidgetRectangularView: View {
     let entry: VocabWidgetEntry
     let card: WidgetCard
 
-    private var progress: (fraction: Double, filledDots: Int, total: Int) {
+    private var progress: WidgetProgress.Snapshot {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
     }
 
