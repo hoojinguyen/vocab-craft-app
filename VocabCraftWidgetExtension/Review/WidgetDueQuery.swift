@@ -33,5 +33,13 @@ public enum WidgetDueQuery {
         }
         return (due, nextDueDate)
     }
+
+    /// Number of progress rows (deck or not) whose `lastReviewDate` is on or after `since`.
+    @MainActor
+    public static func practicedCount(since: Date, in context: ModelContext) throws -> Int {
+        try context.fetchCount(
+            FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.lastReviewDate >= since })
+        )
+    }
     #endif
 }

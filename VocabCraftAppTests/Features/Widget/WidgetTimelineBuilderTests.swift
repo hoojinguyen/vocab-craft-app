@@ -30,6 +30,7 @@ struct WidgetTimelineBuilderTests {
         due: Set<Int64> = [],
         nextDue: Date? = nil,
         interaction: WidgetInteractionState = .empty,
+        practiced: Int = 0,
         at date: Date? = nil
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
         WidgetTimelineBuilder.build(
@@ -37,6 +38,7 @@ struct WidgetTimelineBuilderTests {
             dueWordIds: due,
             nextDueDate: nextDue,
             interaction: interaction,
+            practicedToday: practiced,
             now: date ?? now
         )
     }
@@ -117,5 +119,21 @@ struct WidgetTimelineBuilderTests {
             #expect(result.entries.count == 36)
             #expect(result.reload == .atEnd)
         }
+    }
+
+    @Test func passiveEntriesCarryPracticedToday() {
+        let result = build(deck(3), practiced: 7)
+        #expect(result.entries.allSatisfy { $0.practicedToday == 7 })
+    }
+
+    @Test func flashcardEntryCarriesPracticedToday() {
+        let result = build(deck(3), due: [1], practiced: 4)
+        #expect(result.entries.first?.mode == .flashcardFront)
+        #expect(result.entries.first?.practicedToday == 4)
+    }
+
+    @Test func placeholderHasZeroPracticed() {
+        let result = build(nil, practiced: 9)
+        #expect(result.entries[0].practicedToday == 0)
     }
 }

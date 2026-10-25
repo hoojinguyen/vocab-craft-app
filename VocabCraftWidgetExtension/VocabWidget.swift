@@ -69,7 +69,14 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
         var dueWordIds: Set<Int64> = []
         var nextDueDate: Date?
         var dueQuerySucceeded = false
+        var practicedToday = 0
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
+        if let container {
+            practicedToday = (try? WidgetDueQuery.practicedCount(
+                since: Calendar.current.startOfDay(for: now),
+                in: ModelContext(container)
+            )) ?? 0
+        }
         if let deck, let container {
             let context = ModelContext(container)
             if let status = try? WidgetDueQuery.dueStatus(
@@ -95,6 +102,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             dueWordIds: dueWordIds,
             nextDueDate: nextDueDate,
             interaction: interaction,
+            practicedToday: practicedToday,
             now: now
         )
         // With a deck but unreadable due status, keep the state untouched and retry soon.
