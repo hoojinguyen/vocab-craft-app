@@ -11,7 +11,7 @@ struct WidgetDueQueryTests {
 
     private var startOfDay: Date { Calendar.current.startOfDay(for: now) }
 
-    private func insertRow(_ id: Int64, lastReview: Date, in context: ModelContext) throws {
+    private func insertRow(_ id: Int64, lastReview: Date, totalReviews: Int = 1, in context: ModelContext) throws {
         context.insert(
             UserWordProgress(
                 wordId: id,
@@ -20,7 +20,7 @@ struct WidgetDueQueryTests {
                 intervalDays: 1,
                 nextReviewDate: now.addingTimeInterval(86_400),
                 lastReviewDate: lastReview,
-                totalReviews: 1
+                totalReviews: totalReviews
             )
         )
         try context.save()
@@ -40,6 +40,14 @@ struct WidgetDueQueryTests {
         let context = ModelContext(try SharedAppGroupContainer.createContainer(inMemory: true))
 
         #expect(try WidgetDueQuery.practicedCount(since: startOfDay, in: context) == 0)
+    }
+
+    @Test func bookmarkOnlyRowsAreNotPracticed() throws {
+        let context = ModelContext(try SharedAppGroupContainer.createContainer(inMemory: true))
+        try insertRow(1, lastReview: now, totalReviews: 0, in: context)
+        try insertRow(2, lastReview: now, totalReviews: 1, in: context)
+
+        #expect(try WidgetDueQuery.practicedCount(since: startOfDay, in: context) == 1)
     }
 }
 #endif

@@ -46,11 +46,15 @@ public enum WidgetTimelineBuilder {
         nextDueDate: Date?,
         interaction: WidgetInteractionState,
         practicedToday: Int = 0,
-        now: Date
+        now: Date,
+        calendar: Calendar = .current
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
         guard let deck, !deck.cards.isEmpty else {
             return ([.placeholder(at: now)], .after(now.addingTimeInterval(placeholderRetry)))
         }
+
+        // Entries carry a fixed practicedToday, so nothing may stay on screen past local midnight.
+        let nextMidnight = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))
 
         let dueCards = deck.cards.filter { dueWordIds.contains($0.wordId) }
         if let first = dueCards.first {
@@ -62,7 +66,8 @@ public enum WidgetTimelineBuilder {
                 dueCount: dueCards.count,
                 practicedToday: practicedToday
             )
-            return ([entry], .after(now.addingTimeInterval(flashcardRefresh)))
+            let refresh = now.addingTimeInterval(flashcardRefresh)
+            return ([entry], .after(nextMidnight.map { min(refresh, $0) } ?? refresh))
         }
 
         let cards = deck.cards
@@ -70,10 +75,15 @@ public enum WidgetTimelineBuilder {
         var entries: [VocabWidgetEntry] = []
         let cap = nextDueDate.flatMap { $0 > now ? $0 : nil }
         var dropped = false
+        var reachedMidnight = false
         for i in 0..<maxEntries {
             let date = i == 0 ? now : Date(timeIntervalSince1970: Double(slot + i) * rotationInterval)
             if let cap, date >= cap {
                 dropped = true
+                break
+            }
+            if let nextMidnight, date >= nextMidnight {
+                reachedMidnight = true
                 break
             }
             entries.append(
@@ -86,8 +96,9 @@ public enum WidgetTimelineBuilder {
                 )
             )
         }
-        if dropped, let cap {
-            return (entries, .after(cap))
+        let reloadAt = [dropped ? cap : nil, reachedMidnight ? nextMidnight : nil].compactMap { $0 }.min()
+        if let reloadAt {
+            return (entries, .after(reloadAt))
         }
         return (entries, .atEnd)
     }

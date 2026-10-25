@@ -44,7 +44,7 @@ public struct WidgetCard {
 }
 ```
 - `WidgetDeckComposer.card(...)` maps `word.pos` → `partOfSpeech` (empty string → `nil`).
-- `WidgetDeck.currentVersion` becomes **2**. `WidgetDeckStore` already rejects version mismatches, so a v1 file on disk yields `nil` and the widget shows the empty state until the next app refresh (which runs every time the app goes to background). This is acceptable: the deck is disposable.
+- `WidgetDeck.currentVersion` becomes **2** and is what the app writes. `WidgetDeck.minimumSupportedVersion` is **1**: `WidgetDeckStore` still loads v1 decks (they only lack the optional `partOfSpeech`), so existing learners keep seeing their words until the app rewrites the deck. Versions below 1 or above `currentVersion` yield `nil`. (Rejecting v1 would have blanked the widget for returning learners with the first-lesson empty-state copy.)
 - `partOfSpeech` is optional so decoding never fails on a missing key.
 
 ### 2.2 Today's practice count on the entry
@@ -54,10 +54,10 @@ public struct VocabWidgetEntry {
     public let practicedToday: Int
 }
 ```
-- New query `WidgetDueQuery.practicedCount(since: Date, in: ModelContext) -> Int` counts **all** `UserWordProgress` rows (not only deck words) with `lastReviewDate >= since`. Uses `fetchCount`.
+- New query `WidgetDueQuery.practicedCount(since: Date, in: ModelContext) -> Int` counts **all** `UserWordProgress` rows (not only deck words) with `lastReviewDate >= since` **and `totalReviews > 0`**, so bookmark-only rows (inserted with a default `lastReviewDate` and no reviews) do not count. Uses `fetchCount`.
 - `VocabWidgetProvider.makeTimeline` passes `since = Calendar.current.startOfDay(for: now)` and forwards the count into `WidgetTimelineBuilder.build(…, practicedToday:)`, which stamps it on every entry. Errors or a `nil` container → `0`.
 - Because `lastReviewDate` is also set when a word is first learned, the figure means "words practiced today" (learned or reviewed). UI copy says "practiced", not "reviewed".
-- A passive timeline spans up to 3 h and may cross midnight; the count is not reset mid-timeline. Accepted (next reload corrects it).
+- Entries carry a fixed count, so `WidgetTimelineBuilder` stops the passive timeline at the next local midnight and caps the flashcard refresh at midnight too (`reload = .after(min(…, midnight))`); the next reload rebuilds the count for the new day.
 
 ### 2.3 Progress helper
 Pure static function on the view (unit-tested):
@@ -76,7 +76,7 @@ static func progress(practiced: Int, due: Int) -> (fraction: Double, filledDots:
 |---|---|---|
 | Background | `containerBackground(theme.gradients.brandHero)`, plus `fadeBottom` scrim behind the text block if contrast check fails (§5) | system default (no gradient) |
 | Depth glyph | First grapheme of the lemma in `theme.typography.displayHero`, enlarged with `scaleEffect` (×3 small, ×4 medium; no hardcoded point sizes), `textInverse` at 8% opacity, rotated −12°, anchored bottom-trailing, clipped. `accessibilityHidden(true)` | hidden |
-| Lemma | `theme.typography.titleLarge` in small, `displayLarge` in medium, `textInverse`, `minimumScaleFactor(0.6)`, `widgetAccentable()` | accentable |
+| Lemma | `theme.typography.titleLarge` in small and medium (`displayLarge` did not fit a 158 pt-tall medium widget next to the button row), `titleMedium` on the flashcard back and when the small layout is compact, `textInverse`, `minimumScaleFactor(0.6)`, `widgetAccentable()` | accentable |
 | POS chip | Capsule, `surfaceGlass` fill, caption text, localized abbreviation (`n.`, `v.`, `adj.`…) | stroke only |
 | IPA | `theme.typography.phonetic`, `textInverse` 75% opacity, after the chip on the same line | default secondary |
 | Accent bar | 24×3 capsule, `theme.colors.accent` | accentable |
@@ -88,8 +88,11 @@ Motion: `.contentTransition(.numericText())` on counts; the card container gets 
 
 ### 3.2 Layouts
 
+**Fitting (small and medium).** Both layouts use `ViewThatFits(in: .vertical)` and drop decoration in a fixed order until the content fits a 158 pt-tall widget. Small: accent bar → IPA/POS row → (compact lemma) → the header row last, because the header carries the source chip and the progress. Medium: accent bar → source chip → one definition line. The definition and the progress indicators are the last things to go.
+
+
 **systemSmall**
-- *Passive*: top row source chip; lemma; POS chip · IPA; accent bar; definition (2 lines); footer `app.widget.practiced_today_format` ("Hôm nay: %d từ").
+- *Passive*: top row source chip + a compact practice badge (checkmark and number; VoiceOver reads `app.widget.practiced_today_format`, "Hôm nay: %d từ"); lemma; POS chip · IPA; accent bar; definition (up to 3 lines).
 - *Front*: top row source chip + progress dots; lemma; POS chip · IPA; accent bar; a redacted placeholder bar (two rounded capsules at 30% opacity) labelled for VoiceOver with `app.widget.hidden_meaning`; Reveal capsule.
 - *Back*: lemma (one step smaller); accent bar; definition (3 lines); icon-only Forgot ✗ / Remembered ✓ capsules side by side.
 
@@ -134,7 +137,7 @@ Each component reads `widgetRenderingMode` itself to drop fills in non-full-colo
 ---
 
 ## 5. Testing
-- **Unit (Swift Testing)**: `WidgetDeck` v2 round-trip and v1 rejection; composer maps `pos` (incl. empty → nil); `WidgetDueQuery.practicedCount` counts rows on/after start of day and ignores yesterday; timeline builder stamps `practicedToday` on all entries; `progress(practiced:due:)` table test (0/0, 0/5, 3/2, 5/0); `WidgetPartOfSpeech` maps all eight values and returns nil for unknown.
+- **Unit (Swift Testing)**: `WidgetDeck` v2 round-trip, v1 compatibility, and rejection of versions outside 1…2; composer maps `pos` (incl. empty → nil); `WidgetDueQuery.practicedCount` counts rows on/after start of day and ignores yesterday; timeline builder stamps `practicedToday` on all entries; `progress(practiced:due:)` table test (0/0, 0/5, 3/2, 5/0); `WidgetPartOfSpeech` maps all eight values and returns nil for unknown.
 - **Existing tests**: update constructors for the new fields; all `VocabCraftAppTests/Features/Widget` and `WidgetIntentsTests` must pass.
 - **Previews**: `#Preview(as: .systemSmall/.systemMedium/.accessoryRectangular/.accessoryInline)` with passive, front, back and empty entries.
 - **Visual check**: build to the iOS Simulator, add small + medium + Lock Screen widgets, screenshot in light, dark and tinted, for Default, Oxford Heritage and Neo Arcade themes. If any lemma or definition fails the contrast criterion, add the `fadeBottom` scrim under the text block (one change, all themes) rather than per-theme colors.

@@ -10264,7 +10264,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "adj."
+            "value": "tt."
           }
         }
       }
@@ -10281,7 +10281,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "adv."
+            "value": "trt."
           }
         }
       }
@@ -10298,7 +10298,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "conj."
+            "value": "lt."
           }
         }
       }
@@ -10315,7 +10315,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "det."
+            "value": "hđ."
           }
         }
       }
@@ -10332,7 +10332,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "n."
+            "value": "dt."
           }
         }
       }
@@ -10349,7 +10349,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "prep."
+            "value": "gt."
           }
         }
       }
@@ -10366,7 +10366,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "pron."
+            "value": "đại từ"
           }
         }
       }
@@ -10383,7 +10383,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "v."
+            "value": "đt."
           }
         }
       }

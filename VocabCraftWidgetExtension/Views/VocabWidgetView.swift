@@ -72,7 +72,8 @@ public struct VocabWidgetView: View {
     }
 }
 
-/// Brand gradient with scrims (full color) or card surface behind the widget content, plus the faint depth glyph.
+/// Brand gradient with scrims in full color; clear in tinted/vibrant so WidgetKit supplies the system surface.
+/// Also holds the faint depth glyph.
 /// White text needs the scrims: the top one for the header row, `fadeBottom` for the rows near the buttons.
 struct WidgetBackground: View {
     @Environment(\.craftTheme) private var theme
@@ -110,7 +111,7 @@ struct WidgetBackground: View {
                     }
                 }
             } else {
-                theme.colors.surfaceCard
+                Color.clear
             }
         }
         .environment(\.colorScheme, WidgetAppearance.colorScheme(for: renderingMode, system: colorScheme))

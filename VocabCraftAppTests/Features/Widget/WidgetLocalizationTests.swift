@@ -83,4 +83,18 @@ struct WidgetLocalizationTests {
             #expect(strings[key] == nil, "Key \(key) should be removed")
         }
     }
+
+    @Test("Vietnamese part-of-speech labels are not the English abbreviations")
+    func vietnamesePartOfSpeechLabelsAreLocalized() throws {
+        let strings = try loadCatalogStrings()
+        for pos in ["noun", "verb", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner"] {
+            let entry = try #require(strings["app.widget.pos.\(pos)"] as? [String: Any])
+            let localizations = try #require(entry["localizations"] as? [String: Any])
+            func value(_ language: String) throws -> String {
+                let unit = try #require((localizations[language] as? [String: Any])?["stringUnit"] as? [String: Any])
+                return try #require(unit["value"] as? String)
+            }
+            #expect(try value("vi") != value("en"), "vi label for \(pos) is still English")
+        }
+    }
 }

@@ -34,11 +34,14 @@ public enum WidgetDueQuery {
         return (due, nextDueDate)
     }
 
-    /// Number of progress rows (deck or not) whose `lastReviewDate` is on or after `since`.
+    /// Number of progress rows (deck or not) learned or reviewed on or after `since`.
+    /// Bookmark-only rows have `totalReviews == 0` and a default `lastReviewDate`, so they are excluded.
     @MainActor
     public static func practicedCount(since: Date, in context: ModelContext) throws -> Int {
         try context.fetchCount(
-            FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.lastReviewDate >= since })
+            FetchDescriptor<UserWordProgress>(
+                predicate: #Predicate { $0.lastReviewDate >= since && $0.totalReviews > 0 }
+            )
         )
     }
     #endif

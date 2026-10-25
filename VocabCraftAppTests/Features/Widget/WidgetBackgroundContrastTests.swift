@@ -30,15 +30,18 @@ struct WidgetBackgroundContrastTests {
         return 0.2126 * linear(red) + 0.7152 * linear(green) + 0.0722 * linear(blue)
     }
 
-    private func pixel(_ image: UIImage, x: Int, y: Int) -> (red: Double, green: Double, blue: Double) {
-        guard let cgImage = image.cgImage else { return (0, 0, 0) }
-        var data = [UInt8](repeating: 0, count: 4)
+    /// RGBA bytes of the whole image, row-major from the top-left.
+    private func pixels(of image: UIImage) -> (data: [UInt8], width: Int, height: Int) {
+        guard let cgImage = image.cgImage else { return ([], 0, 0) }
+        let width = cgImage.width
+        let height = cgImage.height
+        var data = [UInt8](repeating: 0, count: width * height * 4)
         let context = CGContext(
-            data: &data, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+            data: &data, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         )
-        context?.draw(cgImage, in: CGRect(x: -x, y: -(cgImage.height - 1 - y), width: cgImage.width, height: cgImage.height))
-        return (Double(data[0]) / 255, Double(data[1]) / 255, Double(data[2]) / 255)
+        context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return (data, width, height)
     }
 
     private func lowestRatio(family: WidgetFamily, size: CGSize, scheme: ColorScheme) throws -> Double {
@@ -61,16 +64,19 @@ struct WidgetBackgroundContrastTests {
         white.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         let foreground = luminance(Double(red), Double(green), Double(blue))
 
+        // Every point of the content area (inside the 16 pt margin), one sample per point.
+        let buffer = pixels(of: image)
+        let scale = 3
+        let margin = 16 * scale
         var lowest = Double.infinity
-        // Text starts below the 16 pt content margin; sample down the whole widget at three x positions.
-        for yFraction in [0.12, 0.2, 0.3, 0.5, 0.7, 0.85] {
-            for xFraction in [0.15, 0.5, 0.85] {
-                let sample = pixel(
-                    image,
-                    x: Int(size.width * xFraction * 3),
-                    y: Int(size.height * yFraction * 3)
+        for y in stride(from: margin, to: buffer.height - margin, by: scale) {
+            for x in stride(from: margin, to: buffer.width - margin, by: scale) {
+                let offset = (y * buffer.width + x) * 4
+                let backgroundLuminance = luminance(
+                    Double(buffer.data[offset]) / 255,
+                    Double(buffer.data[offset + 1]) / 255,
+                    Double(buffer.data[offset + 2]) / 255
                 )
-                let backgroundLuminance = luminance(sample.red, sample.green, sample.blue)
                 let ratio = (max(foreground, backgroundLuminance) + 0.05) / (min(foreground, backgroundLuminance) + 0.05)
                 lowest = min(lowest, ratio)
             }

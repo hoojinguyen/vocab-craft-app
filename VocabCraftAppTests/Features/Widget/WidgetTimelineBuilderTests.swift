@@ -6,6 +6,12 @@ import Testing
 struct WidgetTimelineBuilderTests {
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
+    static var utc: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        return calendar
+    }
+
     private func card(_ id: Int64) -> WidgetCard {
         WidgetCard(
             wordId: id,
@@ -31,7 +37,8 @@ struct WidgetTimelineBuilderTests {
         nextDue: Date? = nil,
         interaction: WidgetInteractionState = .empty,
         practiced: Int = 0,
-        at date: Date? = nil
+        at date: Date? = nil,
+        calendar: Calendar = WidgetTimelineBuilderTests.utc
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
         WidgetTimelineBuilder.build(
             deck: deck,
@@ -39,7 +46,8 @@ struct WidgetTimelineBuilderTests {
             nextDueDate: nextDue,
             interaction: interaction,
             practicedToday: practiced,
-            now: date ?? now
+            now: date ?? now,
+            calendar: calendar
         )
     }
 
@@ -135,5 +143,26 @@ struct WidgetTimelineBuilderTests {
     @Test func placeholderHasZeroPracticed() {
         let result = build(nil, practiced: 9)
         #expect(result.entries[0].practicedToday == 0)
+    }
+
+    // 1_800_057_000 is 23:50 UTC; the next UTC midnight is 1_800_057_600.
+    private var lateEvening: Date { Date(timeIntervalSince1970: 1_800_057_000) }
+    private var midnight: Date { Date(timeIntervalSince1970: 1_800_057_600) }
+
+    @Test func passiveTimelineStopsAtMidnight() {
+        let result = build(deck(3), practiced: 5, at: lateEvening)
+        #expect(!result.entries.isEmpty)
+        #expect(result.entries.allSatisfy { $0.date < midnight })
+        #expect(result.reload == .after(midnight))
+    }
+
+    @Test func flashcardRefreshIsCappedAtMidnight() {
+        let result = build(deck(3), due: [1], at: lateEvening)
+        #expect(result.reload == .after(midnight))
+    }
+
+    @Test func flashcardRefreshStaysHourlyDuringTheDay() {
+        let result = build(deck(3), due: [1])
+        #expect(result.reload == .after(now.addingTimeInterval(3600)))
     }
 }

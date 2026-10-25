@@ -957,12 +957,12 @@
 		2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftWidgetExtension.entitlements"; sourceTree = "<group>"; };
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
 		200002284C02A8E338C2 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetBundle.swift"; sourceTree = "<group>"; };
-		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "VocabWidgetView.swift"; path = "Views/VocabWidgetView.swift"; sourceTree = "<group>"; };
-		20003B7100010007 /* VocabWidgetPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "VocabWidgetPreviews.swift"; path = "Views/VocabWidgetPreviews.swift"; sourceTree = "<group>"; };
-		20003B7100010006 /* WidgetAccessoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetAccessoryViews.swift"; path = "Views/WidgetAccessoryViews.swift"; sourceTree = "<group>"; };
-		20003B7100010005 /* WidgetSystemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetSystemViews.swift"; path = "Views/WidgetSystemViews.swift"; sourceTree = "<group>"; };
-		20003B7100010004 /* WidgetCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetCardComponents.swift"; path = "Views/WidgetCardComponents.swift"; sourceTree = "<group>"; };
-		20003B7100010003 /* WidgetPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetPresentation.swift"; path = "Views/WidgetPresentation.swift"; sourceTree = "<group>"; };
+		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetView.swift"; sourceTree = "<group>"; };
+		20003B7100010007 /* VocabWidgetPreviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetPreviews.swift"; sourceTree = "<group>"; };
+		20003B7100010006 /* WidgetAccessoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetAccessoryViews.swift"; sourceTree = "<group>"; };
+		20003B7100010005 /* WidgetSystemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetSystemViews.swift"; sourceTree = "<group>"; };
+		20003B7100010004 /* WidgetCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetCardComponents.swift"; sourceTree = "<group>"; };
+		20003B7100010003 /* WidgetPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetPresentation.swift"; sourceTree = "<group>"; };
 		2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantViewsTests.swift"; sourceTree = "<group>"; };
 		200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIDomainEntitiesTests.swift"; sourceTree = "<group>"; };
@@ -2263,10 +2263,18 @@
 				4000704340C95D48EEDA /* AppIntents */,
 				40003B7000010003 /* Timeline */,
 				40003B7000010004 /* Review */,
+				40003B7100010001 /* Views */,
 				200017F5C24B744B988C /* Info.plist */,
 				2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */,
 				2000473CACA7476916FA /* VocabWidget.swift */,
 				200002284C02A8E338C2 /* VocabWidgetBundle.swift */,
+			);
+			path = "VocabCraftWidgetExtension";
+			sourceTree = "<group>";
+		};
+		40003B7100010001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
 				200075A9C43B4E98CD5D /* VocabWidgetView.swift */,
 				20003B7100010007 /* VocabWidgetPreviews.swift */,
 				20003B7100010006 /* WidgetAccessoryViews.swift */,
@@ -2274,7 +2282,7 @@
 				20003B7100010004 /* WidgetCardComponents.swift */,
 				20003B7100010003 /* WidgetPresentation.swift */,
 			);
-			path = "VocabCraftWidgetExtension";
+			path = Views;
 			sourceTree = "<group>";
 		};
 		40003B7000010004 /* Review */ = {
