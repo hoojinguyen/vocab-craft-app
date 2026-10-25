@@ -41,6 +41,8 @@ public struct WidgetCard: Codable, Sendable, Equatable, Identifiable {
 
 public struct WidgetDeck: Codable, Sendable, Equatable {
     public static let currentVersion = 2
+    /// Version 1 decks only lack `partOfSpeech`, so they stay readable until the app rewrites them.
+    public static let minimumSupportedVersion = 1
 
     public var version: Int
     public var generatedAt: Date

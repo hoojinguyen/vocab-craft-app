@@ -74,21 +74,24 @@ struct WidgetInlineView: View {
     let card: WidgetCard
 
     var body: some View {
-        if isFlashcard(entry.mode) {
-            let total = entry.practicedToday + entry.dueCount
-            Text(verbatim: String(
-                format: String(localized: "app.widget.inline_progress_format"),
-                entry.practicedToday,
-                total,
-                entry.dueCount
-            ))
-        } else {
-            Text(verbatim: WidgetInlineText.passive(
-                lemma: card.lemma,
-                abbreviation: localizedAbbreviation(for: card.partOfSpeech),
-                definition: card.definitionVi
-            ))
+        Group {
+            if isFlashcard(entry.mode) {
+                let total = entry.practicedToday + entry.dueCount
+                Text(verbatim: String(
+                    format: String(localized: "app.widget.inline_progress_format"),
+                    entry.practicedToday,
+                    total,
+                    entry.dueCount
+                ))
+            } else {
+                Text(verbatim: WidgetInlineText.passive(
+                    lemma: card.lemma,
+                    abbreviation: localizedAbbreviation(for: card.partOfSpeech),
+                    definition: card.definitionVi
+                ))
+            }
         }
+        .widgetURL(isFlashcard(entry.mode) ? URL(string: "vocabcraft://review") : nil)
     }
 }
 #endif

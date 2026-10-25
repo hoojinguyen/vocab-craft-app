@@ -30,7 +30,7 @@ public struct WidgetDeckStore: Sendable {
     public func loadDeck() -> WidgetDeck? {
         guard let data = try? Data(contentsOf: fileURL(Self.deckFileName)),
               let deck = try? Self.makeDecoder().decode(WidgetDeck.self, from: data),
-              deck.version == WidgetDeck.currentVersion else {
+              (WidgetDeck.minimumSupportedVersion...WidgetDeck.currentVersion).contains(deck.version) else {
             return nil
         }
         return deck

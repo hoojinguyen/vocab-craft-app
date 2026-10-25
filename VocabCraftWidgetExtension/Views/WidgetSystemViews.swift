@@ -114,24 +114,33 @@ struct WidgetSmallView: View {
         WidgetProgress.make(practiced: entry.practicedToday, due: entry.dueCount)
     }
 
-    /// Sheds the accent bar, then the source chip row, then the IPA row, so the definition keeps its lines.
+    /// Progress lives in the header, so the IPA row and accent bar go before it does.
     var body: some View {
         ViewThatFits(in: .vertical) {
             layout(showsHeader: true, showsMeta: true, showsAccentBar: true)
             layout(showsHeader: true, showsMeta: true, showsAccentBar: false)
-            layout(showsHeader: false, showsMeta: true, showsAccentBar: false)
-            layout(showsHeader: false, showsMeta: false, showsAccentBar: false)
+            layout(showsHeader: true, showsMeta: false, showsAccentBar: true)
+            layout(showsHeader: true, showsMeta: false, showsAccentBar: false)
+            layout(showsHeader: true, showsMeta: false, showsAccentBar: false, compactLemma: true)
+            layout(showsHeader: false, showsMeta: false, showsAccentBar: false, compactLemma: true)
         }
     }
 
-    private func layout(showsHeader: Bool, showsMeta: Bool, showsAccentBar: Bool) -> some View {
+    private func layout(
+        showsHeader: Bool,
+        showsMeta: Bool,
+        showsAccentBar: Bool,
+        compactLemma: Bool = false
+    ) -> some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             if showsHeader {
                 header
             }
             WidgetLemmaText(
                 lemma: card.lemma,
-                font: entry.mode == .flashcardBack ? theme.typography.titleMedium : theme.typography.titleLarge
+                font: entry.mode == .flashcardBack || compactLemma
+                    ? theme.typography.titleMedium
+                    : theme.typography.titleLarge
             )
             if showsMeta, entry.mode != .flashcardBack {
                 WidgetMetaRow(card: card)

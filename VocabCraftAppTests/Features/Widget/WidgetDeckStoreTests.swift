@@ -92,9 +92,15 @@ struct WidgetDeckStoreTests {
         #expect(store.loadDeck()?.cards.first?.partOfSpeech == "noun")
     }
 
-    @Test func versionOneDeckIsRejected() throws {
+    @Test func versionOneDeckStillLoads() throws {
         let store = makeStore()
         try store.saveDeck(makeDeck(version: 1))
+        #expect(store.loadDeck()?.cards.count == 2)
+    }
+
+    @Test func versionZeroDeckIsRejected() throws {
+        let store = makeStore()
+        try store.saveDeck(makeDeck(version: 0))
         #expect(store.loadDeck() == nil)
     }
 
