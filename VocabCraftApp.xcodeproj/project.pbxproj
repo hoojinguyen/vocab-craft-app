@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7100020005 /* WidgetSystemViews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010005 /* WidgetSystemViews.swift */; };
+		30003B7100030005 /* WidgetSystemViews.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010005 /* WidgetSystemViews.swift */; };
 		30003B7100020004 /* WidgetCardComponents.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010004 /* WidgetCardComponents.swift */; };
 		30003B7100030004 /* WidgetCardComponents.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010004 /* WidgetCardComponents.swift */; };
 		30003B7100020003 /* WidgetPresentation.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010003 /* WidgetPresentation.swift */; };
@@ -949,7 +951,8 @@
 		2000D638CDE180857D38 /* VocabCraftWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftWidgetExtension.entitlements"; sourceTree = "<group>"; };
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
 		200002284C02A8E338C2 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetBundle.swift"; sourceTree = "<group>"; };
-		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetView.swift"; sourceTree = "<group>"; };
+		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "VocabWidgetView.swift"; path = "Views/VocabWidgetView.swift"; sourceTree = "<group>"; };
+		20003B7100010005 /* WidgetSystemViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetSystemViews.swift"; path = "Views/WidgetSystemViews.swift"; sourceTree = "<group>"; };
 		20003B7100010004 /* WidgetCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetCardComponents.swift"; path = "Views/WidgetCardComponents.swift"; sourceTree = "<group>"; };
 		20003B7100010003 /* WidgetPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetPresentation.swift"; path = "Views/WidgetPresentation.swift"; sourceTree = "<group>"; };
 		2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -2257,6 +2260,7 @@
 				2000473CACA7476916FA /* VocabWidget.swift */,
 				200002284C02A8E338C2 /* VocabWidgetBundle.swift */,
 				200075A9C43B4E98CD5D /* VocabWidgetView.swift */,
+				20003B7100010005 /* WidgetSystemViews.swift */,
 				20003B7100010004 /* WidgetCardComponents.swift */,
 				20003B7100010003 /* WidgetPresentation.swift */,
 			);
@@ -3163,6 +3167,7 @@
 				3000473CACA7476916FA /* VocabWidget.swift in Widget Sources */,
 				300002284C02A8E338C2 /* VocabWidgetBundle.swift in Widget Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Widget Sources */,
+				30003B7100020005 /* WidgetSystemViews.swift in Widget Sources */,
 				30003B7100020004 /* WidgetCardComponents.swift in Widget Sources */,
 				30003B7100020003 /* WidgetPresentation.swift in Widget Sources */,
 				3001EB503B69BE532101 /* DatabaseStoreError.swift in Widget Sources */,
@@ -3201,6 +3206,7 @@
 				30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
+				30003B7100030005 /* WidgetSystemViews.swift in Test Sources */,
 				30003B7100030004 /* WidgetCardComponents.swift in Test Sources */,
 				30003B7100030003 /* WidgetPresentation.swift in Test Sources */,
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,
