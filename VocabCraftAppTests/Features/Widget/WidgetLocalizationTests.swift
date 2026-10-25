@@ -37,6 +37,18 @@ struct WidgetLocalizationTests {
             "app.widget.intent.param.word",
             "app.widget.intent.param.remembered",
             "app.widget.intent.error.store_unavailable",
+            "app.widget.pos.noun",
+            "app.widget.pos.verb",
+            "app.widget.pos.adjective",
+            "app.widget.pos.adverb",
+            "app.widget.pos.pronoun",
+            "app.widget.pos.preposition",
+            "app.widget.pos.conjunction",
+            "app.widget.pos.determiner",
+            "app.widget.practiced_today_format",
+            "app.widget.progress_format",
+            "app.widget.inline_progress_format",
+            "app.widget.empty.subtitle",
             "app.widget.accessibility.blank"
         ]
         for key in keys {

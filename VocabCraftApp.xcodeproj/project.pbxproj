@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30003B7100020003 /* WidgetPresentation.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010003 /* WidgetPresentation.swift */; };
+		30003B7100030003 /* WidgetPresentation.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010003 /* WidgetPresentation.swift */; };
+		30003B7100030002 /* WidgetPresentationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010002 /* WidgetPresentationTests.swift */; };
 		30003B7100030001 /* WidgetDueQueryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010001 /* WidgetDueQueryTests.swift */; };
 		30003B700002000D /* WidgetDueQuery.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000D /* WidgetDueQuery.swift */; };
 		30003B700002000E /* WidgetReviewRecorder.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B700001000E /* WidgetReviewRecorder.swift */; };
@@ -581,6 +584,7 @@
 		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
 		20003B7000010012 /* VocabWidgetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetViewTests.swift"; sourceTree = "<group>"; };
 		20003B700001000F /* WidgetReviewRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorderTests.swift"; sourceTree = "<group>"; };
+		20003B7100010002 /* WidgetPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetPresentationTests.swift"; path = "WidgetPresentationTests.swift"; sourceTree = "<group>"; };
 		20003B7100010001 /* WidgetDueQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetDueQueryTests.swift"; path = "WidgetDueQueryTests.swift"; sourceTree = "<group>"; };
 		20003B7000010010 /* RevealCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RevealCardIntent.swift"; sourceTree = "<group>"; };
 		20003B7000010011 /* GradeCardIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GradeCardIntent.swift"; sourceTree = "<group>"; };
@@ -944,6 +948,7 @@
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
 		200002284C02A8E338C2 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetBundle.swift"; sourceTree = "<group>"; };
 		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetView.swift"; sourceTree = "<group>"; };
+		20003B7100010003 /* WidgetPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "WidgetPresentation.swift"; path = "Views/WidgetPresentation.swift"; sourceTree = "<group>"; };
 		2000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000A65D87BF85A411BF /* AIAssistantViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantViewsTests.swift"; sourceTree = "<group>"; };
 		200028004FD41CBE4E9A /* AIDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIDomainEntitiesTests.swift"; sourceTree = "<group>"; };
@@ -2249,6 +2254,7 @@
 				2000473CACA7476916FA /* VocabWidget.swift */,
 				200002284C02A8E338C2 /* VocabWidgetBundle.swift */,
 				200075A9C43B4E98CD5D /* VocabWidgetView.swift */,
+				20003B7100010003 /* WidgetPresentation.swift */,
 			);
 			path = "VocabCraftWidgetExtension";
 			sourceTree = "<group>";
@@ -2601,6 +2607,7 @@
 				20003B700001000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift */,
 				20003B700001000C /* WidgetTimelineBuilderTests.swift */,
 				20003B700001000F /* WidgetReviewRecorderTests.swift */,
+				20003B7100010002 /* WidgetPresentationTests.swift */,
 				20003B7100010001 /* WidgetDueQueryTests.swift */,
 				20003B7000010012 /* VocabWidgetViewTests.swift */,
 			);
@@ -3152,6 +3159,7 @@
 				3000473CACA7476916FA /* VocabWidget.swift in Widget Sources */,
 				300002284C02A8E338C2 /* VocabWidgetBundle.swift in Widget Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Widget Sources */,
+				30003B7100020003 /* WidgetPresentation.swift in Widget Sources */,
 				3001EB503B69BE532101 /* DatabaseStoreError.swift in Widget Sources */,
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */,
 				30003B7000020001 /* WidgetDeck.swift in Widget Sources */,
@@ -3188,6 +3196,7 @@
 				30003B7000030012 /* VocabWidgetViewTests.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
+				30003B7100030003 /* WidgetPresentation.swift in Test Sources */,
 				3000876CF720F7D3E1C4 /* AIAssistantLocalizationTests.swift in Test Sources */,
 				3000A65D87BF85A411BF /* AIAssistantViewsTests.swift in Test Sources */,
 				300028004FD41CBE4E9A /* AIDomainEntitiesTests.swift in Test Sources */,
@@ -3319,6 +3328,7 @@
 				30003B700003000A /* WidgetRefreshingCompleteLessonUseCaseTests.swift in Test Sources */,
 				30003B700003000C /* WidgetTimelineBuilderTests.swift in Test Sources */,
 				30003B700003000F /* WidgetReviewRecorderTests.swift in Test Sources */,
+				30003B7100030002 /* WidgetPresentationTests.swift in Test Sources */,
 				30003B7100030001 /* WidgetDueQueryTests.swift in Test Sources */,
 				30000669E2AEEB9C9048 /* AppStringsParityTests.swift in Test Sources */,
 				30005E3A3F7D00000002 /* ShadowingLocalizationTests.swift in Test Sources */,
