@@ -136,8 +136,25 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
     }
 
     public func markWordReviewed(wordId: Int64, isCorrect: Bool) async throws {
+        applyReview(wordId: wordId, isCorrect: isCorrect, schedulesNextReview: true)
+    }
+
+    private func applyReview(wordId: Int64, isCorrect: Bool, schedulesNextReview: Bool) {
+        let now = Date()
         stateLock.withLock { state in
             if let existing = state.storage[wordId] {
+                let schedule = schedulesNextReview
+                    ? SmartReviewScheduling.schedule(
+                        masteryBefore: existing.masteryLevel,
+                        easeFactor: existing.easeFactor,
+                        isCorrect: isCorrect,
+                        now: now
+                    )
+                    : SmartReviewScheduling.Schedule(
+                        easeFactor: existing.easeFactor,
+                        intervalDays: existing.intervalDays,
+                        nextReviewDate: existing.nextReviewDate
+                    )
                 let newMastery = isCorrect ? min(5, existing.masteryLevel + 1) : existing.masteryLevel
                 let newMistakes = isCorrect ? existing.mistakeCount : existing.mistakeCount + 1
                 state.storage[wordId] = UserWordProgressData(
@@ -145,10 +162,10 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                     cefrLevel: existing.cefrLevel,
                     masteryLevel: newMastery,
                     isBookmarked: existing.isBookmarked,
-                    easeFactor: existing.easeFactor,
-                    intervalDays: existing.intervalDays,
-                    nextReviewDate: existing.nextReviewDate,
-                    lastReviewDate: Date(),
+                    easeFactor: schedule.easeFactor,
+                    intervalDays: schedule.intervalDays,
+                    nextReviewDate: schedule.nextReviewDate,
+                    lastReviewDate: now,
                     totalReviews: existing.totalReviews + 1,
                     needsReview: !isCorrect,
                     mistakeCount: newMistakes,
@@ -160,9 +177,20 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                     modeStats: existing.modeStats
                 )
             } else {
+                let schedule = schedulesNextReview
+                    ? SmartReviewScheduling.schedule(
+                        masteryBefore: 0,
+                        easeFactor: 2.5,
+                        isCorrect: isCorrect,
+                        now: now
+                    )
+                    : SmartReviewScheduling.Schedule(easeFactor: 2.5, intervalDays: 1, nextReviewDate: now)
                 state.storage[wordId] = UserWordProgressData(
                     wordId: wordId,
                     masteryLevel: isCorrect ? 1 : 0,
+                    easeFactor: schedule.easeFactor,
+                    intervalDays: schedule.intervalDays,
+                    nextReviewDate: schedule.nextReviewDate,
                     needsReview: !isCorrect,
                     mistakeCount: isCorrect ? 0 : 1
                 )
@@ -171,7 +199,7 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
     }
 
     public func clearNeedsReview(wordId: Int64) async throws {
-        try await markWordReviewed(wordId: wordId, isCorrect: true)
+        applyReview(wordId: wordId, isCorrect: true, schedulesNextReview: false)
     }
 
     public func fetchAllProgress() async throws -> [UserWordProgressData] {

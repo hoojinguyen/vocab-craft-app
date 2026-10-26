@@ -187,12 +187,10 @@ struct HomeLocalizationTests {
 
     @Test("Verifies widget accessors in AppStrings.Widget")
     func testAppStringsWidgetAccessors() {
-        #expect(AppStrings.Widget.nextText == "Next")
-        #expect(AppStrings.Widget.masteredText == "Mastered")
-        #expect(AppStrings.Widget.levelText(3) == "Level 3")
-        let _: LocalizedStringKey = AppStrings.Widget.next
-        let _: LocalizedStringKey = AppStrings.Widget.mastered
-        let _: LocalizedStringKey = AppStrings.Widget.level(3)
+        #expect(AppStrings.Widget.displayNameText == "VocabCraft Reflex Widget")
+        #expect(AppStrings.Widget.descriptionText == "Learn words from your path right on your Home Screen.")
+        let _: LocalizedStringKey = AppStrings.Widget.displayName
+        let _: LocalizedStringKey = AppStrings.Widget.description
     }
 
     @Test("Verifies AI Assistant and widget catalog keys integrity")
@@ -207,9 +205,9 @@ struct HomeLocalizationTests {
             "app.ai_assistant.feature_conversation_title": ("Đối tác Luyện hội thoại AI", "AI Conversation Partner"),
             "app.ai_assistant.feature_context_title": ("Tạo Ngữ cảnh Thông minh", "Smart Context Generator"),
             "app.ai_assistant.feature_pronunciation_title": ("Huấn luyện viên Ngữ điệu & Phát âm", "Phonetic & Tone Coach"),
-            "app.widget.next": ("Tiếp", "Next"),
-            "app.widget.mastered": ("Thuộc", "Mastered"),
-            "app.widget.level_format": ("Cấp độ %lld", "Level %lld")
+            "app.widget.display_name": ("Widget Phản xạ VocabCraft", "VocabCraft Reflex Widget"),
+            "app.widget.badge.review": ("Ôn", "Review"),
+            "app.widget.due_count_format": ("Cần ôn: %lld", "Due for review: %lld")
         ]
 
         for (key, expected) in expectedAIAssistantAndKeys {

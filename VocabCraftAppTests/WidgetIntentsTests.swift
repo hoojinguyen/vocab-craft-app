@@ -1,157 +1,161 @@
 import Foundation
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
-import AppIntents
 import SwiftData
-import SwiftUI
+import Testing
 @testable import VocabCraftApp
 #if SWIFT_PACKAGE
 @testable import VocabCraftWidgetExtension
 #endif
-import WidgetKit
-#if canImport(XCTest)
-import XCTest
-#endif
 
 @MainActor
-final class WidgetIntentsTests: XCTestCase {
-    var container: ModelContainer!
-    var context: ModelContext!
+@Suite("Widget Intents")
+struct WidgetIntentsTests {
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
 
-    override func setUp() async throws {
-        try await super.setUp()
-        container = try SharedAppGroupContainer.createContainer(inMemory: true)
-        context = container.mainContext
+    private func makeStore() -> WidgetDeckStore {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("widget-intents-\(UUID().uuidString)", isDirectory: true)
+        return WidgetDeckStore(directoryURL: directory)
     }
 
-    override func tearDown() async throws {
-        context = nil
-        container = nil
-        try await super.tearDown()
+    private func makeContainer() throws -> ModelContainer {
+        try SharedAppGroupContainer.createContainer(inMemory: true)
     }
 
-    func testNextWordIntentRotatesWidgetState() async throws {
-        // Initial state
-        let initialState = WidgetCurrentState(
-            currentWordId: 101,
-            lemma: "Abandon",
-            ipaUs: "/əˈbæn.dən/",
-            definitionVi: "Từ bỏ",
-            exampleEn: "Never abandon your dreams.",
-            lastUpdated: Date(timeIntervalSince1970: 1000)
+    private func card(_ id: Int64) -> WidgetCard {
+        WidgetCard(wordId: id, lemma: "w\(id)", ipa: "", definitionVi: "d", exampleEn: "e", source: .due)
+    }
+
+    @discardableResult
+    private func insertRow(_ id: Int64, nextReview: Date, in context: ModelContext) throws -> UserWordProgress {
+        let row = UserWordProgress(
+            wordId: id,
+            masteryLevel: 1,
+            easeFactor: 2.5,
+            intervalDays: 1,
+            nextReviewDate: nextReview,
+            lastReviewDate: now.addingTimeInterval(-86_400),
+            totalReviews: 4
         )
-        context.insert(initialState)
+        context.insert(row)
         try context.save()
-
-        let intent = NextWordIntent()
-        let result = try await intent.perform(in: context)
-        XCTAssertNotNil(result)
-
-        let states = try context.fetch(FetchDescriptor<WidgetCurrentState>())
-        XCTAssertEqual(states.count, 1)
-        let updatedState = states.first!
-        XCTAssertGreaterThan(updatedState.lastUpdated.timeIntervalSince1970, 1000)
+        return row
     }
 
-    func testMarkLearnedIntentUpdatesSRSAndRotatesState() async throws {
-        let initialState = WidgetCurrentState(
-            currentWordId: 202,
-            lemma: "Brilliant",
-            ipaUs: "/ˈbrɪl.jənt/",
-            definitionVi: "Rực rỡ, thông minh",
-            exampleEn: "A brilliant idea.",
-            lastUpdated: Date(timeIntervalSince1970: 1000)
-        )
-        context.insert(initialState)
-        try context.save()
+    @Test("revealStoresWordAndTime")
+    func revealStoresWordAndTime() throws {
+        let store = makeStore()
 
-        let intent = MarkLearnedIntent()
-        let result = try await intent.perform(in: context)
-        XCTAssertNotNil(result)
+        try RevealCardIntent(wordId: 5).perform(store: store, now: now)
 
-        // Verify UserWordProgress was updated/created
-        let progressList = try context.fetch(FetchDescriptor<UserWordProgress>())
-        XCTAssertFalse(progressList.isEmpty)
-        let progress = progressList.first(where: { $0.wordId == 202 })
-        XCTAssertNotNil(progress)
-        XCTAssertGreaterThanOrEqual(progress?.masteryLevel ?? 0, 1)
-
-        // Verify state rotated
-        let states = try context.fetch(FetchDescriptor<WidgetCurrentState>())
-        XCTAssertEqual(states.count, 1)
-        XCTAssertGreaterThan(states.first!.lastUpdated.timeIntervalSince1970, 1000)
+        #expect(store.loadInteraction() == .init(revealedWordId: 5, revealedAt: now))
     }
 
-    func testVocabWidgetProviderPlaceholderAndFetch() throws {
-        let provider = VocabWidgetProvider()
-        let placeholder = provider.makePlaceholder()
-        XCTAssertEqual(placeholder.lemma, "Abandon")
-        XCTAssertFalse(placeholder.definitionVi.isEmpty)
+    @Test("gradeClearsInteractionOnSuccess")
+    func gradeClearsInteractionOnSuccess() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
+        let row = try insertRow(5, nextReview: now.addingTimeInterval(-60), in: context)
+        try RevealCardIntent(wordId: 5).perform(store: store, now: now.addingTimeInterval(-3))
 
-        // Populate SwiftData container state
-        let state = WidgetCurrentState(
-            currentWordId: 303,
-            lemma: "Resilient",
-            ipaUs: "/rɪˈzɪl.jənt/",
-            definitionVi: "Kiên cường",
-            exampleEn: "Be resilient under pressure.",
-            lastUpdated: Date()
-        )
-        context.insert(state)
-        let progress = UserWordProgress(wordId: 303, masteryLevel: 4)
-        context.insert(progress)
-        try context.save()
+        try GradeCardIntent(wordId: 5, remembered: true).perform(store: store, context: context, now: now)
 
-        let fetchedEntry = provider.fetchCurrentEntry(in: container)
-        XCTAssertNotNil(fetchedEntry)
-        XCTAssertEqual(fetchedEntry?.lemma, "Resilient")
-        XCTAssertEqual(fetchedEntry?.definitionVi, "Kiên cường")
-        XCTAssertEqual(fetchedEntry?.masteryLevel, 4)
+        #expect(store.loadInteraction() == .empty)
+        #expect(row.totalReviews == 5)
+        #expect(row.lastReviewDate == now)
     }
 
-    func testVocabWidgetViewInstantiation() {
-        let entry = VocabWidgetEntry(
-            date: Date(),
-            lemma: "Eloquent",
-            ipaUs: "/ˈel.ə.kwənt/",
-            definitionVi: "Hùng hồn",
-            exampleEn: "An eloquent speaker.",
-            masteryLevel: 3
-        )
-        let view = VocabWidgetView(entry: entry)
-        XCTAssertNotNil(view.body)
+    @Test("gradeKeepsInteractionWhenRejected")
+    func gradeKeepsInteractionWhenRejected() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        let context = container.mainContext
+        let row = try insertRow(5, nextReview: now.addingTimeInterval(-60), in: context)
+        try RevealCardIntent(wordId: 5).perform(store: store, now: now.addingTimeInterval(-3))
+
+        try GradeCardIntent(wordId: 6, remembered: true).perform(store: store, context: context, now: now)
+
+        #expect(store.loadInteraction().revealedWordId == 5)
+        #expect(row.totalReviews == 4)
+        #expect(row.masteryLevel == 1)
+        #expect(row.nextReviewDate == now.addingTimeInterval(-60))
     }
 
-    func testWidgetContainerHolderSharedContainer() {
-        let container = WidgetContainerHolder.sharedContainer
-        XCTAssertNotNil(container)
+    @Test("providerTimelineUsesDeckAndDueRows")
+    func providerTimelineUsesDeckAndDueRows() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        try insertRow(2, nextReview: now.addingTimeInterval(-60), in: container.mainContext)
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+
+        let provider = VocabWidgetProvider(store: store, container: container)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(timeline.entries.count == 1)
+        #expect(timeline.entries.first?.card?.wordId == 2)
+        #expect(timeline.entries.first?.mode == .flashcardFront)
+        #expect(timeline.entries.first?.dueCount == 1)
     }
 
-    func testVocabWidgetProviderFetchCurrentEntryWithDefaultContainer() throws {
-        guard let shared = WidgetContainerHolder.sharedContainer else {
-            XCTFail("Shared container should not be nil")
-            return
-        }
-        let sharedContext = ModelContext(shared)
-        let state = WidgetCurrentState(
-            currentWordId: 404,
-            lemma: "Persistent",
-            ipaUs: "/pəˈsɪs.tənt/",
-            definitionVi: "Bền bỉ",
-            exampleEn: "Success comes with persistent effort.",
-            lastUpdated: Date()
-        )
-        sharedContext.insert(state)
-        let progress = UserWordProgress(wordId: 404, masteryLevel: 2)
-        sharedContext.insert(progress)
-        try sharedContext.save()
+    @Test("providerClearsStaleRevealState")
+    func providerClearsStaleRevealState() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        try insertRow(2, nextReview: now.addingTimeInterval(86_400), in: container.mainContext)
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+        try store.saveInteraction(WidgetInteractionState(revealedWordId: 2, revealedAt: now.addingTimeInterval(-3)))
 
-        let provider = VocabWidgetProvider()
-        let fetched = provider.fetchCurrentEntry()
-        XCTAssertNotNil(fetched)
-        XCTAssertEqual(fetched?.lemma, "Persistent")
-        XCTAssertEqual(fetched?.definitionVi, "Bền bỉ")
-        XCTAssertEqual(fetched?.masteryLevel, 2)
+        let provider = VocabWidgetProvider(store: store, container: container)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(timeline.entries.first?.mode != .flashcardBack)
+        #expect(store.loadInteraction() == .empty)
+    }
+
+    @Test("providerWithoutContainerTreatsNothingDue")
+    func providerWithoutContainerTreatsNothingDue() throws {
+        let store = makeStore()
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+
+        let provider = VocabWidgetProvider(store: store, container: nil)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(timeline.entries.first?.mode == .passive)
+        #expect(timeline.entries.first?.dueCount == 0)
+    }
+
+    @Test("providerWithoutContainerKeepsStoredReveal")
+    func providerWithoutContainerKeepsStoredReveal() throws {
+        let store = makeStore()
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+        let reveal = WidgetInteractionState(revealedWordId: 1, revealedAt: now.addingTimeInterval(-5))
+        try store.saveInteraction(reveal)
+
+        let provider = VocabWidgetProvider(store: store, container: nil)
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(store.loadInteraction() == reveal)
+        #expect(timeline.policy == .after(now.addingTimeInterval(300)))
+    }
+
+    @Test("providerWithoutDeckReturnsPlaceholder")
+    func providerWithoutDeckReturnsPlaceholder() {
+        let provider = VocabWidgetProvider(store: makeStore(), container: nil)
+
+        let timeline = provider.makeTimeline(now: now)
+
+        #expect(timeline.entries == [.placeholder(at: now)])
+        #expect(timeline.policy == .after(now.addingTimeInterval(3600)))
+    }
+
+    @Test("sharedContainerIsAvailable")
+    func sharedContainerIsAvailable() {
+        #expect(WidgetContainerHolder.sharedContainer != nil)
     }
 }
-
 #endif

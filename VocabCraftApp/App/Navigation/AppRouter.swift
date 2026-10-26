@@ -10,6 +10,7 @@ public final class AppRouter {
     public var navigationPath: NavigationPath
     public var pendingReflexBlitzConfig: ReflexBlitzDeepLinkConfig?
     public var pendingShadowingVideoId: String?
+    public var pendingSmartReview: Bool = false
 
     public init(initialTab: TabItem = .home) {
         let args = ProcessInfo.processInfo.arguments
@@ -100,6 +101,9 @@ public final class AppRouter {
                 }
             }
         } else if host == "vocabulary" {
+            selectTab(.vocabulary)
+        } else if host == "review" {
+            pendingSmartReview = true
             selectTab(.vocabulary)
         } else if host == "settings" {
             selectTab(.settings)

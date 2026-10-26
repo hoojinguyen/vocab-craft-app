@@ -19,74 +19,110 @@ public enum WidgetContainerHolder {
 }
 #endif
 
-public struct VocabWidgetProvider: TimelineProvider {
-    public init() {}
+public struct VocabWidgetProvider: TimelineProvider, Sendable {
+    private let store: WidgetDeckStore
+    #if canImport(SwiftDataMacros) || canImport(SwiftData)
+    private let container: ModelContainer?
 
-    public func placeholder(in context: Context) -> VocabWidgetEntry {
-        makePlaceholder()
+    public init() {
+        self.init(store: .appGroup(), container: WidgetContainerHolder.sharedContainer)
     }
 
-    public func makePlaceholder() -> VocabWidgetEntry {
-        VocabWidgetEntry(
-            date: Date(),
-            lemma: String(localized: "app.widget.placeholder.lemma"),
-            ipaUs: String(localized: "app.widget.placeholder.ipa"),
-            definitionVi: String(localized: "app.widget.placeholder.definition"),
-            exampleEn: String(localized: "app.widget.placeholder.example"),
-            masteryLevel: 0
-        )
+    /// Injectable for tests. A `nil` container means nothing is due.
+    init(store: WidgetDeckStore, container: ModelContainer?) {
+        self.store = store
+        self.container = container
+    }
+    #else
+    public init() {
+        self.store = .appGroup()
+    }
+    #endif
+
+    public func placeholder(in context: Context) -> VocabWidgetEntry {
+        VocabWidgetEntry.placeholder(at: Date())
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
-        #if canImport(SwiftDataMacros) || canImport(SwiftData)
-        if let entry = fetchCurrentEntry() {
-            completion(entry)
-        } else {
-            completion(makePlaceholder())
+        // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
+        nonisolated(unsafe) let done = completion
+        Task { @MainActor in
+            let now = Date()
+            let first = makeTimeline(now: now).entries.first
+            done(first ?? VocabWidgetEntry.placeholder(at: now))
         }
-        #else
-        completion(makePlaceholder())
-        #endif
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
+        // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
+        nonisolated(unsafe) let done = completion
+        Task { @MainActor in
+            done(makeTimeline(now: Date()))
+        }
+    }
+
+    @MainActor
+    func makeTimeline(now: Date) -> Timeline<VocabWidgetEntry> {
+        let deck = store.loadDeck()
+        var interaction = store.loadInteraction()
+
+        var dueWordIds: Set<Int64> = []
+        var nextDueDate: Date?
+        var dueQuerySucceeded = false
+        var practicedToday = 0
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
-        let entry = fetchCurrentEntry() ?? makePlaceholder()
-        #else
-        let entry = makePlaceholder()
+        if let container {
+            practicedToday = (try? WidgetDueQuery.practicedCount(
+                since: Calendar.current.startOfDay(for: now),
+                in: ModelContext(container)
+            )) ?? 0
+        }
+        if let deck, let container {
+            let context = ModelContext(container)
+            if let status = try? WidgetDueQuery.dueStatus(
+                for: deck.cards.map(\.wordId),
+                in: context,
+                now: now
+            ) {
+                dueWordIds = status.due
+                nextDueDate = status.nextDueDate
+                dueQuerySucceeded = true
+            }
+        }
         #endif
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
-    }
 
-    #if canImport(SwiftDataMacros) || canImport(SwiftData)
-    public func fetchCurrentEntry(in container: ModelContainer? = nil) -> VocabWidgetEntry? {
-        guard let targetContainer = container ?? WidgetContainerHolder.sharedContainer else {
-            return nil
-        }
-        let context = ModelContext(targetContainer)
-        guard let state = try? context.fetch(FetchDescriptor<WidgetCurrentState>()).first else {
-            return nil
+        if dueQuerySucceeded, let revealedId = interaction.revealedWordId, !dueWordIds.contains(revealedId) {
+            // Stale reveal state: the word is no longer due, so it must not reopen on the answer side later.
+            interaction = .empty
+            try? store.saveInteraction(.empty)
         }
 
-        let wordId = state.currentWordId
-        var fetchDescriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
-        fetchDescriptor.fetchLimit = 1
-        fetchDescriptor.propertiesToFetch = [\.masteryLevel]
-
-        let mastery = (try? context.fetch(fetchDescriptor))?.first?.masteryLevel ?? 0
-
-        return VocabWidgetEntry(
-            date: state.lastUpdated,
-            lemma: state.lemma,
-            ipaUs: state.ipaUs,
-            definitionVi: state.definitionVi,
-            exampleEn: state.exampleEn,
-            masteryLevel: mastery
+        let plan = WidgetTimelineBuilder.build(
+            deck: deck,
+            dueWordIds: dueWordIds,
+            nextDueDate: nextDueDate,
+            interaction: interaction,
+            practicedToday: practicedToday,
+            now: now
         )
+        // With a deck but unreadable due status, keep the state untouched and retry soon.
+        // Without a deck the app reloads timelines once it writes one, so the builder's policy stands.
+        let deckPresent = deck?.cards.isEmpty == false
+        let policy: TimelineReloadPolicy = (deckPresent && !dueQuerySucceeded)
+            ? .after(now.addingTimeInterval(Self.retryInterval))
+            : Self.reloadPolicy(for: plan.reload)
+        return Timeline(entries: plan.entries, policy: policy)
     }
-    #endif
+
+    /// Retry delay when the due query could not run (seconds).
+    static let retryInterval: TimeInterval = 300
+
+    static func reloadPolicy(for plan: WidgetReloadPlan) -> TimelineReloadPolicy {
+        switch plan {
+        case .atEnd: return .atEnd
+        case .after(let date): return .after(date)
+        }
+    }
 }
 
 public struct VocabWidget: Widget {
@@ -101,7 +137,7 @@ public struct VocabWidget: Widget {
         .configurationDisplayName(LocalizedStringKey("app.widget.display_name"))
         .description(LocalizedStringKey("app.widget.description"))
         #if os(iOS)
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryInline])
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular, .accessoryInline])
         #else
         .supportedFamilies([.systemSmall, .systemMedium])
         #endif

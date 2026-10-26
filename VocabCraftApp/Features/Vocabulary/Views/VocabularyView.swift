@@ -6,6 +6,7 @@ import SwiftUI
 /// top review action button, active recall word rows, and a detail sheet.
 public struct VocabularyView: View {
     @Environment(\.appContainer) private var appContainer
+    @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
 
     @State private var vaultVM: PersonalVaultViewModel?
@@ -17,6 +18,7 @@ public struct VocabularyView: View {
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
     @State private var isPresentingSmartReview: Bool = false
+    @State private var smartReviewWords: [PersonalWord] = []
 
     @MainActor
     public init(
@@ -271,7 +273,7 @@ public struct VocabularyView: View {
             .sheet(isPresented: $isPresentingSmartReview) {
                 SmartReviewSessionView(
                     viewModel: appContainer.makeSmartReviewViewModel(
-                        weakWords: currentVaultVM.words.filter(\.needsReview)
+                        weakWords: smartReviewWords
                     ),
                     onDismiss: {
                         isPresentingSmartReview = false
@@ -293,6 +295,24 @@ public struct VocabularyView: View {
                     await vm.loadData()
                 }
             }
+            .onChange(of: appRouter.pendingSmartReview) { _, _ in
+                consumePendingSmartReview()
+            }
+            .onAppear {
+                consumePendingSmartReview()
+            }
+        }
+    }
+
+    /// Opens smart review when a `vocabcraft://review` deep link set the router flag.
+    private func consumePendingSmartReview() {
+        guard appRouter.pendingSmartReview else { return }
+        appRouter.pendingSmartReview = false
+        Task {
+            let dueWords = try? await appContainer.reviewWeakWordsUseCase.fetchDueWords(now: Date())
+            // A failed fetch falls back to the loaded list instead of showing a misleading empty review.
+            smartReviewWords = dueWords ?? (vaultVM?.words.filter(\.needsReview) ?? [])
+            isPresentingSmartReview = true
         }
     }
 
@@ -416,6 +436,7 @@ public struct VocabularyView: View {
                 activeDrillViewModel = drillVM
             }
         } else if state.starts(with: "smart-review") {
+            smartReviewWords = vaultVM?.words.filter(\.needsReview) ?? []
             isPresentingSmartReview = true
         }
     }

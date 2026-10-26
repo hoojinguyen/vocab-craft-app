@@ -3,12 +3,47 @@ import Foundation
 /// Protocol for querying weak words and marking words reviewed in a focused session.
 public protocol ReviewWeakWordsUseCaseProtocol: Sendable {
     func fetchWeakWords() async throws -> [PersonalWord]
+    /// Words whose `nextReviewDate` has passed (or that are flagged `needsReview`), most overdue first.
+    func fetchDueWords(now: Date) async throws -> [PersonalWord]
     func markWordReviewed(wordId: Int64, isCorrect: Bool) async throws
 }
 
 public extension ReviewWeakWordsUseCaseProtocol {
+    func fetchDueWords(now: Date) async throws -> [PersonalWord] {
+        try await fetchWeakWords()
+    }
+
     func markWordReviewed(wordId: Int64) async throws {
         try await markWordReviewed(wordId: wordId, isCorrect: true)
+    }
+}
+
+/// Scheduling applied when a word is graded in Smart Review.
+enum SmartReviewScheduling {
+    /// Smart Review has no response timer, so SRS receives a neutral response time.
+    static let responseTimeMs = 3000
+
+    struct Schedule {
+        let easeFactor: Double
+        let intervalDays: Int
+        let nextReviewDate: Date
+    }
+
+    static func schedule(
+        masteryBefore: Int,
+        easeFactor: Double,
+        isCorrect: Bool,
+        now: Date
+    ) -> Schedule {
+        let result = SRSEngine.calculateNextInterval(
+            currentMastery: masteryBefore,
+            easeFactor: easeFactor,
+            isCorrect: isCorrect,
+            responseTimeMs: responseTimeMs
+        )
+        let nextReviewDate = Calendar.current.date(byAdding: .day, value: result.intervalDays, to: now)
+            ?? now.addingTimeInterval(TimeInterval(result.intervalDays) * 86_400)
+        return Schedule(easeFactor: result.easeFactor, intervalDays: result.intervalDays, nextReviewDate: nextReviewDate)
     }
 }
 
@@ -27,7 +62,22 @@ public final class ReviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol, Senda
 
     public func fetchWeakWords() async throws -> [PersonalWord] {
         let allProgress = try await progressRepo.fetchAllProgress()
-        let weakProgress = allProgress.filter(\.needsReview)
+        return try await resolveWords(for: allProgress.filter(\.needsReview))
+    }
+
+    public func fetchDueWords(now: Date) async throws -> [PersonalWord] {
+        let allProgress = try await progressRepo.fetchAllProgress()
+        let dueProgress = allProgress
+            .filter { $0.nextReviewDate <= now || $0.needsReview }
+            .sorted { lhs, rhs in
+                lhs.nextReviewDate == rhs.nextReviewDate
+                    ? lhs.wordId < rhs.wordId
+                    : lhs.nextReviewDate < rhs.nextReviewDate
+            }
+        return try await resolveWords(for: dueProgress)
+    }
+
+    private func resolveWords(for weakProgress: [UserWordProgressData]) async throws -> [PersonalWord] {
         guard !weakProgress.isEmpty else { return [] }
 
         let weakIds = Set(weakProgress.map(\.wordId))

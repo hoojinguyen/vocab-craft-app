@@ -124,7 +124,17 @@ extension UserProgressModelActor {
     }
 
     public func markWordReviewed(wordId: Int64, isCorrect: Bool) throws {
+        try applyReview(wordId: wordId, isCorrect: isCorrect, schedulesNextReview: true)
+    }
+
+    public func clearNeedsReview(wordId: Int64) throws {
+        try applyReview(wordId: wordId, isCorrect: true, schedulesNextReview: false)
+    }
+
+    private func applyReview(wordId: Int64, isCorrect: Bool, schedulesNextReview: Bool) throws {
+        let now = Date()
         if let existing = try fetchEntity(wordId: wordId) {
+            let masteryBefore = existing.masteryLevel
             if isCorrect {
                 existing.needsReview = false
                 existing.masteryLevel = min(5, existing.masteryLevel + 1)
@@ -132,8 +142,19 @@ extension UserProgressModelActor {
                 existing.needsReview = true
                 existing.mistakeCount += 1
             }
-            existing.lastReviewDate = Date()
+            existing.lastReviewDate = now
             existing.totalReviews += 1
+            if schedulesNextReview {
+                let schedule = SmartReviewScheduling.schedule(
+                    masteryBefore: masteryBefore,
+                    easeFactor: existing.easeFactor,
+                    isCorrect: isCorrect,
+                    now: now
+                )
+                existing.easeFactor = schedule.easeFactor
+                existing.intervalDays = schedule.intervalDays
+                existing.nextReviewDate = schedule.nextReviewDate
+            }
         } else {
             let newProgress = UserWordProgress(
                 wordId: wordId,
@@ -142,13 +163,20 @@ extension UserProgressModelActor {
                 mistakeCount: isCorrect ? 0 : 1
             )
             newProgress.totalReviews = 1
+            if schedulesNextReview {
+                let schedule = SmartReviewScheduling.schedule(
+                    masteryBefore: 0,
+                    easeFactor: newProgress.easeFactor,
+                    isCorrect: isCorrect,
+                    now: now
+                )
+                newProgress.easeFactor = schedule.easeFactor
+                newProgress.intervalDays = schedule.intervalDays
+                newProgress.nextReviewDate = schedule.nextReviewDate
+            }
             modelContext.insert(newProgress)
         }
         try modelContext.save()
-    }
-
-    public func clearNeedsReview(wordId: Int64) throws {
-        try markWordReviewed(wordId: wordId, isCorrect: true)
     }
 
     public func recordDrillResult(
@@ -441,7 +469,17 @@ extension UserProgressModelActor {
     }
 
     public func markWordReviewed(wordId: Int64, isCorrect: Bool) throws {
+        try applyReview(wordId: wordId, isCorrect: isCorrect, schedulesNextReview: true)
+    }
+
+    public func clearNeedsReview(wordId: Int64) throws {
+        try applyReview(wordId: wordId, isCorrect: true, schedulesNextReview: false)
+    }
+
+    private func applyReview(wordId: Int64, isCorrect: Bool, schedulesNextReview: Bool) throws {
+        let now = Date()
         if let existing = records[wordId] {
+            let masteryBefore = existing.masteryLevel
             if isCorrect {
                 existing.needsReview = false
                 existing.masteryLevel = min(5, existing.masteryLevel + 1)
@@ -449,8 +487,19 @@ extension UserProgressModelActor {
                 existing.needsReview = true
                 existing.mistakeCount += 1
             }
-            existing.lastReviewDate = Date()
+            existing.lastReviewDate = now
             existing.totalReviews += 1
+            if schedulesNextReview {
+                let schedule = SmartReviewScheduling.schedule(
+                    masteryBefore: masteryBefore,
+                    easeFactor: existing.easeFactor,
+                    isCorrect: isCorrect,
+                    now: now
+                )
+                existing.easeFactor = schedule.easeFactor
+                existing.intervalDays = schedule.intervalDays
+                existing.nextReviewDate = schedule.nextReviewDate
+            }
         } else {
             let newProgress = UserWordProgress(
                 wordId: wordId,
@@ -459,12 +508,19 @@ extension UserProgressModelActor {
                 mistakeCount: isCorrect ? 0 : 1
             )
             newProgress.totalReviews = 1
+            if schedulesNextReview {
+                let schedule = SmartReviewScheduling.schedule(
+                    masteryBefore: 0,
+                    easeFactor: newProgress.easeFactor,
+                    isCorrect: isCorrect,
+                    now: now
+                )
+                newProgress.easeFactor = schedule.easeFactor
+                newProgress.intervalDays = schedule.intervalDays
+                newProgress.nextReviewDate = schedule.nextReviewDate
+            }
             records[wordId] = newProgress
         }
-    }
-
-    public func clearNeedsReview(wordId: Int64) throws {
-        try markWordReviewed(wordId: wordId, isCorrect: true)
     }
 
     public func recordDrillResult(

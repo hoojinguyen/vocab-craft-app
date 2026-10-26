@@ -777,17 +777,7 @@ extension AppStrings {
         public static var displayName: LocalizedStringKey { "app.widget.display_name" }
         public static var displayNameText: String { String(localized: "app.widget.display_name", defaultValue: "VocabCraft Reflex Widget", bundle: .module) }
         public static var description: LocalizedStringKey { "app.widget.description" }
-        public static var descriptionText: String { String(localized: "app.widget.description", defaultValue: "Learn vocabulary and reflex patterns continuously on your Home Screen.", bundle: .module) }
-        public static var next: LocalizedStringKey { "app.widget.next" }
-        public static var nextText: String { String(localized: "app.widget.next", defaultValue: "Next", bundle: .module) }
-        public static var mastered: LocalizedStringKey { "app.widget.mastered" }
-        public static var masteredText: String { String(localized: "app.widget.mastered", defaultValue: "Mastered", bundle: .module) }
-        public static func level(_ level: Int) -> LocalizedStringKey {
-            LocalizedStringKey(levelText(level))
-        }
-        public static func levelText(_ level: Int) -> String {
-            String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld", bundle: .module), level)
-        }
+        public static var descriptionText: String { String(localized: "app.widget.description", defaultValue: "Learn words from your path right on your Home Screen.", bundle: .module) }
     }
 
     // MARK: - Audio

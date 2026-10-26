@@ -10082,19 +10082,121 @@
         }
       }
     },
+    "app.widget.accessibility.blank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "blank"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chỗ trống"
+          }
+        }
+      }
+    },
+    "app.widget.action.forgot": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quên"
+          }
+        }
+      }
+    },
+    "app.widget.action.remembered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remembered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhớ"
+          }
+        }
+      }
+    },
+    "app.widget.action.reveal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveal"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện nghĩa"
+          }
+        }
+      }
+    },
+    "app.widget.badge.new": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mới"
+          }
+        }
+      }
+    },
+    "app.widget.badge.review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn"
+          }
+        }
+      }
+    },
     "app.widget.description": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Learn vocabulary and reflex patterns continuously on your Home Screen."
+            "value": "Learn words from your path right on your Home Screen."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Học từ vựng và mẫu câu phản xạ liên tục trên Màn hình chính."
+            "value": "Học từ trong lộ trình ngay trên màn hình chính."
           }
         }
       }
@@ -10116,189 +10218,393 @@
         }
       }
     },
-    "app.widget.intent.mark_learned.description": {
+    "app.widget.empty.subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mark current word as mastered"
+            "value": "Start your first lesson"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đánh dấu từ hiện tại đã thuộc"
+            "value": "Bắt đầu bài học đầu tiên"
           }
         }
       }
     },
-    "app.widget.intent.mark_learned.title": {
+    "app.widget.inline_progress_format": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mark Mastered"
+            "value": "%1$lld/%2$lld · %3$lld to review"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã thuộc"
+            "value": "%1$lld/%2$lld · %3$lld từ cần ôn"
           }
         }
       }
     },
-    "app.widget.intent.next_word.description": {
+    "app.widget.pos.adjective": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rotate to the next vocabulary word on Widget"
+            "value": "adj."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đổi từ vựng mới trên Widget"
+            "value": "tt."
           }
         }
       }
     },
-    "app.widget.intent.next_word.title": {
+    "app.widget.pos.adverb": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Next Word"
+            "value": "adv."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Từ tiếp theo"
+            "value": "trt."
           }
         }
       }
     },
-    "app.widget.level_format": {
+    "app.widget.pos.conjunction": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Level %lld"
+            "value": "conj."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cấp độ %lld"
+            "value": "lt."
           }
         }
       }
     },
-    "app.widget.mastered": {
+    "app.widget.pos.determiner": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mastered"
+            "value": "det."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thuộc"
+            "value": "hđ."
           }
         }
       }
     },
-    "app.widget.next": {
+    "app.widget.pos.noun": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Next"
+            "value": "n."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiếp"
+            "value": "dt."
           }
         }
       }
     },
-    "app.widget.placeholder.definition": {
+    "app.widget.pos.preposition": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "To give up completely"
+            "value": "prep."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Từ bỏ, ruồng bỏ"
+            "value": "gt."
           }
         }
       }
     },
-    "app.widget.placeholder.example": {
+    "app.widget.pos.pronoun": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "He decided to abandon the plan."
+            "value": "pron."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anh ấy quyết định từ bỏ kế hoạch."
+            "value": "đại từ"
           }
         }
       }
     },
-    "app.widget.placeholder.ipa": {
+    "app.widget.pos.verb": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "/əˈbæn.dən/"
+            "value": "v."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "/əˈbæn.dən/"
+            "value": "đt."
           }
         }
       }
     },
-    "app.widget.placeholder.lemma": {
+    "app.widget.practiced_today_format": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abandon"
+            "value": "Today: %lld words"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abandon"
+            "value": "Hôm nay: %lld từ"
+          }
+        }
+      }
+    },
+    "app.widget.progress_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "app.widget.due_count_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due for review: %lld"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần ôn: %lld"
+          }
+        }
+      }
+    },
+    "app.widget.empty.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open VocabCraft to start"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở VocabCraft để bắt đầu"
+          }
+        }
+      }
+    },
+    "app.widget.hidden_meaning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recall the meaning, then reveal"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhớ lại nghĩa rồi bấm hiện"
+          }
+        }
+      }
+    },
+    "app.widget.intent.grade.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Records whether you remembered the word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi lại bạn có nhớ từ hay không"
+          }
+        }
+      }
+    },
+    "app.widget.intent.grade.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grade card"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chấm thẻ"
+          }
+        }
+      }
+    },
+    "app.widget.intent.error.store_unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your progress. Try again from the app."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không mở được tiến độ học. Hãy thử lại từ ứng dụng."
+          }
+        }
+      }
+    },
+    "app.widget.intent.param.remembered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remembered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhớ"
+          }
+        }
+      }
+    },
+    "app.widget.intent.param.word": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ"
+          }
+        }
+      }
+    },
+    "app.widget.intent.reveal.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the meaning of the current card"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện nghĩa của thẻ hiện tại"
+          }
+        }
+      }
+    },
+    "app.widget.intent.reveal.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reveal meaning"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện nghĩa"
+          }
+        }
+      }
+    },
+    "app.widget.lock.open_to_review": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open to review"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở để ôn"
           }
         }
       }

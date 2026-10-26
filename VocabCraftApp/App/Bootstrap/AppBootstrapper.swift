@@ -18,6 +18,9 @@ public final class AppBootstrapper {
     public private(set) var container: ModelContainer?
     public private(set) var appContainer: AppContainer?
 
+    /// A deep link that arrived before the app container existed (cold launch); replayed once ready.
+    private var pendingDeepLink: URL?
+
     private let inMemoryOnly: Bool
     private let arguments: [String]
     private let containerProvider: (() throws -> ModelContainer)?
@@ -36,6 +39,21 @@ public final class AppBootstrapper {
         self.containerProvider = containerProvider
         self.resetProvider = resetProvider
         self.dataSourceProvider = dataSourceProvider
+    }
+
+    /// Routes the link now when the app container exists; otherwise holds it until bootstrap succeeds.
+    public func handleDeepLink(_ url: URL) {
+        if let appContainer {
+            appContainer.appRouter.handleDeepLink(url: url)
+        } else {
+            pendingDeepLink = url
+        }
+    }
+
+    private func replayPendingDeepLink() {
+        guard let url = pendingDeepLink, let appContainer else { return }
+        pendingDeepLink = nil
+        appContainer.appRouter.handleDeepLink(url: url)
     }
 
     public func bootstrap() {
@@ -75,6 +93,7 @@ public final class AppBootstrapper {
                 appRouter: router
             )
             self.state = .ready
+            replayPendingDeepLink()
         } catch let storeError as DatabaseStoreError {
             self.container = nil
             self.appContainer = nil
@@ -109,6 +128,7 @@ public final class AppBootstrapper {
                 appRouter: router
             )
             self.state = .ready
+            replayPendingDeepLink()
         } catch let storeError as DatabaseStoreError {
             self.container = nil
             self.appContainer = nil
@@ -195,6 +215,10 @@ public final class AppBootstrapper {
         resetProvider: (() throws -> Any)? = nil,
         dataSourceProvider: (() throws -> Any)? = nil
     ) {}
+
+    public func handleDeepLink(_ url: URL) {
+        appContainer?.appRouter.handleDeepLink(url: url)
+    }
 
     public func bootstrap() {}
     public func retry() {}
