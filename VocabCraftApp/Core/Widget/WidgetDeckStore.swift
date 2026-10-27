@@ -1,8 +1,15 @@
+import CraftUIKit
 import Foundation
 
 public struct WidgetDeckStore: Sendable {
     private static let deckFileName = "widget_deck.json"
     private static let interactionFileName = "widget_interaction.json"
+    private static let themeFileName = "widget_theme.json"
+
+    /// Stores the preset's raw value so an unknown or retired preset decodes to nil instead of failing the file.
+    private struct ThemeState: Codable {
+        let preset: String
+    }
 
     private let directoryURL: URL
 
@@ -50,6 +57,19 @@ public struct WidgetDeckStore: Sendable {
 
     public func saveInteraction(_ state: WidgetInteractionState) throws {
         try write(state, to: Self.interactionFileName)
+    }
+
+    /// The app's selected theme. Missing or unrecognized values fall back to Editorial, the app's default.
+    public func loadThemePreset() -> CraftThemePreset {
+        guard let data = try? Data(contentsOf: fileURL(Self.themeFileName)),
+              let state = try? JSONDecoder().decode(ThemeState.self, from: data) else {
+            return .editorial
+        }
+        return CraftThemePreset(rawValue: state.preset) ?? .editorial
+    }
+
+    public func saveThemePreset(_ preset: CraftThemePreset) throws {
+        try write(ThemeState(preset: preset.rawValue), to: Self.themeFileName)
     }
 
     private func fileURL(_ name: String) -> URL {

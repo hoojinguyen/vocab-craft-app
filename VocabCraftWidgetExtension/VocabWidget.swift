@@ -40,7 +40,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
     #endif
 
     public func placeholder(in context: Context) -> VocabWidgetEntry {
-        VocabWidgetEntry.placeholder(at: Date())
+        VocabWidgetEntry.placeholder(at: Date(), themePreset: store.loadThemePreset())
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
@@ -49,7 +49,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
         Task { @MainActor in
             let now = Date()
             let first = makeTimeline(now: now).entries.first
-            done(first ?? VocabWidgetEntry.placeholder(at: now))
+            done(first ?? VocabWidgetEntry.placeholder(at: now, themePreset: store.loadThemePreset()))
         }
     }
 
@@ -65,6 +65,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
     func makeTimeline(now: Date) -> Timeline<VocabWidgetEntry> {
         let deck = store.loadDeck()
         var interaction = store.loadInteraction()
+        let themePreset = store.loadThemePreset()
 
         var dueWordIds: Set<Int64> = []
         var nextDueDate: Date?
@@ -103,6 +104,7 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             nextDueDate: nextDueDate,
             interaction: interaction,
             practicedToday: practicedToday,
+            themePreset: themePreset,
             now: now
         )
         // With a deck but unreadable due status, keep the state untouched and retry soon.

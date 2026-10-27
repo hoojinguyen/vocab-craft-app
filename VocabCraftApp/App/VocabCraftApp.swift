@@ -13,6 +13,10 @@ import UIKit
 struct VocabCraftApp: App {
     @State private var themeManager = CraftThemeManager.shared
     @State private var bootstrapper = AppBootstrapper()
+    @State private var syncWidgetTheme = SyncWidgetThemeUseCase(
+        store: .appGroup(),
+        reloader: WidgetCenterReloader()
+    )
     @Environment(\.scenePhase) private var scenePhase
 
     init() {}
@@ -67,6 +71,9 @@ struct VocabCraftApp: App {
                 guard newPhase == .background,
                       let refresh = bootstrapper.appContainer?.refreshWidgetDeckUseCase else { return }
                 Self.refreshWidgetDeckInBackground(refresh)
+            }
+            .onChange(of: themeManager.currentPreset, initial: true) { _, newPreset in
+                syncWidgetTheme.execute(preset: newPreset)
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)

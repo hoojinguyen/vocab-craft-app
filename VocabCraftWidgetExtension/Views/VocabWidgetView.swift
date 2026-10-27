@@ -18,9 +18,13 @@ public struct VocabWidgetView: View {
     }
 
     public var body: some View {
+        let entryTheme = entry.themePreset.theme
         content
+            .craftTheme(entryTheme)
             .environment(\.colorScheme, WidgetAppearance.colorScheme(for: renderingMode, system: colorScheme))
-            .containerBackground(for: .widget) { WidgetBackground(entry: entry, family: family) }
+            .containerBackground(for: .widget) {
+                WidgetBackground(entry: entry, family: family).craftTheme(entryTheme)
+            }
     }
 
     // MARK: Content
@@ -74,7 +78,7 @@ public struct VocabWidgetView: View {
 
 /// Brand gradient with scrims in full color; clear in tinted/vibrant so WidgetKit supplies the system surface.
 /// Also holds the faint depth glyph.
-/// White text needs the scrims: the top one for the header row, `fadeBottom` for the rows near the buttons.
+/// White text needs the scrims: the top one for the header row, the bottom ones for the rows near the buttons.
 struct WidgetBackground: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.widgetRenderingMode) private var renderingMode
@@ -87,14 +91,23 @@ struct WidgetBackground: View {
         family == .systemSmall || family == .systemMedium
     }
 
-    /// Dark enough at the top that white caption text reaches 4.5:1 on the orange gradient.
-    private static let topScrimOpacity = 0.3
+    /// Dark enough that white text reaches 4.5:1 on every preset's brand gradient, including the light green ones.
+    private static let topScrimOpacity = 0.8
+    private static let bottomScrimOpacity = 0.6
 
     private var topScrim: LinearGradient {
         LinearGradient(
             colors: [theme.colors.textPrimary.opacity(Self.topScrimOpacity), theme.colors.textPrimary.opacity(0)],
             startPoint: .top,
-            endPoint: UnitPoint(x: 0.5, y: 0.6)
+            endPoint: .bottom
+        )
+    }
+
+    private var bottomScrim: LinearGradient {
+        LinearGradient(
+            colors: [theme.colors.textPrimary.opacity(0), theme.colors.textPrimary.opacity(Self.bottomScrimOpacity)],
+            startPoint: .top,
+            endPoint: .bottom
         )
     }
 
@@ -105,6 +118,7 @@ struct WidgetBackground: View {
                     Rectangle().fill(theme.gradients.brandHero)
                     Rectangle().fill(topScrim)
                     Rectangle().fill(theme.gradients.fadeBottom)
+                    Rectangle().fill(bottomScrim)
                     if let card = entry.card, entry.mode != .placeholder, isSystemFamily {
                         WidgetDepthGlyph(lemma: card.lemma, scale: family == .systemSmall ? 3 : 4)
                             .offset(x: theme.spacing.lg, y: theme.spacing.lg)

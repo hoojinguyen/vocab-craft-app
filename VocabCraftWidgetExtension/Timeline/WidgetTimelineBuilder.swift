@@ -1,3 +1,4 @@
+import CraftUIKit
 import Foundation
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
 import VocabCraftApp
@@ -15,17 +16,27 @@ public struct VocabWidgetEntry: TimelineEntry, Equatable, Sendable {
     public let dueCount: Int
     /// Words practiced since the start of the current day (learned or reviewed).
     public let practicedToday: Int
+    /// The app's selected theme, mirrored into the shared store.
+    public let themePreset: CraftThemePreset
 
-    public init(date: Date, card: WidgetCard?, mode: WidgetEntryMode, dueCount: Int, practicedToday: Int = 0) {
+    public init(
+        date: Date,
+        card: WidgetCard?,
+        mode: WidgetEntryMode,
+        dueCount: Int,
+        practicedToday: Int = 0,
+        themePreset: CraftThemePreset = .editorial
+    ) {
         self.date = date
         self.card = card
         self.mode = mode
         self.dueCount = dueCount
         self.practicedToday = practicedToday
+        self.themePreset = themePreset
     }
 
-    public static func placeholder(at date: Date) -> VocabWidgetEntry {
-        VocabWidgetEntry(date: date, card: nil, mode: .placeholder, dueCount: 0)
+    public static func placeholder(at date: Date, themePreset: CraftThemePreset = .editorial) -> VocabWidgetEntry {
+        VocabWidgetEntry(date: date, card: nil, mode: .placeholder, dueCount: 0, themePreset: themePreset)
     }
 }
 
@@ -46,11 +57,12 @@ public enum WidgetTimelineBuilder {
         nextDueDate: Date?,
         interaction: WidgetInteractionState,
         practicedToday: Int = 0,
+        themePreset: CraftThemePreset = .editorial,
         now: Date,
         calendar: Calendar = .current
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
         guard let deck, !deck.cards.isEmpty else {
-            return ([.placeholder(at: now)], .after(now.addingTimeInterval(placeholderRetry)))
+            return ([.placeholder(at: now, themePreset: themePreset)], .after(now.addingTimeInterval(placeholderRetry)))
         }
 
         // Entries carry a fixed practicedToday, so nothing may stay on screen past local midnight.
@@ -64,7 +76,8 @@ public enum WidgetTimelineBuilder {
                 card: first,
                 mode: mode,
                 dueCount: dueCards.count,
-                practicedToday: practicedToday
+                practicedToday: practicedToday,
+                themePreset: themePreset
             )
             let refresh = now.addingTimeInterval(flashcardRefresh)
             return ([entry], .after(nextMidnight.map { min(refresh, $0) } ?? refresh))
@@ -92,7 +105,8 @@ public enum WidgetTimelineBuilder {
                     card: cards[(slot + i) % cards.count],
                     mode: .passive,
                     dueCount: 0,
-                    practicedToday: practicedToday
+                    practicedToday: practicedToday,
+                    themePreset: themePreset
                 )
             )
         }

@@ -117,4 +117,21 @@ struct WidgetDeckStoreTests {
 
         #expect(card.partOfSpeech == nil)
     }
+
+    @Test func themeRoundTrips() throws {
+        let store = makeStore()
+        try store.saveThemePreset(.neoArcade)
+        #expect(store.loadThemePreset() == .neoArcade)
+    }
+
+    @Test func missingThemeDefaultsToEditorial() {
+        #expect(makeStore().loadThemePreset() == .editorial)
+    }
+
+    @Test func unknownThemeDefaultsToEditorial() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try Data(#"{"preset":"retired_theme"}"#.utf8).write(to: dir.appendingPathComponent("widget_theme.json"))
+        #expect(WidgetDeckStore(directoryURL: dir).loadThemePreset() == .editorial)
+    }
 }

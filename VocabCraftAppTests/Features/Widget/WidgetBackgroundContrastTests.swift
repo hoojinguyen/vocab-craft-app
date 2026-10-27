@@ -44,8 +44,10 @@ struct WidgetBackgroundContrastTests {
         return (data, width, height)
     }
 
-    private func lowestRatio(family: WidgetFamily, size: CGSize, scheme: ColorScheme) throws -> Double {
-        let theme = CraftDefaultTheme()
+    private func lowestRatio(
+        preset: CraftThemePreset, family: WidgetFamily, size: CGSize, scheme: ColorScheme
+    ) throws -> Double {
+        let theme = preset.theme
         let background = WidgetBackground(entry: entry, family: family)
             .frame(width: size.width, height: size.height)
             .environment(\.widgetRenderingMode, .fullColor)
@@ -84,19 +86,23 @@ struct WidgetBackgroundContrastTests {
         return lowest
     }
 
-    @Test func smallBackgroundKeepsWhiteTextReadableInBothAppearances() throws {
+    @Test func smallBackgroundKeepsWhiteTextReadableForEveryPreset() throws {
         let size = CGSize(width: 158, height: 158)
-        for scheme in [ColorScheme.light, .dark] {
-            let ratio = try lowestRatio(family: .systemSmall, size: size, scheme: scheme)
-            #expect(ratio >= Self.minimumRatio, "small \(scheme) lowest contrast \(ratio)")
+        for preset in CraftThemePreset.allCases {
+            for scheme in [ColorScheme.light, .dark] {
+                let ratio = try lowestRatio(preset: preset, family: .systemSmall, size: size, scheme: scheme)
+                #expect(ratio >= Self.minimumRatio, "\(preset) small \(scheme) lowest contrast \(ratio)")
+            }
         }
     }
 
-    @Test func mediumBackgroundKeepsWhiteTextReadableInBothAppearances() throws {
+    @Test func mediumBackgroundKeepsWhiteTextReadableForEveryPreset() throws {
         let size = CGSize(width: 338, height: 158)
-        for scheme in [ColorScheme.light, .dark] {
-            let ratio = try lowestRatio(family: .systemMedium, size: size, scheme: scheme)
-            #expect(ratio >= Self.minimumRatio, "medium \(scheme) lowest contrast \(ratio)")
+        for preset in CraftThemePreset.allCases {
+            for scheme in [ColorScheme.light, .dark] {
+                let ratio = try lowestRatio(preset: preset, family: .systemMedium, size: size, scheme: scheme)
+                #expect(ratio >= Self.minimumRatio, "\(preset) medium \(scheme) lowest contrast \(ratio)")
+            }
         }
     }
 }
