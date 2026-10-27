@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:98b906ebc9c68fa11eab28224ff7ec02f4820c3dc1188579696d485fa189ba06",
+  "pageVersion": "sha256:d65dd70dbf392ad21958035f1e78fc31e9b486ad3ee3bfa15b00e0c089960f66",
   "claims": [
     {
       "id": "claim_544f342549e2463c8ecacb9e8338d3fc",
-      "statement": "Package.swift defines Swift 5.10 package with VocabCraftApp, VocabCraftWidgetExtension, and local CraftUIKit/SpeechKit dependencies.",
+      "statement": "Package.swift defines a Swift 5.10 package for VocabCraftApp, VocabCraftWidgetExtension, and SwiftDataMacros, with local CraftUIKit and SpeechKit dependencies and a VocabCraftAppTests test target.",
       "evidence": [
         {
-          "resource": "repo://Package.swift#L1-L45",
-          "version": "repo-lines-v1:sha256:26c557af79cc71cd935f21059fe6a082b16f92b98234c06d98dc6d90781042e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjYjNhZWM3ZWJhMzQ5MGZmNDM2MDc2YmYzMmU0NWJkZGVmOWNkOGI3NThmM2EzODI2ZDBhNzYwNWZjZTMxZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlYTA5MGMyNzU3YzVmNjNhNjExN2FkNjA2ZDk2NjhmZTk3MjM1YmZiNWRmZGNmN2I5MzFmMWM1YTA3MTQ2MWMifQ"
+          "resource": "repo://Package.swift#L4-L73",
+          "version": "repo-lines-v1:sha256:061d88ca9b894549c540f806a509fb996fc2ab2291377b7b188405b085caedf3:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwOGI1NDdhZmVkYzgxYWM5OWMxOWM3NmYxZDUzNDJkNzA3OWQyYmRkODRjMmUzMzE3ZmU2OWM2MmU4M2FiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZDI0NDU4MmI2ZmIwM2QyM2I4NDE1YWJlY2QzNDZiMGM5ZjQ2NmI2Zjc1MmIwNjgxODljZTdlOWEyZGMzNTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0NjNmY2E4NzBjOWY0YThlYTU0OWUxN2Y0NDA4ZTRhNmJjNzU3NzA2MzJhNmFiNGZlMGU2Zjc1MGEyMTAxZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgifQ"
         }
       ]
     },
@@ -34,7 +34,7 @@
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

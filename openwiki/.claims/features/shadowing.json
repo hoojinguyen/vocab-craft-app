@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:fd39de2e40211c3c30ebeace94f1571f429b5129c0d0e85b5d8970ecb9d4771b",
+  "claims": [
+    {
+      "id": "claim_8e1016000f70467e8eba6edeed663d11",
+      "statement": "ShadowingSQLiteDatabase opens ShadowingCatalog.sqlite from the bundle or a file URL and reads topics, videos, sentences, and sentence keywords, throwing databaseNotFound when the bundled file is missing.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Data/DataSources/ShadowingSQLiteDatabase.swift#L73-L76",
+          "version": "repo-lines-v1:sha256:da629ae762fd1d8ceb04d4feb27eb01ee363d110868047ada890458119933c73:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTY3ODk3YWYxZTFmNjBiOWI5YzJmOTkwMWNlZTQwZDNmYzU3ODUyNGVhNDllNTRjMmMyY2Y5YmEwOGIxOWRjMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTZkOTEwMTlmYzJkMzEwODM4NTAyM2YzMzk1MWY5NzJjMjBhMWVjZTg1NDJiN2UyOWY0NmY4YWU3NjA0OWQ1OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTFkMzVkMDdjYjJiNThkN2E0ZDBjMGIyMTJlZTI5YmIzYjM1ODUyODU0MTcwYjFiNWI1MWI5NTNhZDIxYzMxNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmNjM2ViMWQ3NGM5ZTE0NDRkYmI3ODE0ZDgxZDZlZTk5Yzc0YTAyZWM3YWNiYTczNjdhNjViMzg5NDE4OWU1YSJ9"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Data/DataSources/ShadowingSQLiteDatabase.swift#L9-L60",
+          "version": "repo-lines-v1:sha256:20e9b6bd2b8ac94324b74640a2f1c152daf30507198b334444ed92c482fd4f79:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZjkzYjE2N2M0YzI2YzJkZGY3NDMxZDRlMzFlY2U0NjI0MTMzMjJhNmRhN2RjOWU5YTU1MDA5NjcyOGQ3NjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYmM0MzdiNDg5YzAyZWU0NjE2ZDI2MzU4ODNjM2ZlN2E1ZGZjZmE4ODZmMWVmYWNmNmM2ZWYwYzlmZWUyMDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3YmEwY2YxOGI2MDllZGM3YmYyNTA5MDUwZGY0N2E5MDdhZWY3MmEzY2JjYzYwMjVhN2M5M2VlNmExYzFkMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViM2ZiNzZjMmNmOTdmYWFiYTVjZDJhNTZlNzExMDM2NzJlMjYwNmZjMzljOWY2MmIzOGNmY2I0NjNjZDE2OTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ebe77fc4818498d9c3fb502a4b02dc3",
+      "statement": "ShadowingProgressRepositoryImpl is an actor that stores all shadowing progress records as one JSON blob under the shadowing_progress_records UserDefaults key, and recordCompletion keeps the best score and merges per-sentence scores.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Data/Repositories/ShadowingProgressRepositoryImpl.swift#L1-L50",
+          "version": "repo-lines-v1:sha256:8e692c497649ca89da8b62f1ed258346eeb5b3a8ec89cbe9440df3e441929937:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkYTliNzVmNjRiMTA2ZWI1NDRkZTIwMWY1OTkxMjJkNzVhYmM0ODNjNWIxNTZiYmE2YzA1YzBmOTU2ZGJjM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwODMxYjhiYTkxZjZmYzNiNTgzYWQ1NjZlYTMzNzRiY2IwMjU0YzVhNDYzNWYyYjRkNzI2MGRhMjMxNzViNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzYzA0MGQ3NmNkNGY1NGRjMDFlNDM0OTc1ZmNmMDU3NzE5YTc3NDcxMjhiYTBiNzExMWEyMzMyNjVmMjAwODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_abacf48144a94b39921dbbcb2b61e325",
+      "statement": "AppContainer uses ShadowingCatalogRepository built from the main bundle when it opens, and falls back to FallbackShadowingCatalogRepository when that fails.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/DI/AppContainer.swift#L476-L486",
+          "version": "repo-lines-v1:sha256:d97ddda1c4441a806abfa939a2b2e2435dc096fb80e2d7366b2b6addd945f75f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2MWVlNzdlNzY3MjM5ZTQ1N2FiOTY2ZjE4ODIyMDAyYjBmYTdlNzQyM2ViMjFjOWI1MWY2MzY5MWU1ZGRhNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlY2U1NDE1NDM2Y2RhMzUyZjNjNDFkYjRlNzE1NzUzNDBjNzIwMmU4MzQ3OTIwZDYwOTIzNmNhMzI0Mzk1ZmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxYWJiZTI3OWMyMWJhMTM4NTk0YjFiYWQwOTcyZmU0YjhiNDYxMzhiNWRmYTg4ZDg1MjdkNzhjMmRkZTY4NDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1YmRiOTdmNzFjZWQxMGQwZGI0MmM0MDlmZjcyYjY3NTVjZjM1NWVlNTA3OWJjNjQxYjc5YmQ4NmEwYmVkYzUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
+  }
+}

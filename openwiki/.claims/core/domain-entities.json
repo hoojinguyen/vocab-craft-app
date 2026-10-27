@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:346385de6c94b7bb58d10d8eb357155a2c2d15b7a9bf1b9f2761a9e1570a7d94",
+  "pageVersion": "sha256:291a8a9d0cf6f891c94a7ac4c4408b114bc098448d8d2a29e9bc6be2a4b2c904",
   "claims": [
     {
       "id": "claim_ad14bf6db5f748dea48a03c72906ad16",
-      "statement": "Domain layer contains Word, PersonalWord, VaultWordItem and drill item entities alongside repository protocols and twelve use cases.",
+      "statement": "The domain layer contains the Word, PersonalWord, VaultWordItem, and drill item entities, the repository and service protocols, and use cases for the learning path, vault, reflex, SRS, roleplay, and GuidedPractice flows.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Domain/Entities/Word.swift",
-          "version": "repo-file-v1:sha256:30b285af262d93a03d9d2e5a81d503e4f9974c61ddd55a821ca7190e9a29ee87"
+          "resource": "repo://VocabCraftApp/Domain/Entities/Word.swift#L4-L10",
+          "version": "repo-lines-v1:sha256:7f94eeb2f6c1e79654cad917392b0d6082ea8768cb3c9187ed71f80b467cbe2d:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGIwYmIyM2U1OWM4ODdmMzAyNWNkZGY2ZjBhYTA2Mjg2OTQ3YmFiYTZkNTk5NGE2MzY3MDEzM2M2YjBhNzZiOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRjMDk0YTBmYjI2ZTA5YjA0YTA3NGE3ZGRiYzMwYjAyYzMwMGJmNjk2NDkyODM5YTM3OTQyYWRiMWFiMWI3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2Q0OGJjMTI3MzI4NzM0YTllMjFlYTkxYTRhYTM3NzE5MTZmZmIwNDI5MTg3NzBhYjhkOGQ3MjlhYWNmZDA4OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmNkMjEyMTFkYzc2ZDZhNWZkM2JkNWE2NGMzNDNjYWFlYWE0ODFhNjliMmM1NDRmMTliNGY1MzdlYWJhZjI1NiJ9"
         },
         {
-          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift",
-          "version": "repo-file-v1:sha256:ed7aa78e63947d0e4655151d128ce4ef367d3e88b41aaa1a02956c4d81ead6f8"
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift#L75-L77",
+          "version": "repo-lines-v1:sha256:8736a09cc00ead0add37c7a8ae54460e580b85884fd15f1f0e10f133c3f6af7b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzM5NDRiNzVhNDcwYmJmOGI1ZWFhNDBjMjczMTQxMDUzOGExOTZkODc2N2EzMDcyNjMxYWNhZmFhOTgxYzNmOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTUwNTYxM2IyZTYzMGIxZjhjNmI0OGRkNjQ2NDI5YThiMTVjM2YzOGM0MThhNGRkMDNhNzVmYTZmOTMzODM2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzZlOGYzNDMxZjc2M2Q2Yzk3ZjA2ZDlhOWIxY2M4YWQzOGY0MWNmNzZiYjRlZTNlMmQ1MjJjMTg1Y2VhNGY3OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBlYmEwNWE0Y2M5YjU0Y2I3ZjE0YTA4ODM2MDEzMjIwZjUwYmFkMDVmMDg1ZDM3MTk3YTFiYzlmZDY1YzU0MSJ9"
         }
       ]
     },
@@ -28,21 +28,31 @@
     },
     {
       "id": "claim_2b1ccf6695f74f009410f2874d12d010",
-      "statement": "Use cases like FetchPersonalVaultUseCase and GenerateMixedReflexQueueUseCase are protocol-driven and injected via AppContainer.",
+      "statement": "FetchPersonalVaultUseCase and GenerateMixedReflexQueueUseCase expose protocols (FetchPersonalVaultUseCaseProtocol and GenerateMixedReflexQueueUseCaseProtocol) that AppContainer stores as properties and exposes through factories.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift",
-          "version": "repo-file-v1:sha256:ed7aa78e63947d0e4655151d128ce4ef367d3e88b41aaa1a02956c4d81ead6f8"
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift#L75-L77",
+          "version": "repo-lines-v1:sha256:8736a09cc00ead0add37c7a8ae54460e580b85884fd15f1f0e10f133c3f6af7b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzM5NDRiNzVhNDcwYmJmOGI1ZWFhNDBjMjczMTQxMDUzOGExOTZkODc2N2EzMDcyNjMxYWNhZmFhOTgxYzNmOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTUwNTYxM2IyZTYzMGIxZjhjNmI0OGRkNjQ2NDI5YThiMTVjM2YzOGM0MThhNGRkMDNhNzVmYTZmOTMzODM2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzZlOGYzNDMxZjc2M2Q2Yzk3ZjA2ZDlhOWIxY2M4YWQzOGY0MWNmNzZiYjRlZTNlMmQ1MjJjMTg1Y2VhNGY3OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBlYmEwNWE0Y2M5YjU0Y2I3ZjE0YTA4ODM2MDEzMjIwZjUwYmFkMDVmMDg1ZDM3MTk3YTFiYzlmZDY1YzU0MSJ9"
         },
         {
-          "resource": "repo://VocabCraftApp/Domain/UseCases/GenerateMixedReflexQueueUseCase.swift",
-          "version": "repo-file-v1:sha256:68d6ed521631abddd5125a3dc855721840d4dab91f17449402c76ed27df7afe5"
+          "resource": "repo://VocabCraftApp/Domain/UseCases/GenerateMixedReflexQueueUseCase.swift#L3-L6",
+          "version": "repo-lines-v1:sha256:69c65006b8840dc495e91ba4ac6998e52c70bbfc5500dbe3b3be060dd85ae630:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2RiODY2MjYwZDU3NTNkZmNkMzg5YWE4NDIzNWMxMDNmZDkwYWY1NmE3Y2I5ZmE1YWYxYTVkOWE4OWZlYzc2ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTE4YmZjYzA1ZGE1ZWQ5YjU1ZGM1NzI1YTRmY2RhZWM1YzI1NzVmZGY0Y2UyMmExOTkwOWIxYjNmNGRlODFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiNGJkYjE5OTIzZjZjMTkzMmFhMzk0YzFkMWJlOWQ1OTFjZjIzNGQ2ODUyNmZiMGMxNjllMTY0ZGExNmUwMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4837a6136c7f4023ab644dca0c01467f",
+      "statement": "MasteryEvaluationPolicy.evaluate resets the streak and practiced modes on a wrong answer, and marks a word mastered when the streak reaches 3 and at least 2 distinct reflex modes have been practiced.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/Policies/MasteryEvaluationPolicy.swift#L19-L34",
+          "version": "repo-lines-v1:sha256:7d176cecb097a8fb2e8fb54ef9cf053160ddca472573d4f07d144b2793c28981:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkYTQyN2RjOTY0YmM5MDAyNmY1Nzg0MGYwYjMzOTAxOWMwOTkzOGU2MjI2OTlhNTIxNWU3NzJkZDUwMjNlYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNjZlMjg3ZWM1ZWMyNzc5MTAyMTc5NGQyYzk4N2MxZGNjNDc4YTAxZGFkNDE4M2ZmZjZmMWVjMTQ0OGViYTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwOGI0NzYxMDEwNjQwNjIwMDJhMDg3NTRkYTc4ZDVmMjdkYzUzZWU2ZjBiNDY1MGZjYzAxY2FiNmIzYjFkYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0YTAwYjY2NmRlYzk1NGQzZjVhYjA2YmU3MGI0YmI0OTM0NTU2ZDg4MjY4Y2E1MDdlY2UwNTNjODY2MjY5ZmYifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

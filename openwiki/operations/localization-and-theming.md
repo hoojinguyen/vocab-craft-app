@@ -1,76 +1,94 @@
 ---
 type: operations
 title: Localization and Theming
-description: Two-layer xcstrings architecture, key taxonomy, bilingual parity, and CraftUIKit token theming.
-tags: ["localization", "theming", "l10n", "craftuikit"]
+description: How user-facing text is localized (two string catalogs, the AppStrings accessor layer, English and Vietnamese parity) and how the app theme is chosen and bridged to CraftUIKit tokens (theme presets, color scheme, and VocabTheme).
+tags: ["localization", "xcstrings", "i18n", "theming", "tokens", "appstrings"]
 verified:
-  - by: openwiki/0.5.0
-    at: 2026-09-02T08:37:35.164Z
+  - by: openwiki/0.7.2
+    at: 2026-10-26T17:49:24.607Z
 sources:
   - id: openwiki-source-8c3760bc6b7d8ceb5c767277
     resource: repo://Packages/CraftUIKit/Sources/CraftUIKit/Environment/CraftLocalized.swift
-  - id: openwiki-source-fa8d6cb00d00a73d3caf2a29
-    resource: repo://Packages/CraftUIKit/Sources/CraftUIKit/Resources/Localizable.xcstrings
-  - id: openwiki-source-e91d13f778505d16cab6a89c
-    resource: repo://Packages/CraftUIKit/Sources/CraftUIKit/Tokens/CraftTheme.swift
-  - id: openwiki-source-abf3e845abe198398a45f49f
-    resource: repo://VocabCraftApp/Core/DesignSystem/VocabTheme.swift
-  - id: openwiki-source-7c8d1c1bea26fb13282b1400
-    resource: repo://VocabCraftApp/Core/Localization/AppStrings.swift
+  - id: openwiki-source-d4bbcd823cc1f1055b920417
+    resource: repo://Packages/CraftUIKit/Sources/CraftUIKit/Tokens/CraftThemeManager.swift
+  - id: openwiki-source-71661d79da6d20d09e06bcfd
+    resource: repo://VocabCraftApp/App/VocabCraftApp.swift
+  - id: openwiki-source-40f1f51183c08786fc4e0faa
+    resource: repo://VocabCraftApp/Core/Localization/AppStrings%2BGuidedPractice.swift
   - id: openwiki-source-5709eb0ab358a7a151ff3edd
     resource: repo://VocabCraftApp/Resources/Localizable.xcstrings
-generated: { by: "opencode", at: "2026-09-02T08:32:17.625Z" }
+generated: { by: "claude-code", at: "2026-10-26T17:49:24.607Z" }
 ---
 
 ## Responsibility
 
-Manages bilingual EN+VI strings across design system and app, and bridges localization to theming via tokens.
+Two rules apply across the app. All user-facing text comes from a localized string catalog, never from a hardcoded literal, and all color, font, spacing, and radius values come from theme tokens. This page describes the mechanism behind both rules. The policy is in `AGENTS.md` sections 3 and 4.
 
 ## Entrypoints
 
-- **Layer 1 — CraftUIKit**: `Packages/CraftUIKit/Sources/CraftUIKit/Resources/Localizable.xcstrings` + `CraftUIKit/Environment/CraftLocalized.swift` (via `Bundle.module`, `CraftLocalized.string/format`).
-- **Layer 2 — VocabCraftApp**: `VocabCraftApp/Resources/Localizable.xcstrings` + `Core/Localization/{AppStrings, AppStrings+*}.swift` (via `Bundle.main`, `String(localized:)`).
-- **Tokens**: `Tokens/{CraftColorTokens, CraftTypographyTokens, CraftSpacingTokens, CraftRadiusTokens, CraftShadowTokens, CraftGlassTokens, ...}` + `CraftTheme` presets.
+**Localization**
+
+- **String catalogs**:
+  - `VocabCraftApp/Resources/Localizable.xcstrings` is the app catalog. It holds several hundred keys, mostly `app.*` and feature keys, each with `en` and `vi` values.
+  - `Packages/CraftUIKit/Sources/CraftUIKit/Resources/Localizable.xcstrings` is the CraftUIKit catalog, which holds the `craft.*` keys.
+- **Accessors**:
+  - `AppStrings` (`VocabCraftApp/Core/Localization/AppStrings.swift`) is an enum of static properties and functions. It has feature extensions: `AppStrings+GuidedPractice`, `AppStrings+Lesson`, `AppStrings+Practice`, `AppStrings+Profile`, `AppStrings+ReflexBlitz`, and `AppStrings+Vault`. Each value is read with `String(localized:defaultValue:bundle: .module)`.
+  - `AppLocalized` (`VocabCraftApp/Core/Localization/AppLocalized.swift`) reads the catalog directly for a given language or locale. It uses the module bundle when present and the main bundle otherwise.
+  - `CraftLocalized` (`Packages/CraftUIKit/Sources/CraftUIKit/Environment/CraftLocalized.swift`) reads the CraftUIKit catalog from its own module bundle. It offers `string(_:)`, language- and locale-specific variants, and `format(_:_:)` helpers.
+
+**Theming**
+
+- **Theme protocol**: `CraftTheme` and its token types live in `Packages/CraftUIKit/Sources/CraftUIKit/Tokens`. See [Design System](../architecture/design-system.md).
+- **Presets**: `CraftThemePreset` in CraftUIKit lists eleven presets, and each one returns its `CraftTheme`.
+- **Selection**: `CraftThemeManager` (CraftUIKit) stores the chosen preset in `UserDefaults` under `app_theme_preset`, and it exposes `preferredColorScheme`.
+- **App bridge**: `VocabTheme`, `VocabColorTokens`, and `VocabGradientTokens` (`VocabCraftApp/Core/DesignSystem/VocabTheme.swift`) let the app supply its own token values to the CraftUIKit environment.
+- **Root wiring**: `VocabCraftApp` applies `.craftTheme(themeManager.currentPreset.theme)` and `.preferredColorScheme(themeManager.preferredColorScheme)`.
+
+## Key Naming
+
+- **AppStrings keys** mostly follow `<feature>.<element>`, for example `common.confirm`, `vocabulary.wordsMasteredCountLabel`, and `reflex.quickProgressSegment`. Placeholders use format specifiers (`%lld`, `%%`).
+- **Newer keys** follow `app.<feature>.<screen>.<element>`, for example `app.ai_assistant.guided.hub.title`. The Guided Practice strings use this form.
+- **CraftUIKit keys** use the `craft.<scope>.<element>` form.
+- The string catalogs record `extractionState` as `manual` and keep `en` and `vi` entries. The source language is `vi`.
 
 ## Mechanisms
 
-- **Taxonomy**:
-  - `craft.*`: `craft.<scope>.<element>.<role>` e.g., `craft.common.action.confirm`, `craft.button.*`, `craft.flipcard.*`, `craft.streak.*`.
-  - `app.*`: `app.<feature>.<screen>.<element>.<role>` e.g., `app.onboarding.*`, `app.study.*`, `app.reflex.*`, `app.settings.*`.
-- **Rendering**:
-  - Inside CraftUIKit: `CraftLocalized.string("craft.button.confirm")`.
-  - Inside VocabCraftApp: `LocalizedStringKey` or `String(localized: "app.settings.theme.title")` (facaded via `AppStrings`).
-- **Bilingual parity** (AGENTS.md §4.4): Both `en` and `vi` must exist, non-empty, not mixed; format specifiers (`%lld`, `%@`) match exactly; `extractionState: manual`, `state: translated`.
-- **Theming**: `CraftTheme` aggregates all tokens; `CraftThemeManager` holds `currentPreset`; `VocabTheme.swift` maps `UserSettingsStore.themePreset` to `CraftTheme`.
+1. **Read a string** — A view calls an `AppStrings` property, which calls `String(localized:)` against the module bundle. The catalog returns the value for the current language.
+2. **Format a string** — Parameterized strings use `String(format:)` with a localized format key, such as `vocabulary.wordsMasteredCountLabel` with `%lld/%lld`.
+3. **Pick the theme** — The learner chooses a preset in settings. `CraftThemeManager` saves it and publishes the new `CraftTheme`. The root view applies it to the environment, and every CraftUIKit component reads its tokens from there.
+4. **Color scheme** — `preferredColorScheme` follows the learner's appearance setting. Presets provide light and dark token values.
 
 ## Relationships
 
-- **Upstream**: Design tokens feed both layers; string keys referenced directly in Views for VoiceOver too (`.accessibilityLabel` must be localized).
-- **Downstream**: `Forge` scripts and lint verify taxonomy; missing key fallback shows key string rather than crash.
+- **Upstream**: Settings chooses the language (`appLanguage`) and the theme (`themePreset`). See [Settings and Profile](../features/settings-and-profile.md).
+- **Downstream**: All feature views consume strings and tokens. Lint rules flag hardcoded strings and raw colors. See [Build, Test and Quality](build-test-and-quality.md).
 
 ## State and Lifecycle
 
-Strings are bundled resources, loaded at launch; theme preset persisted in `UserSettingsStore`. Changing language requires app relaunch; theme change is live via environment.
+- The theme choice is stored in `UserDefaults`, and the root view reads it when the app starts.
 
 ## Invariants
 
-- Zero hardcoded strings in View bodies, ViewModels, component initializers, or accessibility modifiers — enforced by lint/review.
-- No cross-language mixup; every key has EN and VI entry.
-- Format specifiers parity strictly checked.
+- Catalog entries are kept in English and Vietnamese. `AppStringsParityTests` checks that the two languages match.
+- Optional token groups such as `depths` and `glass` fall back to protocol defaults.
 
 ## Failure
 
-- Lint test `LocalizationTests` fails if taxonomy violated or parity broken.
-- Missing translation shows key; malformed format specifier crashes at runtime → prevented by parity check.
+- A missing key falls back to the `defaultValue` passed to `String(localized:)`.
+- An unknown stored preset falls back to `.editorial`.
 
 ## Configuration
 
-Edit `*.xcstrings` directly or via Xcode Strings Catalog; never invent raw literal. Add new preset by adding theme file under `Tokens/Themes/`.
+- The source language is Vietnamese (`sourceLanguage: vi`), with English as the second language.
+- The stored theme key is `app_theme_preset`.
 
 ## Extension
 
-Add feature strings under `app.<feature>.*`; add component strings under `craft.<component>.*`. Add theme by conforming to `CraftTheme`.
+- Add text by adding a key to `AppStrings` (or a feature extension), then adding its `en` and `vi` values to the catalog.
+- Add a preset by implementing `CraftTheme`, then adding a `CraftThemePreset` case with its name, subtitle, and theme.
 
 ## Tests
 
-- `LocalizationTests.swift` (CraftUIKit), `PracticeSelectionLocalizationTests.swift`, `PersonalVaultLocalizationTests.swift`, `ReflexLocalizationTests.swift`, `SettingsLocalizationTests.swift` all assert bilingual completeness and no hardcoded literals.
+- `VocabCraftAppTests/Localization/AppStringsParityTests.swift` checks that the English and Vietnamese catalogs have matching keys.
+- Feature localization tests live beside each feature, for example `VocabCraftAppTests/Features/PersonalVaultLocalizationTests.swift`, `VocabCraftAppTests/AI/AIAssistantLocalizationTests.swift`, and `VocabCraftAppTests/Reflex/ReflexLocalizationTests.swift`.
+- `VocabCraftAppTests/Localization/ShadowingLocalizationTests.swift` and `VocabCraftAppTests/Resources/LocalizationTests.swift` cover the shadowing and general strings.

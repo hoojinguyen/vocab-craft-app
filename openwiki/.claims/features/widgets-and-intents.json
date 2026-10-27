@@ -1,44 +1,48 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:1bcea0f0ea92a39d3280a896a3ee90daf69412305d9cf8c6b87eb14e9bdd045b",
+  "pageVersion": "sha256:ef80cb688562b709184fa032769106378c47189dc7b41d0f7623e486eafdd3b3",
   "claims": [
     {
       "id": "claim_dd495d0bcff6418998b96f904919ec90",
-      "statement": "VocabWidget implements WidgetKit Widget with TimelineProvider that reads WidgetCurrentState from shared ModelContainer.",
+      "statement": "VocabWidget is a WidgetKit widget whose TimelineProvider builds its entries from the saved widget deck and the interaction state, using the shared SwiftData container to find due words.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftWidgetExtension/VocabWidget.swift",
-          "version": "repo-file-v1:sha256:01a0d33c87a743e91aabec71a5ed48c6e7cacdb9bf6663de91ef225dafdef8a4"
+          "resource": "repo://VocabCraftWidgetExtension/VocabWidget.swift#L1-L70",
+          "version": "repo-lines-v1:sha256:dcab8b4c508639834fbad0f4b7e5023d1f1ac9472d6280d6411205ffe8c5f4df:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzZjM4NWFjYjNmMmU0M2E2NjA4YjkyYzVjZTU5ZDM3NzQ5ZDYwYjA0OGU2ZmFhYjBhODc5NzY4YzQwNDhhNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyODY2N2YwN2ViMjdhZmFkYzcwYTc3NWJiZjYwNTIxYzkwZjg4YzQwODI2YWRlMDEwY2Y3NGIwNTQ2OTAxYmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmMGI5ODkzNzVkNzA2NDc2YTQ0NWZlNTQzNGYwYTIwOGUzNjg0MzczMjk3YTFkYzhiNjllYzA2Y2FkZjljNzgifQ"
         }
       ]
     },
     {
       "id": "claim_3c20ffbad4ee42a29b11c8f13652b71d",
-      "statement": "NextWordIntent and MarkLearnedIntent are AppIntents that fetch next word and update progress from the widget.",
+      "statement": "RevealCardIntent stores the revealed word, and GradeCardIntent grades it through WidgetReviewRecorder, which applies the SRS engine only when the word is the revealed one and is due.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftWidgetExtension/AppIntents/MarkLearnedIntent.swift",
-          "version": "repo-file-v1:sha256:e7b9055953acb52429c6b36851b24d06306db7a55988196f7dbdf2703b43524a"
+          "resource": "repo://VocabCraftWidgetExtension/AppIntents/GradeCardIntent.swift#L23-L66",
+          "version": "repo-lines-v1:sha256:c35b98f88e3c5873dbb3a8a51530c3098b1fefb7d23e1a360bbbe883eb103f37:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyMDUzZjRmNjFmYjM1MDdjODI1MTI0ZGNjYmQ2YWE2ZTc5ZmQ3ZTVmMGI5MmY3NjYwMjYwN2MxZGQ2ZWI2YmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4ZWQ1ZmIwMGE4Y2MyYzQ2ODRhZjU4NTQyYTJjZDM5ZDIxMmE5YTRmODViYTEyZmE5YjBhM2I2ZGY5MGNhYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyZTIxM2UyYTdjNTFiMTBjNTM0ZjZlOTBkNmRiOWIyNjJlMzc2OGE1ZTRkN2ZlODAyYTYwYzUyZGMzNDRmMjYifQ"
         },
         {
-          "resource": "repo://VocabCraftWidgetExtension/AppIntents/NextWordIntent.swift",
-          "version": "repo-file-v1:sha256:3400cc0a29bebc5780afecb3f164ab33c51f9739056dd6b20d4205baa8d89491"
+          "resource": "repo://VocabCraftWidgetExtension/Review/WidgetReviewRecorder.swift#L14-L45",
+          "version": "repo-lines-v1:sha256:7faccbeb462d1f365485869692d1aa656ef400cc34b917848eec7c684178d43b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwYmZlODJkZjI5NjVlZDYzMDhiZGRhZmVmMDRkMmNhY2Q5ZTYzY2VmOGNhNDAzMmQ1ZTRlMDI4OTJlODMyOWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiODIzNGUyOGVjOTIyNmJjYjY5N2Q0N2M3NDM1ZGUwNTM3N2QyZmRmZjgyOTY3MzA4NjdkYzE0ZTIzYmMzNjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1MDUxZTMxYzhkZjlhMjcxNjcyMzMwN2U4YTM2MzY1NWFhMzNlZjBlZmY5MWM5MmM3ODE0N2ZjYmIyMGQyZTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlYmQzNTdjYTBhM2MyYWQ2NmUxZWFiM2JlNTcyZjIwNmFkYzMwN2E5NTNlNDk0Yzk1ODBmYTk5Mjc0YWRlZDIifQ"
         }
       ]
     },
     {
       "id": "claim_55895c114c33425c8c66bd9ae2c60a37",
-      "statement": "SharedAppGroupContainer configures ModelContainer with app-group URL so main app and widget extension share persistence.",
+      "statement": "SharedAppGroupContainer configures the ModelContainer for the app-group store, so the main app and the widget extension read and write the same progress records.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
-          "version": "repo-file-v1:sha256:96ea4376c9af240371f6eccf710cf5c81e66c1aed8c4ecd564355fd8cb524c96"
+          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift#L20-L30",
+          "version": "repo-lines-v1:sha256:816facdf04c58a8b59f018790bba1cbd44396bd6a5e5cfcb2d852d8c2105de25:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyZTZmNDMyNmFkMWEzMzcyZWVjNDkyMjExYjY2MmY1M2VmNGE4OTI3MjhkNDllYjJmY2FlODg3MTA0ZjUxYTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI5OTg3OWZjYzY0MGRkODY3ZWI2ZTEzZWZlNjg1Mjg3NDY5M2ZkNWYyMjI2NmIzY2Y2YzdiMGM0YTY0NDEyYjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmM2MyYmU5Yzg4ODZjMmM1YzI4MjYzOTk4MTBmZTYyMDY0YWZhZWEyN2RmMTNmNzQ5OGI4M2QyMmVlODBjODkifQ"
+        },
+        {
+          "resource": "repo://VocabCraftWidgetExtension/VocabWidget.swift#L8-L20",
+          "version": "repo-lines-v1:sha256:3cbc02b350bffb7f5f185309a41eb36889a187d1e52df809961667e9b64b3dfb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhMzQ5YmJkMWEyMTEwNGYwNTFlMzRiMmM4YTllNzBjYzdmYmI1MGJjMTlhNjc3ODFmMmExNDBjMzg2ZDk0MzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhMzQ5YmJkMWEyMTEwNGYwNTFlMzRiMmM4YTllNzBjYzdmYmI1MGJjMTlhNjc3ODFmMmExNDBjMzg2ZDk0MzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGJkMjAxYjllNzc4OTA5YWZjOTU1NTJhMzA1YmRhZjNiNDIyMmM3NTVmOTBmMzE2YjJlNGJiMTU3YzM3MzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQzMDY4MjhiMzc4MzI3NmQ3ZjVmYjhjNjdkM2U5NmM0ZDM1Y2Y2MTk5N2MxMWQ0OThiYWQwNGZiNWQxMGRlZGIifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

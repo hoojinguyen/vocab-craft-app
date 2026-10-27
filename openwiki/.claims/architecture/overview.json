@@ -1,48 +1,52 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:fb22171f748f6a80a5afc4813d8570007740374b2b4547496a69f847aa976478",
+  "pageVersion": "sha256:df3e22ed81e742e4c89c8a98f4ba726bbef519b9d4516ab5674ab46ea245836d",
   "claims": [
     {
       "id": "claim_0ca93419a626498690e8b53ba467d6b4",
-      "statement": "Package.swift declares VocabCraftApp SPM library depending on local CraftUIKit and SpeechKit packages and exposing VocabCraftWidgetExtension.",
+      "statement": "Package.swift declares the VocabCraftApp library, which depends on the local CraftUIKit and SpeechKit packages and the SwiftDataMacros target, and declares the VocabCraftWidgetExtension library for WidgetKit.",
       "evidence": [
         {
-          "resource": "repo://Package.swift#L5-L45",
-          "version": "repo-lines-v1:sha256:8a722e645f3903f8318bc6ebc8a9d084fe737a4745bfc3f015b9975d6b710ca8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3MTZhYWI4YjNhNDhkOTA4NTM4YjBkODg5NDE1YTE3ZDI4NGNkZmFmNTE5ZjdkMmE1NjlkZDhiZjJlNTkwNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2MjkxMmU0YjQ3MDJkMjk3OWY5ZmYwZjRmMmU2MjhkZTNhMjcxMjNlMDlhYzY2NTEwNzMwZmFjMjY0NzkyM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlYTA5MGMyNzU3YzVmNjNhNjExN2FkNjA2ZDk2NjhmZTk3MjM1YmZiNWRmZGNmN2I5MzFmMWM1YTA3MTQ2MWMifQ"
+          "resource": "repo://Package.swift#L4-L45",
+          "version": "repo-lines-v1:sha256:ee55dcb4612dc48952d98959bf3d853e04473621147111fa7e1e622a367421a7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwOGI1NDdhZmVkYzgxYWM5OWMxOWM3NmYxZDUzNDJkNzA3OWQyYmRkODRjMmUzMzE3ZmU2OWM2MmU4M2FiYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkODNmMjVhYzI4MzdjNzNjZjkwM2RhNzU5NTBlOTc3OGQ0YWZiODVjNjEzYmYyOWI0YjJhYjY1ZDQ0ZTgzMDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0NjNmY2E4NzBjOWY0YThlYTU0OWUxN2Y0NDA4ZTRhNmJjNzU3NzA2MzJhNmFiNGZlMGU2Zjc1MGEyMTAxZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjYWVhMjlkODAxNjVmNzg3MGU1NmRhYWE1ZDQ3M2ZhZjQ1ZDU5NzgyODkwMTc1ODI4M2IzOTliMjZkYmFmYjAifQ"
         }
       ]
     },
     {
       "id": "claim_cd463152035640eda86fb999e12aab87",
-      "statement": "VocabCraftApp entry bootstraps SwiftData ModelContainer via SharedAppGroupContainer before constructing AppContainer and injecting into environment.",
+      "statement": "The app root holds an AppBootstrapper whose bootstrap creates the SwiftData ModelContainer through SharedAppGroupContainer before constructing AppContainer, and renders the main content only in the ready state.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L18-L120",
-          "version": "repo-lines-v1:sha256:20a7bc81f289d0b64905de04a47a31a1190e40915905729c22c00bdc3a3d0d74:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4YmNjNjExYWYyM2E5MWMzYjcyN2QwYWNlNGRlMjIyNDJmYzQ5MDZjNzE5NGE2MzQ5MTliNjVkNzAzZGQwMGIwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwODRmYmFmZWI4M2I1NDA4ZmIyNDRlMmEzODhlZTczOWEzZWE3NjkwZDg2NWEwZjJiNzY5YjhlNDUwZDFkMzNlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkYWE1ZmM5MGUxZDM4ZWVlNzBjZjJjOWNhNTA2MmI3MDc1MWJiNWU1NjFhZmViMWJmOTAzNzZiZGE0ZGU3ZTRkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4OWM1OTFmZTU4MTU5YjQzNmM3ZGY3ZDQwMTU2NDQ1N2JhNTg3OTk4MzA2MzJkOTAyYzMxNDhiN2M1ZjQzMTRmIn0"
+          "resource": "repo://VocabCraftApp/App/Bootstrap/AppBootstrapper.swift#L59-L95",
+          "version": "repo-lines-v1:sha256:b695992933fcb0d509ab744487c0fcefdf52564658762bd1caa8029e675adafa:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MTk4NzU1M2E3MWJkMTdiMTVmYTBmMTBiZjFlZjViYTFjMzIwZDBmZDQ0ZjBhZDIyMDg1MTY4M2NhNTRmZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwZWRlYjYzYjIyMWQ4NTZjMWI4NDkxOGU0YTg0ZWZmMmFmODJhYTJhY2RhYjhlMGI2YzRmM2UyNGVmNTcxMWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2OTg0ZDM4NGZiMmNlZjNiYzEyYjM1NDUxOTYwOGMyY2UxZjUxMzM4ZmNhYmNlYzMwMWFiMmE4MmMyYjY2M2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiYzNlMzZmOTk0ZWFhMGFiNzQ1NDdkZjU5MzNlZTRmYTk0ZWI4NmE0NTgxZmFlZjNlMjgzYjcwMjU0NDhkNGMifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L29-L60",
+          "version": "repo-lines-v1:sha256:70171b6bc4827fcf49b2a9dcf0b6a285949f3401264414911134b2759b736b5b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmODI0YzlmYjRjY2M1MWYzMjAwNzJiNmNjNzQ2YWVkZWU2MmQ3YmNhZGY5NDI4MmJjMjdjZjNkMjc5ZWQ4YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkYjMzOWMxN2Q0Y2M1NGU3MGM0ZmNmZWNiNjExYmI5ZTdkMzYzZjI1YjE4ZTA5MjNhMWQzMDZjYzk1OTI0ZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlOTEzYTY5ZjU5YWZlNTVmODViOWYwNzI5ZjBkZDUxNWYyZjc5MzY2ZTViM2U2ZDBjNDdjYjhhMmNhYjlhMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwYmY0MGU3NTIzMTNmMDJlNDA1MGY1YzZmNDdiYTFhNjcyYjRlNGZhYzBjNTZkZTdhMTY3NmI5MDMyZWM2MDEifQ"
         }
       ]
     },
     {
       "id": "claim_286a41c080f24caea5360167c4b6e81b",
-      "statement": "The codebase is layered into CraftUIKit (design system), SpeechKit (speech), Domain (use cases/entities), Data (SwiftData actors/repos), Features (MV ViewModels/Views), and App (DI/Navigation).",
+      "statement": "The codebase is layered into CraftUIKit (design system), SpeechKit (speech), Domain (use cases, entities, and protocols), Data (SwiftData actors, repositories, and AI providers), Features (MV ViewModels and Views), and App (bootstrap, DI, and navigation).",
       "evidence": [
         {
           "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Atoms/CraftBadge.swift",
           "version": "repo-file-v1:sha256:f42c04b1cd30fe3452cd4ebffa6b6466a3aa1cec5d4e897524629ad57f31d283"
         },
         {
-          "resource": "repo://VocabCraftApp/App/DI/AppContainer.swift",
-          "version": "repo-file-v1:sha256:db61eb1bd472114b5dcf9d4ce73dee56a2d60a51c9afcef74262ed03fc43a713"
+          "resource": "repo://VocabCraftApp/App/DI/AppContainer.swift#L4-L30",
+          "version": "repo-lines-v1:sha256:650751fe783f4d83482688ac303f3e666da3c5c01fe8cd32fe82a8b58a418ffc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllZGZlMzkyZDQ1NDA4NjE4ZGY5YWQxYTBhZjQ5NWVmN2Q0OGZlMWIzOWZmZjhiZjk1YTkwOTIxMTI3ZWY4OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MzYwNzMzYmNkMjU4ODM3YTllMTFlMjI2NmNhMDA1OTBhNWU0NDUxZThjY2FmYTU5YmM2YTQxMjI0ZGUxYzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4OTUxYTVlMDA0MTE2ZjBmM2Y1MzVjODgxOTBiNmUwNmU3NGFmZGZlYjU2MTc0MTA0YTIzYzQyZjJiYTNlZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0OGU0ZDlkNWFhYzRlOTU5ZWZiMTJmMzRjMmFlNDIxZjkzN2FiNDAzNTcxMGY1NTI5NmE2N2ZhZmJjOWVhYTkifQ"
         },
         {
           "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift",
-          "version": "repo-file-v1:sha256:ed7aa78e63947d0e4655151d128ce4ef367d3e88b41aaa1a02956c4d81ead6f8"
+          "version": "repo-file-v1:sha256:84bc8b111fde7439027e47c267ad3f744dca87f8978f3edba57dccd168d06d48"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

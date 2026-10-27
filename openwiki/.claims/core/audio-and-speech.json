@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:221ac37550711e80e7eee0b57ee48802dcd3ec9ddf0dd972ce4d36919704e308",
+  "pageVersion": "sha256:fd868a072d5a17aee2b301fa64c90a1a74cfe4a0a59c56984792d311fab224dd",
   "claims": [
     {
       "id": "claim_6bc6537307a041bdba9a2027841849fe",
@@ -18,31 +18,31 @@
     },
     {
       "id": "claim_4979ba5d567649eebd90036f6146ed57",
-      "statement": "TextToSpeechService and SpeechRecognitionService in Core/Audio wrap AVSpeechSynthesizer and SFSpeechRecognizer for reflex prompts and recognition.",
+      "statement": "TextToSpeechService wraps AVSpeechSynthesizer for prompts and roleplay voices, and SpeechRecognitionService wraps SFSpeechRecognizer with an audio-buffer request for listening and speaking recognition.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Core/Audio/SpeechRecognitionService.swift",
-          "version": "repo-file-v1:sha256:18f3f1b3dbbddef5053bd7babcae9ba165269bcee5822cc830f275c27ec3f286"
+          "resource": "repo://VocabCraftApp/Core/Audio/SpeechRecognitionService.swift#L85-L120",
+          "version": "repo-lines-v1:sha256:d75c70705e8b8be7b7caaa95f762108325da04f031e2f569f42d3467dead414c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ZTkyYWE3ZDAwNTUwMTE4MzBmMGY5OGQ1NjFmNzQ0OWIwY2E1YjFiZTY1ZjZmYWQwZDg3NjA4ZjhiOTEzYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlNTY2N2FiYjc4OGZjZTQ3YTg2YmVjMTU4NjU0MWM3OWIyMjhkNjQwOWEyNmM2M2E0ZDZkYWQ1MTk3MTRlMzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMmMwMWQ0MzJiYWM3OGM0MWM3ODQ0ZDQ2MmUxZWJhNjZlMzRmMDk3MzYwNWU1NDY5YjM1ZjgzOWIwMWMzODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI4Njk0YTEyNmNlZjJlMGRhMGQ5MTZlOWY5NzE4YjliNTI1ZjZmYmQyN2QzMzE0ZmI5YmNkNGJmZjhiMzM3ZDcifQ"
         },
         {
-          "resource": "repo://VocabCraftApp/Core/Audio/TextToSpeechService.swift",
-          "version": "repo-file-v1:sha256:7b683603281f771a16761fed418db48640d6a0487fb1ede61e01a5883d33f810"
+          "resource": "repo://VocabCraftApp/Core/Audio/TextToSpeechService.swift#L40-L60",
+          "version": "repo-lines-v1:sha256:2e2061b34c3399ec18281809b18b8bb7aac9f0901153a6afb80c1983e8f5ab5b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmMWQ5MDI1ZDU2N2VkNjYzMGRhM2MxYjViNTQyMzU2MjBhMmYxYWNkOGI4OGI2MjAyNjZlNzRlNzQyMWM5ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmMjkwZDhkZTRjNjgyNjI3MWFlNTA1NzA3OGI2ODUxMWRiYzQyMzIzMTkyM2I2ODViNGVmZTEwZDBjMTQ0NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMmMwMWQ0MzJiYWM3OGM0MWM3ODQ0ZDQ2MmUxZWJhNjZlMzRmMDk3MzYwNWU1NDY5YjM1ZjgzOWIwMWMzODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlZTNjNjFjMzk2N2RiYTQyZjRmMzJjNDZmOGU3MzQ1NmFlMzU3MzFmYmI2M2ZlNzg1OTBmMDVjOWFmYzE4MGEifQ"
         }
       ]
     },
     {
       "id": "claim_4d4dd6eba7ac44a490235202d14a7b95",
-      "statement": "SpeakingModeHandler orchestrates TTS prompt → engine start → silence-gated collection → fuzzy evaluation for reflex speaking drills.",
+      "statement": "SpeakingModeHandler gives each speaking word its plan options and hint badge, maps elapsed time to hint stages at 2.5, 4, and 5 seconds, and ends the speech engine's word on completion or timeout; the TTS, capture, silence gating, and fuzzy evaluation run in the reflex speech engine and SpeechAssessmentService.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/Handlers/SpeakingModeHandler.swift",
-          "version": "repo-file-v1:sha256:ada6b6adfe51cbcadef67badae4e9e30b88a5b317114a0d51d112e2bd7aef47d"
+          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/Handlers/SpeakingModeHandler.swift#L22-L60",
+          "version": "repo-lines-v1:sha256:086c908b06ad6462d5109ab605bcdf191f5459bab23d1217d9e4ba988cfe7c64:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiMGRhZjkzOTc5YTQ0MzYxMWM4MzlhZWJjM2QwNjdkNjM2YTE2MWZlZmEzZDk3ZjY4YzNkNDk3ZDEwZjY4ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3ZGM4MDI2NWIzN2U0MTQxMWMxODgxYWY2ZGQxYTlmMmM1NWVmOTVhN2RiNzgwMGQzMTJmZWU3NGI5ZjZkNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

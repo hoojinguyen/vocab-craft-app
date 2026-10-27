@@ -1,40 +1,52 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ba5cb59610e89a6dfcf7cf635946277da3e324049d5906c91699451121f33c9b",
+  "pageVersion": "sha256:04786d6fdd259dc3a0ebcf1f573ae5f532a7289145d36ad25cc5d5a8dcfef3d4",
   "claims": [
     {
-      "id": "claim_eec41152201c4634925feaa76ebbe35d",
-      "statement": "SwiftDataModels defines UserWordProgress, UserStageProgress, ReflexSessionLog, QuickReflexAttemptRecord and WidgetCurrentState with @Model and unique attributes.",
-      "evidence": [
-        {
-          "resource": "repo://VocabCraftApp/Core/Database/SwiftDataModels.swift#L7-L118",
-          "version": "repo-lines-v1:sha256:2dcacee2ce12d99d89ba928b32da28b33e63c711c8f4ab9ecc5e8e19a78d2170:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3MTIyMTdmODM5YjU3MmJhNmViNzgwN2EzZDA2ZDgwYzJhYTUwNDc1NTA1MWU5YTFkNzE5OWIyZWZjYjdhYTJlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NzBkZDk3OTE4NzQwZDk3ZGVlZThmZWVmZTM4MDE1YjgxOTdlNGIzNWRjYTEyYWI5MDkyYWY0YmFjOTUyNDNlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlNzc2ZDRlMWUzZDdiMmRlZjliZGRjMWY3MWE5YTNkMGI5YzBkYWQyOTc0MTEyMzBjOTgyYWUwZWM2YjhiNzAwIn0"
-        }
-      ]
-    },
-    {
       "id": "claim_1cddbb0762d342f5bc418fe1c3cc5e1a",
-      "statement": "UserProgressModelActor is a @ModelActor that serializes all UserWordProgress writes to avoid data races.",
+      "statement": "UserProgressModelActor is a @ModelActor actor that implements UserProgressRepositoryProtocol and serializes its progress mutations, including saveProgress, recordChallengeResult, toggleBookmark, and markWordReviewed.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Data/Local/Actors/UserProgressModelActor.swift",
-          "version": "repo-file-v1:sha256:5c490413f23a923cf4192a97a5b7551327fb87de27dc83ff4cb959a3a33d36a4"
+          "resource": "repo://VocabCraftApp/Data/Local/Actors/UserProgressModelActor%2BMutations.swift#L80-L130",
+          "version": "repo-lines-v1:sha256:73483cb6ba1ce6db7572a6f874585d82712ab9352f48cbf6fbcdc87cb5fb6aff:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYzEyMjhiODNjNzRhY2Q5ZTg0ODVhNmExOTk1OTIxZGY1NmQyYTI3OTJjODZiNWM0NDdiY2NmZmIxYzE0MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1YzMwZmQwMGRkMTdjM2M2NGI0MDZlMDJiZTg3NmQwMDFjYTc0YzAxMWZiM2IzNWY5ZDhiMmNjZmQ2MTZjYTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkNTMzNWVkOWRmZDAyNGM1MDk2NjNjZTlmMDI1MjYwYzg5MzNhM2M4MjFkMGVhOWZmOGZiOTRkZjY2YzBmYWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhMTEzZWFkODAwZGUyODExM2Y5MDhmMjk4Y2RjMTNkMjI4Y2QzYjBhZmJmOTA0MzFhNzU1OTE1Y2FjN2E1MjEifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Data/Local/Actors/UserProgressModelActor.swift#L5-L15",
+          "version": "repo-lines-v1:sha256:20d06b2117fa3773cc8c91ac857c11fd1254aec2dc660a05a04ea9df97bd589d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwOTk2YWZlMzMyODkzZWMwMTZkYWEzY2QyNzY4YWUxY2Q4NTdjYjRiNDk4MTMwMDdiMzc4Y2FiNDFiNThmZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjZWRkZmQ4ZjUyOTQ4NTRhMmZlYjhlZWEyM2Y2ZjZkZjU5ZWVkN2IyMTM3YTZjN2M2YjQyY2VjNjIzOWQwZTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5NjY5MDJlNDU5ZmQ5OTU5N2M4MDA1MGM1NjZkNzQ5OTZlMmEzMjY2ZGU4ZTFlNjAyZmFjYWE0NmI1NDcwYzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1YjQ0MTdlZTIyNDg2ZDQ1MDUzZDVhMGZhNGJjYmI1ZWMzMTE5MGQ3OWY0NmExZjFkZDEyYWNhMGFkMTExMzIifQ"
         }
       ]
     },
     {
       "id": "claim_c8e9c1e040dd40d390c5dbce47e73d6b",
-      "statement": "SharedAppGroupContainer creates ModelContainer with app-group URL to share persistence between main app and widget extension.",
+      "statement": "SharedAppGroupContainer creates the SchemaV3 ModelContainer with AppMigrationPlan, storing user_progress.sqlite in the app-group container when it is available, and quarantines the store and throws DatabaseStoreError when creation fails.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
-          "version": "repo-file-v1:sha256:96ea4376c9af240371f6eccf710cf5c81e66c1aed8c4ecd564355fd8cb524c96"
+          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift#L106-L127",
+          "version": "repo-lines-v1:sha256:480cc31129a789b9d21e16e3328c417074d4c240b8e53789bab4f573cd58685f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ZGIxNzdmNmI4NGE5M2M4OGMxYmE0Y2RkN2Y1M2FjNzc0MWIzZDkxYWUyZWI5ODRkMTdjYWIzYjY2OTg1YjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxNWNjNjBmNmIwYzdmY2QzZmM5MzM5ZGNmMTYwZmM3OTY5OWRlOTEyODk5MTI0NmQyZTJiN2U2ZmMxZTQxZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmOTE4MzU3OWMwY2MzZmE4ZGM2MjJhOTcyNWVjZGVmNGQ4ZTQxNGU1ZTVmYTY5YjJhMjlkNGUwOGMzNTQ1NDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3NzBkNmJkODllNjY0YmQ3MWUwODBlMWZlMjA0ODkwNjAzYmE3ZGFmZmVhY2MwYWVhZWUwNmZmYmE4OWE5OWMifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift#L7-L30",
+          "version": "repo-lines-v1:sha256:a2c071f8ea71d090eff1aa940859c88c077a734203219d28e772ac1932794cd9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZDM0ZWZiYTNmNzBjYzdjZmQ4MjhjZmYxMWYwMWFkZmRjNzEwZGEwOGYyZGVmNWUyMTQyY2FlNmQxMTNiYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkM2FkYTA4NmM0MzAyODk3ZDlkNTk3ZjZiZWVmZTRiMDI3MjdmZWEyOGVmZTg5ZjVkODgwMjVmYjdkZWZlYjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmM2MyYmU5Yzg4ODZjMmM1YzI4MjYzOTk4MTBmZTYyMDY0YWZhZWEyN2RmMTNmNzQ5OGI4M2QyMmVlODBjODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a554b019e5004408830ed1e849afcab6",
+      "statement": "SchemaV2 defines the UserWordProgress, UserStageProgress, ReflexSessionLog, WidgetCurrentState, and QuickReflexAttemptRecord models, and SchemaV3 adds six guided-practice record models while reusing the V2 progress models.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/Schemas/AppSchemaV2.swift#L7-L18",
+          "version": "repo-lines-v1:sha256:f4b8b8fb042e52d3b1fbf7188d87303820bbe6854a8667416c467efde500e69e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkODg0NzRkMTUwNmEzYjNlMmRmZTBmN2FjM2MyNThiNTkxMzBiNjg5YzI5NTMxMTFmYzhmOWE1ZTFhNmRiNDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkM2FkYTA4NmM0MzAyODk3ZDlkNTk3ZjZiZWVmZTRiMDI3MjdmZWEyOGVmZTg5ZjVkODgwMjVmYjdkZWZlYjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4YmMwZDk3YmE4OTRiOThhMTM1MWU2NzMzN2NhZGE3MjE2MmZlYzliOWI3NGY5ZjkzYjc0ZjRhN2Q5N2RlMjUifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/Schemas/AppSchemaV3.swift#L19-L36",
+          "version": "repo-lines-v1:sha256:11e2f01d2eed1857f7c92df49d4e80124e4241ba59ecbfce5a01d12c38ea15b9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNmExNTcyNWNlZWU2YTU0ZTQ5NmMyMGUzNmQ1MDI5ZTI4NTBkOGEzZDZjOGI3NjE0NGQxZTcwYjU4Y2QxYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4YTQzZmE4YTU5MGFjOTQwNWMyOWZlM2NkYWM4MWU2MzA1YWZjZDhlMTkyMzFhYmU0N2YzMGQwZTQ2MDdiNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxOTU2NDFjYWFmZWUxY2IwY2M1OGM1YWU2YzMwYTY1ZGYyZWM5MTEzMzIxMTJiMzE2MjJjNjdjNDkxZDdhNTMifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

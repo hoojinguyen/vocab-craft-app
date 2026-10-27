@@ -1,14 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:a982861f06d921f73708af81893db9f0407fef1956084d5793234715f7058614",
+  "pageVersion": "sha256:6c8fdbf91b7fb2365acd522fb0c95858f1b923885f90959f3ff1d79bfb07c89a",
   "claims": [
     {
       "id": "claim_f48a07d5fb0549509703d7ea5449b9de",
-      "statement": "PersonalVaultViewModel merges VocabularyDataSource and UserProgressRepository via FetchPersonalVaultUseCase to produce filterable VaultWordItem list.",
+      "statement": "PersonalVaultViewModel loads vault words through FetchPersonalVaultUseCase, which combines catalog words with the learner's progress, and exposes them as VaultWordItem values for filtering, search, and selection.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Vocabulary/PersonalVault/ViewModels/PersonalVaultViewModel.swift",
-          "version": "repo-file-v1:sha256:9d9cba336baa99be2886df4d22883e4d60a5f860045830dc2f5e48352d879bf9"
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift#L4-L14",
+          "version": "repo-lines-v1:sha256:b6f36a6b2831689aa106aa214900acf8aa864603550e37401a11bef332166a64:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ODFhNDY0ODQ5M2MzNTY0ODBjODY4MDYyZWZmOWViMDdiZGI5MTA1NTYzMDA4ZTZjYTJlZDU5ZGQ4NzVhNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYmRkZDMxMGQ1YjA4ZWFmODU0MWVhYTllMjdlZDg2NzkxNGYwMzQ5NGFiZjgxZGY2OWZiMDhlY2Y1Zjc2ZjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiOGI4OWU4ZTAxMjNiYjY1NzRjMjkxN2JkMzQ4NDM0YmFiZDE3NmRkOGMwODg1MWI1NTZkZGE4OTU0NzU2ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlNTVmOGRiNjY5MmQ5ODBhNWM0NGVlZTE1ZjQwNDk1ZDlhY2I1NWMzMjVlM2FhMjk4OTZmNTcxZjc0N2IyMmMifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Vocabulary/PersonalVault/ViewModels/PersonalVaultViewModel.swift#L7-L60",
+          "version": "repo-lines-v1:sha256:922d473f6c9ef89c5f185664b3927f8ef7cf3ad0a3c5b10097a6c8bfbfa53e85:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhYWMwYzllZTVkYTY5MzM3YzA5NGI2ZDBiNDcyMDQwMmM0Y2E2NGM5NjM0ZTkzZWI2NTc2MTNmZjZjZGE3YjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjNzhhZDZkZDEyOGUyZjRjMmMxMzIzYTViODFjNTgzNGMzYWIxMmI1MDUyMjFlMWVhNDZjNjQ4N2RhYzk2NzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiNWM3OTc1ZmJkZTIxNjY1Njc0ZmM3OTBkZjI3YmI3YzVjZDM5YmIyZDEwYzM3YjQ4MTUwOTk3NDNjNTI2YjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0NDM4YTk1MDdiMmM5YWQ3MTQzZWVkMjJkZDk4MThjN2M3MWI4M2JiMTQ1ZGIwMzAzMTBlYmY3YWFmYjA1NTgifQ"
         }
       ]
     },
@@ -23,18 +27,28 @@
       ]
     },
     {
-      "id": "claim_6a41e69ea29f4031a1ecfdf772af4952",
-      "statement": "VocabularyFilterService provides query/CEFR/bookmark filtering for both catalog and vault views.",
+      "id": "claim_35307772f4f4487d9de72f91fb178389",
+      "statement": "PersonalVaultFilter has all, needsReview, mastered, and bookmarked cases, and VaultTabFilter has notMastered, mastered, and bookmarked cases for the three tabs of the vault screen.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Domain/Services/VocabularyFilterService.swift",
-          "version": "repo-file-v1:sha256:1dadd3ea404beb583b53eb913799809f67fca1d2641f42e3b349214ad1d0cfe7"
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift#L4-L17",
+          "version": "repo-lines-v1:sha256:f6ff23ae7204116247e5ba0d6621d4a3b973212060b7df9bcf5be056dcb0db4a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ODFhNDY0ODQ5M2MzNTY0ODBjODY4MDYyZWZmOWViMDdiZGI5MTA1NTYzMDA4ZTZjYTJlZDU5ZGQ4NzVhNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiOGI4OWU4ZTAxMjNiYjY1NzRjMjkxN2JkMzQ4NDM0YmFiZDE3NmRkOGMwODg1MWI1NTZkZGE4OTU0NzU2ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZjIzZTY2NzQzYmUwNmQ4MWUyMDhkMjY3OTRjODM5ZjZkNDlmZWVhNjMwODUwYmVkYjExN2RhNDM0MDE3NmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_60c55144ebdf45a1a8f311f3f325bad7",
+      "statement": "PersonalVaultViewModel.smartPickWords chooses words only from the current tab's pool, targeting the daily goal count and falling back to 10.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Vocabulary/PersonalVault/ViewModels/PersonalVaultViewModel.swift#L168-L183",
+          "version": "repo-lines-v1:sha256:df9a7327468d4f85e70d8828be3c13372879271e7c6307fdb6085a4dff442084:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MzA0YWExNWRmZDI2YTJjNzA4ZWE0NGY4YmY3NzJhY2ZmZjEwYmZhMGQwN2U1Y2Q1MDQ1YzdkNmYxZDViODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmM2MyYmU5Yzg4ODZjMmM1YzI4MjYzOTk4MTBmZTYyMDY0YWZhZWEyN2RmMTNmNzQ5OGI4M2QyMmVlODBjODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZTZkYjU3MmRjYTA4N2NmOWZiMGUxM2Q2MDViMmQxZjA3ZTc3MDE3NzE1YTNmNzU0MDVlMWUxOWFhNDkxM2MifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

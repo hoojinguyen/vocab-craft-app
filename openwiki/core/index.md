@@ -1,7 +1,7 @@
 # Files
 
-- [Audio and Speech](audio-and-speech.md) - SpeechKit engine, TTS/STT services, fuzzy matching, and Reflex speaking flow.
-- [Dataset Engine and Data Sources](dataset-and-sync.md) - DatasetEngine vocabulary dataset pipeline, data-source abstraction, sample seeding, and AppContainer wiring.
-- [Domain Entities and Policies](domain-entities.md) - Word, PersonalWord, VaultWordItem, drill items, protocols, use cases, and MasteryEvaluationPolicy.
-- [Persistence and State](persistence.md) - SwiftData models, ModelActor, repositories, UserSettingsStore, and SharedAppGroupContainer for widget sync.
-- [SRS Engine and Scheduling](srs-engine.md) - SRSEngine interval math, EvaluateSRSUseCase, stage progression, and weak-word review flows.
+- [Audio and Speech](audio-and-speech.md) - Text-to-speech and speech-recognition engines, the reflex speech engine, audio session coordination, and the SpeechKit package for fuzzy pronunciation evaluation.
+- [Dataset and sync](dataset-and-sync.md)
+- [Domain entities](domain-entities.md)
+- [Persistence](persistence.md) - SwiftData schema versions V1 to V3 and their migration plan, the model actors that serialize writes, the shared app-group store used by the widget, UserDefaults-backed settings, and the JSON widget deck store.
+- [Srs engine](srs-engine.md)

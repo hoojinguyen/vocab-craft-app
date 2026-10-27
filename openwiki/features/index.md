@@ -1,7 +1,9 @@
 # Files
 
-- [Homepage and Learning Path](homepage-and-learning-path.md) - Homepage composition, FetchLearningPath, LessonEconomyPolicy, streak, and CraftLearningPath rendering.
-- [Reflex Drill System](reflex-drill-system.md) - Reflex Blitz and Mixed drills: modes, DrillPlan generation, hint masking, cloze, distractor logic, and summary flows.
-- [Settings and Profile](settings-and-profile.md) - SettingsViewModel, UserSettingsStore, theme control, HeroProfileCard, and progress reset.
-- [Vocabulary and Personal Vault](vocabulary-and-personal-vault.md) - Word browsing, filtering, bookmarks, PersonalVault and SmartReview flows.
-- [Widgets and App Intents](widgets-and-intents.md) - WidgetKit extension, App Intents for next word and mark learned, and SharedAppGroup persistence sync.
+- [Guided Practice and Roleplay](guided-practice.md) - The AI assistant tab's Guided Communication Practice feature (missions, a turn-based coaching session, support levels, and persisted evidence) and the roleplay room and voice call built on the same AI and speech services.
+- [Homepage and Learning Path](homepage-and-learning-path.md) - The home tab's learning path (decks, stages, and lesson nodes rendered as a journey), lesson unlock progression, rewards and duration estimates, the streak header, and the sheets for treasure, path switching, and vocabulary growth.
+- [Reflex Drill System](reflex-drill-system.md) - Timed reflex drills in four modes (speaking, typing, multiple choice, listening), the Blitz session flow and phases, the mixed drill that mixes modes across the personal vault, mode handlers with time limits and hint milestones, and the cloze and hint utilities.
+- [Settings and Profile](settings-and-profile.md) - The settings tab's sections (learning goals, audio and speech, AI configuration, appearance, data and storage, about), the UserSettingsStore keys behind them, the profile hero card and stats sheet, and the reset actions.
+- [Shadowing](shadowing.md) - The Shadowing feature for repeating sentences from curated videos in three rounds (immersion, speed shadowing, echo drill) plus a summary report, backed by the ShadowingCatalog.sqlite catalog, a UserDefaults progress store, and a YouTube player bridge.
+- [Vocabulary and Personal Vault](vocabulary-and-personal-vault.md) - The Vocabulary tab's personal vault (search, three-tab filtering for not mastered, mastered, and bookmarked words, bookmarks, word details, practice selection, and smart review of weak words), the view models behind them, and the vault's localized strings.
+- [Widgets and Intents](widgets-and-intents.md) - The VocabCraft home-screen and lock-screen widget. The app composes a JSON widget deck of due, recent, and upcoming words, the widget renders it from a timeline, and the reveal and grade intents let the learner review a card without opening the app.

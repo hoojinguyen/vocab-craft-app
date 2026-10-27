@@ -1,48 +1,52 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:12aae5556d71f6bb7119c789e20363bf15f543ea6e1424b6612bcecaa916809c",
+  "pageVersion": "sha256:89a3c027aae17156c2a49d04f989e75110eb3b6779cc551e390e4a055631722a",
   "claims": [
     {
       "id": "claim_d76702dfa2a94c7a8f220587c7a5b7ba",
-      "statement": "HomepageViewModel fetches learning path via FetchLearningPathUseCase and maps it via LearningPathDataMapper for CraftLearningPath.",
+      "statement": "HomepageViewModel loads the learning path through FetchLearningPathUseCase with the learner's selected path, and LearningPathDataMapper maps the curriculum into lesson sections of CraftLearningPath nodes.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift",
-          "version": "repo-file-v1:sha256:bfef11e49ccfefaf88f3a877d0ab051e3aa24b3186cd3e22f84f98b2ab522d62"
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift#L161-L176",
+          "version": "repo-lines-v1:sha256:55561c1d7649b42fc936ada5bc79a58a4f51fdc353123bb5e466afd6f1d6e009:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxY2Q1NTczYmUwOTBkNzVhMzlmMTMxNzcyOWMwMzcyMGU4ZjdlZTVkN2IyYjZmOGMxODY1ZGU5ZDMwZGM1MmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiZTU5NDMyNjQ1ZjBkMGFjOWNmYmMyNzQzOTlmNTcwYzc1ZGQxOWQxNTg4ODgwZTcyMzUwNGQ4NDQ0NmVjY2EifQ"
         },
         {
-          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LearningPathDataMapper.swift",
-          "version": "repo-file-v1:sha256:55254bc76d33501bbaeb5242b62e4590b6e627ba9f3497b20b0eddc733363c36"
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LearningPathDataMapper.swift#L11-L40",
+          "version": "repo-lines-v1:sha256:9b5b2b33c75c0770a939d967702fd54e23b25b35f25be18239c7882877457f7a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxOWUxOTk3MzFjNzQ3MTliMTMwY2U1NzM2MjcwMzQxZjliMzJhNzQ2ZDMwYTMyYmJiMDI0MWRkMTY4Njg2MDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4MzBjYTIyODVhNzI4NTQwMWUwZDVjMjdkMjA5MTUwMDIyNGJhOGUwMjU1OWNjMWMwZTQ3NDdmMjg3NzJiN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2MDMzZWJiMGRiYTU2NTY0NGZmY2M4OTljYmIzNDg0ZDI3OTljY2JjNzg5NWQwYjliNGY4ZWFmNmVmNWE3ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1ODY0MWQyYmVjYTE3MWVmYjhlM2UwZDdjNzE5ZTMxMjkxNDhkZmZkZTQ0ZDY5OWYxNDNjMzY3ODFiYmE5MDkifQ"
         }
       ]
     },
     {
       "id": "claim_02e22324c86545a09995700aff98295b",
-      "statement": "LessonEconomyPolicy gates lesson unlocking based on prerequisites and is consumed by Homepage before navigating to drills.",
+      "statement": "LessonEconomyPolicy defines XP rewards per node kind (standard 25, checkpoint 80, spiral review 40, treasure 150) and duration estimates, and does not gate unlocking; unlock progression is applied by HomepageViewModel's completion handlers.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LessonEconomyPolicy.swift",
-          "version": "repo-file-v1:sha256:762daf1745fe1b410532d0a7137cf91bf66a134b6f989576de04cd083983befb"
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift#L336-L372",
+          "version": "repo-lines-v1:sha256:5cf317c09f0d895b98fca2b50022f7823b8bd001534a946de4576179231c4ed1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlMTZhMjYxNzg3MTQyMjViZmRiNDUyNmQzOTc4MmQ1OTQzMzAxZjM4ZDM0YTU2ZTUxYjZmZDVjYjI2YzdlM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlNzU0YmUwODk0N2NmNmI3NzRiMTNiZDAyMWZlYjBkNWNiN2U0YmY2MzExNjhkZDEwNTk1MWFlOTk5MjEzZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5YTlmYmZhNDg2M2QyNGQzOWI3NTc3ODQ1ODllYmRhZWJhZGM3ZDEwNmNlY2EyNmJmZjViMmMxMzlhN2U0ZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0YWMwMDA0MjQ3ZDRlZDZiZjEwODUwNWY0NzY1ODlmMGIwOTZiOGFhODg2ODI1MmU3ZDRkNjljZjhkNGI5ZjAifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LessonEconomyPolicy.swift#L6-L42",
+          "version": "repo-lines-v1:sha256:9bac1bde4dc14a1861259f2b71deba4335b0cce1f725027793333e1cd38f9b61:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ZTAwYmYzZTZhOTJhYjM5N2NiZjEzNjU5OGMxMDU2MmI0N2I2MmM3NjlmNTMxNDRmOGIyZjk1OWU3NTdkNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRhYTBjYTg5MzdlMDMxYmU1ZTM3OTY4ODU0NzUzMzgzNjE1MjQ0OGUyNjg3YzZjYmMyMTYzNWU2MWUxNzZhMGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
     {
       "id": "claim_45569641d9e04f9da9e8234db8bebf96",
-      "statement": "CraftLearningPath renders snake geometry via CraftSnakePathGeometry and node connectors with animation support.",
+      "statement": "CraftLearningPath lays out lesson nodes along the snake path geometry supplied by CraftSnakePathGeometry.",
       "evidence": [
         {
-          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftLearningPath.swift",
-          "version": "repo-file-v1:sha256:3d26c765c7a0c709580b0f3a4edd59ababea20f153e4e2b578d37f11aff29428"
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftLearningPath.swift#L1-L40",
+          "version": "repo-lines-v1:sha256:577e57f997300447965d6a6f0cb08f09164a93d427c47ab07c89863de5bd63ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllOGJhZjNlY2NhZThiYWEzMmU4NmU0MGY5MjFkMjZhMTMwYmE3NGMyM2YwMjE5YTdkMjZlZGY3N2MyZDVhYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNDVjZjc3ODM1YzAyNDBmZjhiMWVhNDhjNDE5NzE3MTMwYmI1NGE5ZWE4NzQ3OTYzNjI4NzBkMmM2MGE5MzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3MmRmMDNiZjE5NjY1ODAxYzU1ZmRhZmFiMGIzYjk0NGI1OTA2NWVhYjAwOTg0N2FlOTgyMWJjYmNlZGM3MTEifQ"
         },
         {
-          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftSnakePathGeometry.swift",
-          "version": "repo-file-v1:sha256:e25a95412ca9ca783420bc094276acc8287b091b15106299d457ca29b5ee058f"
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftSnakePathGeometry.swift#L1-L30",
+          "version": "repo-lines-v1:sha256:606b6f3af89645988829cae233813f0a529d76d628dbf70e57aba0ef344700b2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllOGJhZjNlY2NhZThiYWEzMmU4NmU0MGY5MjFkMjZhMTMwYmE3NGMyM2YwMjE5YTdkMjZlZGY3N2MyZDVhYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiNmFlNGUxMGY4ODQyNzViYmYwZjJlYjc3MzM0M2VhZmZkMmE5NjNlNTMwODk3MTBlZWZhMzJlZTA4MTk5ZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzOWQ5NjkxYjYwM2QzYzU3MDY1MTgxOTRiMWM1NmVlZDdlZmFhZDIzN2Q3YjFhMzFhYWQwMzZlYWYyNTc2YmQifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

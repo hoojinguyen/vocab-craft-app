@@ -1,44 +1,48 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:df2af135a1c251ee573aa7f1efb730fe5bc47447cd853ed5267c205973ac79e2",
+  "pageVersion": "sha256:946c859f2322ef187b3dae399690089eb3d31645c933bc6376f836ec59d4804d",
   "claims": [
     {
       "id": "claim_3c31f1d9d50546f8a4c2418da19c6b5d",
-      "statement": "ReflexBlitzViewModel orchestrates modeSelection/countdown/drilling/summary phases and delegates per-mode logic to ReflexModeHandlerProtocol implementations.",
+      "statement": "ReflexBlitzViewModel moves through the modeSelection, countdown, drilling, timeoutRevealing, and summary phases and delegates per-mode behavior to ReflexModeHandlerProtocol implementations.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/ReflexBlitzViewModel.swift",
-          "version": "repo-file-v1:sha256:8f41d52c2b31ea1fafa02f495bfa71e76eda0ccb4ee787ccf0aa4473ea3c44bf"
+          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/ReflexBlitzViewModel%2BWordPreparation.swift#L6-L75",
+          "version": "repo-lines-v1:sha256:205ad78fbf355f85409df151283250830e3cb198db008c81f487e1e8f773df3c:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzYTcyMDlkZGVkZGMyNTUwZGUzZGU3MjA0OGIxYTE0ZDM5MjhjNWE0ZjdhN2I1ZjRjYWQyOTNkMzBlMjA5ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzAzY2NiZmZjYzA5ZDQ2MzNkOTJhMmNhYWMwMGQ5YzcxOGY0YjRmODlkMWM4Mjc1YzE2ZjY2ZWM4MTUzYjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyMTJhMGNmYjA5MTI4MTZkNjUyNjVkNjQ0MDExY2FjZmJkOWM0YmFjMDA0ZDlmMTExZDA5NDFjZWM2YjhkMGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjODMzMDYyMjlmMjYzZWVlMTMzZjBiNDhmNDcyZDFjYTVlYmY3OTJkMGU0YWFjMGJmNzJlNTYxYWQyMWI3MjUifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Models/ReflexBlitzPhase.swift#L3-L9",
+          "version": "repo-lines-v1:sha256:97da4c1ba82f95fa33e94d7902eec01cdabd329413e2edc5f6e9cbcb6a38fbf7:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmIxNTc1ZTllYjliOTVlOWFhZGY4ZTQyMDkxYWQ1ZThiZjU0MWI3YTM5MzYwZDI5NWY0NGRlNTVmMGMxZWY1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTE4YmZjYzA1ZGE1ZWQ5YjU1ZGM1NzI1YTRmY2RhZWM1YzI1NzVmZGY0Y2UyMmExOTkwOWIxYjNmNGRlODFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmY5NzgwMmI5MTQ3YjAyN2FmMDEzNjZiYTg1MWQzNTlkMWZiOTk3M2Q1YzdiMzkxM2M5ODAwNjRmMzdhMWM3YSJ9"
         }
       ]
     },
     {
       "id": "claim_c04e19242e474e649a9cc55551819907",
-      "statement": "MixedReflexDrillViewModel builds queue from VaultWordItem via GenerateMixedReflexQueueUseCase and plan via PracticeDrillPlanGenerator before delegating to mode views.",
+      "statement": "MixedReflexDrillViewModel builds its queue from selected vault words with GenerateMixedReflexQueueUseCase, optionally builds a precomputed plan with the drill plan generator, and requeues failed items in a different mode.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Reflex/Mixed/ViewModels/MixedReflexDrillViewModel.swift",
-          "version": "repo-file-v1:sha256:e5c573bb496664fe7217c1b6668d92f5f88275bc87b39ba4cca97cc4e49faf99"
+          "resource": "repo://VocabCraftApp/Features/Reflex/Mixed/ViewModels/MixedReflexDrillViewModel.swift#L50-L125",
+          "version": "repo-lines-v1:sha256:95666c677a6d6bcef5fbdce8290ca1c830f0e86da521ec13f807928b544bdd84:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiMmVjOGRmZDJjZDU1YzI0MDJkYTM4ZWY5MmVkYjFkNWIxZTU1MzRmNjdjNzRhMDQ1Mzk1OGRhMzJkMzY4ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjYzNhZmRmNmEwOWJhZWM2MmM2ZWU2ODY5NGIwMzA3MzJhMzQ5M2M2YjM1NWE1ZjBiMGRhM2ZmZWUxMWRlMjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3MjYyZGIzMzg4MWNlNzQ3NWU5YjQ5Y2NlM2NmNTEzZTY5MmE5MTBlNzEyM2I5NTBkZTI3NTc5M2EwNTM0ZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhZDBmNDEyZmZjNWJmYWJhMjNjODUxODM3Y2ZmYjQxYjRlM2NiM2M5ZmIwOTViMzI2NTdmOWU0Njc3OWVjMjUifQ"
         }
       ]
     },
     {
       "id": "claim_5b4d95cab73e4519b691135b42a95eae",
-      "statement": "ReflexHintMaskGenerator and ReflexClozeFormatter implement progressive revealing and blank generation for adaptive drill hints.",
+      "statement": "ReflexHintMaskGenerator produces progressive hint stages by masking the target word, and ReflexClozeFormatter extracts the target word from an example sentence to build a cloze blank.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexClozeFormatter.swift",
-          "version": "repo-file-v1:sha256:a984b4a01d4e3f5a8eccedf42f35e92c93a3241426474baabf06782899e8efd6"
+          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexClozeFormatter.swift#L36-L70",
+          "version": "repo-lines-v1:sha256:3299301d3532a11a4bc5ee5b4c1c262d927ee7ce9919bd8614baf3df9b34bad1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2NmU0NzliNWRhMjZkY2JjNGU5YTZmOWJmMjcwYjk0MjEyNzFjYzg5NWZhNTM0ZWFiNzBiNWVhYWMyZWM5NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5MWZkZjU4N2NlOGZjM2M1YzhhNTE0NGEyOTg5MmQxNTVkNDY4OWYxMTA0NDAzMDlkM2I1ODA0MDgyMTE5NGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4OTYwNGUyOTQxZThkODVkY2I4MzVkNTdlOTZhZDkxZTExODY4MmFiYWU2YTg3ZWQ3NjZkNDE2MzQ0ZDU3MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkMmZmYjk4ZWM5ZjE2MzExYzIxMTJhNTRlYTliNTkwYzA1YTgyNGU5ZTBiM2RkYjYzMDdjZmExNzFjZjBkMmYifQ"
         },
         {
-          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexHintMaskGenerator.swift",
-          "version": "repo-file-v1:sha256:0876b7d4de51a529254e99e96aa4d0fda0d85a9050ba225b2253b038c0db2c08"
+          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexHintMaskGenerator.swift#L12-L66",
+          "version": "repo-lines-v1:sha256:ca49b309236aeeca22ddc61fd63aedb50d5f650b2107d7d5704e9482b6b46a08:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NTkyZGE3ZTgzZGJhYzAyOWIyOGQ2MDczMzgzZWVhYmMxYTJjMjhiMmQyZWRmNDBkNWEyOGVhMzY4MDRlOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkODliYzc0NDY5M2U1MzZjMjVlYWEyMjNjOTdiMTk1N2MwNmVhYWUyN2U2YjMxYmUzOGM4YjMyN2JiNGU3YzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhYjNiZTdhZGQ0MDMzMjM3ZDYwMDkzMzBhMmY4YzAwZjQ1NWJjMmUwNWI4NWM2M2E5MmIzN2UwMjdhOWRjMmEifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }

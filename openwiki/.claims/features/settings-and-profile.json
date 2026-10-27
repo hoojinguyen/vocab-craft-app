@@ -1,40 +1,54 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ea61f3efbc9a87b2308498c20240eb7a4187e46093fb1d70779f71bad448ce82",
+  "pageVersion": "sha256:adcbc03753cf9336955084f23722347fd0d8565fb9c51de1bdad647f23acb7f3",
   "claims": [
     {
       "id": "claim_7641b235fabe48c592177ffc004eac22",
-      "statement": "SettingsViewModel exposes UserSettingsStore bindings, TTS preview, and ResetUserProgressUseCase for destructive reset.",
+      "statement": "SettingsViewModel exposes the UserSettingsStore, plays the TTS and roleplay voice previews, and resets progress through the reset use case in resetSRSProgress.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Settings/ViewModels/SettingsViewModel.swift",
-          "version": "repo-file-v1:sha256:36ef1c772026f1af1aa967f91c3a28d4f576d8b8edf26e35c7fbfb1ec35c8f7f"
+          "resource": "repo://VocabCraftApp/Features/Settings/ViewModels/SettingsViewModel.swift#L5-L30",
+          "version": "repo-lines-v1:sha256:a75c0e8525cd3daae4b57d74ead4a5ef8ed6d40281390618003084d806d775ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhM2U5MWExYmU0NzM5YjhlOWM0MTRlZmI4OTE0Yjc2NDUzODQ4MmNiYjcxN2M0ZmVhN2NkYjAwMWRhOWM4ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0NWNkZWY3ZmIyMWYzZmNhYWI5ZGE0ZmM1NDM4Y2QzZWEwNGIwYWIyNTEyNDA0OWEyNDJjNDgxZjBiODA0OTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMmMwMWQ0MzJiYWM3OGM0MWM3ODQ0ZDQ2MmUxZWJhNjZlMzRmMDk3MzYwNWU1NDY5YjM1ZjgzOWIwMWMzODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0NDVmNDAwZjgzYjE3YmE0MjZkMTIwNzQzYjAxM2Q0ZTUwZGM5MTAzYmY2YzYwOWVlZTUzZmJlY2FhOGMwY2UifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Settings/ViewModels/SettingsViewModel.swift#L70-L73",
+          "version": "repo-lines-v1:sha256:4ac38f120ebfdb0f6bd5158e9ecf07810c269c0434854cd83f3bbf5ae3e362b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmUzYjZkMWI4MmY5M2ZhMTVmMGIxODRhOTQ0ZDRkY2JkZjkxM2NkODg1MWUxZTE2OTBiODYzYWJjN2E5MmJmNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjQ5ZGI4YjNhZjhjMWViMzY3ZjlkNzRlZmQ3MGVmYjdlYjJhNTIyYzhiYThhZmIzNWQ3ODljOTkyM2IxNTU3MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
         }
       ]
     },
     {
       "id": "claim_4ae2ae5e684b41c297bdd8285f7ba624",
-      "statement": "UserSettingsStore centralizes themePreset, speech rate, streak and onboarding flags with UserDefaults persistence.",
+      "statement": "UserSettingsStore persists theme, speech, AI, streak, and onboarding settings to UserDefaults, writing each value when it is set.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Core/Database/UserSettingsStore.swift",
-          "version": "repo-file-v1:sha256:7e71ae44c845549188a16c9183a341e60d51dfbb73443ba4ce05098359011b9c"
+          "resource": "repo://VocabCraftApp/Core/Database/UserSettingsStore.swift#L10-L92",
+          "version": "repo-lines-v1:sha256:80c64f6d0a86e723f88da97f7bda1eebaa30ad524793d244ca4c7d0de6fc159a:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiMGQ1ZWQyM2Q5YjhlNGQ4NzljYWM3OTVhYWVlYTI4MTA4NzM0ZDZiMjhkMTQ3ZGE4ZWEwZGZmZjRiNjA2YTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNDU2NDYwMmNjYTYwMzczMTZiNGIxNTNiMTUxYzY2MzU5ZWQyZDlkZjRhZWVlZWRhOTA5OTgzNzg3NmRjZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiMzAxNjFiYWJjMTcxYjI5N2NjODU3NWFlMWQ0MjgzNzVmNmY0ZjhiYzUwNTA0YTk0ODhiZDlhNjJlZDg1MzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5NjRiY2VjMWZmNjA4ZmU2YjIzMzJiOWNkYTQ0NmFhNThkNGQyYWI2Njg2ODk2MzRlNGQyM2RjYzA0NGI4OGEifQ"
         }
       ]
     },
     {
       "id": "claim_68ba640590be471d86d4d7798fd95a05",
-      "statement": "HeroProfileCard and ProfileStatsSheet compose CraftUIKit streak and activity components to display profile progress.",
+      "statement": "HeroProfileCard composes CraftUIKit components to show the learner's profile progress at the top of the settings tab.",
       "evidence": [
         {
-          "resource": "repo://VocabCraftApp/Features/Settings/Views/Components/HeroProfileCard.swift",
-          "version": "repo-file-v1:sha256:029bcd1b18b6ee68fd304c2830c99985fdf979cba0d97f5d3cdf71a12b7273a0"
+          "resource": "repo://VocabCraftApp/Features/Settings/Views/Components/HeroProfileCard.swift#L1-L10",
+          "version": "repo-lines-v1:sha256:7ab09a831dbe4a1f9db707d7118305d9fecfa06b468140e0f67a2bd04c19b65e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMmEyNTI3MWRkN2E2YTg0MTQ1OWVjZmU4ZjlmNzYxNzkzZmQzOTBhYjc3NDdlNGRlOWFiNThjYzQ0YzBjZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMTNkNjkyZjQ1NTc4MWI0MGUwMjQ2M2JiMGQwMmIwZjM2YTBlODBhMzQyNmE5NmZhODY5ZTk0OGNlZmNlNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhZGZmZWRkZjFjNzVlYjc3MzVhODllZjNkNTY3YTU2NmMwODE0ZDNlYzY3YjQzNDIyZjZkZmYwOTdlMWFhM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7ec83b113ea94a9bbf588f30fbddc097",
+      "statement": "The Gemini and Groq API keys are stored as plain strings in UserDefaults under gemini_api_key and groq_api_key, with no Keychain storage in the settings store.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/UserSettingsStore.swift#L76-L95",
+          "version": "repo-lines-v1:sha256:cb1f3a3540965b45abb57913aea822066a016c76f9256f7fb2ffa851f252415e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3OGI3MDcyNGViOWRjZWIwYWRiYWY2ZTY5OWE1Mzc0YjJhYWFkYTFmZjY5ZjgxNWRjZWE3NDU4ZTNjMGRlN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkZGRlZmRjMmIxZjIwMGVlNjI2MzAxOWY5NDhmZjU1Yjk1MzUxODk3YzcyYjhhOGY1NDJjYjQ4ZWFhYTlkYjIifQ"
         }
       ]
     }
   ],
   "verification": {
-    "by": "openwiki/0.5.0",
-    "at": "2026-09-02T08:37:35.164Z"
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:49:24.607Z"
   }
 }
