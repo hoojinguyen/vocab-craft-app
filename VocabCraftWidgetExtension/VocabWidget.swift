@@ -46,9 +46,10 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
         // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
         nonisolated(unsafe) let done = completion
+        let surface = WidgetSurface(family: context.family)
         Task { @MainActor in
             let now = Date()
-            let first = makeTimeline(now: now).entries.first
+            let first = makeTimeline(now: now, surface: surface).entries.first
             done(first ?? VocabWidgetEntry.placeholder(at: now, themePreset: store.loadThemePreset()))
         }
     }
@@ -56,13 +57,14 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
         // WidgetKit does not annotate the handler @Sendable; it is invoked exactly once, so the capture is safe.
         nonisolated(unsafe) let done = completion
+        let surface = WidgetSurface(family: context.family)
         Task { @MainActor in
-            done(makeTimeline(now: Date()))
+            done(makeTimeline(now: Date(), surface: surface))
         }
     }
 
     @MainActor
-    func makeTimeline(now: Date) -> Timeline<VocabWidgetEntry> {
+    func makeTimeline(now: Date, surface: WidgetSurface = .homeScreen) -> Timeline<VocabWidgetEntry> {
         let deck = store.loadDeck()
         var interaction = store.loadInteraction()
         let themePreset = store.loadThemePreset()
@@ -105,12 +107,14 @@ public struct VocabWidgetProvider: TimelineProvider, Sendable {
             interaction: interaction,
             practicedToday: practicedToday,
             themePreset: themePreset,
+            surface: surface,
             now: now
         )
         // With a deck but unreadable due status, keep the state untouched and retry soon.
         // Without a deck the app reloads timelines once it writes one, so the builder's policy stands.
+        // The lock screen ignores due status, so it never needs the retry.
         let deckPresent = deck?.cards.isEmpty == false
-        let policy: TimelineReloadPolicy = (deckPresent && !dueQuerySucceeded)
+        let policy: TimelineReloadPolicy = (surface == .homeScreen && deckPresent && !dueQuerySucceeded)
             ? .after(now.addingTimeInterval(Self.retryInterval))
             : Self.reloadPolicy(for: plan.reload)
         return Timeline(entries: plan.entries, policy: policy)

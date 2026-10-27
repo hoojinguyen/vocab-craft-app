@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 @testable import VocabCraftApp
+import WidgetKit
 
 @Suite("WidgetTimelineBuilder")
 struct WidgetTimelineBuilderTests {
@@ -37,6 +38,7 @@ struct WidgetTimelineBuilderTests {
         nextDue: Date? = nil,
         interaction: WidgetInteractionState = .empty,
         practiced: Int = 0,
+        surface: WidgetSurface = .homeScreen,
         at date: Date? = nil,
         calendar: Calendar = WidgetTimelineBuilderTests.utc
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
@@ -46,6 +48,7 @@ struct WidgetTimelineBuilderTests {
             nextDueDate: nextDue,
             interaction: interaction,
             practicedToday: practiced,
+            surface: surface,
             now: date ?? now,
             calendar: calendar
         )
@@ -95,6 +98,37 @@ struct WidgetTimelineBuilderTests {
         #expect(result.entries[0].dueCount == 1)
         #expect(result.reload == .after(now.addingTimeInterval(3600)))
     }
+
+    @Test func lockScreenKeepsRotatingWhenWordsAreDue() {
+        let result = build(deck(4), due: [2, 3], surface: .lockScreen)
+        #expect(result.entries.count == 36)
+        #expect(result.entries.allSatisfy { $0.mode == .passive })
+        #expect(result.entries[1].date.timeIntervalSince(result.entries[0].date) == 300)
+        let shownIds = Set(result.entries.compactMap { $0.card?.wordId })
+        #expect(shownIds == [1, 2, 3, 4])
+        #expect(result.reload == .atEnd)
+    }
+
+    @Test func lockScreenIgnoresNextDueCap() {
+        let result = build(deck(3), nextDue: now.addingTimeInterval(600), surface: .lockScreen)
+        #expect(result.entries.count == 36)
+        #expect(result.reload == .atEnd)
+    }
+
+    @Test func lockScreenWithoutDeckGivesPlaceholder() {
+        let result = build(nil, surface: .lockScreen)
+        #expect(result.entries.count == 1)
+        #expect(result.entries[0].mode == .placeholder)
+    }
+
+    #if os(iOS)
+    @Test func lockScreenFamiliesMapToLockScreenSurface() {
+        #expect(WidgetSurface(family: .accessoryRectangular) == .lockScreen)
+        #expect(WidgetSurface(family: .accessoryInline) == .lockScreen)
+        #expect(WidgetSurface(family: .systemSmall) == .homeScreen)
+        #expect(WidgetSurface(family: .systemMedium) == .homeScreen)
+    }
+    #endif
 
     @Test func revealStateFlipsOnlyMatchingCard() {
         let revealed = build(deck(3), due: [2], interaction: WidgetInteractionState(revealedWordId: 2, revealedAt: now))

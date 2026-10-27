@@ -10235,23 +10235,6 @@
         }
       }
     },
-    "app.widget.inline_progress_format": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld/%2$lld · %3$lld to review"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld/%2$lld · %3$lld từ cần ôn"
-          }
-        }
-      }
-    },
     "app.widget.pos.adjective": {
       "extractionState": "manual",
       "localizations": {
@@ -10588,23 +10571,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hiện nghĩa"
-          }
-        }
-      }
-    },
-    "app.widget.lock.open_to_review": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open to review"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mở để ôn"
           }
         }
       }

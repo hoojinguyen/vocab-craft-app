@@ -9,6 +9,23 @@ public enum WidgetEntryMode: Equatable, Sendable {
     case placeholder, passive, flashcardFront, flashcardBack
 }
 
+/// Where the widget is shown. The lock screen is a glance surface: it always rotates words with their
+/// meaning and never switches to a flashcard, which only makes sense where the grade buttons are.
+public enum WidgetSurface: Equatable, Sendable {
+    case homeScreen, lockScreen
+
+    public init(family: WidgetFamily) {
+        switch family {
+        #if os(iOS)
+        case .accessoryRectangular, .accessoryInline, .accessoryCircular:
+            self = .lockScreen
+        #endif
+        default:
+            self = .homeScreen
+        }
+    }
+}
+
 public struct VocabWidgetEntry: TimelineEntry, Equatable, Sendable {
     public let date: Date
     public let card: WidgetCard?
@@ -58,6 +75,7 @@ public enum WidgetTimelineBuilder {
         interaction: WidgetInteractionState,
         practicedToday: Int = 0,
         themePreset: CraftThemePreset = .editorial,
+        surface: WidgetSurface = .homeScreen,
         now: Date,
         calendar: Calendar = .current
     ) -> (entries: [VocabWidgetEntry], reload: WidgetReloadPlan) {
@@ -68,7 +86,8 @@ public enum WidgetTimelineBuilder {
         // Entries carry a fixed practicedToday, so nothing may stay on screen past local midnight.
         let nextMidnight = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))
 
-        let dueCards = deck.cards.filter { dueWordIds.contains($0.wordId) }
+        let showsFlashcards = surface == .homeScreen
+        let dueCards = showsFlashcards ? deck.cards.filter { dueWordIds.contains($0.wordId) } : []
         if let first = dueCards.first {
             let mode: WidgetEntryMode = interaction.revealedWordId == first.wordId ? .flashcardBack : .flashcardFront
             let entry = VocabWidgetEntry(
@@ -86,7 +105,8 @@ public enum WidgetTimelineBuilder {
         let cards = deck.cards
         let slot = Int(now.timeIntervalSince1970 / rotationInterval)
         var entries: [VocabWidgetEntry] = []
-        let cap = nextDueDate.flatMap { $0 > now ? $0 : nil }
+        // The due cap only exists to switch the home screen to a flashcard in time.
+        let cap = showsFlashcards ? nextDueDate.flatMap { $0 > now ? $0 : nil } : nil
         var dropped = false
         var reachedMidnight = false
         for i in 0..<maxEntries {

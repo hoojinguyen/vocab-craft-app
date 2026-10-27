@@ -40,9 +40,9 @@ public struct VocabWidgetView: View {
                     WidgetSmallView(entry: entry, card: card)
                 #if os(iOS)
                 case .accessoryRectangular:
-                    WidgetRectangularView(entry: entry, card: card)
+                    WidgetRectangularView(card: card)
                 case .accessoryInline:
-                    WidgetInlineView(entry: entry, card: card)
+                    WidgetInlineView(card: card)
                 #endif
                 default:
                     WidgetMediumView(entry: entry, card: card)

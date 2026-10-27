@@ -79,7 +79,7 @@ enum VocabWidgetPreviewData {
     VocabWidget()
 } timeline: {
     VocabWidgetPreviewData.entry(VocabWidgetPreviewData.serendipity, .passive)
-    VocabWidgetPreviewData.entry(VocabWidgetPreviewData.serendipity, .flashcardFront, due: 2, practiced: 3)
+    VocabWidgetPreviewData.entry(VocabWidgetPreviewData.longLemma, .passive)
     VocabWidgetPreviewData.entry(VocabWidgetPreviewData.noMeta, .passive)
 }
 
@@ -87,7 +87,7 @@ enum VocabWidgetPreviewData {
     VocabWidget()
 } timeline: {
     VocabWidgetPreviewData.entry(VocabWidgetPreviewData.serendipity, .passive)
-    VocabWidgetPreviewData.entry(VocabWidgetPreviewData.serendipity, .flashcardFront, due: 2, practiced: 3)
+    VocabWidgetPreviewData.entry(VocabWidgetPreviewData.noMeta, .passive)
 }
 #endif
 #endif

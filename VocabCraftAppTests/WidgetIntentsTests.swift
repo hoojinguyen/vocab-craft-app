@@ -101,6 +101,33 @@ struct WidgetIntentsTests {
         #expect(timeline.entries.first?.dueCount == 1)
     }
 
+    @Test("lockScreenTimelineRotatesDueWordsWithTheirMeaning")
+    func lockScreenTimelineRotatesDueWordsWithTheirMeaning() throws {
+        let store = makeStore()
+        let container = try makeContainer()
+        defer { withExtendedLifetime(container) {} }
+        try insertRow(2, nextReview: now.addingTimeInterval(-60), in: container.mainContext)
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+
+        let provider = VocabWidgetProvider(store: store, container: container)
+        let timeline = provider.makeTimeline(now: now, surface: .lockScreen)
+
+        #expect(timeline.entries.count > 1)
+        #expect(timeline.entries.allSatisfy { $0.mode == .passive })
+        #expect(Set(timeline.entries.compactMap { $0.card?.wordId }) == [1, 2])
+    }
+
+    @Test("lockScreenTimelineSkipsDueStatusRetry")
+    func lockScreenTimelineSkipsDueStatusRetry() throws {
+        let store = makeStore()
+        try store.saveDeck(WidgetDeck(generatedAt: now, pathId: nil, cards: [card(1), card(2)]))
+
+        let provider = VocabWidgetProvider(store: store, container: nil)
+
+        #expect(provider.makeTimeline(now: now).policy == .after(now.addingTimeInterval(300)))
+        #expect(provider.makeTimeline(now: now, surface: .lockScreen).policy != .after(now.addingTimeInterval(300)))
+    }
+
     @Test("providerClearsStaleRevealState")
     func providerClearsStaleRevealState() throws {
         let store = makeStore()

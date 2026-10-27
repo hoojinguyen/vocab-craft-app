@@ -28,7 +28,6 @@ struct WidgetLocalizationTests {
             "app.widget.action.forgot",
             "app.widget.hidden_meaning",
             "app.widget.due_count_format",
-            "app.widget.lock.open_to_review",
             "app.widget.empty.title",
             "app.widget.intent.reveal.title",
             "app.widget.intent.reveal.description",
@@ -47,7 +46,6 @@ struct WidgetLocalizationTests {
             "app.widget.pos.determiner",
             "app.widget.practiced_today_format",
             "app.widget.progress_format",
-            "app.widget.inline_progress_format",
             "app.widget.empty.subtitle",
             "app.widget.accessibility.blank"
         ]
