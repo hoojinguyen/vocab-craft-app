@@ -21,6 +21,7 @@ Mục tiêu: một trải nghiệm luyện nói với AI ổn định trên thi�
 6. Feedback sau buổi: sửa lỗi ngữ pháp/từ, diễn đạt tự nhiên hơn, phát âm (định tính), điểm theo tiêu chí và tiến bộ theo thời gian.
 7. Câu lưu từ feedback đi vào **Sổ cụm từ** trong Speaking Hub; tích hợp SRS là sub-project sau.
 8. Hướng triển khai: làm lại module Speaking mới và xoá code AI cũ (không giữ song song, không feature flag).
+9. (Bổ sung 2026-10-27 khi lập kế hoạch) Giọng đọc toàn app (Lesson, Reflex, Vocabulary) **chỉ dùng Apple**: gỡ Gemini TTS và Kokoro khỏi `TextToSpeechService`; picker giọng trong Settings chỉ còn giọng Apple Enhanced/Premium; người dùng đang chọn giọng Gemini/Kokoro tự trở về "Tự động".
 
 ### Giả định
 
@@ -76,7 +77,7 @@ Nguyên tắc:
 5. **Engine không biết sư phạm.** `LiveCallEngine` chỉ làm "cuộc gọi"; logic học nằm trong blueprint và analyzer.
 6. **Tái sử dụng:** `AudioSessionCoordinator` (SpeechKit), nơi lưu Gemini API key hiện có, CraftUIKit, logic chọn từ đã học của Guided Practice (chuyển sang module mới), tab `aiAssistant` (đổi nội dung thành Speaking).
 
-Ràng buộc Gemini Live cần xác minh lại với tài liệu khi lập kế hoạch: model native-audio hiện hành và ID chính xác; input PCM 16-bit 16 kHz little-endian, output 24 kHz; giới hạn phiên audio ~15 phút không nén và kết nối ~10 phút; `inputAudioTranscription`/`outputAudioTranscription`; `sessionResumption`; tool call; automatic VAD. Deployment target hiện tại iOS 17.0.
+Đã xác minh với tài liệu ai.google.dev ngày 2026-10-27: Live dùng `gemini-3.8-live` (Stable), key qua query `?key=`, giọng qua `speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName`, lượt text ẩn qua `clientContent` để giữ thứ tự, resumption handle hiệu lực 2 giờ; phân tích dùng `gemini-3.8-flash` qua `models/{model}:generateContent`, audio inline (`audio/m4a`), request tối đa 20 MB. Các ràng buộc khác: input PCM 16-bit 16 kHz little-endian, output 24 kHz; giới hạn phiên audio ~15 phút không nén và kết nối ~10 phút; `inputAudioTranscription`/`outputAudioTranscription`; `sessionResumption`; tool call; automatic VAD. Deployment target hiện tại iOS 17.0.
 
 ## 4. Luồng một buổi
 
@@ -177,6 +178,8 @@ Mọi thông báo dùng key `app.speaking.*` với đủ EN/VI.
 ## 8. Gỡ bỏ code cũ
 
 Xoá: `VocabCraftApp/Features/AIAssistant/` (trừ phần được chuyển sang Speaking), `VocabCraftApp/Data/AI/`, `VocabCraftApp/Data/AIPacks/`, `VocabCraftApp/Data/GuidedPractice/`, `VocabCraftApp/Core/AI/`, các engine `GeminiAudioSpeechEngine`, `GeminiTTSEngineAdapter`, `WhisperKitSpeechEngine`, `OnDemandAIModelManager`, `ResilientReflexSpeechEngine` nếu chỉ phục vụ AI, các protocol/use case chỉ dùng cho luồng cũ (`LLMProviderProtocol`, `AIPackProtocol`, `VoiceConversationEngineProtocol`, `ExecuteRoleplayTurnUseCase`, `FetchRoleplayScenariosUseCase`…), cùng test, key localization và dependency package không còn dùng.
+
+Theo quyết định 9: `TextToSpeechService` chỉ còn engine Apple; `RoleplayVoiceProfile`/`RoleplayVoiceProfileCatalog` đổi thành `VoiceProfile`/`VoiceProfileCatalog` chỉ gồm giọng Apple; Settings bỏ AI Pack/AIConfigSheet, thay bằng một hàng nhập Gemini API key.
 
 Kế hoạch triển khai phải lập danh sách chính xác bằng cách dò tham chiếu, vì một số thành phần audio (TTS Apple, `AudioSessionCoordinator`, `SpeechRecognitionService`) đang được Reflex, Shadowing và Study dùng và phải giữ lại.
 
