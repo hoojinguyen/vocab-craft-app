@@ -541,6 +541,23 @@ extension AppContainer {
         )
     }
 
+    /// Whether the installed content database must be replaced by the bundled one.
+    /// Comparing against the bundle's own path count (not a fixed number) lets a copy with fewer
+    /// paths settle after one replacement instead of being recopied on every launch.
+    static func shouldCopyBundledContent( // swiftlint:disable:this function_parameter_count
+        destExists: Bool,
+        bundleVersion: Int,
+        destVersion: Int,
+        savedVersion: Int,
+        bundlePathCount: Int,
+        destPathCount: Int
+    ) -> Bool {
+        !destExists
+            || bundleVersion > destVersion
+            || bundleVersion > savedVersion
+            || destPathCount < bundlePathCount
+    }
+
     public static func getProductionDataSource() -> VocabularyDataSourceProtocol {
         do {
             let fileManager = FileManager.default
@@ -562,13 +579,18 @@ extension AppContainer {
             if let src {
                 let bundleVersion = SQLiteContentRepository.readContentVersion(at: src) ?? 0
                 let destVersion = SQLiteContentRepository.readContentVersion(at: dest) ?? 0
+                let bundlePathCount = SQLiteContentRepository.readLearningPathCount(at: src)
                 let destPathCount = SQLiteContentRepository.readLearningPathCount(at: dest)
                 let savedVersion = UserDefaults.standard.integer(forKey: "current_content_version")
 
-                let shouldCopy = !fileManager.fileExists(atPath: dest.path)
-                    || bundleVersion > destVersion
-                    || bundleVersion > savedVersion
-                    || destPathCount < 4
+                let shouldCopy = shouldCopyBundledContent(
+                    destExists: fileManager.fileExists(atPath: dest.path),
+                    bundleVersion: bundleVersion,
+                    destVersion: destVersion,
+                    savedVersion: savedVersion,
+                    bundlePathCount: bundlePathCount,
+                    destPathCount: destPathCount
+                )
 
                 if shouldCopy {
                     if fileManager.fileExists(atPath: dest.path) {

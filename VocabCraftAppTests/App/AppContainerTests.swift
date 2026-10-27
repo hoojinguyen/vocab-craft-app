@@ -76,6 +76,59 @@ struct AppContainerTests {
         #expect(container.vocabularyRepository is MockVocabularyRepository)
     }
 
+    @Test @MainActor
+    func contentIsCopiedWhenInstalledCopyIsMissing() {
+        #expect(AppContainer.shouldCopyBundledContent(
+            destExists: false, bundleVersion: 10, destVersion: 0, savedVersion: 0,
+            bundlePathCount: 4, destPathCount: 0
+        ))
+    }
+
+    @Test @MainActor
+    func contentIsCopiedWhenBundleVersionIsNewer() {
+        #expect(AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 11, destVersion: 10, savedVersion: 10,
+            bundlePathCount: 4, destPathCount: 4
+        ))
+    }
+
+    @Test @MainActor
+    func contentIsCopiedWhenSavedVersionIsBehindTheBundle() {
+        #expect(AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 10, destVersion: 10, savedVersion: 8,
+            bundlePathCount: 4, destPathCount: 4
+        ))
+    }
+
+    @Test @MainActor
+    func contentIsCopiedWhenInstalledCopyHasFewerPathsThanTheBundle() {
+        #expect(AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 10, destVersion: 10, savedVersion: 10,
+            bundlePathCount: 4, destPathCount: 1
+        ))
+    }
+
+    @Test @MainActor
+    func contentIsNotRecopiedWhenBundleAndInstalledCopyMatch() {
+        // A bundle that ships a single path must not be recopied on every launch.
+        #expect(!AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 10, destVersion: 10, savedVersion: 10,
+            bundlePathCount: 1, destPathCount: 1
+        ))
+        #expect(!AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 10, destVersion: 10, savedVersion: 10,
+            bundlePathCount: 4, destPathCount: 4
+        ))
+    }
+
+    @Test @MainActor
+    func contentIsNotCopiedWhenInstalledCopyHasMorePathsThanTheBundle() {
+        #expect(!AppContainer.shouldCopyBundledContent(
+            destExists: true, bundleVersion: 10, destVersion: 10, savedVersion: 10,
+            bundlePathCount: 1, destPathCount: 4
+        ))
+    }
+
     #if canImport(SwiftDataMacros) || canImport(SwiftData)
     @Test @MainActor
     func appBootstrapperIntegratesWithBundledDataSource() {

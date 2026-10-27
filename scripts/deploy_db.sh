@@ -28,6 +28,9 @@ else
     cp "$ZST_FILE" "$DEST_SQLITE"
 fi
 
+echo "🚀 Seeding curated learning paths..."
+"$(dirname "$0")/content/seed_curated_paths.sh" "$DEST_SQLITE"
+
 echo "🚀 [2/5] Building VocabCraftApp..."
 xcodebuild build -scheme VocabCraftApp -destination "id=$DEVICE_ID" | xcpretty || xcodebuild build -scheme VocabCraftApp -destination "id=$DEVICE_ID"
 

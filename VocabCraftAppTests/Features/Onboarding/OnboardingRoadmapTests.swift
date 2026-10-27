@@ -69,7 +69,11 @@ struct OnboardingRoadmapTests {
 
         #expect(!result.startingStage.id.isEmpty)
         #expect(userSettings.selectedLearningPathId == "daily-life-travel")
-        #expect(userSettings.selectedGoalDeckId == "29cb49b8-f9b3-45b3-bfb6-3a3f56d41e81")
+        // Deck IDs are regenerated on every content release, so the starting deck is matched by title.
+        let pathDecks = try await realDataSource.fetchTopicDecks(for: "daily-life-travel")
+        let firstDeck = try #require(pathDecks.sorted { $0.sortOrder < $1.sortOrder }.first)
+        #expect(firstDeck.titleEn == "Greetings, Self & Personal Details")
+        #expect(userSettings.selectedGoalDeckId == firstDeck.id)
         #expect(result.starterWords.count >= 3)
     }
 
