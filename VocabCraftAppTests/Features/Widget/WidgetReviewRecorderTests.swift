@@ -3,6 +3,9 @@ import Foundation
 import SwiftData
 import Testing
 @testable import VocabCraftApp
+#if SWIFT_PACKAGE
+@testable import VocabCraftWidgetExtension
+#endif
 
 @MainActor
 @Suite("WidgetReviewRecorder")
