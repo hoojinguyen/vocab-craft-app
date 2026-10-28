@@ -65,6 +65,7 @@ let package = Package(
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],
             path: "VocabCraftAppTests",
+            resources: [.copy("Speaking/Fixtures")],
             swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         )
     ]

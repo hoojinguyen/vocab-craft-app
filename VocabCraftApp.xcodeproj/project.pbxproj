@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B30000000000000000000007 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000007 /* Fixtures */; };
+		B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000006 /* SpeakingModelsCodableTests.swift */; };
+		B30000000000000000000005 /* SpeakingPromptBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000005 /* SpeakingPromptBuilderTests.swift */; };
+		B30000000000000000000004 /* SpeakingFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000004 /* SpeakingFixtures.swift */; };
+		B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000003 /* SpeakingPromptBuilder.swift */; };
+		B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* SpeakingAnalysis.swift */; };
+		B30000000000000000000001 /* SpeakingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* SpeakingModels.swift */; };
 		3000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift */; };
 		30003B7100030009 /* WidgetBackgroundContrastTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010009 /* WidgetBackgroundContrastTests.swift */; };
 		30003B7100020007 /* VocabWidgetPreviews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
@@ -445,6 +452,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A30000000000000000000007 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Speaking/Fixtures; sourceTree = "<group>"; };
+		A30000000000000000000006 /* SpeakingModelsCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingModelsCodableTests.swift"; sourceTree = "<group>"; };
+		A30000000000000000000005 /* SpeakingPromptBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingPromptBuilderTests.swift"; sourceTree = "<group>"; };
+		A30000000000000000000004 /* SpeakingFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingFixtures.swift"; sourceTree = "<group>"; };
+		A30000000000000000000003 /* SpeakingPromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingPromptBuilder.swift"; sourceTree = "<group>"; };
+		A30000000000000000000002 /* SpeakingAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingAnalysis.swift"; sourceTree = "<group>"; };
+		A30000000000000000000001 /* SpeakingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingModels.swift"; sourceTree = "<group>"; };
 		2000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingHubPlaceholderView.swift; sourceTree = "<group>"; };
 		20003B700001000D /* WidgetDueQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDueQuery.swift"; sourceTree = "<group>"; };
 		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
@@ -1165,6 +1179,9 @@
 		4000B39FE0027A309904 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				A30000000000000000000003 /* SpeakingPromptBuilder.swift */,
+				A30000000000000000000002 /* SpeakingAnalysis.swift */,
+				A30000000000000000000001 /* SpeakingModels.swift */,
 				4000C597CF74B9A0760A /* Entities */,
 				4000260E29F35C2EBCD5 /* Models */,
 				4000731A90F8FB364BE4 /* Policies */,
@@ -1820,6 +1837,10 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				A30000000000000000000007 /* Fixtures */,
+				A30000000000000000000006 /* SpeakingModelsCodableTests.swift */,
+				A30000000000000000000005 /* SpeakingPromptBuilderTests.swift */,
+				A30000000000000000000004 /* SpeakingFixtures.swift */,
 				40005E3A3F7D00010001 /* Data */,
 				4000D124A443CB2C8687 /* App */,
 				20001611F67650D4D4BB /* AppRouterTests.swift */,
@@ -2283,6 +2304,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B30000000000000000000007 /* Fixtures in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2293,6 +2315,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,
+				B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */,
+				B30000000000000000000001 /* SpeakingModels.swift in Sources */,
 				30005E3A3F7D00010001 /* ShadowingWordTimestamp.swift in Sources */,
 				30005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift in Sources */,
 				30005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift in Sources */,
@@ -2553,6 +2578,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */,
+				B30000000000000000000005 /* SpeakingPromptBuilderTests.swift in Sources */,
+				B30000000000000000000004 /* SpeakingFixtures.swift in Sources */,
 				30005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift in Test Sources */,
 				30005E3A3F7D00020004 /* ShadowingProgressRepositoryTests.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
