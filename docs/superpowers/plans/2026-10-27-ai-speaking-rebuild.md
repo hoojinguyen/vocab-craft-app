@@ -104,7 +104,7 @@ Expected: không có dòng nào.
 - Test: `VocabCraftAppTests/Core/Audio/VoiceProfileCatalogTests.swift`, `VocabCraftAppTests/SettingsViewModelTests.swift` (bổ sung).
 
 **Interfaces:**
-- Produces: `VoiceProfileCatalog.profiles: [VoiceProfile]` (chỉ `systemAuto` + 7 giọng `.appleEnhanced` hiện có); `VoiceProfileCatalog.defaultProfile`; `VoiceProfileCatalog.resolve(id: String) -> VoiceProfile` (id lạ → `defaultProfile`). `VoiceEngineType` chỉ còn `.system`, `.appleEnhanced`. `VoiceProfile` bỏ `geminiPersona`.
+- Produces: `VoiceProfileCatalog.profiles: [VoiceProfile]` (chỉ `systemAuto` + 6 giọng `.appleEnhanced` hiện có); `VoiceProfileCatalog.defaultProfile`; `VoiceProfileCatalog.resolve(id: String) -> VoiceProfile` (id lạ → `defaultProfile`). `VoiceEngineType` chỉ còn `.system`, `.appleEnhanced`. `VoiceProfile` bỏ `geminiPersona`.
 - `UserSettingsStore`: đổi tên thuộc tính `roleplayVoiceId/roleplaySpeechRate/roleplaySpeechPitch` → `voiceProfileId/speechRate/speechPitch`, **giữ nguyên** storage key `roleplay_voice_id`, `roleplay_speech_rate`, `roleplay_speech_pitch` để không mất cài đặt.
 - `TextToSpeechService.init(audioSessionCoordinator:settingsStore:appleEngine:)`; bỏ `ActiveEngineType.gemini/.kokoro`, `resolvedApiKey`, mọi nhánh Gemini/Kokoro.
 
@@ -114,7 +114,7 @@ Expected: không có dòng nào.
 @Suite("Voice profile catalog") struct VoiceProfileCatalogTests {
     @Test func containsOnlyAppleVoices() {
         #expect(VoiceProfileCatalog.profiles.allSatisfy { $0.engine == .system || $0.engine == .appleEnhanced })
-        #expect(VoiceProfileCatalog.profiles.count == 8)
+        #expect(VoiceProfileCatalog.profiles.count == 7)
     }
     @Test func unknownLegacyIdFallsBackToAuto() {
         #expect(VoiceProfileCatalog.resolve(id: "gemini_kore").id == VoiceProfileCatalog.defaultProfile.id)

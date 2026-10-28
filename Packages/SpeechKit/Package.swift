@@ -14,19 +14,10 @@ let package = Package(
             targets: ["SpeechKit"]
         )
     ],
-    dependencies: [
-        .package(url: "https://github.com/k2-fsa/sherpa-onnx", exact: "1.13.8")
-    ],
     targets: [
         .target(
             name: "SpeechKit",
-            dependencies: [
-                .product(name: "sherpa-onnx", package: "sherpa-onnx")
-            ],
-            path: "Sources/SpeechKit",
-            linkerSettings: [
-                .linkedLibrary("c++")
-            ]
+            path: "Sources/SpeechKit"
         ),
         .testTarget(
             name: "SpeechKitTests",

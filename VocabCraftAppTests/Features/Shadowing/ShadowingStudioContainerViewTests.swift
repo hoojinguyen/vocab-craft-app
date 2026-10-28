@@ -60,8 +60,8 @@ struct ShadowingStudioContainerViewTests {
         for stage in ShadowingRoundStage.allCases {
             viewModel.selectRound(stage)
             #expect(viewModel.activeRound == stage)
-            let containerView = ShadowingStudioContainerView(viewModel: viewModel)
-            #expect(containerView != nil)
+            _ = ShadowingStudioContainerView(viewModel: viewModel)
+
         }
     }
 
@@ -72,8 +72,8 @@ struct ShadowingStudioContainerViewTests {
         let viewModel = ShadowingStudioViewModel(video: video)
         viewModel.selectRound(.round1Immersion)
 
-        let immersionView = ShadowingImmersionView(viewModel: viewModel)
-        #expect(immersionView != nil)
+        _ = ShadowingImmersionView(viewModel: viewModel)
+
         #expect(viewModel.activeRound == .round1Immersion)
     }
 
@@ -84,8 +84,8 @@ struct ShadowingStudioContainerViewTests {
         let viewModel = ShadowingStudioViewModel(video: video)
         viewModel.selectRound(.round2SpeedShadowing)
 
-        let speedView = ShadowingSpeedView(viewModel: viewModel)
-        #expect(speedView != nil)
+        _ = ShadowingSpeedView(viewModel: viewModel)
+
         #expect(viewModel.activeRound == .round2SpeedShadowing)
     }
 
@@ -96,8 +96,8 @@ struct ShadowingStudioContainerViewTests {
         let viewModel = ShadowingStudioViewModel(video: video)
         viewModel.selectRound(.round3EchoDrill)
 
-        let echoView = ShadowingEchoView(viewModel: viewModel)
-        #expect(echoView != nil)
+        _ = ShadowingEchoView(viewModel: viewModel)
+
         #expect(viewModel.activeRound == .round3EchoDrill)
     }
 
@@ -109,10 +109,10 @@ struct ShadowingStudioContainerViewTests {
         viewModel.selectRound(.summaryReport)
 
         var finished = false
-        let summaryView = ShadowingSummaryReportView(viewModel: viewModel, onFinish: {
+        _ = ShadowingSummaryReportView(viewModel: viewModel, onFinish: {
             finished = true
         })
-        #expect(summaryView != nil)
+
         #expect(viewModel.activeRound == .summaryReport)
         #expect(!finished)
     }

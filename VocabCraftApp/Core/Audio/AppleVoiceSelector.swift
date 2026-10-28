@@ -1,9 +1,9 @@
 import AVFoundation
 import Foundation
 
-public enum AppleVoiceSelector: Sendable {
-    private static let lock = NSLock()
-    private nonisolated(unsafe) static var cachedBestVoice: [String: AVSpeechSynthesisVoice] = [:]
+@MainActor
+public enum AppleVoiceSelector {
+    private static var cachedBestVoice: [String: AVSpeechSynthesisVoice] = [:]
 
     public static let blacklistedVoices: Set<String> = [
         "albert", "bad news", "bahh", "bells", "boing", "bubbles",
@@ -29,14 +29,12 @@ public enum AppleVoiceSelector: Sendable {
     }
 
     public static func resolveBestVoice(for locale: String, persona: VoicePersona? = nil) -> AVSpeechSynthesisVoice? {
-        lock.lock()
-        defer { lock.unlock() }
-
         let cacheKey = "\(locale)::\(persona?.rawValue ?? "default")"
-        if let cached = cachedBestVoice[cacheKey] {
-            return cached
-        }
+        let cached = cachedBestVoice[cacheKey]
+        if let cached { return cached }
 
+        // Apple voice discovery synchronizes with accessibility services on the main thread.
+        // Keep discovery and cache ownership on MainActor to avoid background/main-thread waits.
         let voices = AVSpeechSynthesisVoice.speechVoices()
         let resolved = resolveBestVoice(for: locale, persona: persona, availableVoices: voices)
         if let resolved {
@@ -133,8 +131,6 @@ public enum AppleVoiceSelector: Sendable {
     }
 
     public static func clearCache() {
-        lock.lock()
-        defer { lock.unlock() }
         cachedBestVoice.removeAll()
     }
 }

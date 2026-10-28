@@ -2,8 +2,7 @@ import Foundation
 
 public enum VoiceEngineType: String, Sendable, Codable, CaseIterable {
     case appleEnhanced
-    case geminiNeural
-    case kokoroNeural
+    case system
 }
 
 public enum VoiceGender: String, Sendable, Codable, CaseIterable {
@@ -12,7 +11,7 @@ public enum VoiceGender: String, Sendable, Codable, CaseIterable {
     case neutral
 }
 
-public struct RoleplayVoiceProfile: Identifiable, Sendable, Equatable, Hashable, Codable {
+public struct VoiceProfile: Identifiable, Sendable, Equatable, Hashable, Codable {
     public let id: String
     public let displayNameKey: String
     public let gender: VoiceGender
@@ -21,7 +20,6 @@ public struct RoleplayVoiceProfile: Identifiable, Sendable, Equatable, Hashable,
     public let qualityDescriptionKey: String
     public let sampleText: String
     public let appleVoiceIdentifier: String?
-    public let geminiPersona: VoicePersona?
 
     public init(
         id: String,
@@ -30,9 +28,8 @@ public struct RoleplayVoiceProfile: Identifiable, Sendable, Equatable, Hashable,
         locale: String,
         engine: VoiceEngineType,
         qualityDescriptionKey: String,
-        sampleText: String = "Hi! I'm excited to practice English conversation with you.",
-        appleVoiceIdentifier: String? = nil,
-        geminiPersona: VoicePersona? = nil
+        sampleText: String,
+        appleVoiceIdentifier: String? = nil
     ) {
         self.id = id
         self.displayNameKey = displayNameKey
@@ -42,6 +39,5 @@ public struct RoleplayVoiceProfile: Identifiable, Sendable, Equatable, Hashable,
         self.qualityDescriptionKey = qualityDescriptionKey
         self.sampleText = sampleText
         self.appleVoiceIdentifier = appleVoiceIdentifier
-        self.geminiPersona = geminiPersona
     }
 }

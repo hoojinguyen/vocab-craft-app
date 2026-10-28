@@ -26,7 +26,7 @@ public final class SettingsViewModel {
     public func playAudioPreview() {
         audioTask?.cancel()
         isPlayingAudio = true
-        let sampleText = "VocabCraft: Master English naturally"
+        let sampleText = String(localized: "app.settings.audio.preview_sample", bundle: .module)
         let localeStr = "en-US"
         ttsService.speak(text: sampleText, rate: Float(store.ttsSpeed), locale: localeStr)
 
@@ -44,13 +44,12 @@ public final class SettingsViewModel {
         }
         roleplayAudioTask?.cancel()
         isPlayingRoleplayAudio = true
-        let profile = RoleplayVoiceProfileCatalog.profile(for: store.roleplayVoiceId)
-            ?? RoleplayVoiceProfileCatalog.defaultProfile
+        let profile = VoiceProfileCatalog.resolve(id: store.voiceProfileId)
         roleplayAudioTask = Task {
             await ttsService.previewVoice(
                 profile: profile,
-                rate: store.roleplaySpeechRate,
-                pitch: store.roleplaySpeechPitch
+                rate: store.speechRate,
+                pitch: store.speechPitch
             )
             guard !Task.isCancelled else { return }
             self.isPlayingRoleplayAudio = false

@@ -335,20 +335,12 @@ extension AppStrings {
         public static var voicePreviewButtonText: String { String(localized: "app.settings.voice.preview_button", defaultValue: "Play Preview", bundle: .module) }
         public static var voicePreviewing: LocalizedStringKey { "app.settings.voice.previewing" }
         public static var voicePreviewingText: String { String(localized: "app.settings.voice.previewing", defaultValue: "Playing...", bundle: .module) }
-        public static var voicePreviewNeedsDownload: LocalizedStringKey { "app.settings.voice.preview_needs_download" }
-        public static var voicePreviewNeedsDownloadText: String { String(localized: "app.settings.voice.preview_needs_download", defaultValue: "Model download is required to preview this voice.", bundle: .module) }
-        public static var voicePreviewDownloadAction: LocalizedStringKey { "app.settings.voice.preview_download_action" }
-        public static var voicePreviewDownloadActionText: String { String(localized: "app.settings.voice.preview_download_action", defaultValue: "Download Model", bundle: .module) }
         public static var voiceSpeed: LocalizedStringKey { "app.settings.voice.speed" }
         public static var voiceSpeedText: String { String(localized: "app.settings.voice.speed", defaultValue: "Voice Speed", bundle: .module) }
         public static var voicePitch: LocalizedStringKey { "app.settings.voice.pitch" }
         public static var voicePitchText: String { String(localized: "app.settings.voice.pitch", defaultValue: "Voice Pitch", bundle: .module) }
         public static var voiceQualityApple: LocalizedStringKey { "app.settings.voice.quality_apple" }
         public static var voiceQualityAppleText: String { String(localized: "app.settings.voice.quality_apple", defaultValue: "Device Enhanced", bundle: .module) }
-        public static var voiceQualityGemini: LocalizedStringKey { "app.settings.voice.quality_gemini" }
-        public static var voiceQualityGeminiText: String { String(localized: "app.settings.voice.quality_gemini", defaultValue: "Cloud Studio Neural", bundle: .module) }
-        public static var voiceQualityKokoro: LocalizedStringKey { "app.settings.voice.quality_kokoro" }
-        public static var voiceQualityKokoroText: String { String(localized: "app.settings.voice.quality_kokoro", defaultValue: "On-Device Neural", bundle: .module) }
 
         // Appearance Section
         public static var sectionAppearance: LocalizedStringKey { "app.settings.section.appearance" }

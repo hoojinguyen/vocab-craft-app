@@ -7787,40 +7787,6 @@
         }
       }
     },
-    "app.settings.voice.preview_download_action": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Download Model"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tải Mô Hình"
-          }
-        }
-      }
-    },
-    "app.settings.voice.preview_needs_download": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Model download is required to preview this voice."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cần tải mô hình để nghe thử giọng nói này."
-          }
-        }
-      }
-    },
     "app.settings.voice.preview_button": {
       "extractionState": "manual",
       "localizations": {
@@ -7868,40 +7834,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thiết bị - Tự nhiên"
-          }
-        }
-      }
-    },
-    "app.settings.voice.quality_gemini": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cloud Studio Neural"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cloud - Siêu thực"
-          }
-        }
-      }
-    },
-    "app.settings.voice.quality_kokoro": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On-Device Neural"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cục bộ - Tự nhiên"
           }
         }
       }
@@ -13971,6 +13903,295 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tính năng luyện nói đang được xây lại."
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.systemAuto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I am ready to practice English conversation with you."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I am ready to practice English conversation with you."
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_ava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hi! I'm Ava. Let's practice English together."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hi! I'm Ava. Let's practice English together."
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_ava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ava"
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_zoe": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hey there! I'm Zoe. Ready when you are!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hey there! I'm Zoe. Ready when you are!"
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_zoe": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoe"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoe"
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_samantha": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I'm Samantha. How can I help you practice today?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I'm Samantha. How can I help you practice today?"
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_samantha": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samantha"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samantha"
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_daniel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good day! I'm Daniel. It's a pleasure to speak with you."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good day! I'm Daniel. It's a pleasure to speak with you."
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_daniel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daniel"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daniel"
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_oliver": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I'm Oliver. Let's have a great chat."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello! I'm Oliver. Let's have a great chat."
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_oliver": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oliver"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oliver"
+          }
+        }
+      }
+    },
+    "app.settings.voice.sample.apple_nathan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hey, I'm Nathan. Let's get right into our conversation."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hey, I'm Nathan. Let's get right into our conversation."
+          }
+        }
+      }
+    },
+    "app.settings.voice.name.apple_nathan": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nathan"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nathan"
+          }
+        }
+      }
+    },
+    "app.settings.gemini_key.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini API Key"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khoá API Gemini"
+          }
+        }
+      }
+    },
+    "app.settings.gemini_key.caption": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used for AI speaking practice. Stored on this device."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dùng cho luyện nói với AI. Chỉ lưu trên máy này."
+          }
+        }
+      }
+    },
+    "app.settings.voice.picker.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a voice"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn giọng đọc"
+          }
+        }
+      }
+    },
+    "app.settings.audio.preview_sample": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VocabCraft: Master English naturally"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VocabCraft: Học tiếng Anh tự nhiên"
           }
         }
       }
