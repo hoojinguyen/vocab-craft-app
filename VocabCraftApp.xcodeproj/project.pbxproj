@@ -400,6 +400,7 @@
 		30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004D5A668F6276E9BC /* SettingsViewTests.swift */; };
 		3000CE88B8551858B787 /* SpeechServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000CE88B8551858B787 /* SpeechServiceTests.swift */; };
 		30007A4DF5ED1922799E /* XCTestShim.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007A4DF5ED1922799E /* XCTestShim.swift */; };
+		A2A210000000000000000002 /* HostedViewAssertions.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = A2A210000000000000000001 /* HostedViewAssertions.swift */; };
 		3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */; };
 		30002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift */; };
 		3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */; };
@@ -817,6 +818,7 @@
 		20004D5A668F6276E9BC /* SettingsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewTests.swift"; sourceTree = "<group>"; };
 		2000CE88B8551858B787 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechServiceTests.swift"; sourceTree = "<group>"; };
 		20007A4DF5ED1922799E /* XCTestShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestShim.swift"; sourceTree = "<group>"; };
+		A2A210000000000000000001 /* HostedViewAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HostedViewAssertions.swift"; sourceTree = "<group>"; };
 		2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModelsTests.swift"; sourceTree = "<group>"; };
 		20002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActorConcurrencyTests.swift"; sourceTree = "<group>"; };
 		2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStoreTests.swift"; sourceTree = "<group>"; };
@@ -2110,6 +2112,7 @@
 			isa = PBXGroup;
 			children = (
 				20007A4DF5ED1922799E /* XCTestShim.swift */,
+				A2A210000000000000000001 /* HostedViewAssertions.swift */,
 			);
 			path = "Support";
 			sourceTree = "<group>";
@@ -2692,6 +2695,7 @@
 				30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */,
 				3000CE88B8551858B787 /* SpeechServiceTests.swift in Test Sources */,
 				30007A4DF5ED1922799E /* XCTestShim.swift in Test Sources */,
+				A2A210000000000000000002 /* HostedViewAssertions.swift in Test Sources */,
 				3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Test Sources */,
 				30002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift in Test Sources */,
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Test Sources */,

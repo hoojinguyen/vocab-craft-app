@@ -76,8 +76,8 @@ struct MixedReflexDrillViewsTests {
         #expect(summaryView.summary.totalWords == 2)
         #expect(summaryView.summary.correctWords == 2)
         #expect(summaryView.summary.weakWordAttempts.isEmpty)
-        _ = summaryView.body
-        _ = summaryView.stickyBottomActionDock
+        assertHosted(summaryView)
+        assertHosted(summaryView) { _ = $0.stickyBottomActionDock }
 
         summaryView.onRetry()
         #expect(retryCalled == true)
@@ -114,8 +114,8 @@ struct MixedReflexDrillViewsTests {
         )
 
         #expect(summaryView.summary.weakWordAttempts.count == 1)
-        _ = summaryView.body
-        _ = summaryView.bottomActionDock
+        assertHosted(summaryView)
+        assertHosted(summaryView) { _ = $0.bottomActionDock }
 
         summaryView.onReDrillWeak()
         #expect(redrillCalled == true)
@@ -289,7 +289,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isReviewed == false)
         #expect(drillView.isResultCorrect == false)
         #expect(drillView.isResultTimeout == false)
-        _ = drillView.body
+        assertHosted(drillView)
     }
 
     @Test("Mixed Reflex Drill handles incorrect typing submission without silent drop")
@@ -338,7 +338,7 @@ struct MixedReflexDrillViewsTests {
         #expect(overlay.count == 3)
         #expect(overlay.mode == .speaking)
         #expect(overlay.title == ReflexBlitzMode.speaking.title)
-        _ = overlay.body
+        assertHosted(overlay)
 
         overlay.onFinish()
         #expect(finishCalled == true)
@@ -364,7 +364,7 @@ struct MixedReflexDrillViewsTests {
         #expect(overlay.iconName == "bolt.fill")
         #expect(overlay.tintColor == theme.colors.brandPrimary)
         #expect(overlay.mode == nil)
-        _ = overlay.body
+        assertHosted(overlay)
 
         overlay.onFinish()
         #expect(finishCalled == true)
@@ -396,7 +396,7 @@ struct MixedReflexDrillViewsTests {
         )
         #expect(drillViewWithCountdown.startWithCountdown == true)
         #expect(drillViewWithCountdown.viewModel.allowSpeakingSkip == true)
-        _ = drillViewWithCountdown.body
+        assertHosted(drillViewWithCountdown)
 
         let drillViewWithoutCountdown = MixedReflexDrillView(
             viewModel: vmWithoutSkip,
@@ -405,7 +405,7 @@ struct MixedReflexDrillViewsTests {
         )
         #expect(drillViewWithoutCountdown.startWithCountdown == false)
         #expect(drillViewWithoutCountdown.viewModel.allowSpeakingSkip == false)
-        _ = drillViewWithoutCountdown.body
+        assertHosted(drillViewWithoutCountdown)
         #expect(finished == false)
     }
 
@@ -478,7 +478,7 @@ struct MixedReflexDrillViewsTests {
         )
 
         #expect(drillView.speechEngine != nil)
-        _ = drillView.body
+        assertHosted(drillView)
 
         // Explicitly setup speech engine callbacks & start item
         drillView.setupSpeechEngineCallbacks()

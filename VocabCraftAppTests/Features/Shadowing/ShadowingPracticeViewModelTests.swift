@@ -224,7 +224,7 @@ struct ShadowingPracticeViewModelTests {
         #expect(viewModel.playbackPhase == .evaluating)
     }
 
-    @Test("Verifies word bookmarking and popover selection")
+    @Test("Verifies word bookmarking and popover selection", .timeLimit(.minutes(1)))
     @MainActor
     func testWordBookmarking() async {
         let sampleVideo = makeSampleVideo()
@@ -245,9 +245,9 @@ struct ShadowingPracticeViewModelTests {
         viewModel.toggleBookmark(for: keyword)
         #expect(viewModel.bookmarkedWordIds.contains("hello"))
 
-        // Give async task brief execution window
-        try? await Task.sleep(nanoseconds: 10_000_000)
-        #expect(mockBookmarkUseCase.executedWordIds.contains(42))
+        // Synchronize with the use case invocation rather than a scheduler-dependent delay.
+        await mockBookmarkUseCase.waitForExecution()
+        #expect(await mockBookmarkUseCase.executedWordIds.contains(42))
 
         // Toggle bookmark OFF
         viewModel.toggleBookmark(lemma: "hello")
@@ -362,11 +362,23 @@ struct ShadowingPracticeViewModelTests {
     }
 }
 
-private final class MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol, @unchecked Sendable {
-    var executedWordIds: [Int64] = []
+private actor MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol {
+    func waitForExecution() async {
+        var events = executions.makeAsyncIterator()
+        _ = await events.next()
+    }
+
+    private(set) var executedWordIds: [Int64] = []
+    private let executions: AsyncStream<Int64>
+    private let executionContinuation: AsyncStream<Int64>.Continuation
+
+    init() {
+        (executions, executionContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(1))
+    }
 
     func execute(wordId: Int64) async throws -> Bool {
         executedWordIds.append(wordId)
+        executionContinuation.yield(wordId)
         return true
     }
 }

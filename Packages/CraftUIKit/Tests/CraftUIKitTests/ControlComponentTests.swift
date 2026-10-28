@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class ControlComponentTests: XCTestCase {
 
     // MARK: - CraftButton Tests
@@ -29,7 +30,7 @@ final class ControlComponentTests: XCTestCase {
                 XCTAssertEqual(btn.variant, variant)
                 XCTAssertEqual(btn.size, size)
                 XCTAssertEqual(btn.iconName, "arrow.right")
-                XCTAssertNotNil(btn.body)
+                assertHosted(btn)
             }
         }
     }
@@ -37,7 +38,7 @@ final class ControlComponentTests: XCTestCase {
     func testButtonLoadingState() {
         let loadingBtn = CraftButton("Saving", variant: .primary, size: .md, isLoading: true) {}
         XCTAssertTrue(loadingBtn.isLoading)
-        XCTAssertNotNil(loadingBtn.body)
+        assertHosted(loadingBtn)
     }
 
     func testButtonActionExecution() {
@@ -51,32 +52,32 @@ final class ControlComponentTests: XCTestCase {
 
     func testButtonSquashAndStretchMotion() {
         let button = CraftButton("Animate Me") {}
-        XCTAssertNotNil(button.body)
+        assertHosted(button)
     }
 
     func testButtonLocalizationAndVerbatim() {
         let localizedButton = CraftButton(LocalizedStringKey("start_quiz"), variant: .primary) {}
         XCTAssertNil(localizedButton.title)
         XCTAssertEqual(localizedButton.variant, .primary)
-        XCTAssertNotNil(localizedButton.body)
+        assertHosted(localizedButton)
 
         let verbatimButton = CraftButton(verbatim: "Custom Action", variant: .outline, size: .sm) {}
         XCTAssertEqual(verbatimButton.title, "Custom Action")
         XCTAssertEqual(verbatimButton.variant, .outline)
         XCTAssertEqual(verbatimButton.size, .sm)
-        XCTAssertNotNil(verbatimButton.body)
+        assertHosted(verbatimButton)
     }
 
     func testButtonIconPositions() {
         let leadingIconBtn = CraftButton("Next", iconName: "arrow.forward", iconPosition: .leading) {}
         XCTAssertEqual(leadingIconBtn.iconPosition, .leading)
         XCTAssertEqual(leadingIconBtn.iconName, "arrow.forward")
-        XCTAssertNotNil(leadingIconBtn.body)
+        assertHosted(leadingIconBtn)
 
         let trailingIconBtn = CraftButton("Next", iconName: "arrow.right", iconPosition: .trailing) {}
         XCTAssertEqual(trailingIconBtn.iconPosition, .trailing)
         XCTAssertEqual(trailingIconBtn.iconName, "arrow.right")
-        XCTAssertNotNil(trailingIconBtn.body)
+        assertHosted(trailingIconBtn)
     }
 
     func testButtonTactileVariant() {
@@ -86,7 +87,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(button.isUppercase)
         XCTAssertEqual(button.tracking, 1.2)
         XCTAssertTrue(button.isFullWidth)
-        XCTAssertNotNil(button.body)
+        assertHosted(button)
     }
 
     func testButtonTactileAllSizes() {
@@ -94,7 +95,7 @@ final class ControlComponentTests: XCTestCase {
             let button = CraftButton("TACTILE", variant: .tactile, size: size) {}
             XCTAssertEqual(button.variant, .tactile)
             XCTAssertEqual(button.size, size)
-            XCTAssertNotNil(button.body)
+            assertHosted(button)
         }
     }
 
@@ -189,7 +190,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(textField.leadingIcon, "person.fill")
         XCTAssertFalse(textField.isSecure)
         XCTAssertFalse(textField.hasError)
-        XCTAssertNotNil(textField.body)
+        assertHosted(textField)
     }
 
     func testTextFieldErrorState() {
@@ -201,7 +202,7 @@ final class ControlComponentTests: XCTestCase {
         )
         XCTAssertEqual(errorField.errorMessage, "Invalid email address")
         XCTAssertTrue(errorField.hasError)
-        XCTAssertNotNil(errorField.body)
+        assertHosted(errorField)
     }
 
     func testTextFieldLocalization() {
@@ -218,7 +219,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(localizedField.hasError)
         XCTAssertTrue(localizedField.isSecure)
         XCTAssertEqual(localizedField.leadingIcon, "envelope.fill")
-        XCTAssertNotNil(localizedField.body)
+        assertHosted(localizedField)
     }
 
     // MARK: - CraftSearchBar Tests
@@ -235,7 +236,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(searchBar.style, .standard)
         XCTAssertEqual(searchBar.shape, .capsule)
         XCTAssertNil(searchBar.trailingIcon)
-        XCTAssertNotNil(searchBar.body)
+        assertHosted(searchBar)
     }
 
     func testSearchBarRecessedStyleAndShape() {
@@ -251,14 +252,14 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(searchBar.style, .recessed)
         XCTAssertEqual(searchBar.shape, .roundedRectangle(radius: 14))
         XCTAssertEqual(searchBar.trailingIcon, "slider.horizontal.3")
-        XCTAssertNotNil(searchBar.body)
+        assertHosted(searchBar)
     }
 
     func testSearchBarDefaults() {
         var query = ""
         let searchBar = CraftSearchBar(text: Binding(get: { query }, set: { query = $0 }))
         XCTAssertEqual(searchBar.placeholder, "Search...")
-        XCTAssertNotNil(searchBar.body)
+        assertHosted(searchBar)
     }
 
     func testSearchBarLocalization() {
@@ -267,7 +268,7 @@ final class ControlComponentTests: XCTestCase {
             text: Binding(get: { query }, set: { query = $0 }),
             placeholder: LocalizedStringKey("search_placeholder")
         )
-        XCTAssertNotNil(searchBar.body)
+        assertHosted(searchBar)
     }
 
     func testSearchBarFullSpectrumStyles() {
@@ -290,7 +291,7 @@ final class ControlComponentTests: XCTestCase {
             )
             XCTAssertEqual(searchBar.style, style)
             XCTAssertEqual(searchBar.customTint, .teal)
-            XCTAssertNotNil(searchBar.body)
+            assertHosted(searchBar)
         }
     }
 
@@ -309,7 +310,7 @@ final class ControlComponentTests: XCTestCase {
             )
             XCTAssertEqual(searchBar.size, size)
             XCTAssertTrue(searchBar.isLoading)
-            XCTAssertNotNil(searchBar.body)
+            assertHosted(searchBar)
         }
     }
 
@@ -329,7 +330,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(toggle.title, "Dark Mode")
         XCTAssertEqual(toggle.subtitle, "Use dark appearance")
         XCTAssertEqual(toggle.iconName, "moon.fill")
-        XCTAssertNotNil(toggle.body)
+        assertHosted(toggle)
     }
 
     func testToggleStyleApplication() {
@@ -351,7 +352,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNil(toggle.title)
         XCTAssertNil(toggle.subtitle)
         XCTAssertEqual(toggle.iconName, "bell.fill")
-        XCTAssertNotNil(toggle.body)
+        assertHosted(toggle)
     }
 
     // MARK: - CraftStepper Tests
@@ -371,7 +372,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(stepper.step, 5)
         XCTAssertEqual(stepper.unit, "words")
         XCTAssertEqual(stepper.label, "Target Count")
-        XCTAssertNotNil(stepper.body)
+        assertHosted(stepper)
     }
 
     func testStepperIncrementAndDecrement() {
@@ -411,7 +412,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNil(stepper.unit)
         XCTAssertNil(stepper.label)
         XCTAssertEqual(stepper.value.wrappedValue, 5)
-        XCTAssertNotNil(stepper.body)
+        assertHosted(stepper)
     }
 
     // MARK: - CraftPill / CraftFilterChip Tests
@@ -433,7 +434,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(pill.iconName, "bookmark")
         XCTAssertEqual(pill.count, 42)
         XCTAssertTrue(pill.isSelected)
-        XCTAssertNotNil(pill.body)
+        assertHosted(pill)
 
         pill.action()
         XCTAssertEqual(tapCount, 1)
@@ -444,7 +445,7 @@ final class ControlComponentTests: XCTestCase {
         let chip = CraftFilterChip("Grammar", isSelected: false) {}
         XCTAssertEqual(chip.title, "Grammar")
         XCTAssertFalse(chip.isSelected)
-        XCTAssertNotNil(chip.body)
+        assertHosted(chip)
     }
 
     func testPillLocalization() {
@@ -461,7 +462,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(pill.iconName, "star")
         XCTAssertEqual(pill.count, 10)
         XCTAssertTrue(pill.isSelected)
-        XCTAssertNotNil(pill.body)
+        assertHosted(pill)
         pill.action()
         XCTAssertTrue(tapped)
     }
@@ -485,7 +486,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(glassButton.style, .glass)
         XCTAssertEqual(glassButton.customTint, .blue)
         XCTAssertNotNil(glassButton.customGradient)
-        XCTAssertNotNil(glassButton.body)
+        assertHosted(glassButton)
 
         // Test all 5 surface styles rendering on CraftButton
         for surfaceStyle in CraftSurfaceStyle.allCases {
@@ -495,7 +496,7 @@ final class ControlComponentTests: XCTestCase {
                 customTint: .teal
             ) {}
             XCTAssertEqual(btn.style, surfaceStyle)
-            XCTAssertNotNil(btn.body)
+            assertHosted(btn)
         }
 
         // Test native button styles with style and gradient
@@ -509,11 +510,11 @@ final class ControlComponentTests: XCTestCase {
     func testButtonLoadingAccessibility() {
         let loadingBtn = CraftButton("Submit", isLoading: true) {}
         XCTAssertTrue(loadingBtn.isLoading)
-        XCTAssertNotNil(loadingBtn.body)
+        assertHosted(loadingBtn)
 
         let localizedLoadingBtn = CraftButton(LocalizedStringKey("submit_key"), isLoading: true) {}
         XCTAssertTrue(localizedLoadingBtn.isLoading)
-        XCTAssertNotNil(localizedLoadingBtn.body)
+        assertHosted(localizedLoadingBtn)
 
         let loadingString = CraftLocalized.string("craft.button.loading_a11y")
         XCTAssertEqual(loadingString, "Loading")
@@ -533,7 +534,7 @@ final class ControlComponentTests: XCTestCase {
                 ) {}
                 XCTAssertEqual(card.style, style)
                 XCTAssertEqual(card.state, state)
-                XCTAssertNotNil(card.body)
+                assertHosted(card)
             }
         }
     }
@@ -558,7 +559,7 @@ final class ControlComponentTests: XCTestCase {
             XCTAssertEqual(card.subtitle, "Subtitle \(prefixStyle.rawValue)")
             XCTAssertEqual(card.state, .idle)
             XCTAssertEqual(card.style, .tactile3D)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
 
             // Also test with LocalizedStringKey
             let localizedCard = CraftChoiceCard(
@@ -576,7 +577,7 @@ final class ControlComponentTests: XCTestCase {
             XCTAssertNil(localizedCard.subtitle)
             XCTAssertEqual(localizedCard.state, .selected)
             XCTAssertEqual(localizedCard.style, .glass)
-            XCTAssertNotNil(localizedCard.body)
+            assertHosted(localizedCard)
         }
     }
 
@@ -588,7 +589,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(defaultCard.title, "Default Option")
         XCTAssertNil(defaultCard.subtitle)
         XCTAssertEqual(defaultCard.state, .idle)
-        XCTAssertEqual(defaultCard.style, .tactile3D)
+        assertHosted(defaultCard) { XCTAssertEqual($0.style, .tactile3D) }
 
         // Test default with custom prefix, title, subtitle, state, style omitting prefixStyle
         let explicitCard = CraftChoiceCard(
@@ -603,7 +604,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(explicitCard.title, "Option B")
         XCTAssertEqual(explicitCard.subtitle, "Secondary info")
         XCTAssertEqual(explicitCard.state, .selected)
-        XCTAssertEqual(explicitCard.style, .outlined)
+        assertHosted(explicitCard) { XCTAssertEqual($0.style, .outlined) }
 
         // Test localized initializer omitting prefixStyle
         let localizedDefaultCard = CraftChoiceCard(
@@ -622,7 +623,7 @@ final class ControlComponentTests: XCTestCase {
         ) {}
         XCTAssertEqual(localizedExplicitCard.prefixStyle, .circle)
         XCTAssertEqual(localizedExplicitCard.state, .correct)
-        XCTAssertEqual(localizedExplicitCard.style, .elevated)
+        assertHosted(localizedExplicitCard) { XCTAssertEqual($0.style, .elevated) }
     }
 
     func testChoiceCardAccessibilityValues() {
@@ -650,7 +651,7 @@ final class ControlComponentTests: XCTestCase {
                 ) {}
                 XCTAssertEqual(card.state, state)
                 XCTAssertEqual(card.prefixStyle, prefixStyle)
-                XCTAssertNotNil(card.body)
+                assertHosted(card)
             }
         }
     }
@@ -698,11 +699,11 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(cardWithIndicator.showsStatusIndicator)
         XCTAssertNil(cardWithIndicator.correctIconName)
         XCTAssertNil(cardWithIndicator.wrongIconName)
-        XCTAssertNotNil(cardWithIndicator.body)
+        assertHosted(cardWithIndicator)
 
         let cardWithoutIndicator = CraftChoiceCard(title: "Option", state: .correct, showsStatusIndicator: false) {}
         XCTAssertFalse(cardWithoutIndicator.showsStatusIndicator)
-        XCTAssertNotNil(cardWithoutIndicator.body)
+        assertHosted(cardWithoutIndicator)
 
         // Test custom SF Symbol icon strings
         let cardCustomSF = CraftChoiceCard(
@@ -714,7 +715,7 @@ final class ControlComponentTests: XCTestCase {
         ) {}
         XCTAssertEqual(cardCustomSF.correctIconName, "checkmark.seal.fill")
         XCTAssertEqual(cardCustomSF.wrongIconName, "xmark.octagon.fill")
-        XCTAssertNotNil(cardCustomSF.body)
+        assertHosted(cardCustomSF)
 
         // Test custom CraftSymbol initializers
         let cardCustomSymbol = CraftChoiceCard(
@@ -726,7 +727,7 @@ final class ControlComponentTests: XCTestCase {
         ) {}
         XCTAssertEqual(cardCustomSymbol.correctIconName, CraftSymbol.trophy.rawValue)
         XCTAssertEqual(cardCustomSymbol.wrongIconName, CraftSymbol.lightbulb.rawValue)
-        XCTAssertNotNil(cardCustomSymbol.body)
+        assertHosted(cardCustomSymbol)
     }
 
     @MainActor
@@ -747,7 +748,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(card.prefixStyle, .none)
         XCTAssertEqual(card.title, "look forward to")
         XCTAssertEqual(card.subtitle, "trông đợi, mong chờ")
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         card.action()
         XCTAssertTrue(didTap)
     }
@@ -772,7 +773,7 @@ final class ControlComponentTests: XCTestCase {
                 style: style
             )
             XCTAssertEqual(field.style, style)
-            XCTAssertNotNil(field.body)
+            assertHosted(field)
 
             let secureField = CraftTextField(
                 placeholder: "Secure",
@@ -781,7 +782,7 @@ final class ControlComponentTests: XCTestCase {
                 style: style
             )
             XCTAssertEqual(secureField.style, style)
-            XCTAssertNotNil(secureField.body)
+            assertHosted(secureField)
 
             let errorField = CraftTextField(
                 placeholder: "Error",
@@ -790,7 +791,7 @@ final class ControlComponentTests: XCTestCase {
                 style: style
             )
             XCTAssertEqual(errorField.style, style)
-            XCTAssertNotNil(errorField.body)
+            assertHosted(errorField)
         }
     }
 
@@ -803,7 +804,7 @@ final class ControlComponentTests: XCTestCase {
             style: .glass
         )
         XCTAssertEqual(localizedField.style, .glass)
-        XCTAssertNotNil(localizedField.body)
+        assertHosted(localizedField)
     }
 
     func testToggleCustomTintsAndSurfaceStyles() {
@@ -820,7 +821,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(toggle.activeTint, .orange)
         XCTAssertEqual(toggle.inactiveTint, .gray)
         XCTAssertEqual(toggle.style, .glass)
-        XCTAssertNotNil(toggle.body)
+        assertHosted(toggle)
 
         // Test standalone switch with custom tints
         let craftSwitch = CraftSwitch(
@@ -832,7 +833,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(craftSwitch.activeTint, .purple)
         XCTAssertEqual(craftSwitch.inactiveTint, .blue)
         XCTAssertEqual(craftSwitch.style, .glass)
-        XCTAssertNotNil(craftSwitch.body)
+        assertHosted(craftSwitch)
 
         // Test ToggleStyle convenience functions
         let customStyleView = Toggle("Label", isOn: Binding(get: { isOn }, set: { isOn = $0 }))
@@ -859,7 +860,7 @@ final class ControlComponentTests: XCTestCase {
             onCancel: {}
         )
         XCTAssertEqual(glassSearchBar.style, .glass)
-        XCTAssertNotNil(glassSearchBar.body)
+        assertHosted(glassSearchBar)
 
         let roundedGlassSearchBar = CraftSearchBar(
             text: Binding(get: { query }, set: { query = $0 }),
@@ -869,7 +870,7 @@ final class ControlComponentTests: XCTestCase {
             onCancel: {}
         )
         XCTAssertEqual(roundedGlassSearchBar.style, .glass)
-        XCTAssertNotNil(roundedGlassSearchBar.body)
+        assertHosted(roundedGlassSearchBar)
 
         // Verify localized cancel & clear
         XCTAssertEqual(CraftLocalized.string("craft.common.action.cancel"), "Cancel")
@@ -898,7 +899,7 @@ final class ControlComponentTests: XCTestCase {
             XCTAssertEqual(pill.style, style)
             XCTAssertEqual(pill.customTint, .indigo)
             XCTAssertEqual(pill.resolvedStyle, style)
-            XCTAssertNotNil(pill.body)
+            assertHosted(pill)
 
             // Test selected state
             let selectedPill = CraftPill(
@@ -910,7 +911,7 @@ final class ControlComponentTests: XCTestCase {
             XCTAssertTrue(selectedPill.isSelected)
             XCTAssertEqual(selectedPill.style, style)
             XCTAssertEqual(selectedPill.customTint, .cyan)
-            XCTAssertNotNil(selectedPill.body)
+            assertHosted(selectedPill)
         }
     }
 
@@ -927,7 +928,7 @@ final class ControlComponentTests: XCTestCase {
             )
             XCTAssertEqual(stepper.style, style)
             XCTAssertEqual(stepper.resolvedStyle, style)
-            XCTAssertNotNil(stepper.body)
+            assertHosted(stepper)
         }
 
         // Verify localized increase & decrease & default label strings
@@ -976,7 +977,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(control.options[0].count, 5)
         XCTAssertEqual(control.options[0].symbol, CraftSymbol.study)
         XCTAssertEqual(control.style, CraftSurfaceStyle.glass)
-        XCTAssertNotNil(control.body)
+        assertHosted(control)
 
         control.onSelect?("tab2")
         XCTAssertEqual(selectedCallback, "tab2")
@@ -996,7 +997,7 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(btn.size, .md)
         XCTAssertFalse(btn.isPlaying)
         XCTAssertNil(btn.label)
-        XCTAssertNotNil(btn.body)
+        assertHosted(btn)
 
         btn.action()
         XCTAssertTrue(played)
@@ -1012,7 +1013,7 @@ final class ControlComponentTests: XCTestCase {
         )
         XCTAssertTrue(btn.isPlaying)
         XCTAssertNotNil(btn.label)
-        XCTAssertNotNil(btn.body)
+        assertHosted(btn)
     }
 
     func testCraftSpeakerButtonAllVariantsAndSizes() {
@@ -1029,7 +1030,7 @@ final class ControlComponentTests: XCTestCase {
                 XCTAssertEqual(btn.size, size)
                 XCTAssertTrue(btn.isPlaying)
                 XCTAssertEqual(btn.customTint, .purple)
-                XCTAssertNotNil(btn.body)
+                assertHosted(btn)
             }
         }
     }

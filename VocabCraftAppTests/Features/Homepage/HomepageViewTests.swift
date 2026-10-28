@@ -41,7 +41,7 @@ final class HomepageViewTests: XCTestCase {
         )
 
         XCTAssertEqual(tabBar.presentation, .compact)
-        XCTAssertNotNil(tabBar.body)
+        assertHosted(tabBar)
     }
 
     func testTabItemCraftProtocolConformance() {
@@ -93,7 +93,7 @@ final class HomepageViewTests: XCTestCase {
 
         for tab in TabItem.allCases {
             container.appRouter.selectedTab = tab
-            XCTAssertNotNil(homepage.body)
+            assertHosted(homepage)
         }
     }
 
@@ -103,19 +103,19 @@ final class HomepageViewTests: XCTestCase {
         let homepage = HomepageView(viewModel: viewModel)
 
         container.appRouter.navigateToHome()
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
 
         container.appRouter.navigateToVocabulary()
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
 
         container.appRouter.selectTab(.aiAssistant)
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
 
         container.appRouter.navigateToReflex()
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
 
         container.appRouter.navigateToSettings()
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
     }
 
     func testHomepageViewBodyWithLoadedLearningPath() async {
@@ -125,7 +125,7 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertFalse(viewModel.sections.isEmpty)
 
         let homepage = HomepageView(viewModel: viewModel)
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
     }
 
     func testHomepageViewModelLoadLearningPath() async {
@@ -244,7 +244,7 @@ final class HomepageViewTests: XCTestCase {
         await viewModel.loadLearningPath()
 
         let homepage = HomepageView(viewModel: viewModel)
-        XCTAssertNotNil(homepage.body)
+        assertHosted(homepage)
         XCTAssertEqual(viewModel.userName, "Hooji N.")
         XCTAssertEqual(viewModel.streakDays, 14)
         XCTAssertEqual(viewModel.dailyWordsLearned, 8)
@@ -287,7 +287,7 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNotNil(path.stickyHUDBuilder)
         _ = path.stickyHUDBuilder?(section)
         XCTAssertEqual(tappedSectionID.value, "sec_unit_1")
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
     }
 
     func testHomepageViewFluidJourneyIntegrationConfig() {
@@ -324,7 +324,7 @@ final class HomepageViewTests: XCTestCase {
         journey.onStartLesson?(section.nodes[0])
         XCTAssertEqual(tappedNode.value?.id, "node_1")
         XCTAssertEqual(startedNode.value?.id, "node_1")
-        XCTAssertNotNil(journey.body)
+        assertHosted(journey)
     }
 
     func testHomeTopHeaderAvatarTapNavigatesToSettings() {
@@ -342,7 +342,7 @@ final class HomepageViewTests: XCTestCase {
             }
         )
 
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
         header.onAvatarTap?()
         XCTAssertTrue(avatarTapped)
         XCTAssertEqual(router.selectedTab, .settings)
@@ -367,7 +367,7 @@ final class HomepageViewTests: XCTestCase {
         )
         XCTAssertEqual(sheet.node.id, "treasure_deck_0")
         XCTAssertEqual(sheet.deckId, "deck_0")
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     func testTreasureClaimSheetCompletedNodeBody() {
@@ -385,7 +385,7 @@ final class HomepageViewTests: XCTestCase {
             onDismiss: {}
         )
         XCTAssertEqual(sheet.node.state, .completed)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 }
 

@@ -4,6 +4,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class AtomComponentTests: XCTestCase {
     // MARK: - CraftBadge Tests
 
@@ -39,32 +40,32 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(badge.variant, .solid)
         XCTAssertEqual(badge.tone, .success)
         XCTAssertEqual(badge.size, .sm)
-        XCTAssertNotNil(badge.body)
+        assertHosted(badge)
     }
 
     func testBadgeLocalizedAndVerbatim() {
         let localizedBadge = CraftBadge(LocalizedStringKey("badge_new"), iconName: "sparkles", variant: .solid)
         XCTAssertNil(localizedBadge.title)
         XCTAssertEqual(localizedBadge.iconName, "sparkles")
-        XCTAssertNotNil(localizedBadge.body)
+        assertHosted(localizedBadge)
 
         let localizedSymbolBadge = CraftBadge(LocalizedStringKey("badge_new"), symbol: .sparkles, variant: .solid)
         XCTAssertNil(localizedSymbolBadge.title)
         XCTAssertEqual(localizedSymbolBadge.symbol, .sparkles)
         XCTAssertEqual(localizedSymbolBadge.iconName, "sparkles")
-        XCTAssertNotNil(localizedSymbolBadge.body)
+        assertHosted(localizedSymbolBadge)
 
         let verbatimBadge = CraftBadge(verbatim: "LEVEL 5", variant: .outline, tone: .warning, size: .sm)
         XCTAssertEqual(verbatimBadge.title, "LEVEL 5")
         XCTAssertEqual(verbatimBadge.tone, .warning)
-        XCTAssertNotNil(verbatimBadge.body)
+        assertHosted(verbatimBadge)
 
         let verbatimSymbolBadge = CraftBadge(verbatim: "STREAK", symbol: .streak, variant: .solid, tone: .warning, size: .sm)
         XCTAssertEqual(verbatimSymbolBadge.title, "STREAK")
         XCTAssertEqual(verbatimSymbolBadge.symbol, .streak)
         XCTAssertEqual(verbatimSymbolBadge.iconName, "flame.fill")
         XCTAssertEqual(verbatimSymbolBadge.tone, .warning)
-        XCTAssertNotNil(verbatimSymbolBadge.body)
+        assertHosted(verbatimSymbolBadge)
     }
 
     func testBadgeVariantsAndTones() {
@@ -75,7 +76,7 @@ final class AtomComponentTests: XCTestCase {
                     XCTAssertEqual(badge.variant, variant)
                     XCTAssertEqual(badge.tone, tone)
                     XCTAssertEqual(badge.size, size)
-                    XCTAssertNotNil(badge.body)
+                    assertHosted(badge)
                 }
             }
         }
@@ -85,25 +86,25 @@ final class AtomComponentTests: XCTestCase {
         for surfaceStyle in CraftSurfaceStyle.allCases {
             let badge = CraftBadge("Status", symbol: .sparkles, tone: .primary, style: surfaceStyle)
             XCTAssertEqual(badge.style, surfaceStyle)
-            XCTAssertNotNil(badge.body)
+            assertHosted(badge)
         }
     }
 
     func testBadgeShapes() {
         let capsuleBadge = CraftBadge("Capsule", shape: .capsule)
         XCTAssertEqual(capsuleBadge.shape, .capsule)
-        XCTAssertNotNil(capsuleBadge.body)
+        assertHosted(capsuleBadge)
 
         let roundedBadge = CraftBadge("Rounded", shape: .roundedRectangle(radius: 8))
         XCTAssertEqual(roundedBadge.shape, .roundedRectangle(radius: 8))
-        XCTAssertNotNil(roundedBadge.body)
+        assertHosted(roundedBadge)
     }
 
     func testBadgeCustomTint() {
         let customBadge = CraftBadge("Custom", customTint: .indigo)
         XCTAssertEqual(customBadge.customTint, .indigo)
         XCTAssertEqual(customBadge.effectiveToneColor, .indigo)
-        XCTAssertNotNil(customBadge.body)
+        assertHosted(customBadge)
     }
 
     func testBadgeCombinations() {
@@ -122,7 +123,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(complexBadge.style, .glass)
         XCTAssertEqual(complexBadge.shape, .roundedRectangle(radius: 6))
         XCTAssertEqual(complexBadge.customTint, .orange)
-        XCTAssertNotNil(complexBadge.body)
+        assertHosted(complexBadge)
     }
 
     // MARK: - CraftIcon & CraftIconSize Tests
@@ -155,7 +156,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(icon.size, .lg)
         XCTAssertEqual(icon.color, .yellow)
         XCTAssertEqual(icon.accessibilityLabel, "Favorite")
-        XCTAssertNotNil(icon.body)
+        assertHosted(icon)
     }
 
     func testIconDefaults() {
@@ -177,14 +178,14 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(icon.renderingMode, .hierarchical)
         XCTAssertEqual(icon.weight, .bold)
         XCTAssertEqual(icon.accessibilityLabel, "Study Deck")
-        XCTAssertNotNil(icon.body)
+        assertHosted(icon)
     }
 
     func testCraftIconRenderingModes() {
         for mode in [CraftIconRenderingMode.hierarchical, .monochrome, .multicolor] {
             let icon = CraftIcon("star.fill", renderingMode: mode)
             XCTAssertEqual(icon.renderingMode, mode)
-            XCTAssertNotNil(icon.body)
+            assertHosted(icon)
         }
     }
 
@@ -210,7 +211,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(button.minTouchTarget, 44)
         XCTAssertNil(button.style)
         XCTAssertNil(button.customTint)
-        XCTAssertNotNil(button.body)
+        assertHosted(button)
 
         button.action()
         XCTAssertTrue(actionExecuted)
@@ -231,7 +232,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(btn.symbol, .bookmark)
         XCTAssertEqual(btn.size, .lg)
         XCTAssertEqual(btn.shape, .square)
-        XCTAssertNotNil(btn.body)
+        assertHosted(btn)
         btn.action()
         XCTAssertTrue(tapped)
     }
@@ -272,7 +273,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertTrue(selectedBtn.isSelected)
         XCTAssertFalse(selectedBtn.isLoading)
         XCTAssertEqual(selectedBtn.accessibilityLabel, "Favorited")
-        XCTAssertNotNil(selectedBtn.body)
+        assertHosted(selectedBtn)
 
         let loadingBtn = CraftIconButton(
             iconName: "arrow.clockwise",
@@ -282,7 +283,7 @@ final class AtomComponentTests: XCTestCase {
         ) {}
         XCTAssertTrue(loadingBtn.isLoading)
         XCTAssertEqual(loadingBtn.accessibilityHint, "Fetches latest data")
-        XCTAssertNotNil(loadingBtn.body)
+        assertHosted(loadingBtn)
     }
 
     func testIconButtonLocalizedStringKeyInit() {
@@ -292,7 +293,7 @@ final class AtomComponentTests: XCTestCase {
             accessibilityHint: "Opens settings"
         ) {}
         XCTAssertEqual(localizedBtn.accessibilityLabelKey, "craft.settings")
-        XCTAssertNotNil(localizedBtn.body)
+        assertHosted(localizedBtn)
     }
 
     func testIconButtonShapesAndVariants() {
@@ -310,7 +311,7 @@ final class AtomComponentTests: XCTestCase {
                     XCTAssertEqual(btn.variant, variant)
                     XCTAssertEqual(btn.size, size)
                     XCTAssertEqual(btn.accessibilityLabel, "Add item")
-                    XCTAssertNotNil(btn.body)
+                    assertHosted(btn)
                 }
             }
         }
@@ -329,7 +330,7 @@ final class AtomComponentTests: XCTestCase {
             XCTAssertEqual(btn.shape, .roundedRectangle(radius: 12))
             XCTAssertEqual(btn.customTint, .cyan)
             XCTAssertEqual(btn.effectiveTint, .cyan)
-            XCTAssertNotNil(btn.body)
+            assertHosted(btn)
         }
     }
 
@@ -351,7 +352,7 @@ final class AtomComponentTests: XCTestCase {
         ) {}
         XCTAssertEqual(btn.variant, .filled)
         XCTAssertEqual(btn.customTint, .orange)
-        XCTAssertNotNil(btn.body)
+        assertHosted(btn)
     }
 
     // MARK: - CraftDivider Tests
@@ -362,7 +363,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(horizontalDivider.thickness, 1.0)
         XCTAssertEqual(horizontalDivider.customThickness, 1.0)
         XCTAssertEqual(horizontalDivider.style, .solid)
-        XCTAssertNotNil(horizontalDivider.body)
+        assertHosted(horizontalDivider)
 
         let verticalDivider = CraftDivider(axis: .vertical, color: .gray, thickness: 2.0)
         XCTAssertEqual(verticalDivider.axis, .vertical)
@@ -370,7 +371,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(verticalDivider.customThickness, 2.0)
         XCTAssertEqual(verticalDivider.color, .gray)
         XCTAssertEqual(verticalDivider.style, .solid)
-        XCTAssertNotNil(verticalDivider.body)
+        assertHosted(verticalDivider)
     }
 
     func testDividerDefaults() {
@@ -380,22 +381,22 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertNil(defaultDivider.customThickness)
         XCTAssertNil(defaultDivider.color)
         XCTAssertEqual(defaultDivider.style, .solid)
-        XCTAssertNotNil(defaultDivider.body)
+        assertHosted(defaultDivider)
     }
 
     func testDividerStyles() {
         let solidDivider = CraftDivider(style: .solid)
         XCTAssertEqual(solidDivider.style, .solid)
-        XCTAssertNotNil(solidDivider.body)
+        assertHosted(solidDivider)
 
         let dashedDivider = CraftDivider(axis: .horizontal, color: .blue, thickness: 2, style: .dashed(dash: 8, gap: 4))
         XCTAssertEqual(dashedDivider.style, .dashed(dash: 8, gap: 4))
-        XCTAssertNotNil(dashedDivider.body)
+        assertHosted(dashedDivider)
 
         let gradient = LinearGradient(colors: [.red, .blue], startPoint: .leading, endPoint: .trailing)
         let gradientDivider = CraftDivider(style: .gradient(gradient))
         XCTAssertEqual(gradientDivider.style, .gradient(gradient))
-        XCTAssertNotNil(gradientDivider.body)
+        assertHosted(gradientDivider)
     }
 
     func testDividerStyleEquality() {
@@ -416,7 +417,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(spinner.size, .md)
         XCTAssertEqual(spinner.color, .blue)
         XCTAssertEqual(spinner.lineWidth, 3.0)
-        XCTAssertNotNil(spinner.body)
+        assertHosted(spinner)
     }
 
     func testSpinnerDefaultLineWidths() {
@@ -436,7 +437,7 @@ final class AtomComponentTests: XCTestCase {
     func testSpinnerCustomLineWidth() {
         let customSpinner = CraftSpinner(size: .sm, lineWidth: 5.0)
         XCTAssertEqual(customSpinner.lineWidth, 5.0)
-        XCTAssertNotNil(customSpinner.body)
+        assertHosted(customSpinner)
     }
 
     // MARK: - CraftText Tests
@@ -458,7 +459,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(text.textAlignment, .center)
         XCTAssertEqual(text.tracking, 1.2)
         XCTAssertEqual(text.lineSpacing, 4.0)
-        XCTAssertNotNil(text.body)
+        assertHosted(text)
     }
 
     func testCraftTextLocalizationAndVerbatim() {
@@ -467,14 +468,14 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(keyText.style, .headline)
         XCTAssertEqual(keyText.tracking, 0.5)
         XCTAssertEqual(keyText.lineSpacing, 2)
-        XCTAssertNotNil(keyText.body)
+        assertHosted(keyText)
 
         let verbatimText = CraftText(verbatim: "Hello World", style: .bodyLarge, color: .blue, tracking: 1.0)
         XCTAssertEqual(verbatimText.text, "Hello World")
         XCTAssertEqual(verbatimText.style, .bodyLarge)
         XCTAssertEqual(verbatimText.color, .blue)
         XCTAssertEqual(verbatimText.tracking, 1.0)
-        XCTAssertNotNil(verbatimText.body)
+        assertHosted(verbatimText)
     }
 
     func testCraftTextAttributedString() throws {
@@ -499,30 +500,30 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(text.textAlignment, .trailing)
         XCTAssertEqual(text.tracking, 0.8)
         XCTAssertEqual(text.lineSpacing, 6.0)
-        XCTAssertNotNil(text.body)
+        assertHosted(text)
 
         let markdown = try AttributedString(markdown: "Learn **bold** and *italic* words with [docs](https://craft.ui)")
         let markdownText = CraftText(markdown, style: .bodySerif)
         XCTAssertEqual(markdownText.attributedString, markdown)
-        XCTAssertNotNil(markdownText.body)
+        assertHosted(markdownText)
     }
 
     func testDomainTypographyStyles() {
         let serifTitle = CraftText("Serendipity", style: .displaySerif)
         XCTAssertEqual(serifTitle.style, .displaySerif)
-        XCTAssertNotNil(serifTitle.body)
+        assertHosted(serifTitle)
 
         let phoneticText = CraftText("/ˌser.ənˈdɪp.ə.ti/", style: .phonetic)
         XCTAssertEqual(phoneticText.style, .phonetic)
-        XCTAssertNotNil(phoneticText.body)
+        assertHosted(phoneticText)
 
         let bodyEditorial = CraftText("Sample passage", style: .bodySerif)
         XCTAssertEqual(bodyEditorial.style, .bodySerif)
-        XCTAssertNotNil(bodyEditorial.body)
+        assertHosted(bodyEditorial)
 
         let scoreMetric = CraftText("10,000 XP", style: .metricRounded)
         XCTAssertEqual(scoreMetric.style, .metricRounded)
-        XCTAssertNotNil(scoreMetric.body)
+        assertHosted(scoreMetric)
     }
 
     // MARK: - View Modifiers Application Tests
@@ -545,22 +546,22 @@ final class AtomComponentTests: XCTestCase {
 
     func testCraftDividerDashedShapeRendering() {
         let divider = CraftDivider(axis: .horizontal, style: .dashed(dash: 4, gap: 2))
-        XCTAssertNotNil(divider.body)
+        assertHosted(divider)
 
         let verticalDivider = CraftDivider(axis: .vertical, style: .dashed(dash: 6, gap: 3))
-        XCTAssertNotNil(verticalDivider.body)
+        assertHosted(verticalDivider)
     }
 
     func testCraftSpinnerRenderingAndBody() {
         let spinner = CraftSpinner(size: .md, color: .blue, lineWidth: 3)
-        XCTAssertNotNil(spinner.body)
+        assertHosted(spinner)
     }
 
     func testCraftStreakBadgePulsingAndBody() {
         let badge = CraftStreakBadge(count: 5, isCompletedToday: false)
-        XCTAssertNotNil(badge.body)
+        assertHosted(badge)
         let completedBadge = CraftStreakBadge(count: 7, isCompletedToday: true)
-        XCTAssertNotNil(completedBadge.body)
+        assertHosted(completedBadge)
     }
 
     func testCraftStreakBadgeAccessibilityLocalization() {
@@ -595,7 +596,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(ring.color, .orange)
         XCTAssertEqual(ring.size, 36)
         XCTAssertEqual(ring.lineWidth, 3.0)
-        XCTAssertNotNil(ring.body)
+        assertHosted(ring)
     }
 
     func testCraftPulsingAuraRingDefaults() {
@@ -603,6 +604,6 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(ring.color, .blue)
         XCTAssertEqual(ring.size, 28)
         XCTAssertEqual(ring.lineWidth, 2.5)
-        XCTAssertNotNil(ring.body)
+        assertHosted(ring)
     }
 }

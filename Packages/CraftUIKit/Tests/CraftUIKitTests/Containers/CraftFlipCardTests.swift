@@ -4,6 +4,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class CraftFlipCardTests: XCTestCase {
     @MainActor
     func testCraftFlipCardInstantiationWithTactile3DStyle() {
@@ -24,7 +25,7 @@ final class CraftFlipCardTests: XCTestCase {
         XCTAssertEqual(card.style, .tactile3D)
         XCTAssertEqual(card.cornerRadius, 20)
         XCTAssertEqual(card.padding, 16)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     @MainActor
@@ -42,7 +43,7 @@ final class CraftFlipCardTests: XCTestCase {
 
         XCTAssertNotNil(card)
         XCTAssertEqual(card.highlightShadowColor, Color.green.opacity(0.3))
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     @MainActor
@@ -56,7 +57,7 @@ final class CraftFlipCardTests: XCTestCase {
             } back: {
                 Text("Back \(style.rawValue)")
             }
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 }

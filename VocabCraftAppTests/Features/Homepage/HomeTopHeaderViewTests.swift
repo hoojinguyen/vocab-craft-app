@@ -57,7 +57,7 @@ struct HomeTopHeaderViewTestingTests {
             dailyWordsLearned: 0,
             dailyWordsGoal: 0
         )
-        _ = view.body
+        assertHosted(view)
 
         let singleNameView = HomeTopHeaderView(
             userName: "Alex",
@@ -65,7 +65,7 @@ struct HomeTopHeaderViewTestingTests {
             dailyWordsLearned: 15,
             dailyWordsGoal: 10
         )
-        _ = singleNameView.body
+        assertHosted(singleNameView)
 
         let emptyNameView = HomeTopHeaderView(
             userName: "   ",
@@ -73,7 +73,7 @@ struct HomeTopHeaderViewTestingTests {
             dailyWordsLearned: 5,
             dailyWordsGoal: 10
         )
-        _ = emptyNameView.body
+        assertHosted(emptyNameView)
     }
 
     @Test("Lexical pill displays formatted word count and CEFR level correctly")
@@ -175,7 +175,7 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsLearned: 0,
             dailyWordsGoal: 0
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         let singleNameView = HomeTopHeaderView(
             userName: "Alex",
@@ -183,7 +183,7 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsLearned: 15,
             dailyWordsGoal: 10
         )
-        XCTAssertNotNil(singleNameView.body)
+        assertHosted(singleNameView)
 
         let emptyNameView = HomeTopHeaderView(
             userName: "   ",
@@ -191,7 +191,7 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsLearned: 5,
             dailyWordsGoal: 10
         )
-        XCTAssertNotNil(emptyNameView.body)
+        assertHosted(emptyNameView)
     }
 }
 #endif

@@ -49,7 +49,7 @@ struct LearningPathSwitchSheetTestingTests {
 
         #expect(sheet.activePathId == samplePath.id)
         #expect(sheet.initialPaths?.count == 4)
-        _ = sheet.body
+        assertHosted(sheet)
 
         sheet.onSelectPath?(samplePath)
         #expect(selectedPath?.id == samplePath.id)
@@ -94,7 +94,7 @@ final class LearningPathSwitchSheetXCTests: XCTestCase {
             initialPaths: paths
         )
         XCTAssertEqual(sheet.activePathId, activePath.id)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     func testSheetWithNilActivePathDefaultsToFirst() {
@@ -103,6 +103,6 @@ final class LearningPathSwitchSheetXCTests: XCTestCase {
             initialPaths: LearningPathSwitchSheet.fallbackPaths
         )
         XCTAssertNil(sheet.activePathId)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 }

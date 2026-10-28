@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class SurfaceStyleTests: XCTestCase {
 
     // MARK: - Enum & Conformance Tests
@@ -129,14 +130,27 @@ final class SurfaceStyleTests: XCTestCase {
         XCTAssertEqual(modifier.style, .glass)
     }
 
-    func testModifierResolvedStyleFallbackToEnvironment() {
-        let modifier = CraftSurfaceModifier(
-            style: nil,
-            shape: Capsule()
-        )
-        // With default environment, resolvedStyle is .flat
-        XCTAssertEqual(modifier.resolvedStyle, .flat)
+    func testModifierResolvedStyleFallbackToEnvironment() throws {
+        let modifier = CraftSurfaceModifier(style: nil, shape: Capsule())
         XCTAssertNil(modifier.style)
+        // Render the actual modifier with installed environment values. A wrong fallback
+        // must differ from the equivalent explicit style; no unmounted getter is read.
+        var inheritedSnapshots: [Data] = []
+        for inheritedStyle in [CraftSurfaceStyle.flat, .outlined] {
+            let inherited = try XCTUnwrap(assertHosted(
+                Text("Surface").modifier(modifier).craftSurfaceStyle(inheritedStyle),
+                snapshot: true
+            ))
+            let explicit = try XCTUnwrap(assertHosted(
+                Text("Surface")
+                    .craftSurface(style: inheritedStyle, shape: Capsule())
+                    .craftSurfaceStyle(inheritedStyle),
+                snapshot: true
+            ))
+            XCTAssertEqual(inherited, explicit, "Nil style must inherit \(inheritedStyle)")
+            inheritedSnapshots.append(inherited)
+        }
+        XCTAssertNotEqual(inheritedSnapshots.first, inheritedSnapshots.last, "Inherited styles must render distinct surfaces")
     }
 
     func testCraftSurfaceAllStylesBodyRendering() {

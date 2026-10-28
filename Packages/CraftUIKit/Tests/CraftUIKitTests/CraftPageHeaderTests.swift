@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftPageHeaderTests: XCTestCase {
     func testCraftHeaderAlignmentEnum() {
         XCTAssertEqual(CraftHeaderAlignment.leading, .leading)
@@ -24,7 +25,7 @@ final class CraftPageHeaderTests: XCTestCase {
         XCTAssertEqual(header.subtitle, "Test Subtitle")
         XCTAssertEqual(header.alignment, .leading)
         XCTAssertTrue(header.enableScrollFade)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     func testCraftPageHeaderCenterInitializationWithDefaults() {
@@ -36,7 +37,7 @@ final class CraftPageHeaderTests: XCTestCase {
         XCTAssertNil(header.subtitle)
         XCTAssertEqual(header.alignment, .center)
         XCTAssertTrue(header.enableScrollFade)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     func testCraftPageHeaderStringInitializers() {
@@ -46,7 +47,7 @@ final class CraftPageHeaderTests: XCTestCase {
             alignment: .leading
         )
         XCTAssertEqual(header.alignment, .leading)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     func testCraftPageHeaderDisabledScrollFade() {
@@ -56,7 +57,7 @@ final class CraftPageHeaderTests: XCTestCase {
         )
         XCTAssertEqual(header.title, "No Fade Title")
         XCTAssertFalse(header.enableScrollFade)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     func testCraftPageHeaderWithOnlyLeadingSlot() {
@@ -69,7 +70,7 @@ final class CraftPageHeaderTests: XCTestCase {
         )
         XCTAssertEqual(header.title, "Only Leading")
         XCTAssertEqual(header.alignment, .leading)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     func testCraftPageHeaderWithOnlyTrailingSlot() {
@@ -82,6 +83,6 @@ final class CraftPageHeaderTests: XCTestCase {
         )
         XCTAssertEqual(header.title, "Only Trailing")
         XCTAssertEqual(header.alignment, .center)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 }

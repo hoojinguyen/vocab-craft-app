@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @Suite("CraftPinnedUnitHeader Tests")
+@MainActor
 struct CraftPinnedUnitHeaderTests {
     @Test("Verify header data binding")
     func testHeaderBinding() {

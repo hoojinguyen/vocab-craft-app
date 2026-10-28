@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class FeedbackFXTests: XCTestCase {
 
     // MARK: - CraftWaveformView Tests
@@ -31,7 +32,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertNil(view.activeColor)
         XCTAssertNil(view.inactiveColor)
         XCTAssertEqual(view.normalizedLevels.count, 16)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testWaveformTruncationAndCustomProperties() {
@@ -58,7 +59,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertTrue(view.isRecording)
         XCTAssertEqual(view.activeColor, .red)
         XCTAssertEqual(view.inactiveColor, .gray)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testWaveformHeightCalculation() {
@@ -97,7 +98,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertTrue(view.isTriggered)
         XCTAssertEqual(view.style, .sparkles)
         XCTAssertEqual(view.particleCount, 24)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testConfettiViewInit() {
@@ -112,7 +113,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertTrue(view.isTriggered)
         XCTAssertEqual(view.style, .confetti)
         XCTAssertEqual(view.particleCount, 45)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testSparkleAndConfettiViewModifiers() {
@@ -148,7 +149,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertNil(countdown.title)
         countdown.onFinish()
         XCTAssertTrue(finished)
-        XCTAssertNotNil(countdown.body)
+        assertHosted(countdown)
     }
 
     func testCountdownCustomConfiguration() {
@@ -164,7 +165,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertEqual(countdown.goText, "START!")
         countdown.onFinish()
         XCTAssertTrue(finished)
-        XCTAssertNotNil(countdown.body)
+        assertHosted(countdown)
     }
 
     func testCountdownViewModifier() {
@@ -313,7 +314,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertEqual(surge.duration, 0.65)
         surge.onComplete?()
         XCTAssertTrue(completed)
-        XCTAssertNotNil(surge.body)
+        assertHosted(surge)
     }
 
     func testPathUnlockSurgeViewInitWithSnakeSegment() {
@@ -333,7 +334,7 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertEqual(surge.to, CGPoint(x: 250, y: 150))
         XCTAssertNotNil(surge.segment)
         XCTAssertEqual(surge.lineWidth, 4.0)
-        XCTAssertNotNil(surge.body)
+        assertHosted(surge)
     }
 
     func testPathUnlockSurgeViewInitWithPath() {
@@ -348,7 +349,7 @@ final class FeedbackFXTests: XCTestCase {
         )
         XCTAssertEqual(surge.explicitProgress, 0.75)
         XCTAssertEqual(surge.color, .blue)
-        XCTAssertNotNil(surge.body)
+        assertHosted(surge)
     }
 
     func testPathUnlockSurgeViewModifiers() {
@@ -383,6 +384,6 @@ final class FeedbackFXTests: XCTestCase {
             from: CGPoint(x: 0, y: 0),
             to: CGPoint(x: 50, y: 50)
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 }

@@ -58,7 +58,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         var didDismiss = false
         let view = ReflexBlitzView(viewModel: vm, onDismiss: { didDismiss = true })
         XCTAssertNotNil(view)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
         XCTAssertEqual(vm.phase, .modeSelection)
 
         view.onDismiss()
@@ -85,7 +85,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.countdownCount = 3
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
         XCTAssertEqual(vm.phase, .countdown)
         XCTAssertEqual(vm.countdownCount, 3)
     }
@@ -105,8 +105,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockSpeechEngine.lastTargetLemma, firstWord.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        defer { assertHosted(view) { XCTAssertNotNil($0.drillingView) } }
 
         // Spoken match triggers review state
         mockSpeechEngine.simulateMatch(firstWord.lemma)
@@ -143,8 +142,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Submit typing answer
         let targetLemma = vm.currentWord!.lemma
@@ -175,8 +174,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Submit incorrect typing answer
         let wrongInput = "wrongword"
@@ -207,7 +206,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Submit answer on word 1
         vm.submitTypingAnswer(firstWord.lemma)
@@ -230,7 +229,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
 
         // Drilling view renders cleanly for next word with fresh identity
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewDrillingMultipleChoiceSelection() {
@@ -286,7 +285,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         vm.advanceToNextWord()
         XCTAssertEqual(vm.currentWordIndex, 1)
@@ -313,7 +312,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testBlitzViewDrillingMultipleChoiceAudioReplayInReview() {
@@ -330,7 +329,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertTrue(vm.currentAttemptIsCorrect)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         let targetLemma = vm.currentWord!.lemma
         vm.speakCurrentWord()
@@ -347,8 +346,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockTTS.lastSpokenText, vm.currentWord!.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         guard let incorrectOption = vm.currentOptions.first(where: { !$0.isCorrect }) else {
             XCTFail("Missing incorrect option")
@@ -367,7 +366,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
 
         // Verify reviewed drilling view with feedback sheet
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewDrillingListeningModeCorrectSelectionAndAdvance() {
@@ -384,8 +383,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         guard let correctOption = vm.currentOptions.first(where: { $0.isCorrect }) else {
             XCTFail("Missing correct option")
@@ -428,7 +427,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.selectedMode, .listening)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         vm.handleTimeout()
 
@@ -440,7 +439,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected cardPhase to be .reviewed")
         }
 
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewDrillingListeningModeHintProgression() {
@@ -452,18 +451,18 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.hintStage, 0)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Stage 1 hint progression (Part of Speech)
         vm.hintStage = 1
         XCTAssertEqual(vm.hintStage, 1)
         XCTAssertTrue(vm.showHint)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Stage 3 hint progression (Distractor elimination)
         vm.hintStage = 3
         XCTAssertEqual(vm.hintStage, 3)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewTimeoutRevealingPhaseRendering() async {
@@ -484,7 +483,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockTTS.lastSpokenText, targetLemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testBlitzViewSummaryPhaseRenderingAndReDrill() {
@@ -499,7 +498,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.sessionSummary?.weakWordAttempts.count, 1)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         vm.reDrillWeakWords()
         XCTAssertEqual(vm.phase, .countdown)
@@ -512,8 +511,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.beginSessionDirectly()
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         vm.handleTimeout()
         if case .reviewed(let result) = vm.cardPhase {
@@ -563,7 +562,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         var dismissed = false
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: { dismissed = true })
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         // 1. Select Mode & Begin Session
         vm.selectMode(.speaking)
@@ -621,37 +620,20 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     private func renderSnapshot<V: View>(view: V, filename: String) {
-        let sizedView = view
-            .frame(width: 393, height: 852)
-            .background(CraftDefaultTheme().colors.canvasBackground)
-            .environment(\.colorScheme, .dark)
+        let pngData = assertHosted(
+            view.environment(\.colorScheme, .dark),
+            snapshot: true
+        )
 
-        let renderer = ImageRenderer(content: sizedView)
-        renderer.scale = 2.0
-        renderer.proposedSize = ProposedViewSize(width: 393, height: 852)
-
-        var pngData: Data?
-
-        #if canImport(UIKit)
-        if let uiImage = renderer.uiImage {
-            pngData = uiImage.pngData()
-        }
-        #elseif canImport(AppKit)
-        if let nsImage = renderer.nsImage,
-           let tiffData = nsImage.tiffRepresentation,
-           let bitmap = NSBitmapImageRep(data: tiffData) {
-            pngData = bitmap.representation(using: .png, properties: [:])
-        }
-        #endif
-
+        XCTAssertNotNil(pngData, "Mounted snapshot must render: \(filename)")
         if let data = pngData {
             let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/5c2b6bd5-dbf7-4180-b8c7-c977b2354022/screenshots")
             try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
             let fileURL = outputDir.appendingPathComponent(filename)
             try? data.write(to: fileURL)
-            print("[Snapshot] Successfully saved with ImageRenderer: \(filename) (size: \(data.count) bytes)")
+            print("[Snapshot] Successfully saved mounted view: \(filename) (size: \(data.count) bytes)")
         } else {
-            print("[Snapshot] ImageRenderer failed for \(filename)")
+            print("[Snapshot] Mounted snapshot failed for \(filename)")
         }
     }
 
@@ -783,7 +765,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             onFinish: {}
         )
         renderSnapshot(
-            view: summaryView.summaryContent
+            view: summaryView
                 .padding(.top, 40)
                 .frame(width: 393, alignment: .top),
             filename: "11_reflex_summary_screen.png"
@@ -799,7 +781,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Select correct option to trigger reviewed state & floating sheet
         guard let correctOption = vm.currentOptions.first(where: { $0.isCorrect }) else {
@@ -816,13 +798,13 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
 
         // Verify drillingView is rendered with reviewed floating sheet overlay
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Advance to next word
         vm.advanceToNextWord()
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
         XCTAssertEqual(vm.currentWordIndex, 1)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewOnFinishSessionCallbackCalledOnSummaryFinish() {
@@ -842,7 +824,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
                 finishedSummary = summary
             }
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         // Invoke onFinishSession directly to verify contract
         if let summary = vm.sessionSummary {
@@ -867,7 +849,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Select an option to transition to reviewed flip state
         if let option = vm.currentOptions.first {
@@ -892,7 +874,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(mockTTS.lastSpokenText, secondWord.lemma)
 
         // Drilling view renders cleanly for new word instance with fresh identity
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
     }
 
     func testBlitzViewCardViewIdentityAcrossAllModes() {
@@ -907,7 +889,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTAssertEqual(vm.cardPhase, .activeCountdown, "Failed for mode \(mode)")
 
             let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-            XCTAssertNotNil(view.drillingView, "Failed for mode \(mode)")
+            assertHosted(view) { XCTAssertNotNil($0.drillingView, "Failed for mode \(mode)") }
 
             vm.handleTimeout()
             if case .reviewed = vm.cardPhase {
@@ -919,7 +901,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             vm.advanceToNextWord()
             XCTAssertEqual(vm.currentWordIndex, 1, "Failed for mode \(mode)")
             XCTAssertEqual(vm.cardPhase, .activeCountdown, "Failed for mode \(mode)")
-            XCTAssertNotNil(view.drillingView, "Failed for mode \(mode)")
+            assertHosted(view) { XCTAssertNotNil($0.drillingView, "Failed for mode \(mode)") }
         }
     }
 
@@ -929,8 +911,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.beginSessionDirectly()
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.drillingView)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.drillingView) }
 
         // Verify pausing during active drilling
         vm.pauseCurrentDrill()

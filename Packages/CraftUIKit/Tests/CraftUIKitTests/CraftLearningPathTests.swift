@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftLearningPathTests: XCTestCase {
     // MARK: - LessonNodeState Tests
 
@@ -626,19 +627,19 @@ final class CraftLearningPathTests: XCTestCase {
         let locked = CraftLessonNode(model: LessonNodeModel(id: "5", title: "5", state: .locked))
         let bonus = CraftLessonNode(model: LessonNodeModel(id: "6", title: "6", state: .bonus))
 
-        XCTAssertEqual(completed.nodeDiameter, 52)
-        XCTAssertEqual(active.nodeDiameter, 64)
-        XCTAssertEqual(inProgress.nodeDiameter, 56)
-        XCTAssertEqual(upcoming.nodeDiameter, 48)
-        XCTAssertEqual(locked.nodeDiameter, 48)
-        XCTAssertEqual(bonus.nodeDiameter, 56)
+        assertHosted(completed) { XCTAssertEqual($0.nodeDiameter, 52) }
+        assertHosted(active) { XCTAssertEqual($0.nodeDiameter, 64) }
+        assertHosted(inProgress) { XCTAssertEqual($0.nodeDiameter, 56) }
+        assertHosted(upcoming) { XCTAssertEqual($0.nodeDiameter, 48) }
+        assertHosted(locked) { XCTAssertEqual($0.nodeDiameter, 48) }
+        assertHosted(bonus) { XCTAssertEqual($0.nodeDiameter, 56) }
 
-        XCTAssertEqual(completed.iconSize, 20)
-        XCTAssertEqual(active.iconSize, 26)
-        XCTAssertEqual(inProgress.iconSize, 22)
-        XCTAssertEqual(upcoming.iconSize, 18)
-        XCTAssertEqual(locked.iconSize, 18)
-        XCTAssertEqual(bonus.iconSize, 22)
+        assertHosted(completed) { XCTAssertEqual($0.iconSize, 20) }
+        assertHosted(active) { XCTAssertEqual($0.iconSize, 26) }
+        assertHosted(inProgress) { XCTAssertEqual($0.iconSize, 22) }
+        assertHosted(upcoming) { XCTAssertEqual($0.iconSize, 18) }
+        assertHosted(locked) { XCTAssertEqual($0.iconSize, 18) }
+        assertHosted(bonus) { XCTAssertEqual($0.iconSize, 22) }
 
         // Kind variants
         let checkpoint = CraftLessonNode(model: LessonNodeModel(id: "cp", title: "Checkpoint", state: .active, kind: .checkpoint))
@@ -1302,7 +1303,7 @@ final class CraftLearningPathTests: XCTestCase {
             nodes: []
         )
         let headerView = CraftLessonSectionHeaderView(section: fullSection)
-        XCTAssertNotNil(headerView.body)
+        assertHosted(headerView)
         XCTAssertEqual(headerView.section.id, "s_header")
         XCTAssertTrue(headerView.hasHeaderContent)
 
@@ -1326,7 +1327,7 @@ final class CraftLearningPathTests: XCTestCase {
         let bodyView = CraftLessonSectionBodyView(section: section) { node in
             tappedNode = node
         }
-        XCTAssertNotNil(bodyView.body)
+        assertHosted(bodyView)
         XCTAssertEqual(bodyView.section.id, "s_body")
         XCTAssertEqual(bodyView.rowPattern, .standard)
 
@@ -1390,32 +1391,32 @@ final class CraftLearningPathTests: XCTestCase {
         // Single section init defaults pinSectionHeaders to false
         let singlePathDefault = CraftLearningPath(section: section)
         XCTAssertFalse(singlePathDefault.pinSectionHeaders)
-        XCTAssertNotNil(singlePathDefault.body)
+        assertHosted(singlePathDefault)
 
         // Single section explicit pinSectionHeaders: false
         let singlePathNoPin = CraftLearningPath(section: section, pinSectionHeaders: false)
         XCTAssertFalse(singlePathNoPin.pinSectionHeaders)
-        XCTAssertNotNil(singlePathNoPin.body)
+        assertHosted(singlePathNoPin)
 
         // Single section explicit pinSectionHeaders: true
         let singlePathWithPin = CraftLearningPath(section: section, pinSectionHeaders: true)
         XCTAssertTrue(singlePathWithPin.pinSectionHeaders)
-        XCTAssertNotNil(singlePathWithPin.body)
+        assertHosted(singlePathWithPin)
 
         // Multi section init defaults pinSectionHeaders to false
         let multiPathDefault = CraftLearningPath(sections: [section])
         XCTAssertFalse(multiPathDefault.pinSectionHeaders)
-        XCTAssertNotNil(multiPathDefault.body)
+        assertHosted(multiPathDefault)
 
         // Multi section explicit pinSectionHeaders: false
         let multiPathNoPin = CraftLearningPath(sections: [section], pinSectionHeaders: false)
         XCTAssertFalse(multiPathNoPin.pinSectionHeaders)
-        XCTAssertNotNil(multiPathNoPin.body)
+        assertHosted(multiPathNoPin)
 
         // Multi section explicit pinSectionHeaders: true
         let multiPathWithPin = CraftLearningPath(sections: [section], pinSectionHeaders: true)
         XCTAssertTrue(multiPathWithPin.pinSectionHeaders)
-        XCTAssertNotNil(multiPathWithPin.body)
+        assertHosted(multiPathWithPin)
 
         // Single section with rowPattern init defaults pinSectionHeaders to false
         let customRowSingleDefault = CraftLearningPath(section: section, rowPattern: .wave)
@@ -1453,7 +1454,7 @@ final class CraftLearningPathTests: XCTestCase {
             nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
         )
         let path = CraftLearningPath(sections: [section])
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
     }
 
     func testLearningPathActiveNodeResolution() {
@@ -1784,7 +1785,7 @@ final class CraftLearningPathTests: XCTestCase {
                 onStart: { _ in },
                 onDismiss: { }
             )
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
     }
 
@@ -1797,7 +1798,7 @@ final class CraftLearningPathTests: XCTestCase {
             kind: .checkpoint
         )
         let cpSheet = CraftLessonDetailSheet(node: checkpointNode)
-        XCTAssertNotNil(cpSheet.body)
+        assertHosted(cpSheet)
 
         let treasureChestNode = LessonNodeModel(
             id: "tc_body",
@@ -1807,7 +1808,7 @@ final class CraftLearningPathTests: XCTestCase {
             kind: .treasureChest
         )
         let tcSheet = CraftLessonDetailSheet(node: treasureChestNode)
-        XCTAssertNotNil(tcSheet.body)
+        assertHosted(tcSheet)
 
         let emptySubtitleNode = LessonNodeModel(
             id: "empty_sub",
@@ -1816,7 +1817,7 @@ final class CraftLearningPathTests: XCTestCase {
             state: .upcoming
         )
         let emptySubSheet = CraftLessonDetailSheet(node: emptySubtitleNode)
-        XCTAssertNotNil(emptySubSheet.body)
+        assertHosted(emptySubSheet)
     }
 
     @MainActor
@@ -1901,7 +1902,7 @@ final class CraftLearningPathTests: XCTestCase {
             onStart: { _ in },
             onDismiss: { dismissed = true }
         )
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
         sheet.onDismiss?()
         XCTAssertTrue(dismissed)
     }
@@ -2095,12 +2096,12 @@ final class CraftLearningPathTests: XCTestCase {
             scrollToActive: true,
             showCelebration: true
         )
-        XCTAssertNotNil(populatedPath.body)
+        assertHosted(populatedPath)
 
         // Empty path body
         let emptyPath = CraftLearningPath(sections: [])
         XCTAssertTrue(emptyPath.isEmpty)
-        XCTAssertNotNil(emptyPath.body)
+        assertHosted(emptyPath)
     }
 
     // MARK: - Catalog Winding and Showcase Tests
@@ -2249,7 +2250,7 @@ final class CraftLearningPathTests: XCTestCase {
             badgeCount: 2
         )
         let nodeView = CraftLessonNode(model: activeStandard, calloutText: "TIẾP TỤC")
-        XCTAssertNotNil(nodeView.body)
+        assertHosted(nodeView)
         XCTAssertEqual(nodeView.calloutText, "TIẾP TỤC")
         XCTAssertEqual(nodeView.model.state, .active)
 
@@ -2263,22 +2264,22 @@ final class CraftLearningPathTests: XCTestCase {
             xpReward: 100
         )
         let checkpointNodeView = CraftLessonNode(model: activeCheckpoint)
-        XCTAssertNotNil(checkpointNodeView.body)
+        assertHosted(checkpointNodeView)
     }
 
     func testBreathingConnectorViewWithGradient() {
         let from = CGPoint(x: 100, y: 150)
         let to = CGPoint(x: 180, y: 300)
         let breathing = BreathingConnectorView(from: from, to: to)
-        XCTAssertNotNil(breathing.body)
+        assertHosted(breathing)
 
         let customBreathing = BreathingConnectorView(from: from, to: to, color: .orange)
-        XCTAssertNotNil(customBreathing.body)
+        assertHosted(customBreathing)
     }
 
     func testCraftCatalogViewInstantiation() {
         let catalog = CraftCatalogView()
-        XCTAssertNotNil(catalog.body)
+        assertHosted(catalog)
     }
 
     // MARK: - Task 3: Hairpin Arcs Geometry & Snake Dotted Path Renderer Tests
@@ -2472,28 +2473,28 @@ final class CraftLearningPathTests: XCTestCase {
             fromState: .completed,
             toState: .completed
         )
-        XCTAssertNotNil(viewCompleted.body)
+        assertHosted(viewCompleted)
 
         let viewActive = CraftSnakeDottedSegmentView(
             segment: seg,
             fromState: .completed,
             toState: .active
         )
-        XCTAssertNotNil(viewActive.body)
+        assertHosted(viewActive)
 
         let viewUpcoming = CraftSnakeDottedSegmentView(
             segment: seg,
             fromState: .active,
             toState: .upcoming
         )
-        XCTAssertNotNil(viewUpcoming.body)
+        assertHosted(viewUpcoming)
 
         let viewLocked = CraftSnakeDottedSegmentView(
             segment: seg,
             fromState: .upcoming,
             toState: .locked
         )
-        XCTAssertNotNil(viewLocked.body)
+        assertHosted(viewLocked)
 
         let customView = CraftSnakeDottedSegmentView(
             segment: seg,
@@ -2503,7 +2504,7 @@ final class CraftLearningPathTests: XCTestCase {
             dotSpacing: 8.0,
             customColor: .purple
         )
-        XCTAssertNotNil(customView.body)
+        assertHosted(customView)
         XCTAssertEqual(customView.dotDiameter, 6.0)
         XCTAssertEqual(customView.dotSpacing, 8.0)
         XCTAssertEqual(customView.customColor, .purple)
@@ -2555,7 +2556,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(row.nodes.first?.id, "snake_n1")
         XCTAssertEqual(row.node.id, "snake_n1")
         XCTAssertEqual(row.arrangement, .single)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
 
         row.onNodeTap?(node)
         XCTAssertEqual(tapped?.id, "snake_n1")
@@ -2576,7 +2577,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(row.nodes[0].id, "snake_left")
         XCTAssertEqual(row.nodes[1].id, "snake_right")
         XCTAssertEqual(row.arrangement, .pair)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
     }
 
     func testCraftLessonRowSnakeRowLayoutTripleNodes() {
@@ -2594,7 +2595,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(row.rowLayout?.id, "row_triple")
         XCTAssertEqual(row.nodes.count, 3)
         XCTAssertEqual(row.arrangement, .triple)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
     }
 
     func testCraftLessonRowSnakeRowLayoutEquatability() {
@@ -2641,11 +2642,11 @@ final class CraftLearningPathTests: XCTestCase {
         )
 
         XCTAssertNotNil(nodeView)
-        XCTAssertNotNil(nodeView.body)
+        assertHosted(nodeView)
         XCTAssertEqual(nodeView.model.id, "aesthetic_node")
         XCTAssertEqual(nodeView.calloutText, "TIẾP TỤC")
-        XCTAssertEqual(nodeView.nodeDiameter, 64)
-        XCTAssertEqual(nodeView.iconSize, 26)
+        assertHosted(nodeView) { XCTAssertEqual($0.nodeDiameter, 64) }
+        assertHosted(nodeView) { XCTAssertEqual($0.iconSize, 26) }
         XCTAssertEqual(nodeView.metadataText, "10 bài học • 3 phút")
         XCTAssertEqual(nodeView.accessibilityTraits, .isButton)
         XCTAssertTrue(nodeView.accessibilityLabelText.contains("Advanced Grammar"))
@@ -2688,7 +2689,7 @@ final class CraftLearningPathTests: XCTestCase {
             stars: 3
         )
         let nodeView = CraftLessonNode(model: node)
-        XCTAssertNotNil(nodeView.body)
+        assertHosted(nodeView)
         XCTAssertEqual(nodeView.model.id, "node_anchor_test")
     }
 
@@ -2775,7 +2776,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(tappedNode?.id, "node_3")
 
         // View body rendering
-        XCTAssertNotNil(sectionView.body)
+        assertHosted(sectionView)
     }
 
     func testCraftLessonSectionViewWaveRowLayoutPartitioning() {
@@ -2867,7 +2868,7 @@ final class CraftLearningPathTests: XCTestCase {
         path.onStartLesson?(sec1Nodes[2])
         XCTAssertEqual(started?.id, "s1_n3")
 
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
     }
 
     func testCraftLearningPathActiveNodeResolutionAcrossSections() {
@@ -2943,9 +2944,9 @@ final class CraftLearningPathTests: XCTestCase {
                 stars: stars
             )
             let node = CraftLessonNode(model: model)
-            XCTAssertNotNil(node.body)
+            assertHosted(node)
             XCTAssertEqual(node.model.stars, stars)
-            XCTAssertEqual(node.nodeDiameter, 52)
+            assertHosted(node) { XCTAssertEqual($0.nodeDiameter, 52) }
             XCTAssertEqual(node.accessibilityTraits, .isButton)
             XCTAssertEqual(node.accessibilityHintText, "Double tap to review")
         }
@@ -2959,7 +2960,7 @@ final class CraftLearningPathTests: XCTestCase {
         )
         let noStarNode = CraftLessonNode(model: noStarModel)
         XCTAssertNil(noStarNode.model.stars)
-        XCTAssertNotNil(noStarNode.body)
+        assertHosted(noStarNode)
     }
 
     func testCraftLessonNodeStateTransitionsAndKindVariations() {
@@ -2977,7 +2978,7 @@ final class CraftLearningPathTests: XCTestCase {
                     xpReward: 30
                 )
                 let node = CraftLessonNode(model: model)
-                XCTAssertNotNil(node.body)
+                assertHosted(node)
                 XCTAssertEqual(node.model.kind, kind)
                 XCTAssertEqual(node.model.state, state)
                 XCTAssertFalse(node.accessibilityLabelText.isEmpty)
@@ -3220,7 +3221,7 @@ final class CraftLearningPathTests: XCTestCase {
                         metricText: "+50 XP"
                     )
                     let node = CraftPathNode(model: model) { _ in }
-                    XCTAssertNotNil(node.body)
+                    assertHosted(node)
                     XCTAssertEqual(node.model.shape, shape)
                     XCTAssertEqual(node.model.surfaceStyle, surface)
                     XCTAssertEqual(node.model.state, state)
@@ -3237,12 +3238,12 @@ final class CraftLearningPathTests: XCTestCase {
         let locked = CraftPathNode(model: CraftPathNodeModel(id: "l", title: "L", state: .locked))
         let bonus = CraftPathNode(model: CraftPathNodeModel(id: "b", title: "B", state: .bonus, metricText: "+100 XP"))
 
-        XCTAssertEqual(completed.nodeDiameter, 52)
-        XCTAssertEqual(active.nodeDiameter, 64)
-        XCTAssertEqual(inProgress.nodeDiameter, 56)
-        XCTAssertEqual(upcoming.nodeDiameter, 48)
-        XCTAssertEqual(locked.nodeDiameter, 48)
-        XCTAssertEqual(bonus.nodeDiameter, 56)
+        assertHosted(completed) { XCTAssertEqual($0.nodeDiameter, 52) }
+        assertHosted(active) { XCTAssertEqual($0.nodeDiameter, 64) }
+        assertHosted(inProgress) { XCTAssertEqual($0.nodeDiameter, 56) }
+        assertHosted(upcoming) { XCTAssertEqual($0.nodeDiameter, 48) }
+        assertHosted(locked) { XCTAssertEqual($0.nodeDiameter, 48) }
+        assertHosted(bonus) { XCTAssertEqual($0.nodeDiameter, 56) }
 
         XCTAssertTrue(completed.accessibilityTraits.contains(.isButton))
         XCTAssertFalse(locked.accessibilityTraits.contains(.isButton))
@@ -3274,7 +3275,7 @@ final class CraftLearningPathTests: XCTestCase {
             tappedNodeId = tapped.id
         }
 
-        XCTAssertNotNil(sectionView.body)
+        assertHosted(sectionView)
         XCTAssertEqual(sectionView.section.id, "j_sec_1")
         XCTAssertEqual(sectionView.section.nodes.count, 5)
         XCTAssertNil(tappedNodeId)
@@ -3466,7 +3467,7 @@ final class CraftLearningPathTests: XCTestCase {
             onTabBarPresentationChange: { _ in }
         )
 
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
         XCTAssertNotNil(path.onTabBarPresentationChange)
     }
 
@@ -3598,12 +3599,12 @@ final class CraftLearningPathTests: XCTestCase {
                 Text("Custom: \(s.title)")
             }
         )
-        XCTAssertNotNil(pathWithCustomHUD.body)
+        assertHosted(pathWithCustomHUD)
 
         let pathWithDefaultHUD = CraftLearningPath(
             sections: [section]
         )
-        XCTAssertNotNil(pathWithDefaultHUD.body)
+        assertHosted(pathWithDefaultHUD)
     }
 
     // MARK: - Task 2: Scroll Stabilization & Auto-Scroll Tests
@@ -3629,7 +3630,7 @@ final class CraftLearningPathTests: XCTestCase {
 
         XCTAssertTrue(path.scrollToActive)
         XCTAssertEqual(path.activeNodeID, "node_2")
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
 
         path.onAutoScrolled?("node_2")
         XCTAssertEqual(autoScrolledTarget, "node_2")
@@ -3650,7 +3651,7 @@ final class CraftLearningPathTests: XCTestCase {
 
         XCTAssertFalse(path.scrollToActive)
         XCTAssertEqual(path.activeNodeID, "node_1")
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
     }
 
     func testCraftLearningPathMultiSectionActiveNodeResolutionForStabilization() {
@@ -3677,7 +3678,7 @@ final class CraftLearningPathTests: XCTestCase {
         )
 
         XCTAssertEqual(path.activeNodeID, "u2_n1")
-        XCTAssertNotNil(path.body)
+        assertHosted(path)
     }
 }
 

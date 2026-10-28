@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftCountdownTimerBarTests: XCTestCase {
 
     // MARK: - Stage Derivation Tests
@@ -117,9 +118,9 @@ final class CraftCountdownTimerBarTests: XCTestCase {
 
     func testViewBodyRendersWithoutCrash() {
         let fractionBar = CraftCountdownTimerBar(progress: 0.5)
-        XCTAssertNotNil(fractionBar.body)
+        assertHosted(fractionBar)
 
         let timeBar = CraftCountdownTimerBar(timeLimit: 10)
-        XCTAssertNotNil(timeBar.body)
+        assertHosted(timeBar)
     }
 }

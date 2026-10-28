@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class MetricsProgressionTests: XCTestCase {
 
     // MARK: - CraftSegmentItem Tests
@@ -103,7 +104,7 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertTrue(bar.showLegend)
         XCTAssertFalse(bar.showPercentages)
         XCTAssertFalse(bar.animated)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testSegmentedBarWithLocalizedItems() {
@@ -113,7 +114,7 @@ final class MetricsProgressionTests: XCTestCase {
         ]
         let bar = CraftSegmentedBar(items: items)
         XCTAssertEqual(bar.totalValue, 100)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     // MARK: - CraftStepState Tests
@@ -132,7 +133,7 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertFalse(completed.isLast)
         XCTAssertNil(completed.subtitle)
         XCTAssertNil(completed.onTap)
-        XCTAssertNotNil(completed.body)
+        assertHosted(completed)
     }
 
     func testStepNodeFullConfiguration() {
@@ -152,7 +153,7 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertEqual(activeNode.stepNumber, 3)
         XCTAssertFalse(activeNode.isLast)
         XCTAssertNotNil(activeNode.onTap)
-        XCTAssertNotNil(activeNode.body)
+        assertHosted(activeNode)
 
         activeNode.onTap?()
         XCTAssertTrue(tapped)
@@ -167,7 +168,7 @@ final class MetricsProgressionTests: XCTestCase {
             isLast: false
         )
         XCTAssertEqual(lockedNode.state, .locked)
-        XCTAssertNotNil(lockedNode.body)
+        assertHosted(lockedNode)
 
         let upcomingNode = CraftStepNode(
             title: "Final Review",
@@ -177,7 +178,7 @@ final class MetricsProgressionTests: XCTestCase {
         )
         XCTAssertEqual(upcomingNode.state, .upcoming)
         XCTAssertTrue(upcomingNode.isLast)
-        XCTAssertNotNil(upcomingNode.body)
+        assertHosted(upcomingNode)
     }
 
     func testStepNodeLocalization() {
@@ -194,7 +195,7 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertNil(node.subtitle)
         XCTAssertEqual(node.state, .active)
         XCTAssertEqual(node.stepNumber, 2)
-        XCTAssertNotNil(node.body)
+        assertHosted(node)
 
         node.onTap?()
         XCTAssertTrue(tapped)
@@ -210,7 +211,7 @@ final class MetricsProgressionTests: XCTestCase {
                 isLast: state == .upcoming,
                 onTap: state == .locked ? nil : { }
             )
-            XCTAssertNotNil(node.body)
+            assertHosted(node)
             XCTAssertEqual(node.state, state)
             XCTAssertEqual(node.stepNumber, 1)
             XCTAssertEqual(node.title, "Step \(state.rawValue)")
@@ -288,13 +289,13 @@ final class MetricsProgressionTests: XCTestCase {
 
     func testSegmentedBarAccessibilitySummary() {
         let emptyBar = CraftSegmentedBar(items: [])
-        XCTAssertNotNil(emptyBar.body)
+        assertHosted(emptyBar)
 
         let items = [
             CraftSegmentItem(label: "Mastered", value: 70, color: .green),
             CraftSegmentItem(label: "Learning", value: 30, color: .blue)
         ]
         let bar = CraftSegmentedBar(items: items)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 }

@@ -25,6 +25,7 @@ struct CustomStringTab: CraftTabItemProtocol {
     let symbol: String
 }
 
+@MainActor
 final class NavigationTests: XCTestCase {
 
     func testFloatingTabBarDefaultsToExpandedPresentation() {
@@ -56,7 +57,7 @@ final class NavigationTests: XCTestCase {
             bar.centerActionHitTargetDiameter,
             bar.resolvedSize.centerButtonDiameter(position: .floating)
         )
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testFloatingTabBarNativeGlassRequiresTransparency() {
@@ -171,7 +172,7 @@ final class NavigationTests: XCTestCase {
                 centerSymbol: "plus"
             )
             XCTAssertEqual(bar.style, style)
-            XCTAssertNotNil(bar.body)
+            assertHosted(bar)
         }
     }
 
@@ -192,7 +193,7 @@ final class NavigationTests: XCTestCase {
             centerTitleKey: LocalizedStringKey("tab_center_title")
         )
         XCTAssertNil(bar.centerTitle)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testCraftTabItemModel() {
@@ -256,7 +257,7 @@ final class NavigationTests: XCTestCase {
             items: tabs,
             style: .glass
         )
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testFloatingTabBarBodyRendering() {
@@ -270,7 +271,7 @@ final class NavigationTests: XCTestCase {
 
         // Standard bar
         let standardBar = CraftFloatingTabBar(selectedItem: binding, items: tabs)
-        XCTAssertNotNil(standardBar.body)
+        assertHosted(standardBar)
 
         // Elevated center FAB bar
         let fabBar = CraftFloatingTabBar(
@@ -281,7 +282,7 @@ final class NavigationTests: XCTestCase {
             centerSymbol: "plus",
             centerTitle: "Create"
         )
-        XCTAssertNotNil(fabBar.body)
+        assertHosted(fabBar)
     }
 
     func testFloatingTabBarWithBadge() {
@@ -300,7 +301,7 @@ final class NavigationTests: XCTestCase {
         let bar = CraftFloatingTabBar(selectedItem: Binding(get: { selected }, set: { selected = $0 }), items: items)
         XCTAssertEqual(bar.items[0].badgeCount, nil)
         XCTAssertEqual(bar.items[1].badgeCount, 5)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testTabProtocolProperties() {
@@ -348,7 +349,7 @@ final class NavigationTests: XCTestCase {
             centerSymbol: "sparkles",
             centerTitle: "AI"
         )
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
         XCTAssertNotNil(bar.centerAction)
         bar.centerAction?()
         XCTAssertTrue(fabTriggered)
@@ -362,7 +363,7 @@ final class NavigationTests: XCTestCase {
         var selected = iconOnlyTabs[0]
         let binding = Binding(get: { selected }, set: { selected = $0 })
         let bar = CraftFloatingTabBar(selectedItem: binding, items: iconOnlyTabs, style: .glass)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
         XCTAssertEqual(bar.items[0].title, "")
     }
 
@@ -376,7 +377,7 @@ final class NavigationTests: XCTestCase {
         let bar = CraftFloatingTabBar(selectedItem: binding, items: tabs)
         XCTAssertFalse(bar.items[0].showsTitle)
         XCTAssertTrue(bar.items[1].showsTitle)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testCraftTabBarItemPreferenceKey() {
@@ -392,12 +393,12 @@ final class NavigationTests: XCTestCase {
         let pillGlass = CraftSlidingFluidPill(style: .glass, isTransitioning: false)
         XCTAssertEqual(pillGlass.style, .glass)
         XCTAssertFalse(pillGlass.isTransitioning)
-        XCTAssertNotNil(pillGlass.body)
+        assertHosted(pillGlass)
 
         let pillElevated = CraftSlidingFluidPill(style: .elevated, isTransitioning: true)
         XCTAssertEqual(pillElevated.style, .elevated)
         XCTAssertTrue(pillElevated.isTransitioning)
-        XCTAssertNotNil(pillElevated.body)
+        assertHosted(pillElevated)
     }
 
     func testFloatingTabBarAccessibilityWithLocalizedStringKey() {
@@ -408,7 +409,7 @@ final class NavigationTests: XCTestCase {
         var selected = localizedTabs[0]
         let binding = Binding(get: { selected }, set: { selected = $0 })
         let bar = CraftFloatingTabBar(selectedItem: binding, items: localizedTabs)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testFloatingTabBarAccessibilityIconOnlyWithExplicitTitle() {
@@ -417,7 +418,7 @@ final class NavigationTests: XCTestCase {
         let bar = CraftFloatingTabBar(selectedItem: binding, items: [tab])
         XCTAssertFalse(bar.items[0].showsTitle)
         XCTAssertEqual(bar.items[0].title, "Learn Vocabulary")
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     func testFloatingTabBarAllSurfaceStylesWithCenterAction() {
@@ -438,7 +439,7 @@ final class NavigationTests: XCTestCase {
                 centerTitle: "Add"
             )
             XCTAssertEqual(bar.style, style)
-            XCTAssertNotNil(bar.body)
+            assertHosted(bar)
         }
     }
 
@@ -460,7 +461,7 @@ final class NavigationTests: XCTestCase {
             centerSymbol: "plus"
         )
         XCTAssertEqual(floatingBar.centerPosition, .floating)
-        XCTAssertNotNil(floatingBar.body)
+        assertHosted(floatingBar)
 
         // Inline FAB position
         let inlineBar = CraftFloatingTabBar(
@@ -472,7 +473,7 @@ final class NavigationTests: XCTestCase {
             centerSymbol: "plus"
         )
         XCTAssertEqual(inlineBar.centerPosition, .inline)
-        XCTAssertNotNil(inlineBar.body)
+        assertHosted(inlineBar)
     }
 
     func testCraftTabBarSizeScale() {
@@ -525,7 +526,7 @@ final class NavigationTests: XCTestCase {
                 centerSymbol: "plus"
             )
             XCTAssertEqual(bar.size, size)
-            XCTAssertNotNil(bar.body)
+            assertHosted(bar)
         }
     }
 

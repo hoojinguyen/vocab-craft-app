@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftActionCardTests: XCTestCase {
 
     // MARK: - Initializer Tests
@@ -28,8 +29,8 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertEqual(card.badgeText, "6.0s")
         XCTAssertEqual(card.badgeIcon, "stopwatch.fill")
         XCTAssertEqual(card.showChevron, true)
-        XCTAssertEqual(card.resolvedStyle, .outlined)
-        XCTAssertNotNil(card.body)
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .outlined) }
+        assertHosted(card)
 
         card.action()
         XCTAssertTrue(tapped)
@@ -47,8 +48,8 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertEqual(card.title, "Streak")
         XCTAssertEqual(card.symbol, .streak)
         XCTAssertEqual(card.iconName, CraftSymbol.streak.rawValue)
-        XCTAssertEqual(card.resolvedStyle, .tactile3D)
-        XCTAssertNotNil(card.body)
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .tactile3D) }
+        assertHosted(card)
     }
 
     func testLocalizedStringKeyInitializers() {
@@ -74,8 +75,8 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertEqual(card.badgeIcon, "sparkles")
         XCTAssertFalse(card.showChevron)
         XCTAssertEqual(card.cornerRadius, 16)
-        XCTAssertEqual(card.resolvedStyle, .elevated)
-        XCTAssertNotNil(card.body)
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .elevated) }
+        assertHosted(card)
 
         card.action()
         XCTAssertTrue(tapped)
@@ -97,8 +98,8 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertNil(card.subtitle)
         XCTAssertEqual(card.symbol, .practice)
         XCTAssertEqual(card.iconName, CraftSymbol.practice.rawValue)
-        XCTAssertEqual(card.resolvedStyle, .glass)
-        XCTAssertNotNil(card.body)
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .glass) }
+        assertHosted(card)
     }
 
     // MARK: - Surface Style Resolution Tests
@@ -109,7 +110,7 @@ final class CraftActionCardTests: XCTestCase {
             style: .glass
         ) {}
 
-        XCTAssertEqual(card.resolvedStyle, .glass)
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .glass) }
     }
 
     func testAllSurfaceStylesRendering() {
@@ -123,8 +124,8 @@ final class CraftActionCardTests: XCTestCase {
                 style: surfaceStyle
             ) {}
 
-            XCTAssertEqual(card.resolvedStyle, surfaceStyle)
-            XCTAssertNotNil(card.body)
+            assertHosted(card) { XCTAssertEqual($0.resolvedStyle, surfaceStyle) }
+            assertHosted(card)
         }
     }
 
@@ -144,7 +145,7 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertNil(card.badgeText)
         XCTAssertNil(card.badgeIcon)
         XCTAssertFalse(card.showChevron)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCustomCornerRadiusAndAccent() {
@@ -157,7 +158,7 @@ final class CraftActionCardTests: XCTestCase {
 
         XCTAssertEqual(card.cornerRadius, 28)
         XCTAssertEqual(card.accentColor, customColor)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCustomTrailingIconAndSymbol() {
@@ -168,7 +169,7 @@ final class CraftActionCardTests: XCTestCase {
 
         XCTAssertEqual(cardWithCustomIconName.trailingIconName, "arrow.right")
         XCTAssertNil(cardWithCustomIconName.trailingSymbol)
-        XCTAssertNotNil(cardWithCustomIconName.body)
+        assertHosted(cardWithCustomIconName)
 
         let cardWithCustomSymbol = CraftActionCard(
             title: "Custom Trailing Symbol",
@@ -176,7 +177,7 @@ final class CraftActionCardTests: XCTestCase {
         ) {}
 
         XCTAssertEqual(cardWithCustomSymbol.trailingSymbol, .streak)
-        XCTAssertNotNil(cardWithCustomSymbol.body)
+        assertHosted(cardWithCustomSymbol)
     }
 
     // MARK: - Button Style Tests

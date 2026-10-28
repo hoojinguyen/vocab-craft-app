@@ -27,7 +27,7 @@ final class SettingsViewTests: XCTestCase {
         XCTAssertEqual(card.userLevel, "B2 Intermediate")
         card.onTapAction?()
         XCTAssertTrue(tapped)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testSettingsViewBodyRendering() {
@@ -35,8 +35,7 @@ final class SettingsViewTests: XCTestCase {
         let tts = MockTextToSpeechService()
         let vm = SettingsViewModel(store: store, ttsService: tts)
         let view = SettingsView(viewModel: vm)
-        let body = view.body
-        XCTAssertNotNil(body)
+        assertHosted(view)
     }
 
     func testSettingsViewNotificationEnabledBodyRendering() {
@@ -45,8 +44,7 @@ final class SettingsViewTests: XCTestCase {
         let tts = MockTextToSpeechService()
         let vm = SettingsViewModel(store: store, ttsService: tts)
         let view = SettingsView(viewModel: vm)
-        let body = view.body
-        XCTAssertNotNil(body)
+        assertHosted(view)
     }
 
     func testSettingsViewAudioPlayingBodyRendering() {
@@ -55,8 +53,7 @@ final class SettingsViewTests: XCTestCase {
         let vm = SettingsViewModel(store: store, ttsService: tts)
         vm.isPlayingAudio = true
         let view = SettingsView(viewModel: vm)
-        let body = view.body
-        XCTAssertNotNil(body)
+        assertHosted(view)
     }
 
     func testThemePresetBindingInteraction() {
@@ -148,8 +145,7 @@ final class SettingsViewTests: XCTestCase {
 
     func testProfileStatsSheetBodyRendering() {
         let sheet = ProfileStatsSheet()
-        let body = sheet.body
-        XCTAssertNotNil(body)
+        assertHosted(sheet)
     }
 
     func testSettingsViewStructureContainsFiveSections() {
@@ -157,7 +153,7 @@ final class SettingsViewTests: XCTestCase {
         let tts = MockTextToSpeechService()
         let vm = SettingsViewModel(store: store, ttsService: tts)
         let view = SettingsView(viewModel: vm)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testHeroProfileCardDynamicLevelRendering() {
@@ -170,7 +166,7 @@ final class SettingsViewTests: XCTestCase {
             userLevel: vm.store.assessedCefrLevel
         )
         XCTAssertEqual(card.userLevel, "C1 Advanced")
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testSettingsViewDataSectionClearCache() {
