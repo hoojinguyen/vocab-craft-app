@@ -8,18 +8,13 @@ import SwiftData
 extension KeyPath: @unchecked @retroactive Sendable {}
 
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
-public typealias UserWordProgress = SchemaV3.UserWordProgress
-public typealias UserStageProgress = SchemaV3.UserStageProgress
-public typealias ReflexSessionLog = SchemaV3.ReflexSessionLog
-public typealias QuickReflexAttemptRecord = SchemaV3.QuickReflexAttemptRecord
-public typealias WidgetCurrentState = SchemaV3.WidgetCurrentState
-
-public typealias PracticeSessionRecord = SchemaV3.PracticeSessionRecord
-public typealias PracticeTurnRecord = SchemaV3.PracticeTurnRecord
-public typealias SupportExposureRecord = SchemaV3.SupportExposureRecord
-public typealias PracticePresentationRecord = SchemaV3.PracticePresentationRecord
-public typealias WordUseEvidenceRecord = SchemaV3.WordUseEvidenceRecord
-public typealias CommunicationProgressRecord = SchemaV3.CommunicationProgressRecord
+public typealias UserWordProgress = SchemaV4.UserWordProgress
+public typealias UserStageProgress = SchemaV4.UserStageProgress
+public typealias ReflexSessionLog = SchemaV4.ReflexSessionLog
+public typealias QuickReflexAttemptRecord = SchemaV4.QuickReflexAttemptRecord
+public typealias WidgetCurrentState = SchemaV4.WidgetCurrentState
+public typealias SpeakingSessionRecord = SchemaV4.SpeakingSessionRecord
+public typealias SavedPhraseRecord = SchemaV4.SavedPhraseRecord
 #else
 public final class UserWordProgress: @unchecked Sendable {
     public var wordId: Int64

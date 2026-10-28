@@ -418,6 +418,12 @@
 		90000000000000000000000A /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000007 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 		900000000000000000000008 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
+		B40000000000000000000001 /* AppSchemaV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* AppSchemaV4.swift */; };
+		B40000000000000000000002 /* SpeakingModelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000002 /* SpeakingModelActor.swift */; };
+		B40000000000000000000003 /* SpeakingRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */; };
+		B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000004 /* SpeakingRepositoryTests.swift */; };
+		B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000005 /* SchemaV4MigrationTests.swift */; };
+		B40000000000000000000006 /* AppSchemaV4.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* AppSchemaV4.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -837,6 +843,11 @@
 		20002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActorConcurrencyTests.swift"; sourceTree = "<group>"; };
 		2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStoreTests.swift"; sourceTree = "<group>"; };
 		200084512C285C79A09D /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetIntentsTests.swift"; sourceTree = "<group>"; };
+		A40000000000000000000001 /* AppSchemaV4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV4.swift"; sourceTree = "<group>"; };
+		A40000000000000000000002 /* SpeakingModelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeakingModelActor.swift"; sourceTree = "<group>"; };
+		A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		A40000000000000000000004 /* SpeakingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryTests.swift"; sourceTree = "<group>"; };
+		A40000000000000000000005 /* SchemaV4MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/SchemaV4MigrationTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1073,6 +1084,7 @@
 				20008B2D46F266C6CB6D /* AppSchemaV1.swift */,
 				20000F28552F24FC2B4D /* AppSchemaV2.swift */,
 				20003A5000010001 /* AppSchemaV3.swift */,
+				A40000000000000000000001 /* AppSchemaV4.swift */,
 			);
 			path = "Schemas";
 			sourceTree = "<group>";
@@ -1127,6 +1139,7 @@
 			isa = PBXGroup;
 			children = (
 				4000A57F181DD4A46E83 /* Audio */,
+				C40000000000000000000001 /* Speaking */,
 				40005E3A3F7D00010000 /* DataSources */,
 				40009A7A10F832BFCD13 /* Local */,
 				40001FE94D3B22BA736B /* Repositories */,
@@ -1182,6 +1195,7 @@
 				A30000000000000000000003 /* SpeakingPromptBuilder.swift */,
 				A30000000000000000000002 /* SpeakingAnalysis.swift */,
 				A30000000000000000000001 /* SpeakingModels.swift */,
+				A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */,
 				4000C597CF74B9A0760A /* Entities */,
 				4000260E29F35C2EBCD5 /* Models */,
 				4000731A90F8FB364BE4 /* Policies */,
@@ -1839,6 +1853,8 @@
 			children = (
 				A30000000000000000000007 /* Fixtures */,
 				A30000000000000000000006 /* SpeakingModelsCodableTests.swift */,
+				A40000000000000000000005 /* SchemaV4MigrationTests.swift */,
+				A40000000000000000000004 /* SpeakingRepositoryTests.swift */,
 				A30000000000000000000005 /* SpeakingPromptBuilderTests.swift */,
 				A30000000000000000000004 /* SpeakingFixtures.swift */,
 				40005E3A3F7D00010001 /* Data */,
@@ -2165,6 +2181,14 @@
 			path = "Data";
 			sourceTree = "<group>";
 		};
+		C40000000000000000000001 /* Speaking */ = {
+			isa = PBXGroup;
+			children = (
+				A40000000000000000000002 /* SpeakingModelActor.swift */,
+			);
+			path = Speaking;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2318,6 +2342,7 @@
 				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,
 				B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */,
 				B30000000000000000000001 /* SpeakingModels.swift in Sources */,
+				B40000000000000000000003 /* SpeakingRepositoryProtocol.swift in Sources */,
 				30005E3A3F7D00010001 /* ShadowingWordTimestamp.swift in Sources */,
 				30005E3A3F7D00010002 /* ShadowingCatalogRepositoryProtocol.swift in Sources */,
 				30005E3A3F7D00010003 /* ShadowingSQLiteDatabase.swift in Sources */,
@@ -2359,6 +2384,7 @@
 				30008B2D46F266C6CB6D /* AppSchemaV1.swift in Sources */,
 				30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */,
 				30003A5000010001 /* AppSchemaV3.swift in Sources */,
+				B40000000000000000000001 /* AppSchemaV4.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
 				30003B7000010001 /* WidgetDeck.swift in Sources */,
 				30003B7000010002 /* WidgetDeckStore.swift in Sources */,
@@ -2383,6 +2409,7 @@
 				30005B59AFB2B9B42F98 /* VoiceProfileCatalog.swift in Sources */,
 				3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
+				B40000000000000000000002 /* SpeakingModelActor.swift in Sources */,
 				300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */,
 				30007597124286610F99 /* MockVocabularyDataSource.swift in Sources */,
 				30008C212FC0A55E8C58 /* MockUserProgressRepository.swift in Sources */,
@@ -2565,6 +2592,7 @@
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
 				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
 				30013A5000010001 /* AppSchemaV3.swift in Widget Sources */,
+				B40000000000000000000006 /* AppSchemaV4.swift in Widget Sources */,
 				3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */,
 				3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */,
 				3001A5AF673BCE0FB1CB /* AppLocalized.swift in Widget Sources */,
@@ -2579,6 +2607,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */,
+				B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */,
+				B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */,
 				B30000000000000000000005 /* SpeakingPromptBuilderTests.swift in Sources */,
 				B30000000000000000000004 /* SpeakingFixtures.swift in Sources */,
 				30005E3A3F7D00010006 /* ShadowingCatalogRepositoryTests.swift in Test Sources */,
