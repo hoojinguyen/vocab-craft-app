@@ -174,17 +174,17 @@ struct HomeLocalizationTests {
         let _: LocalizedStringKey = AppStrings.Widget.description
     }
 
-    @Test("Verifies AI Assistant and widget catalog keys integrity")
-    func testSpeakingAndWidgetCatalogKeysIntegrity() throws {
+    @Test("Verifies widget catalog keys integrity")
+    func testWidgetCatalogKeysIntegrity() throws {
         let strings = try loadCatalogStrings()
 
-        let expectedSpeakingAndWidgetKeys: [String: (vi: String, en: String)] = [
+        let expectedWidgetKeys: [String: (vi: String, en: String)] = [
             "app.widget.display_name": ("Widget Phản xạ VocabCraft", "VocabCraft Reflex Widget"),
             "app.widget.badge.review": ("Ôn", "Review"),
             "app.widget.due_count_format": ("Cần ôn: %lld", "Due for review: %lld")
         ]
 
-        for (key, expected) in expectedSpeakingAndWidgetKeys {
+        for (key, expected) in expectedWidgetKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")
             #expect(
                 entry["extractionState"] as? String == "manual",

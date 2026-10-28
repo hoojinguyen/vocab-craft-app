@@ -4,19 +4,20 @@ import Testing
 
 @Suite("ShadowingProgressRepository Tests")
 struct ShadowingProgressRepositoryTests {
-    private func makeRepository(suiteName: String = "test_shadowing_\(UUID().uuidString)") throws -> (ShadowingProgressRepositoryImpl, UserDefaults, String) {
+    private func makeRepository(suiteName: String = "test_shadowing_\(UUID().uuidString)") throws -> (ShadowingProgressRepositoryImpl, String) {
         guard let userDefaults = UserDefaults(suiteName: suiteName) else {
             struct UserDefaultsInitError: Error {}
             throw UserDefaultsInitError()
         }
+        // Transfer this defaults instance to the actor; callers retain only the suite name.
         let repository = ShadowingProgressRepositoryImpl(userDefaults: userDefaults)
-        return (repository, userDefaults, suiteName)
+        return (repository, suiteName)
     }
 
     @Test("Verifies getProgress returns nil for unrecorded video")
     func testGetProgressForUnrecordedVideo() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         let progress = await repo.getProgress(videoId: "unknown_video")
         #expect(progress == nil)
@@ -24,8 +25,8 @@ struct ShadowingProgressRepositoryTests {
 
     @Test("Verifies recording completion creates progress record")
     func testRecordCompletionCreatesRecord() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         let beforeTime = Date().addingTimeInterval(-1)
         try await repo.recordCompletion(
@@ -49,8 +50,8 @@ struct ShadowingProgressRepositoryTests {
 
     @Test("Verifies higher score updates bestScore and increments timesCompleted")
     func testHigherScoreUpdatesBestScore() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         try await repo.recordCompletion(videoId: "vid_01", score: 75.0, sentenceScores: ["s_1": 75.0])
         try await repo.recordCompletion(videoId: "vid_01", score: 92.5, sentenceScores: ["s_1": 92.5])
@@ -63,8 +64,8 @@ struct ShadowingProgressRepositoryTests {
 
     @Test("Verifies lower score keeps previous bestScore while incrementing timesCompleted")
     func testLowerScoreRetainsBestScore() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         try await repo.recordCompletion(videoId: "vid_01", score: 95.0, sentenceScores: ["s_1": 95.0])
         try await repo.recordCompletion(videoId: "vid_01", score: 80.0, sentenceScores: ["s_2": 80.0])
@@ -78,8 +79,8 @@ struct ShadowingProgressRepositoryTests {
 
     @Test("Verifies sentenceScores merging across attempts")
     func testSentenceScoresMerging() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         try await repo.recordCompletion(videoId: "vid_01", score: 70.0, sentenceScores: ["s_1": 80.0, "s_2": 60.0])
         try await repo.recordCompletion(videoId: "vid_01", score: 85.0, sentenceScores: ["s_2": 90.0, "s_3": 85.0])
@@ -90,8 +91,8 @@ struct ShadowingProgressRepositoryTests {
 
     @Test("Verifies getAllProgress returns all recorded videos")
     func testGetAllProgress() async throws {
-        let (repo, defaults, suiteName) = try makeRepository()
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let (repo, suiteName) = try makeRepository()
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
         let initialProgress = await repo.getAllProgress()
         #expect(initialProgress.isEmpty)
@@ -108,16 +109,12 @@ struct ShadowingProgressRepositoryTests {
     @Test("Verifies progress persists across repository instances")
     func testProgressPersistsAcrossInstances() async throws {
         let suiteName = "test_shadowing_\(UUID().uuidString)"
-        guard let defaults = UserDefaults(suiteName: suiteName) else {
-            struct UserDefaultsInitError: Error {}
-            throw UserDefaultsInitError()
-        }
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defer { UserDefaults(suiteName: suiteName)?.removePersistentDomain(forName: suiteName) }
 
-        let repo1 = ShadowingProgressRepositoryImpl(userDefaults: defaults)
+        let (repo1, _) = try makeRepository(suiteName: suiteName)
         try await repo1.recordCompletion(videoId: "vid_persist", score: 91.0, sentenceScores: ["s_1": 91.0])
 
-        let repo2 = ShadowingProgressRepositoryImpl(userDefaults: defaults)
+        let (repo2, _) = try makeRepository(suiteName: suiteName)
         let record = await repo2.getProgress(videoId: "vid_persist")
         #expect(record?.bestScore == 91.0)
         #expect(record?.timesCompleted == 1)
