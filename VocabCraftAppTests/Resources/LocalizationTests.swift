@@ -85,7 +85,7 @@ extension Bundle {
     }
 }
 
-@Suite("Speaking AI Call Localization Tests")
+@Suite("Speaking placeholder Localization Tests")
 struct LocalizationTests {
     init() {
         Bundle.swizzleLocalizationForTesting()
@@ -93,64 +93,23 @@ struct LocalizationTests {
     }
 
     private let expectedKeys: [String: (en: String, vi: String)] = [
-        "app.ai_call.active_badge": (
-            en: "Live Call",
-            vi: "Đang gọi"
-        ),
-        "app.ai_call.suggested_title": (
-            en: "Suggested Responses",
-            vi: "Gợi ý câu trả lời"
-        ),
-        "app.ai_call.suggested_toggle": (
-            en: "Suggested responses (%lld)",
-            vi: "Gợi ý câu trả lời (%lld)"
-        ),
-        "app.ai_call.suggested_toggle %lld": (
-            en: "Suggested responses (%lld)",
-            vi: "Gợi ý câu trả lời (%lld)"
-        ),
-        "app.ai_call.listen_sample": (
-            en: "Listen to sample pronunciation",
-            vi: "Nghe phát âm mẫu"
-        ),
-        "app.ai_call.finish_speaking": (
-            en: "Tap when finished speaking",
-            vi: "Chạm khi nói xong"
-        ),
-        "app.ai_call.mic_muted": (
-            en: "Microphone muted",
-            vi: "Đã tắt mic"
-        ),
-        "app.ai_call.listening_prompt": (
-            en: "Speak into the microphone...",
-            vi: "Hãy nói vào microphone..."
-        ),
-        "app.ai_call.retry_listening": (
-            en: "Tap to retry microphone",
-            vi: "Chạm để thử lại mic"
+        "app.speaking.hub.title": (en: "Speaking", vi: "Luyện nói"),
+        "app.speaking.hub.coming_soon": (
+            en: "Speaking practice is being rebuilt.",
+            vi: "Tính năng luyện nói đang được xây lại."
         )
     ]
 
-    @Test("Verify Speaking AI Call localization keys exist in EN and VI")
-    func testAICallLocalizationKeysExist() {
-        let keys = [
-            "app.ai_call.active_badge",
-            "app.ai_call.suggested_title",
-            "app.ai_call.suggested_toggle",
-            "app.ai_call.suggested_toggle %lld",
-            "app.ai_call.listen_sample",
-            "app.ai_call.finish_speaking",
-            "app.ai_call.mic_muted",
-            "app.ai_call.listening_prompt",
-            "app.ai_call.retry_listening"
-        ]
+    @Test("Verify Speaking placeholder localization keys exist in EN and VI")
+    func speakingPlaceholderKeysExist() {
+        let keys = Array(expectedKeys.keys)
         for key in keys {
             #expect(Bundle.main.localizedString(forKey: key, value: nil, table: nil) != key)
         }
     }
 
-    @Test("Verify Speaking AI Call bilingual parity and catalog integrity in Localizable.xcstrings")
-    func testAICallCatalogBilingualParity() throws {
+    @Test("Verify Speaking placeholder bilingual parity and catalog integrity in Localizable.xcstrings")
+    func speakingPlaceholderBilingualParity() throws {
         let catalogStrings = try #require(
             CatalogLookup.catalog(),
             "Localizable.xcstrings must be loaded"
@@ -187,16 +146,4 @@ struct LocalizationTests {
         }
     }
 
-    @Test("Verify AppStrings.AICall keys and default English values")
-    func testAppStringsAICallProperties() {
-        #expect(AppStrings.AICall.activeBadgeText == "Live Call")
-        #expect(AppStrings.AICall.suggestedTitleText == "Suggested Responses")
-        #expect(AppStrings.AICall.suggestedToggleText == "Suggested responses (%lld)")
-        #expect(AppStrings.AICall.suggestedToggleText(3) == "Suggested responses (3)")
-        #expect(AppStrings.AICall.listenSampleText == "Listen to sample pronunciation")
-        #expect(AppStrings.AICall.finishSpeakingText == "Tap when finished speaking")
-        #expect(AppStrings.AICall.micMutedText == "Microphone muted")
-        #expect(AppStrings.AICall.listeningPromptText == "Speak into the microphone...")
-        #expect(AppStrings.AICall.retryListeningText == "Tap to retry microphone")
-    }
 }

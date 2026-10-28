@@ -93,11 +93,6 @@ public final class UserSettingsStore {
         !groqApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    public var selectedAIPackId: String {
-        get { defaults.string(forKey: "selectedAIPackId") ?? AIPackIdentifier.appleDefault.rawValue }
-        set { defaults.set(newValue, forKey: "selectedAIPackId") }
-    }
-
     public var appearanceMode: CraftAppearanceMode {
         get { CraftThemeManager.shared.appearanceMode }
         set { CraftThemeManager.shared.setAppearanceMode(newValue) }

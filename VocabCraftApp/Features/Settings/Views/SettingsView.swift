@@ -31,10 +31,7 @@ public struct SettingsView: View {
                     // 3. Audio & Speech Section
                     audioSection
 
-                    // 4. AI Configuration Section
-                    aiSection
-
-                    // 5. Appearance & Feedback Section
+                    // 4. Appearance & Feedback Section
                     appearanceSection
 
                     // 5. Data & Storage Section
@@ -143,13 +140,6 @@ public struct SettingsView: View {
                     viewModel.playRoleplayVoicePreview()
                 }
             )
-        }
-    }
-
-    private var aiSection: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            sectionHeader(AppStrings.Settings.sectionAI)
-            SettingsAICard(store: viewModel.store)
         }
     }
 
@@ -461,73 +451,6 @@ private struct SettingsAudioCard: View {
                 OnDemandAIModelManager.shared.startDownload(for: .kokoro)
             }
             Button(AppStrings.Common.cancel, role: .cancel) {}
-        }
-    }
-}
-
-@MainActor
-public struct SettingsAICard: View {
-    @Environment(\.craftTheme) private var theme
-    @Environment(\.appContainer) private var appContainer
-    @Bindable public var store: UserSettingsStore
-
-    @State private var showConfigSheet: Bool = false
-
-    public init(store: UserSettingsStore) {
-        self.store = store
-    }
-
-    public var body: some View {
-        CraftCard(style: .outlined, padding: 0) {
-            Button {
-                showConfigSheet = true
-            } label: {
-                let activePack = appContainer.aiPackRegistry.activePack
-                let displayName = activePack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
-                let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
-                    guard let status = activePack?.status else {
-                        return (AppStrings.AIPack.statusReady, .neutral)
-                    }
-                    return statusBadgeInfo(for: status)
-                }()
-
-                CraftListRow(
-                    title: AppStrings.AIPack.activePackTitle,
-                    subtitle: LocalizedStringKey(stringLiteral: displayName)
-                ) {
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftBadge(
-                            statusKey,
-                            variant: .subtle,
-                            tone: tone,
-                            size: .sm
-                        )
-
-                        CraftIcon(
-                            .chevronRight,
-                            size: .sm,
-                            color: theme.colors.textMuted
-                        )
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-        }
-        .sheet(isPresented: $showConfigSheet) {
-            AIConfigSheet(store: store)
-        }
-    }
-
-    private func statusBadgeInfo(for status: AIPackStatus) -> (LocalizedStringKey, CraftBadgeTone) {
-        switch status {
-        case .ready:
-            return (AppStrings.AIPack.statusReady, .success)
-        case .needsApiKey:
-            return (AppStrings.AIPack.statusNeedsKey, .warning)
-        case .needsDownload, .partiallyReady:
-            return (AppStrings.AIPack.statusNeedsDownload, .primary)
-        case .unavailable:
-            return (AppStrings.AIPack.statusUnavailable, .neutral)
         }
     }
 }
