@@ -11,11 +11,16 @@ struct SpeakingCaptureSamples: Sendable {
 final class SpeakingAudioCaptureFailureSignal: @unchecked Sendable {
     private let lock = NSLock()
     private var failureCount = 0
+    private var didFail = false
 
     var count: Int { lock.withLock { failureCount } }
+    var hasFailures: Bool { lock.withLock { didFail } }
 
     func recordFailure() {
-        lock.withLock { failureCount += 1 }
+        lock.withLock {
+            failureCount += 1
+            didFail = true
+        }
     }
 }
 
@@ -133,26 +138,29 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         return SpeakingCaptureSamples(sampleRate: buffer.format.sampleRate, channels: channels)
     }
 
-    static func convertedCapturePacket(
+    static func queuedCapturePacket(
         from samples: SpeakingCaptureSamples,
+        isCurrent: () -> Bool,
         failureSignal: SpeakingAudioCaptureFailureSignal,
         convert: (AVAudioPCMBuffer) throws -> Data = { buffer in
             try PCMConverter(inputFormat: buffer.format).pcm16kMono(from: buffer)
         }
     ) -> Data? {
+        guard isCurrent() else { return nil }
         guard let buffer = pcmBuffer(from: samples) else {
-            failureSignal.recordFailure()
+            if isCurrent() { failureSignal.recordFailure() }
             return nil
         }
         do {
             let packet = try convert(buffer)
             guard !packet.isEmpty else {
-                failureSignal.recordFailure()
+                if isCurrent() { failureSignal.recordFailure() }
                 return nil
             }
+            guard isCurrent() else { return nil }
             return packet
         } catch {
-            failureSignal.recordFailure()
+            if isCurrent() { failureSignal.recordFailure() }
             return nil
         }
     }
@@ -217,15 +225,11 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
                         self.pendingCaptureFrames = max(0, self.pendingCaptureFrames - ownedSamples.frameCount)
                     }
                 }
-                guard self.captureStateLock.withLock({ generation == self.captureGeneration }) else {
-                    self.captureFailureSignal.recordFailure()
-                    return
-                }
-                guard let pcm = Self.convertedCapturePacket(from: ownedSamples, failureSignal: self.captureFailureSignal) else { return }
-                guard self.captureStateLock.withLock({ generation == self.captureGeneration }) else {
-                    self.captureFailureSignal.recordFailure()
-                    return
-                }
+                guard let pcm = Self.queuedCapturePacket(
+                    from: ownedSamples,
+                    isCurrent: { self.captureStateLock.withLock { generation == self.captureGeneration } },
+                    failureSignal: self.captureFailureSignal
+                ) else { return }
                 captureHandler(pcm)
             }
         }
