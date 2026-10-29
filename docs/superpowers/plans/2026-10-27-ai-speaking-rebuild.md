@@ -187,7 +187,7 @@ public struct SpeakingAnalysis {
 
 `SpeakingPromptBuilder`: `static func systemInstruction(for plan: SpeakingSessionPlan) -> String`; `static let openingTrigger: String`; `static let hintRequest: String`; `static let wrapUpRequest: String`. System instruction phải chứa: vai `aiRole`, `setting`, `objective` (nếu có), mô tả level (A2: "short simple sentences, common everyday words, speak slowly"; B1: "natural everyday English, moderate pace, some idioms explained by context"), quy tắc "Speak only English. Never correct the learner during the conversation. Ask one question at a time. Keep each reply under 3 sentences.", danh sách từ mục tiêu (nếu có) kèm "create natural chances for the learner to use these words; never say them first", và "When the objective is complete or the learner says goodbye, say a short goodbye and call end_session." `hintRequest` yêu cầu một gợi ý ngắn, cho phép tiếng Việt, rồi chờ learner. `wrapUpRequest` yêu cầu chào kết trong một câu và gọi `end_session`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Suite("Speaking prompt builder") struct SpeakingPromptBuilderTests {
@@ -241,7 +241,7 @@ public protocol SpeakingRepositoryProtocol: Sendable {
 
 `SpeakingModelActor` là `@ModelActor actor` theo mẫu `UserProgressModelActor`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func updateAnalysisFlattensScoresAndIsIdempotent() async throws {
@@ -493,7 +493,7 @@ public struct SpeakingAudioStorage: Sendable {
 
 `VoiceProcessingAudioIO`: `AVAudioEngine`; `try engine.inputNode.setVoiceProcessingEnabled(true)` trước khi start; tap input bus 0 với format của input node; `AVAudioPlayerNode` gắn vào `mainMixerNode` với format Float32 24 kHz mono; `flushPlayback()` gọi `player.stop()` rồi `player.play()`. Recorder ghi AAC: `AVFormatIDKey: kAudioFormatMPEG4AAC`, 16 kHz, 1 kênh, `AVEncoderBitRateKey: 32_000`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func converts48kFloatTo16kInt16() throws {
@@ -508,8 +508,8 @@ public struct SpeakingAudioStorage: Sendable {
 @Test func storageDeletesOnlyNamedFiles() { /* tạo a.m4a, b.m4a; delete(["a.m4a"]); chỉ còn b */ }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (ba suite).
-- [ ] **Step 5: Commit** — `feat(speaking): add voice-processed audio io and learner recorder`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (ba suite).
+- [x] **Step 5: Commit** — `feat(speaking): add voice-processed audio io and learner recorder`.
 
 ### Task 10: SpeakingCallController
 
@@ -579,7 +579,7 @@ Request: `contents[0].role "user"`, `parts` = [prompt text, `inline_data {mime_t
 
 Validator: điểm ngoài 1…5 → throw `invalidResponse`; loại correction/naturalPhrasing có `original` không khớp (`QuoteNormalizer` substring của transcript learner ghép); loại `targetWords.quote` không khớp (giữ mục nhưng đặt `used = false`, `quote = nil`); cắt theo caps; `targetWords` bỏ trống nếu plan không có từ. `SavedPhraseRecord.dedupeKey` của Task 4 đổi sang `QuoteNormalizer.normalize`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func curlyApostropheQuoteStillMatches() throws { /* transcript "I’m want a latte", correction.original "I'm want a latte" → giữ */ }
@@ -591,9 +591,9 @@ Validator: điểm ngoài 1…5 → throw `invalidResponse`; loại correction/n
 @Test func analyzerDecodesCandidateTextAndValidates() async throws { /* stub trả generate-content-response.json */ }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
-- [ ] **Step 5: Smoke thật (thủ công, cần `GEMINI_API_KEY`)** — `scripts/speaking/analysis-smoke.swift` gửi một file m4a mẫu ~20 giây do người dùng ghi; yêu cầu: HTTP 200, decode + validate thành công. Ghi khác biệt schema (nếu có) vào commit.
-- [ ] **Step 6: Commit** — `feat(speaking): analyze sessions with gemini flash and validate quotes`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
+- [ ] **Step 5: Smoke thật (thủ công, cần `GEMINI_API_KEY`; deferred theo quyết định người dùng)** — `scripts/speaking/analysis-smoke.swift` gửi một file m4a mẫu ~20 giây do người dùng ghi; yêu cầu: HTTP 200, decode + validate thành công. Ghi khác biệt schema (nếu có) vào commit.
+- [x] **Step 6: Commit** — `feat(speaking): analyze sessions with gemini flash and validate quotes`.
 
 ### Task 12: AnalyzeSpeakingSessionUseCase
 
@@ -610,7 +610,7 @@ public actor AnalyzeSpeakingSessionUseCase {
 
 Hành vi: nếu đang có phân tích cho cùng `sessionId` → chờ và trả kết quả của lần đó (không chạy lại). `learnerTurnCount < 2` → `tooShort`. Không có `audioFileName` hoặc file không tồn tại → `analysisFailed` (UI hiển thị "không còn bản ghi âm", Task 16). Thành công → `updateAnalysis(.analyzed, analysis)`; lỗi → `updateAnalysis(.analysisFailed, nil)`. Sau khi lưu buổi mới, gọi `repository.detachAudio(keepingLatest: 20)` rồi `storage.delete(fileNames:)`.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func concurrentExecuteRunsAnalyzerOnce() async { /* hai Task gọi execute cùng id; analyzer.callCount == 1; cả hai trả .analyzed */ }
@@ -620,8 +620,8 @@ Hành vi: nếu đang có phân tích cho cùng `sessionId` → chờ và trả 
 @Test func pruningDeletesDetachedFiles() async { }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
-- [ ] **Step 5: Commit** — `feat(speaking): add idempotent session analysis use case`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
+- [x] **Step 5: Commit** — `feat(speaking): add idempotent session analysis use case`.
 
 ### Task 13: Chuỗi `app.speaking.*` và precheck
 
@@ -644,8 +644,10 @@ Hành vi: nếu đang có phân tích cho cùng `sessionId` → chờ và trả 
 @Test func precheckTreatsWhitespaceKeyAsMissing() async { }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (+ `LocalizationTests` của CraftUIKit).
-- [ ] **Step 5: Commit** — `feat(speaking): add speaking strings and call precheck`.
+- [x] **Step 1: Viết test thất bại**
+
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (+ `LocalizationTests` của CraftUIKit).
+- [x] **Step 5: Commit** — `feat(speaking): add speaking strings and call precheck` (plus reviewed fix `0de2983a` for the initial network-path state).
 
 ### Task 14: Hub, Chuẩn bị và điều hướng
 
@@ -670,8 +672,10 @@ Hành vi: nếu đang có phân tích cho cùng `sessionId` → chờ và trả 
 @Test func makePlanWithToggleButNoLearnedWordsReturnsEmptyWords() async { }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
-- [ ] **Step 5: Commit** — `feat(speaking): add speaking hub and preparation screens`.
+- [x] **Step 1: Viết test thất bại**
+
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
+- [x] **Step 5: Commit** — `feat(speaking): add speaking hub and preparation screens`.
 
 ### Task 15: Màn hình cuộc gọi
 
@@ -681,7 +685,7 @@ Hành vi: nếu đang có phân tích cho cùng `sessionId` → chờ và trả 
 
 UI: `CraftPulsingAuraRing` phản ánh `isAISpeaking`; đồng hồ đếm ngược `app.speaking.call.time_left`; nút Gợi ý (`CraftButton` secondary), nút Kết thúc (`CraftIconButton` destructive); phụ đề ẩn mặc định, bật bằng `CraftToggle`, danh sách lượt bằng `CraftText`; lớp phủ "Đang nối lại…"; `CraftDialog` cho `failed(...)` với hành động theo bảng lỗi spec mục 7. `.task { await controller.start() }`; khi `result != nil` → lưu `repository.save(result)`, chạy `analyzeSpeakingSessionUseCase.execute` trong `Task` tách rời, điều hướng `.result(id)`. `.onDisappear` khi chưa kết thúc → `controller.end()`. Giữ màn hình sáng (`UIApplication.shared.isIdleTimerDisabled`) trong lúc gọi.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func liveShowsHintAndTimeLeft() { #expect(SpeakingCallViewContent.make(phase: .live, elapsed: 300, duration: 360).timeLeft == 60) }
@@ -689,8 +693,8 @@ UI: `CraftPulsingAuraRing` phản ánh `isAISpeaking`; đồng hồ đếm ngư�
 @Test func failedQuotaExposesFailure() { }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
-- [ ] **Step 5: Commit** — `feat(speaking): add live call screen`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
+- [x] **Step 5: Commit** — `feat(speaking): add live call screen` (plus reviewed fix `69cbcced` for ending before connection).
 
 ### Task 16: Kết quả và Sổ cụm từ
 
@@ -714,7 +718,7 @@ UI: `CraftPulsingAuraRing` phản ánh `isAISpeaking`; đồng hồ đếm ngư�
 
 UI kết quả theo trạng thái: `pendingAnalysis` → `CraftSpinner` + `app.speaking.result.analyzing`; `analysisFailed` → lỗi + nút thử lại (ẩn và hiện `audio_missing` khi `!canRetry`); `tooShort` → thông báo; `analyzed` → điểm (4 `CraftProgressBar` kèm lý do), tóm tắt, sửa lỗi (gốc gạch, sửa nổi bật bằng token màu, nút lưu), diễn đạt tự nhiên (nút lưu), phát âm, từ mục tiêu (`CraftBadge` dùng đúng/chưa), mục tiêu. Sổ cụm từ: danh sách `CraftListRow`, `CraftSpeakerButton` phát `suggestion` qua `ttsService`, vuốt xoá.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func doubleRetryRunsSingleAnalysis() async { /* gọi retry() hai lần đồng thời; analyzer.callCount == 1 */ }
@@ -723,28 +727,28 @@ UI kết quả theo trạng thái: `pendingAnalysis` → `CraftSpinner` + `app.s
 @Test func pendingSessionTriggersAnalysisOnLoad() async { }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
-- [ ] **Step 5: Commit** — `feat(speaking): show session feedback and phrasebook`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**, build 0 warning.
+- [x] **Step 5: Commit** — `feat(speaking): show session feedback and phrasebook` (plus reviewed fixes `9356f1b2`, `c5c2dd36`, and `1f6d75f2` for recoverable pending-analysis failures).
 
 ### Task 17: Wiring cuối, deep link và dọn dẹp
 
 **Files:** Modify `App/VocabCraftApp.swift` (thêm route kiểm thử `-show-speaking-hub`), `App/Navigation/AppRouter.swift` (deep link `vocabcraft://speaking` cùng `ai`/`aiAssistant` cũ → tab `.aiAssistant`), `AppRouterTests.swift`; xoá key xcstrings không còn tham chiếu (chạy script dò `app.ai_assistant.`, `app.ai_pack.`, `app.speaking.hub.coming_soon`).
 
-- [ ] **Step 1: Viết test thất bại** — `AppRouterTests.speakingDeepLinkSelectsSpeakingTab`.
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
-- [ ] **Step 5: Dò key mồ côi**
+- [x] **Step 1: Viết test thất bại** — `AppRouterTests.speakingDeepLinkSelectsSpeakingTab`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS**.
+- [x] **Step 5: Dò key mồ côi**
 
 Run: `grep -oE '"app\.(ai_assistant|ai_pack)[^"]*"' VocabCraftApp/Resources/Localizable.xcstrings | sort -u`
 Expected: rỗng.
 
-- [ ] **Step 6: Commit** — `feat(speaking): wire speaking tab, deep link and remove stale strings`.
+- [x] **Step 6: Commit** — `feat(speaking): wire speaking tab, deep link and remove stale strings`.
 
 ### Task 18: Xác minh toàn bộ, checklist thiết bị, đánh giá prompt
 
 **Files:** Create `docs/qa/ai-speaking-verification.md`.
 
-- [ ] **Step 1: Quality gate** — chạy theo thứ tự: `swift test`, `swift test --package-path Packages/CraftUIKit`, `swift test --package-path Packages/SpeechKit`, CraftUIKit `LocalizationTests`, `swiftlint --strict`, Xcode build `VocabCraftApp` (0 error/0 warning), Xcode test `VocabCraftAppTests`. Ghi số test và kết quả vào tài liệu QA. Bất kỳ warning/fail nào → sửa trước khi đi tiếp.
+- [x] **Step 1: Quality gate** — chạy theo thứ tự: `swift test`, `swift test --package-path Packages/CraftUIKit`, `swift test --package-path Packages/SpeechKit`, CraftUIKit `LocalizationTests`, `swiftlint --strict`, Xcode build `VocabCraftApp` (0 error/0 warning), Xcode test `VocabCraftAppTests`. Ghi số test và kết quả vào tài liệu QA. Bất kỳ warning/fail nào → sửa trước khi đi tiếp. Evidence: `docs/qa/ai-speaking-verification.md`; runtime diagnostics and the Xcode SDK diagnostic are recorded there.
 - [ ] **Step 2: Checklist thiết bị thật (người dùng chạy, agent chuẩn bị)** — loa ngoài: AI không tự trả lời chính mình; AirPods; ngắt lời AI ba lần liên tiếp; cuộc gọi đến giữa buổi → buổi kết thúc và có trong lịch sử; bật chế độ máy bay giữa buổi → "Đang nối lại…" rồi `connectionLost` sau 8 giây; tắt máy bay trong 8 giây → nối lại thành công; gọi đủ 6 phút → AI chào kết ở 5:30, ngắt cứng ở 6:30; key sai → lỗi `unauthorized` dẫn tới Settings. Ghi kết quả từng mục vào `docs/qa/ai-speaking-verification.md`.
 - [ ] **Step 3: Đánh giá prompt (thủ công)** — 5 buổi mẫu (3 A2, 2 B1) do người dùng nói; với mỗi buổi chấm: sửa lỗi đúng không, có trích dẫn bịa không (validator đã loại bao nhiêu mục), giải thích tiếng Việt dễ hiểu không, điểm có hợp lý không. Ghi bảng kết quả; nếu prompt cần chỉnh, cập nhật `SpeakingPromptBuilder`/request builder và snapshot tương ứng.
-- [ ] **Step 4: Kiểm tra git status** — báo người dùng mọi file Xcode tự sinh, không commit chúng khi chưa được đồng ý.
-- [ ] **Step 5: Commit** — `docs(speaking): record verification and prompt evaluation`.
+- [x] **Step 4: Kiểm tra git status** — báo người dùng mọi file Xcode tự sinh, không commit chúng khi chưa được đồng ý. No Xcode-generated repository files were present.
+- [x] **Step 5: Commit** — `docs(speaking): record verification and prompt evaluation` (`79cbfe37`).
