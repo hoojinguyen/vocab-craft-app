@@ -2,8 +2,8 @@ import AVFoundation
 import Foundation
 
 public protocol SpeakingAudioIO: AnyObject, Sendable {
-    /// The buffer is callback-scoped. Copy or convert its samples synchronously before async transfer.
-    func start(onCapture: @escaping @Sendable (AVAudioPCMBuffer) -> Void) async throws
+    /// Delivers owned PCM16 LE, mono 16 kHz bytes. The payload can safely outlive the tap callback.
+    func start(onCapture: @escaping @Sendable (Data) -> Void) async throws
     func enqueuePlayback(_ pcm24k: Data)
     func flushPlayback()
     var isPlaying: Bool { get }

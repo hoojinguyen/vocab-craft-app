@@ -39,6 +39,22 @@ struct PCMConverterTests {
         #expect(PCMConverter.playbackBuffer(fromPCM24k: Data([1, 2, 3])) == nil)
     }
 
+    @Test func capturePayloadOwnsSamplesAfterCallbackReturns() throws {
+        let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let source = try sine(format: format, frames: 4_800)
+        let payload = try PCMConverter(inputFormat: format).pcm16kMono(from: source)
+        let original = payload
+        source.floatChannelData?[0][0] = 0.75
+
+        #expect(payload == original)
+        #expect(payload.count == 3_200)
+    }
+
+    @Test func playbackQueueRejectsAudioBeyondTwoSecondBound() {
+        #expect(!VoiceProcessingAudioIO.canSchedulePlayback(pendingFrames: 47_000, incomingFrames: 2_000, maximumFrames: 48_000))
+        #expect(VoiceProcessingAudioIO.canSchedulePlayback(pendingFrames: 40_000, incomingFrames: 8_000, maximumFrames: 48_000))
+    }
+
     @Test func playbackRejectsEmptyPCM() {
         #expect(PCMConverter.playbackBuffer(fromPCM24k: Data()) == nil)
     }

@@ -8,38 +8,37 @@ public enum LearnerRecorderError: Error {
     case cannotCreateFile
 }
 
-/// Writes learner audio as AAC. The lock serializes conversion, accepted-frame accounting, and file writes.
-/// AVAudioPCMBuffer is consumed synchronously and never escapes this call.
+/// Copies bounded PCM packets into a serial AAC writer. The capture caller never performs file I/O.
 public final class LearnerRecorder: @unchecked Sendable {
     private let storage: SpeakingAudioStorage
-    private let lock = NSLock()
+    private let writerQueue = DispatchQueue(label: "app.vocabcraft.speaking.recorder-writer")
+    private let stateLock = NSLock()
+    private let maximumQueuedBytes: Int
+    private var queuedBytes = 0
     private var writer: AVAudioFile?
-    private var converter: AVAudioConverter?
-    private var converterInputFormat: AVAudioFormat?
     private var currentFileName: String?
-    private var acceptedDuration: TimeInterval = 0
+    private var acceptedFrames: Int64 = 0
+    private var writtenFrames: Int64 = 0
     private var writeFailed = false
+    private var recordedOverflowCount = 0
+    private var format: AVAudioFormat?
 
-    public init(storage: SpeakingAudioStorage) {
+    public init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000) {
         self.storage = storage
+        self.maximumQueuedBytes = max(2, maximumQueuedBytes)
     }
 
     public func begin(sessionId: UUID, format: AVAudioFormat) throws -> String {
-        try lock.withLock {
+        try writerQueue.sync {
             guard writer == nil else { throw LearnerRecorderError.alreadyRecording }
-            guard format.sampleRate > 0, format.channelCount > 0 else {
+            guard format.sampleRate == 16_000, format.channelCount == 1 else {
                 throw LearnerRecorderError.invalidFormat
             }
-
             let fileName = "\(sessionId.uuidString).m4a"
             let fileURL = storage.url(for: fileName)
-            guard fileURL.lastPathComponent == fileName else {
-                throw LearnerRecorderError.cannotCreateFile
-            }
+            guard fileURL.lastPathComponent == fileName else { throw LearnerRecorderError.cannotCreateFile }
             try storage.createDirectoryIfNeeded()
             try? FileManager.default.removeItem(at: fileURL)
-            let nextConverter = try makeConverter(from: format)
-
             let settings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVSampleRateKey: 16_000,
@@ -47,145 +46,93 @@ public final class LearnerRecorder: @unchecked Sendable {
                 AVEncoderBitRateKey: 32_000
             ]
             do {
-                writer = try AVAudioFile(
-                    forWriting: fileURL,
-                    settings: settings,
-                    commonFormat: .pcmFormatFloat32,
-                    interleaved: false
-                )
+                writer = try AVAudioFile(forWriting: fileURL, settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
             } catch {
                 throw LearnerRecorderError.cannotCreateFile
             }
-
-            converter = nextConverter
-            converterInputFormat = format
+            self.format = format
             currentFileName = fileName
-            acceptedDuration = 0
+            acceptedFrames = 0
+            writtenFrames = 0
             writeFailed = false
+            stateLock.withLock { queuedBytes = 0; recordedOverflowCount = 0 }
             return fileName
         }
     }
 
-    public func append(_ buffer: AVAudioPCMBuffer) {
-        lock.withLock {
-            guard !writeFailed, let writer, buffer.frameLength > 0 else { return }
-            do {
-                if converterInputFormat?.isEqual(buffer.format) != true {
-                    if let converter {
-                        try flush(converter, into: writer)
-                    }
-                    converter = try makeConverter(from: buffer.format)
-                    converterInputFormat = buffer.format
-                }
-                guard let converter,
-                      let converted = try convert(buffer, using: converter, to: writer.processingFormat)
-                else {
-                    return
-                }
+    /// Nonblocking bounded enqueue. Capacity contention or overflow invalidates the recording and is reported by finish().
+    public func append(_ pcm16kMono: Data) {
+        guard !pcm16kMono.isEmpty, pcm16kMono.count.isMultiple(of: 2) else { return }
+        guard stateLock.try() else {
+            writerQueue.async { [weak self] in
+                guard let self else { return }
+                self.writeFailed = true
+                self.stateLock.withLock { self.recordedOverflowCount += 1 }
+            }
+            return
+        }
+        guard queuedBytes + pcm16kMono.count <= maximumQueuedBytes else {
+            recordedOverflowCount += 1
+            stateLock.unlock()
+            writerQueue.async { [weak self] in self?.writeFailed = true }
+            return
+        }
+        queuedBytes += pcm16kMono.count
+        acceptedFrames += Int64(pcm16kMono.count / 2)
+        stateLock.unlock()
 
-                if converted.frameLength > 0 {
-                    try writer.write(from: converted)
+        writerQueue.async { [weak self] in
+            guard let self else { return }
+            defer { self.stateLock.withLock { self.queuedBytes -= pcm16kMono.count } }
+            guard !self.writeFailed, let writer = self.writer, let format = self.format else { return }
+            do {
+                let frames = pcm16kMono.count / 2
+                guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(frames)),
+                      let samples = buffer.floatChannelData?[0]
+                else { throw LearnerRecorderError.invalidFormat }
+                buffer.frameLength = AVAudioFrameCount(frames)
+                pcm16kMono.withUnsafeBytes { raw in
+                    let bytes = raw.bindMemory(to: UInt8.self)
+                    for index in 0..<frames {
+                        let value = Int16(bitPattern: UInt16(bytes[index * 2]) | (UInt16(bytes[index * 2 + 1]) << 8))
+                        samples[index] = Float(value) / 32_768
+                    }
                 }
-                acceptedDuration += Double(buffer.frameLength) / buffer.format.sampleRate
+                try writer.write(from: buffer)
+                self.writtenFrames += Int64(buffer.frameLength)
             } catch {
-                writeFailed = true
+                self.writeFailed = true
             }
         }
     }
 
     public var elapsed: TimeInterval {
-        lock.withLock { acceptedDuration }
+        stateLock.withLock { Double(acceptedFrames) / 16_000 }
     }
 
-    public func finish() -> URL? {
-        lock.withLock {
-            if let writer, let converter {
-                do {
-                    try flush(converter, into: writer)
-                } catch {
-                    writeFailed = true
-                }
-            }
-            writer = nil
-            converter = nil
-            converterInputFormat = nil
+    public var overflowCount: Int { stateLock.withLock { recordedOverflowCount } }
 
-            guard let fileName = currentFileName else { return nil }
+    public func finish() -> URL? {
+        writerQueue.sync {
+            let fileName = currentFileName
+            writer = nil
+            format = nil
             currentFileName = nil
-            guard acceptedDuration > 0, !writeFailed else {
+            guard let fileName else { return nil }
+            guard writtenFrames > 0, !writeFailed else {
                 storage.delete(fileNames: [fileName])
                 return nil
             }
-
             let fileURL = storage.url(for: fileName)
             guard FileManager.default.fileExists(atPath: fileURL.path),
                   let attributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
-                  (attributes[.size] as? NSNumber)?.intValue ?? 0 > 0
+                  let size = attributes[.size] as? NSNumber,
+                  size.intValue > 0
             else {
                 storage.delete(fileNames: [fileName])
                 return nil
             }
             return fileURL
-        }
-    }
-
-    private func makeConverter(from inputFormat: AVAudioFormat) throws -> AVAudioConverter {
-        guard inputFormat.sampleRate > 0, inputFormat.channelCount > 0,
-              let outputFormat = AVAudioFormat(
-                  commonFormat: .pcmFormatFloat32,
-                  sampleRate: 16_000,
-                  channels: 1,
-                  interleaved: false
-              ),
-              let converter = AVAudioConverter(from: inputFormat, to: outputFormat)
-        else {
-            throw LearnerRecorderError.invalidFormat
-        }
-        return converter
-    }
-
-    private func convert(
-        _ input: AVAudioPCMBuffer,
-        using converter: AVAudioConverter,
-        to outputFormat: AVAudioFormat
-    ) throws -> AVAudioPCMBuffer? {
-        let scale = outputFormat.sampleRate / input.format.sampleRate
-        let capacity = AVAudioFrameCount(ceil(Double(input.frameLength) * scale)) + 64
-        guard let output = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: capacity) else {
-            throw LearnerRecorderError.invalidFormat
-        }
-
-        var conversionError: NSError?
-        var didProvideInput = false
-        let status = converter.convert(to: output, error: &conversionError) { _, inputStatus in
-            guard !didProvideInput else {
-                inputStatus.pointee = .noDataNow
-                return nil
-            }
-            didProvideInput = true
-            inputStatus.pointee = .haveData
-            return input
-        }
-        guard status != .error, conversionError == nil else {
-            throw conversionError ?? LearnerRecorderError.invalidFormat
-        }
-        return output
-    }
-
-    private func flush(_ converter: AVAudioConverter, into writer: AVAudioFile) throws {
-        guard let output = AVAudioPCMBuffer(pcmFormat: writer.processingFormat, frameCapacity: 4_096) else {
-            throw LearnerRecorderError.invalidFormat
-        }
-        var conversionError: NSError?
-        let status = converter.convert(to: output, error: &conversionError) { _, inputStatus in
-            inputStatus.pointee = .endOfStream
-            return nil
-        }
-        guard status != .error, conversionError == nil else {
-            throw conversionError ?? LearnerRecorderError.invalidFormat
-        }
-        if output.frameLength > 0 {
-            try writer.write(from: output)
         }
     }
 }

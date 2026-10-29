@@ -12,9 +12,12 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
     private let playbackStateLock = NSLock()
     private var engine: AVAudioEngine?
     private var player: AVAudioPlayerNode?
-    private var captureHandler: (@Sendable (AVAudioPCMBuffer) -> Void)?
+    private var captureHandler: (@Sendable (Data) -> Void)?
     private var pendingPlaybackCount = 0
+    private var pendingPlaybackFrames = 0
+    private var playbackOverflows = 0
     private var playbackGeneration: UInt64 = 0
+    private let maximumPlaybackFrames = 48_000
 
     public init() {}
 
@@ -24,7 +27,7 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         }
     }
 
-    public func start(onCapture: @escaping @Sendable (AVAudioPCMBuffer) -> Void) async throws {
+    public func start(onCapture: @escaping @Sendable (Data) -> Void) async throws {
         try graphQueue.sync {
             captureHandler = onCapture
             try rebuildGraph()
@@ -38,12 +41,24 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
             else {
                 return
             }
+            let shouldAccept = playbackStateLock.withLock {
+                Self.canSchedulePlayback(pendingFrames: pendingPlaybackFrames, incomingFrames: Int(buffer.frameLength), maximumFrames: maximumPlaybackFrames)
+            }
+            guard shouldAccept else {
+                player.stop()
+                clearPendingPlayback()
+                playbackStateLock.withLock { playbackOverflows += 1 }
+                player.play()
+                return
+            }
+            let frames = Int(buffer.frameLength)
             let generation = playbackStateLock.withLock { () -> UInt64 in
                 pendingPlaybackCount += 1
+                pendingPlaybackFrames += frames
                 return playbackGeneration
             }
             player.scheduleBuffer(buffer, completionCallbackType: .dataPlayedBack) { [weak self] _ in
-                self?.playbackDidFinish(generation: generation)
+                self?.playbackDidFinish(generation: generation, frames: frames)
             }
             if !player.isPlaying {
                 player.play()
@@ -62,6 +77,14 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
 
     public var isPlaying: Bool {
         playbackStateLock.withLock { pendingPlaybackCount > 0 }
+    }
+
+    public var playbackOverflowCount: Int {
+        playbackStateLock.withLock { playbackOverflows }
+    }
+
+    static func canSchedulePlayback(pendingFrames: Int, incomingFrames: Int, maximumFrames: Int) -> Bool {
+        incomingFrames > 0 && pendingFrames + incomingFrames <= maximumFrames
     }
 
     public func stop() async {
@@ -97,8 +120,10 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         let player = AVAudioPlayerNode()
         engine.attach(player)
         engine.connect(player, to: engine.mainMixerNode, format: playbackFormat)
+        let converter = try PCMConverter(inputFormat: inputFormat)
         input.installTap(onBus: 0, bufferSize: 1_024, format: inputFormat) { buffer, _ in
-            captureHandler(buffer)
+            guard let ownedPCM = try? converter.pcm16kMono(from: buffer), !ownedPCM.isEmpty else { return }
+            captureHandler(ownedPCM)
         }
 
         do {
@@ -127,10 +152,11 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         engine = nil
     }
 
-    private func playbackDidFinish(generation: UInt64) {
+    private func playbackDidFinish(generation: UInt64, frames: Int) {
         playbackStateLock.withLock {
             guard generation == playbackGeneration else { return }
             pendingPlaybackCount = max(0, pendingPlaybackCount - 1)
+            pendingPlaybackFrames = max(0, pendingPlaybackFrames - frames)
         }
     }
 
@@ -138,6 +164,7 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         playbackStateLock.withLock {
             playbackGeneration &+= 1
             pendingPlaybackCount = 0
+            pendingPlaybackFrames = 0
         }
     }
 }
