@@ -8,19 +8,57 @@ struct SpeakingCaptureSamples: Sendable {
     var frameCount: Int { channels.first?.count ?? 0 }
 }
 
-final class SpeakingAudioCaptureFailureSignal: @unchecked Sendable {
+final class SpeakingAudioCaptureState: @unchecked Sendable {
     private let lock = NSLock()
-    private var failureCount = 0
+    private var currentGeneration: UInt64 = 0
+    private var pendingFrames = 0
+    private var failureTotal = 0
     private var didFail = false
 
-    var count: Int { lock.withLock { failureCount } }
+    var generation: UInt64 { lock.withLock { currentGeneration } }
+    var failureCount: Int { lock.withLock { failureTotal } }
     var hasFailures: Bool { lock.withLock { didFail } }
 
     func recordFailure() {
-        lock.withLock {
-            failureCount += 1
-            didFail = true
+        lock.withLock { recordFailureLocked() }
+    }
+
+    @discardableResult
+    func recordFailure(ifCurrentGeneration generation: UInt64, beforeLock: () -> Void = {}) -> Bool {
+        beforeLock()
+        return lock.withLock {
+            guard generation == currentGeneration else { return false }
+            recordFailureLocked()
+            return true
         }
+    }
+
+    func isCurrent(_ generation: UInt64) -> Bool {
+        lock.withLock { generation == currentGeneration }
+    }
+
+    func reserveCapture(frames: Int, maximumFrames: Int) -> UInt64? {
+        lock.withLock {
+            guard frames > 0, pendingFrames + frames <= maximumFrames else {
+                recordFailureLocked()
+                return nil
+            }
+            pendingFrames += frames
+            return currentGeneration
+        }
+    }
+
+    func releaseCapture(frames: Int) {
+        lock.withLock { pendingFrames = max(0, pendingFrames - frames) }
+    }
+
+    func advanceGeneration() {
+        lock.withLock { currentGeneration &+= 1 }
+    }
+
+    private func recordFailureLocked() {
+        failureTotal += 1
+        didFail = true
     }
 }
 
@@ -33,7 +71,7 @@ public enum SpeakingAudioIOError: Error {
 public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable {
     private let graphQueue = DispatchQueue(label: "app.vocabcraft.speaking.audio-graph")
     private let captureQueue = DispatchQueue(label: "app.vocabcraft.speaking.capture-conversion")
-    private let captureStateLock = NSLock()
+    private let captureState = SpeakingAudioCaptureState()
     private let playbackStateLock = NSLock()
     private var engine: AVAudioEngine?
     private var player: AVAudioPlayerNode?
@@ -43,9 +81,6 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
     private var playbackOverflows = 0
     private var playbackGeneration: UInt64 = 0
     private let maximumPlaybackFrames = 48_000
-    private var pendingCaptureFrames = 0
-    private let captureFailureSignal = SpeakingAudioCaptureFailureSignal()
-    private var captureGeneration: UInt64 = 0
 
     public init() {}
 
@@ -112,7 +147,7 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
     }
 
     public var captureOverflowCount: Int {
-        captureFailureSignal.count
+        captureState.failureCount
     }
 
     static func canSchedulePlayback(pendingFrames: Int, incomingFrames: Int, maximumFrames: Int) -> Bool {
@@ -140,27 +175,28 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
 
     static func queuedCapturePacket(
         from samples: SpeakingCaptureSamples,
-        isCurrent: () -> Bool,
-        failureSignal: SpeakingAudioCaptureFailureSignal,
+        generation: UInt64,
+        captureState: SpeakingAudioCaptureState,
+        beforeFailureCommit: () -> Void = {},
         convert: (AVAudioPCMBuffer) throws -> Data = { buffer in
             try PCMConverter(inputFormat: buffer.format).pcm16kMono(from: buffer)
         }
     ) -> Data? {
-        guard isCurrent() else { return nil }
+        guard captureState.isCurrent(generation) else { return nil }
         guard let buffer = pcmBuffer(from: samples) else {
-            if isCurrent() { failureSignal.recordFailure() }
+            captureState.recordFailure(ifCurrentGeneration: generation, beforeLock: beforeFailureCommit)
             return nil
         }
         do {
             let packet = try convert(buffer)
             guard !packet.isEmpty else {
-                if isCurrent() { failureSignal.recordFailure() }
+                captureState.recordFailure(ifCurrentGeneration: generation, beforeLock: beforeFailureCommit)
                 return nil
             }
-            guard isCurrent() else { return nil }
+            guard captureState.isCurrent(generation) else { return nil }
             return packet
         } catch {
-            if isCurrent() { failureSignal.recordFailure() }
+            captureState.recordFailure(ifCurrentGeneration: generation, beforeLock: beforeFailureCommit)
             return nil
         }
     }
@@ -202,33 +238,18 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         input.installTap(onBus: 0, bufferSize: 1_024, format: inputFormat) { [weak self] buffer, _ in
             guard let self else { return }
             guard let ownedSamples = Self.ownedCaptureSamples(from: buffer) else {
-                self.captureFailureSignal.recordFailure()
+                self.captureState.recordFailure()
                 return
             }
-            let reservation = self.captureStateLock.withLock { () -> UInt64? in
-                guard Self.canQueueCapture(
-                    pendingFrames: self.pendingCaptureFrames,
-                    incomingFrames: ownedSamples.frameCount,
-                    maximumFrames: maxCaptureFrames
-                ) else {
-                    self.captureFailureSignal.recordFailure()
-                    return nil
-                }
-                self.pendingCaptureFrames += ownedSamples.frameCount
-                return self.captureGeneration
-            }
+            let reservation = self.captureState.reserveCapture(frames: ownedSamples.frameCount, maximumFrames: maxCaptureFrames)
             guard let generation = reservation else { return }
 
             self.captureQueue.async { [self] in
-                defer {
-                    self.captureStateLock.withLock {
-                        self.pendingCaptureFrames = max(0, self.pendingCaptureFrames - ownedSamples.frameCount)
-                    }
-                }
+                defer { self.captureState.releaseCapture(frames: ownedSamples.frameCount) }
                 guard let pcm = Self.queuedCapturePacket(
                     from: ownedSamples,
-                    isCurrent: { self.captureStateLock.withLock { generation == self.captureGeneration } },
-                    failureSignal: self.captureFailureSignal
+                    generation: generation,
+                    captureState: self.captureState
                 ) else { return }
                 captureHandler(pcm)
             }
@@ -250,7 +271,7 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
 
     private func stopGraph() {
         clearPendingPlayback()
-        captureStateLock.withLock { captureGeneration &+= 1 }
+        captureState.advanceGeneration()
         if let engine {
             engine.inputNode.removeTap(onBus: 0)
             engine.stop()

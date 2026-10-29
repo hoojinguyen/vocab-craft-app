@@ -73,41 +73,71 @@ struct PCMConverterTests {
     }
 
     @Test func captureReconstructionFailureIncrementsObservableFailureSignal() {
-        let failures = SpeakingAudioCaptureFailureSignal()
+        let captureState = SpeakingAudioCaptureState()
         let invalidSamples = SpeakingCaptureSamples(sampleRate: 0, channels: [[0.25, -0.25]])
 
-        let packet = VoiceProcessingAudioIO.queuedCapturePacket(from: invalidSamples, isCurrent: { true }, failureSignal: failures)
+        let packet = VoiceProcessingAudioIO.queuedCapturePacket(
+            from: invalidSamples,
+            generation: captureState.generation,
+            captureState: captureState
+        )
 
         #expect(packet == nil)
-        #expect(failures.count == 1)
+        #expect(captureState.failureCount == 1)
     }
 
     @Test func captureConversionFailureIncrementsObservableFailureSignal() throws {
-        let failures = SpeakingAudioCaptureFailureSignal()
+        let captureState = SpeakingAudioCaptureState()
         let samples = SpeakingCaptureSamples(sampleRate: 48_000, channels: [[0.25, -0.25]])
 
-        let packet = VoiceProcessingAudioIO.queuedCapturePacket(from: samples, isCurrent: { true }, failureSignal: failures) { _ in
+        let packet = VoiceProcessingAudioIO.queuedCapturePacket(
+            from: samples,
+            generation: captureState.generation,
+            captureState: captureState,
+            convert: { _ in
+                throw URLError(.cannotDecodeContentData)
+            }
+        )
+
+        #expect(packet == nil)
+        #expect(captureState.failureCount == 1)
+    }
+
+    @Test func intentionalCaptureInvalidationDoesNotIncrementFailureSignal() {
+        let captureState = SpeakingAudioCaptureState()
+        let samples = SpeakingCaptureSamples(sampleRate: 48_000, channels: [[0.25, -0.25]])
+        let generation = captureState.generation
+
+        let packet = VoiceProcessingAudioIO.queuedCapturePacket(
+            from: samples,
+            generation: generation,
+            captureState: captureState,
+            convert: { _ in
+                captureState.advanceGeneration()
+                return Data([0x00, 0x00])
+            }
+        )
+
+        #expect(packet == nil)
+        #expect(!captureState.hasFailures)
+    }
+
+    @Test func generationInvalidationRacingWithConversionFailureIsNotRecorded() throws {
+        let captureState = SpeakingAudioCaptureState()
+        let generation = captureState.generation
+        let samples = SpeakingCaptureSamples(sampleRate: 48_000, channels: [[0.25, -0.25]])
+
+        let packet = VoiceProcessingAudioIO.queuedCapturePacket(
+            from: samples,
+            generation: generation,
+            captureState: captureState,
+            beforeFailureCommit: { captureState.advanceGeneration() }
+        ) { _ in
             throw URLError(.cannotDecodeContentData)
         }
 
         #expect(packet == nil)
-        #expect(failures.count == 1)
-    }
-
-    @Test func intentionalCaptureInvalidationDoesNotIncrementFailureSignal() {
-        let failures = SpeakingAudioCaptureFailureSignal()
-        let samples = SpeakingCaptureSamples(sampleRate: 48_000, channels: [[0.25, -0.25]])
-        var packetIsCurrent = true
-
-        let packet = VoiceProcessingAudioIO.queuedCapturePacket(from: samples, isCurrent: {
-            packetIsCurrent
-        }, failureSignal: failures) { _ in
-            packetIsCurrent = false
-            return Data([0x00, 0x00])
-        }
-
-        #expect(packet == nil)
-        #expect(!failures.hasFailures)
+        #expect(captureState.failureCount == 0)
     }
 
     @Test func playbackRejectsEmptyPCM() {
