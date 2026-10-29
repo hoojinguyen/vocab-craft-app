@@ -368,7 +368,7 @@ Setup JSON gồm: `generationConfig.responseModalities ["AUDIO"]`, `generationCo
 
 Quy tắc: `outputTranscript` nối vào lượt AI đang mở (mở lượt mới nếu lượt cuối là learner hoặc đã đóng); `inputTranscript` nối vào lượt learner đang mở (mở mới nếu lượt cuối là AI hoặc đã đóng; đồng thời đóng lượt AI đang mở); `turnComplete` và `interrupted` đóng lượt AI đang mở (`endOffset = offset`); lượt learner đóng khi lượt AI kế tiếp mở. Nối chuỗi bằng một khoảng trắng, trim; bỏ lượt rỗng. `index` tăng liên tục từ 0.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Test func alternatingTurnsAreSplitAndIndexed() {
@@ -386,8 +386,8 @@ Quy tắc: `outputTranscript` nối vào lượt AI đang mở (mở lượt m�
 }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (`swift test --filter TranscriptAssemblerTests`).
-- [ ] **Step 5: Commit** — `feat(speaking): assemble live transcripts into turns`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (`swift test --filter TranscriptAssemblerTests`).
+- [x] **Step 5: Commit** — `feat(speaking): assemble live transcripts into turns`.
 
 ### Task 8: Reducer trạng thái cuộc gọi
 

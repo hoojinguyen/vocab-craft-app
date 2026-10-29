@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F70000000000000000000001 /* TranscriptAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TranscriptAssembler.swift */; };
+		F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* TranscriptAssemblerTests.swift */; };
 		C50000000000000000000001 /* SpeakingBlueprintCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000001 /* SpeakingBlueprintCatalog.swift */; };
 		C50000000000000000000002 /* SpeakingWordPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000002 /* SpeakingWordPicker.swift */; };
 		D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */; };
@@ -868,6 +870,8 @@
 		A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		A40000000000000000000004 /* SpeakingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryTests.swift"; sourceTree = "<group>"; };
 		A40000000000000000000005 /* SchemaV4MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/SchemaV4MigrationTests.swift"; sourceTree = "<group>"; };
+		F80000000000000000000001 /* TranscriptAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptAssembler.swift; sourceTree = "<group>"; };
+		F80000000000000000000002 /* TranscriptAssemblerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/TranscriptAssemblerTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1871,6 +1875,7 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				F80000000000000000000002 /* TranscriptAssemblerTests.swift */,
 				D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */,
 				D60000000000000000000002 /* SpeakingWordPickerTests.swift */,
 				E60000000000000000000005 /* LiveMessagesTests.swift */,
@@ -2207,6 +2212,7 @@
 		C40000000000000000000001 /* Speaking */ = {
 			isa = PBXGroup;
 			children = (
+				F80000000000000000000001 /* TranscriptAssembler.swift */,
 				C60000000000000000000001 /* SpeakingBlueprintCatalog.swift */,
 				C60000000000000000000002 /* SpeakingWordPicker.swift */,
 				A40000000000000000000002 /* SpeakingModelActor.swift */,
@@ -2376,6 +2382,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F70000000000000000000001 /* TranscriptAssembler.swift in Sources */,
 				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,
 				B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */,
 				B30000000000000000000001 /* SpeakingModels.swift in Sources */,
@@ -2649,6 +2656,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */,
 				D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */,
 				D50000000000000000000002 /* SpeakingWordPickerTests.swift in Sources */,
 				E50000000000000000000005 /* LiveMessagesTests.swift in Sources */,
