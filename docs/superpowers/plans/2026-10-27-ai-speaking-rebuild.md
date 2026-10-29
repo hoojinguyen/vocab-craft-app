@@ -537,7 +537,7 @@ public struct SpeakingAudioStorage: Sendable {
 
 Hành vi: thực thi mọi `SpeakingCallEffect` từ reducer; luồng nhận `Data` → `LiveServerEvent.decode` → audio vào `enqueuePlayback`, `interrupted` → `flushPlayback()`, transcript → assembler với `recorder.elapsed`, `toolCall(end_session)` → gửi `.toolResponse` rồi input `.aiRequestedEnd`, `resumptionUpdate` → input `.resumptionHandle`, `goAway` → input `.goAway`; stream kết thúc/lỗi khi đang live → `.transportDropped`, lỗi lúc connect → `.connectFailed(map)`. Đồng hồ: `wrapUpDue` tại `durationSeconds - 30`, `hardLimitReached` tại `durationSeconds + 30`, tính từ lần `live` đầu tiên. Lắng nghe `audioSession.events`: `.interruptionBegan` → `.audioInterrupted`; `.routeChanged` → `audio.restartAfterRouteChange()`. `UIApplication.didEnterBackgroundNotification` → `.audioInterrupted`. `finalize` → `recorder.finish()`, release lease, dựng `result`. Mỗi gói mic: `PCMConverter` → `transport.send(.audio)` và `recorder.append`.
 
-- [ ] **Step 1: Viết test thất bại** (fake transport phát fixture từ Task 6; `TestClock` tự viết trong `T/Fakes`)
+- [x] **Step 1: Viết test thất bại** (fake transport phát fixture từ Task 6; `TestClock` tự viết trong `T/Fakes`)
 
 ```swift
 @Test func happyPathProducesPendingSnapshot() async {
@@ -554,8 +554,8 @@ Hành vi: thực thi mọi `SpeakingCallEffect` từ reducer; luồng nhận `Da
 @Test func audioInterruptionEndsAndSavesPartialTurns() async { #expect(controller.result?.endReason == .interrupted && !(controller.result?.turns.isEmpty ?? true)) }
 ```
 
-- [ ] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (`swift test --filter SpeakingCallControllerTests`).
-- [ ] **Step 5: Commit** — `feat(speaking): orchestrate live calls with audio, transcript and timers`.
+- [x] **Step 2: FAIL** → **Step 3: Implement** → **Step 4: PASS** (`swift test --filter SpeakingCallControllerTests`).
+- [x] **Step 5: Commit** — `feat(speaking): orchestrate live calls with audio, transcript and timers`.
 
 ### Task 11: Phân tích sau buổi — request, validator, analyzer
 

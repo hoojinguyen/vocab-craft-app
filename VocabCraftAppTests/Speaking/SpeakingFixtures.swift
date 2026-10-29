@@ -20,13 +20,13 @@ extension SpeakingSessionPlan {
 private final class SpeakingFixtureBundleToken {}
 
 enum SpeakingFixtures {
-    static func data(_ name: String) throws -> Data {
+    static func data(_ name: String, subdirectory: String = "Fixtures") throws -> Data {
         #if SWIFT_PACKAGE
         let bundle = Bundle.module
         #else
         let bundle = Bundle(for: SpeakingFixtureBundleToken.self)
         #endif
-        guard let url = bundle.url(forResource: name, withExtension: nil, subdirectory: "Fixtures") else {
+        guard let url = bundle.url(forResource: name, withExtension: nil, subdirectory: subdirectory) else {
             throw CocoaError(.fileNoSuchFile)
         }
         return try Data(contentsOf: url)

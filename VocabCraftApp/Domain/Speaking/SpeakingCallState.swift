@@ -24,11 +24,13 @@ public enum SpeakingCallInput: Equatable, Sendable {
     case reconnectTimedOut
     case goAway
     case resumptionHandle(String)
+    case resumptionUnavailable
     case aiRequestedEnd
     case learnerEnded
     case wrapUpDue
     case hardLimitReached
     case audioInterrupted
+    case audioFailure
     case connectFailed(SpeakingCallFailure)
 }
 
@@ -85,6 +87,9 @@ public struct SpeakingCallState: Equatable, Sendable {
         case let .connectFailed(failure):
             phase = .failed(failure)
             return [.closeSocket]
+        case .audioInterrupted:
+            phase = .ended(.interrupted)
+            return [.closeSocket]
         case .learnerEnded:
             phase = .ended(.learnerEnded)
             return [.closeSocket]
@@ -97,6 +102,9 @@ public struct SpeakingCallState: Equatable, Sendable {
         switch input {
         case let .resumptionHandle(handle):
             resumptionHandle = handle
+            return []
+        case .resumptionUnavailable:
+            resumptionHandle = nil
             return []
         case .transportDropped:
             return reconnectAfterTransportDrop()
@@ -112,6 +120,8 @@ public struct SpeakingCallState: Equatable, Sendable {
             return finish(reason: .timeLimit, phase: .ended(.timeLimit))
         case .audioInterrupted:
             return finish(reason: .interrupted, phase: .ended(.interrupted))
+        case .audioFailure:
+            return finish(reason: .interrupted, phase: .failed(.microphoneDenied))
         case let .connectFailed(failure) where failure.isFatal:
             return finish(reason: .connectionLost, phase: .failed(failure))
         default:
@@ -169,6 +179,9 @@ public struct SpeakingCallState: Equatable, Sendable {
                 ? .failed(failure)
                 : .ended(.connectionLost)
             return finish(reason: .connectionLost, phase: terminalPhase)
+        case .resumptionUnavailable:
+            resumptionHandle = nil
+            return []
         case .aiRequestedEnd:
             return finish(reason: .aiEnded, phase: .ended(.aiEnded))
         case .learnerEnded:
@@ -177,6 +190,8 @@ public struct SpeakingCallState: Equatable, Sendable {
             return finish(reason: .timeLimit, phase: .ended(.timeLimit))
         case .audioInterrupted:
             return finish(reason: .interrupted, phase: .ended(.interrupted))
+        case .audioFailure:
+            return finish(reason: .interrupted, phase: .failed(.microphoneDenied))
         default:
             return []
         }
