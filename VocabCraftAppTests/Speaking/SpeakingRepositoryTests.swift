@@ -63,6 +63,7 @@ struct SpeakingRepositoryTests {
         let first = SavedPhrase.fixture(suggestion: "I'd like a latte")
         #expect(try await repo.savePhrase(first))
         #expect(try await repo.savePhrase(.fixture(suggestion: "  I'D LIKE A LATTE \n")) == false)
+        #expect(try await repo.savePhrase(.fixture(suggestion: "I’D like a latte!")) == false)
         #expect(try await repo.phrases() == [first])
         try await repo.deletePhrase(id: UUID())
         try await repo.deletePhrase(id: first.id)

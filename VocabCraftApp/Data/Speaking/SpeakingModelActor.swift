@@ -48,8 +48,7 @@ public actor SpeakingModelActor: SpeakingRepositoryProtocol {
     }
 
     public func savePhrase(_ phrase: SavedPhrase) throws -> Bool {
-        // Task 12 replaces this temporary normalization with QuoteNormalizer.
-        let key = phrase.suggestion.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let key = QuoteNormalizer.normalize(phrase.suggestion)
         let id = phrase.id
         var descriptor = FetchDescriptor<SavedPhraseRecord>(
             predicate: #Predicate { $0.dedupeKey == key || $0.id == id }

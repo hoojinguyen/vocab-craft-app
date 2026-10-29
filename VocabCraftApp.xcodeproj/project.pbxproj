@@ -33,6 +33,12 @@
 		E50000000000000000000003 /* LiveTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000003 /* LiveTransport.swift */; };
 		E50000000000000000000004 /* URLSessionLiveTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000004 /* URLSessionLiveTransport.swift */; };
 		E50000000000000000000005 /* LiveMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000005 /* LiveMessagesTests.swift */; };
+		A61100000000000000000001 /* SpeakingAnalysisRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000001 /* SpeakingAnalysisRequestBuilder.swift */; };
+		A61100000000000000000002 /* SpeakingAnalysisValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000002 /* SpeakingAnalysisValidator.swift */; };
+		A61100000000000000000003 /* GeminiSpeakingAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000003 /* GeminiSpeakingAnalyzer.swift */; };
+		A61100000000000000000004 /* SpeakingAnalyzing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000004 /* SpeakingAnalyzing.swift */; };
+		A61100000000000000000005 /* SpeakingAnalysisValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000005 /* SpeakingAnalysisValidatorTests.swift */; };
+		A61100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift */; };
 
 		B30000000000000000000007 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000007 /* Fixtures */; };
 		B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000006 /* SpeakingModelsCodableTests.swift */; };
@@ -502,6 +508,12 @@
 		E60000000000000000000003 /* LiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTransport.swift; sourceTree = "<group>"; };
 		E60000000000000000000004 /* URLSessionLiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionLiveTransport.swift; sourceTree = "<group>"; };
 		E60000000000000000000005 /* LiveMessagesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/LiveMessagesTests.swift"; sourceTree = "<group>"; };
+		A62100000000000000000001 /* SpeakingAnalysisRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingAnalysisRequestBuilder.swift; sourceTree = "<group>"; };
+		A62100000000000000000002 /* SpeakingAnalysisValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingAnalysisValidator.swift; sourceTree = "<group>"; };
+		A62100000000000000000003 /* GeminiSpeakingAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiSpeakingAnalyzer.swift; sourceTree = "<group>"; };
+		A62100000000000000000004 /* SpeakingAnalyzing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingAnalyzing.swift"; sourceTree = "<group>"; };
+		A62100000000000000000005 /* SpeakingAnalysisValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingAnalysisValidatorTests.swift"; sourceTree = "<group>"; };
+		A62100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/GeminiSpeakingAnalyzerTests.swift"; sourceTree = "<group>"; };
 
 		A30000000000000000000007 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Speaking/Fixtures; sourceTree = "<group>"; };
 		A30000000000000000000006 /* SpeakingModelsCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingModelsCodableTests.swift"; sourceTree = "<group>"; };
@@ -1252,6 +1264,7 @@
 				A30000000000000000000003 /* SpeakingPromptBuilder.swift */,
 				A30000000000000000000002 /* SpeakingAnalysis.swift */,
 				A30000000000000000000001 /* SpeakingModels.swift */,
+				A62100000000000000000004 /* SpeakingAnalyzing.swift */,
 				A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */,
 				4000C597CF74B9A0760A /* Entities */,
 				4000260E29F35C2EBCD5 /* Models */,
@@ -1919,6 +1932,8 @@
 				D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */,
 				D60000000000000000000002 /* SpeakingWordPickerTests.swift */,
 				E60000000000000000000005 /* LiveMessagesTests.swift */,
+				A62100000000000000000005 /* SpeakingAnalysisValidatorTests.swift */,
+				A62100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift */,
 				A30000000000000000000007 /* Fixtures */,
 				A30000000000000000000006 /* SpeakingModelsCodableTests.swift */,
 				A40000000000000000000005 /* SchemaV4MigrationTests.swift */,
@@ -2258,6 +2273,7 @@
 				C60000000000000000000002 /* SpeakingWordPicker.swift */,
 				A40000000000000000000002 /* SpeakingModelActor.swift */,
 				E40000000000000000000001 /* Live */,
+				A63100000000000000000001 /* Analysis */,
 			);
 			path = Speaking;
 			sourceTree = "<group>";
@@ -2283,6 +2299,16 @@
 				E60000000000000000000004 /* URLSessionLiveTransport.swift */,
 			);
 			path = Live;
+			sourceTree = "<group>";
+		};
+		A63100000000000000000001 /* Analysis */ = {
+			isa = PBXGroup;
+			children = (
+				A62100000000000000000001 /* SpeakingAnalysisRequestBuilder.swift */,
+				A62100000000000000000002 /* SpeakingAnalysisValidator.swift */,
+				A62100000000000000000003 /* GeminiSpeakingAnalyzer.swift */,
+			);
+			path = Analysis;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2451,6 +2477,10 @@
 				E50000000000000000000002 /* LiveServerEvent.swift in Sources */,
 				E50000000000000000000003 /* LiveTransport.swift in Sources */,
 				E50000000000000000000004 /* URLSessionLiveTransport.swift in Sources */,
+				A61100000000000000000001 /* SpeakingAnalysisRequestBuilder.swift in Sources */,
+				A61100000000000000000002 /* SpeakingAnalysisValidator.swift in Sources */,
+				A61100000000000000000003 /* GeminiSpeakingAnalyzer.swift in Sources */,
+				A61100000000000000000004 /* SpeakingAnalyzing.swift in Sources */,
 				C50000000000000000000001 /* SpeakingBlueprintCatalog.swift in Sources */,
 				C50000000000000000000002 /* SpeakingWordPicker.swift in Sources */,
 				B40000000000000000000003 /* SpeakingRepositoryProtocol.swift in Sources */,
@@ -2728,6 +2758,8 @@
 				D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */,
 				D50000000000000000000002 /* SpeakingWordPickerTests.swift in Sources */,
 				E50000000000000000000005 /* LiveMessagesTests.swift in Sources */,
+				A61100000000000000000005 /* SpeakingAnalysisValidatorTests.swift in Sources */,
+				A61100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift in Sources */,
 				B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */,
 				B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */,
 				B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */,

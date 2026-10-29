@@ -1,0 +1,12 @@
+{
+  "learnerTranscript": [{"turnIndex": 1, "text": "I want coffee."}],
+  "scores": {
+    "fluency": {"value": 6, "reason": "Tốt."},
+    "grammar": {"value": 3, "reason": "Tốt."},
+    "vocabulary": {"value": 3, "reason": "Tốt."},
+    "pronunciation": {"value": 3, "reason": "Tốt."}
+  },
+  "corrections": [], "naturalPhrasings": [], "pronunciation": [], "targetWords": [],
+  "objective": {"met": true, "note": "Hoàn thành."},
+  "summary": {"strengths": [], "focusNext": []}
+}

@@ -1,0 +1,21 @@
+{
+  "learnerTranscript": [{"turnIndex": 1, "text": "I want coffee."}],
+  "scores": {
+    "fluency": {"value": 3, "reason": "Nhịp nói rõ."},
+    "grammar": {"value": 3, "reason": "Cấu trúc cơ bản tốt."},
+    "vocabulary": {"value": 3, "reason": "Từ vựng phù hợp."},
+    "pronunciation": {"value": 3, "reason": "Phát âm dễ hiểu."}
+  },
+  "corrections": [
+    {"turnIndex": 1, "original": "I want coffee", "corrected": "I would like coffee", "category": "wordChoice", "explanation": "Lịch sự hơn."},
+    {"turnIndex": 1, "original": "I ordered a strawberry cake", "corrected": "I ordered the strawberry cake", "category": "grammar", "explanation": "Câu này không có trong bản ghi."}
+  ],
+  "naturalPhrasings": [
+    {"original": "I want coffee", "natural": "Could I have a coffee?", "note": "Tự nhiên hơn."},
+    {"original": "I love this place", "natural": "I really like this cafe.", "note": "Câu bịa."}
+  ],
+  "pronunciation": [],
+  "targetWords": [],
+  "objective": {"met": true, "note": "Đã gọi đồ uống."},
+  "summary": {"strengths": ["Diễn đạt rõ."], "focusNext": ["Luyện cách gọi món."]}
+}
