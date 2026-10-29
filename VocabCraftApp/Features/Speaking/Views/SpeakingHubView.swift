@@ -51,7 +51,11 @@ struct SpeakingHubView: View {
                         pendingRoute = .result(sessionId)
                     }
                 }
-            case .prepare, .result, .phrasebook:
+            case let .result(sessionId):
+                SpeakingResultView(viewModel: appContainer.makeSpeakingResultViewModel(sessionId: sessionId))
+            case .phrasebook:
+                SpeakingPhrasebookView(repository: appContainer.speakingRepository, ttsService: appContainer.ttsService)
+            case .prepare:
                 EmptyView()
             }
         }
@@ -64,7 +68,11 @@ struct SpeakingHubView: View {
                         pendingRoute = .result(sessionId)
                     }
                 }
-            case .prepare, .result, .phrasebook:
+            case let .result(sessionId):
+                SpeakingResultView(viewModel: appContainer.makeSpeakingResultViewModel(sessionId: sessionId))
+            case .phrasebook:
+                SpeakingPhrasebookView(repository: appContainer.speakingRepository, ttsService: appContainer.ttsService)
+            case .prepare:
                 EmptyView()
             }
         }
@@ -124,7 +132,8 @@ struct SpeakingHubView: View {
             CraftListRow(
                 title: AppStrings.Speaking.hubPhrasebook,
                 iconName: "book.closed",
-                showChevron: false
+                showChevron: true,
+                action: { pendingRoute = .phrasebook }
             )
         }
     }

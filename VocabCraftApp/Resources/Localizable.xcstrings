@@ -15471,6 +15471,23 @@
         }
       }
     },
+    "app.speaking.result.score_value": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/5"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld/5"
+          }
+        }
+      }
+    },
     "app.speaking.result.scores": {
       "extractionState": "manual",
       "localizations": {
@@ -15501,6 +15518,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Điểm bạn đã làm tốt"
+          }
+        }
+      }
+    },
+    "app.speaking.result.target_unused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not used"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa dùng"
+          }
+        }
+      }
+    },
+    "app.speaking.result.target_used_correctly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used correctly"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dùng đúng"
+          }
+        }
+      }
+    },
+    "app.speaking.result.target_used_incorrectly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review usage"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần ôn cách dùng"
           }
         }
       }

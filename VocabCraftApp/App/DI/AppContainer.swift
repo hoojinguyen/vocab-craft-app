@@ -277,6 +277,15 @@ public final class AppContainer {
         )
     }
 
+    public func makeSpeakingResultViewModel(sessionId: UUID) -> SpeakingResultViewModel {
+        SpeakingResultViewModel(
+            sessionId: sessionId,
+            repository: speakingRepository,
+            analyze: analyzeSpeakingSessionUseCase,
+            storage: Self.makeSpeakingAudioStorage()
+        )
+    }
+
     public func makeSpeakingCallController(plan: SpeakingSessionPlan) -> SpeakingCallController? {
         let apiKey = userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !apiKey.isEmpty else { return nil }

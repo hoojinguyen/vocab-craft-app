@@ -64,6 +64,12 @@ extension AppStrings {
         public static var resultAnalyzingText: String { String(localized: "app.speaking.result.analyzing", defaultValue: "Reviewing your conversation…", bundle: .module) }
         public static var resultFailed: LocalizedStringKey { "app.speaking.result.failed" }
         public static var resultFailedText: String { String(localized: "app.speaking.result.failed", defaultValue: "We couldn't analyze this session.", bundle: .module) }
+        public static func resultScoreValueText(value: Int) -> String {
+            String(
+                format: String(localized: "app.speaking.result.score_value", defaultValue: "%lld/5", bundle: .module),
+                value
+            )
+        }
         public static var resultRetry: LocalizedStringKey { "app.speaking.result.retry" }
         public static var resultRetryText: String { String(localized: "app.speaking.result.retry", defaultValue: "Try again", bundle: .module) }
         public static var resultTooShort: LocalizedStringKey { "app.speaking.result.too_short" }
@@ -88,6 +94,9 @@ extension AppStrings {
         public static var resultPronunciationNotesText: String { String(localized: "app.speaking.result.pronunciation_notes", defaultValue: "Pronunciation notes", bundle: .module) }
         public static var resultTargetWords: LocalizedStringKey { "app.speaking.result.target_words" }
         public static var resultTargetWordsText: String { String(localized: "app.speaking.result.target_words", defaultValue: "Practice words used", bundle: .module) }
+        public static var resultTargetUsedCorrectly: LocalizedStringKey { "app.speaking.result.target_used_correctly" }
+        public static var resultTargetUsedIncorrectly: LocalizedStringKey { "app.speaking.result.target_used_incorrectly" }
+        public static var resultTargetUnused: LocalizedStringKey { "app.speaking.result.target_unused" }
         public static var resultObjectiveMet: LocalizedStringKey { "app.speaking.result.objective_met" }
         public static var resultObjectiveMetText: String { String(localized: "app.speaking.result.objective_met", defaultValue: "Goal reached", bundle: .module) }
         public static var resultObjectiveNotMet: LocalizedStringKey { "app.speaking.result.objective_not_met" }
