@@ -60,6 +60,16 @@ struct GeminiSpeakingAnalyzerTests {
         }
     }
 
+    @Test func serializedBodyWithinLimitIsAcceptedNearBoundary() throws {
+        let audio = Data(repeating: 0, count: 15_726_390)
+        let request = try SpeakingAnalysisRequestBuilder.makeRequest(
+            apiKey: "test-key", session: session(plan: .fixture()), audio: audio
+        )
+        let body = try #require(request.httpBody)
+        #expect(body.count <= 20 * 1_024 * 1_024)
+        #expect(0...(16) ~= (20 * 1_024 * 1_024 - body.count))
+    }
+
     @Test func missingApiKeyIsRejectedWithoutSending() async throws {
         let urlSession = session(statusCode: 200, data: Data())
         let analyzer = GeminiSpeakingAnalyzer(apiKey: { " \n " }, session: urlSession)
@@ -97,6 +107,16 @@ struct GeminiSpeakingAnalyzerTests {
         let file = try audioFile()
         defer { try? FileManager.default.removeItem(at: file) }
         await #expect(throws: SpeakingAnalysisError.network) {
+            try await analyzer.analyze(session(), audioURL: file)
+        }
+    }
+
+    @Test func urlSessionCancellationRemainsCancellation() async throws {
+        let urlSession = StubURLProtocol.makeSession { _ in throw URLError(.cancelled) }
+        let analyzer = GeminiSpeakingAnalyzer(apiKey: { "test-key" }, session: urlSession)
+        let file = try audioFile()
+        defer { try? FileManager.default.removeItem(at: file) }
+        await #expect(throws: CancellationError.self) {
             try await analyzer.analyze(session(), audioURL: file)
         }
     }

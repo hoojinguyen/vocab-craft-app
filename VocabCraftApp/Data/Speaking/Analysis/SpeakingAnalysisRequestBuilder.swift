@@ -10,10 +10,6 @@ public struct SpeakingAnalysisRequestBuilder {
         audio: Data
     ) throws -> URLRequest {
         let prompt = prompt(for: session)
-        let encodedAudioSize = ((audio.count + 2) / 3) * 4
-        guard encodedAudioSize + prompt.utf8.count + 2_048 <= maximumRequestBytes else {
-            throw SpeakingAnalysisError.invalidResponse
-        }
 
         guard let url = URL(string: endpoint) else {
             throw SpeakingAnalysisError.invalidResponse

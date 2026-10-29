@@ -13,16 +13,24 @@ public enum SpeakingAnalysisValidator {
         let corrections = raw.corrections.filter { containsQuote($0.original, in: transcript) }.prefix(5)
         let naturalPhrasings = raw.naturalPhrasings.filter { containsQuote($0.original, in: transcript) }.prefix(3)
         let pronunciation = raw.pronunciation.prefix(3)
-        let targetWords: [SpeakingAnalysis.TargetWordUse]
-        if plan.targetWords.isEmpty {
-            targetWords = []
-        } else {
-            targetWords = raw.targetWords.prefix(3).map { word in
-                guard word.used, let quote = word.quote, containsQuote(quote, in: transcript) else {
-                    return .init(lemma: word.lemma, used: false, usedCorrectly: false, quote: nil)
-                }
-                return word
+        let reportedTargetWords = Dictionary(
+            raw.targetWords.map { (QuoteNormalizer.normalize($0.lemma), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let targetWords = plan.targetWords.prefix(3).map { requestedWord in
+            let lemma = requestedWord.lemma
+            guard let reportedWord = reportedTargetWords[QuoteNormalizer.normalize(lemma)],
+                  reportedWord.used,
+                  let quote = reportedWord.quote,
+                  containsQuote(quote, in: transcript),
+                  containsLemma(lemma, in: quote) else {
+                return SpeakingAnalysis.TargetWordUse(
+                    lemma: lemma, used: false, usedCorrectly: false, quote: nil
+                )
             }
+            return SpeakingAnalysis.TargetWordUse(
+                lemma: lemma, used: true, usedCorrectly: reportedWord.usedCorrectly, quote: quote
+            )
         }
 
         return SpeakingAnalysis(
@@ -40,5 +48,12 @@ public enum SpeakingAnalysisValidator {
     private static func containsQuote(_ quote: String, in transcript: String) -> Bool {
         let normalizedQuote = QuoteNormalizer.normalize(quote)
         return !normalizedQuote.isEmpty && transcript.contains(normalizedQuote)
+    }
+
+    private static func containsLemma(_ lemma: String, in quote: String) -> Bool {
+        let normalizedLemma = QuoteNormalizer.normalize(lemma)
+        let normalizedQuote = QuoteNormalizer.normalize(quote)
+        guard !normalizedLemma.isEmpty else { return false }
+        return (" \(normalizedQuote) ").contains(" \(normalizedLemma) ")
     }
 }

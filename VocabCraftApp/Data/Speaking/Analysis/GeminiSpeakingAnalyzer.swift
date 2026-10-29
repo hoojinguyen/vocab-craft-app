@@ -27,6 +27,8 @@ public struct GeminiSpeakingAnalyzer: SpeakingAnalyzing {
             (responseData, response) = try await urlSession.data(for: request)
         } catch is CancellationError {
             throw CancellationError()
+        } catch let error as URLError where error.code == .cancelled {
+            throw CancellationError()
         } catch {
             throw SpeakingAnalysisError.network
         }
