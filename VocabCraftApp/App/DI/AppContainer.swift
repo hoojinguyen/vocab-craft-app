@@ -19,6 +19,8 @@ public final class AppContainer {
     public let srsRepository: SRSRepositoryProtocol
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
     public let shadowingProgressRepository: any ShadowingProgressRepositoryProtocol
+    public let speakingRepository: any SpeakingRepositoryProtocol
+    public let analyzeSpeakingSessionUseCase: AnalyzeSpeakingSessionUseCase
 
     // MARK: - Services
     public let audioSessionCoordinator: any AudioSessionCoordinating
@@ -99,6 +101,16 @@ public final class AppContainer {
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
         self.shadowingProgressRepository = shadowingProgressRepository ?? ShadowingProgressRepositoryImpl()
 
+        let speakingRepository: any SpeakingRepositoryProtocol
+        if shouldMock || modelContainer == nil {
+            speakingRepository = InMemorySpeakingRepository()
+        } else if let modelContainer {
+            speakingRepository = SpeakingModelActor(modelContainer: modelContainer)
+        } else {
+            speakingRepository = InMemorySpeakingRepository()
+        }
+        self.speakingRepository = speakingRepository
+
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
         let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
         #else
@@ -107,6 +119,16 @@ public final class AppContainer {
         let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
+
+        let speakingStorage = Self.makeSpeakingAudioStorage()
+        let speakingAnalyzer = GeminiSpeakingAnalyzer(apiKey: { [effectiveUserSettingsStore] in
+            await MainActor.run { effectiveUserSettingsStore.geminiApiKey }
+        })
+        self.analyzeSpeakingSessionUseCase = AnalyzeSpeakingSessionUseCase(
+            repository: speakingRepository,
+            analyzer: speakingAnalyzer,
+            storage: speakingStorage
+        )
 
         let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
             ?? AudioSessionCoordinator()
@@ -243,6 +265,29 @@ public final class AppContainer {
             userSettings: userSettingsStore,
             claimTreasureRewardUseCase: claimTreasureRewardUseCase,
             fastTrackUnitUseCase: fastTrackUnitUseCase
+        )
+    }
+
+    public func makeSpeakingHubViewModel() -> SpeakingHubViewModel {
+        let wordPicker = SpeakingWordPicker(progressRepository: userProgressRepository, vocabulary: vocabularyDataSource)
+        return SpeakingHubViewModel(
+            repository: speakingRepository,
+            wordPicker: wordPicker,
+            precheck: SpeakingPrecheck(settings: userSettingsStore)
+        )
+    }
+
+    public func makeSpeakingCallController(plan: SpeakingSessionPlan) -> SpeakingCallController? {
+        let apiKey = userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !apiKey.isEmpty else { return nil }
+        let storage = Self.makeSpeakingAudioStorage()
+        return SpeakingCallController(
+            plan: plan,
+            apiKey: apiKey,
+            transport: URLSessionLiveTransport(),
+            audio: VoiceProcessingAudioIO(),
+            recorder: LearnerRecorder(storage: storage),
+            audioSession: audioSessionCoordinator
         )
     }
 
@@ -447,6 +492,53 @@ extension AppContainer {
         )
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
+
+    private static func makeSpeakingAudioStorage() -> SpeakingAudioStorage {
+        let baseDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        let directory = baseDirectory
+            .appendingPathComponent("VocabCraft", isDirectory: true)
+            .appendingPathComponent("SpeakingAudio", isDirectory: true)
+        return SpeakingAudioStorage(directory: directory)
+    }
+}
+
+private actor InMemorySpeakingRepository: SpeakingRepositoryProtocol {
+    private var sessionsByID: [UUID: SpeakingSessionSnapshot] = [:]
+    private var savedPhrases: [UUID: SavedPhrase] = [:]
+
+    func save(_ session: SpeakingSessionSnapshot) { sessionsByID[session.id] = session }
+    func session(id: UUID) -> SpeakingSessionSnapshot? { sessionsByID[id] }
+    func sessions(limit: Int?) -> [SpeakingSessionSnapshot] {
+        let values = sessionsByID.values.sorted { $0.startedAt > $1.startedAt }
+        return limit.map { Array(values.prefix(max(0, $0))) } ?? values
+    }
+    func updateAnalysis(sessionId: UUID, status: SpeakingSessionStatus, analysis: SpeakingAnalysis?) {
+        guard var session = sessionsByID[sessionId] else { return }
+        session.status = status
+        session.analysis = analysis
+        sessionsByID[sessionId] = session
+    }
+    func savePhrase(_ phrase: SavedPhrase) -> Bool {
+        let key = QuoteNormalizer.normalize(phrase.suggestion)
+        guard !savedPhrases.values.contains(where: { QuoteNormalizer.normalize($0.suggestion) == key }) else { return false }
+        savedPhrases[phrase.id] = phrase
+        return true
+    }
+    func phrases() -> [SavedPhrase] { savedPhrases.values.sorted { $0.createdAt > $1.createdAt } }
+    func deletePhrase(id: UUID) { savedPhrases[id] = nil }
+    func detachAudio(keepingLatest count: Int) -> [String] {
+        let ordered = sessionsByID.values.sorted { $0.startedAt > $1.startedAt }
+        var removed: [String] = []
+        for var session in ordered.dropFirst(max(0, count)) {
+            if let fileName = session.audioFileName {
+                removed.append(fileName)
+                session.audioFileName = nil
+                sessionsByID[session.id] = session
+            }
+        }
+        return removed
+    }
 }
 
 /// Keeps previews and tests from reading or writing the real App Group widget deck.

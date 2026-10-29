@@ -17,7 +17,7 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
         switch self {
         case .home: return AppStrings.Tabs.home
         case .vocabulary: return AppStrings.Tabs.vocabulary
-        case .aiAssistant: return AppStrings.Tabs.aiAssistant
+        case .aiAssistant: return AppStrings.Speaking.tab
         case .reflex: return AppStrings.Tabs.reflex
         case .settings: return AppStrings.Tabs.settings
         }

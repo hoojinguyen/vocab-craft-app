@@ -49,7 +49,7 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertEqual(TabItem.home.symbol, CraftSymbol.homeFill.rawValue)
         XCTAssertEqual(TabItem.vocabulary.titleKey, AppStrings.Tabs.vocabulary)
         XCTAssertEqual(TabItem.vocabulary.symbol, CraftSymbol.booksFill.rawValue)
-        XCTAssertEqual(TabItem.aiAssistant.titleKey, AppStrings.Tabs.aiAssistant)
+        XCTAssertEqual(TabItem.aiAssistant.titleKey, AppStrings.Speaking.tab)
         XCTAssertEqual(TabItem.aiAssistant.symbol, CraftSymbol.sparkles.rawValue)
         XCTAssertEqual(TabItem.reflex.titleKey, AppStrings.Tabs.reflex)
         XCTAssertEqual(TabItem.reflex.symbol, CraftSymbol.practice.rawValue)

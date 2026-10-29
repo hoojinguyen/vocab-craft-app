@@ -24,6 +24,11 @@
 		13A000000000000000000002 /* SpeakingPrecheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B000000000000000000002 /* SpeakingPrecheck.swift */; };
 		13A000000000000000000003 /* SpeakingLocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B000000000000000000003 /* SpeakingLocalizationTests.swift */; };
 		13A000000000000000000004 /* SpeakingPrecheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B000000000000000000004 /* SpeakingPrecheckTests.swift */; };
+		14A000000000000000000001 /* SpeakingRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000001 /* SpeakingRoute.swift */; };
+		14A000000000000000000002 /* SpeakingHubViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000002 /* SpeakingHubViewModel.swift */; };
+		14A000000000000000000003 /* SpeakingHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000003 /* SpeakingHubView.swift */; };
+		14A000000000000000000004 /* SpeakingPrepareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000004 /* SpeakingPrepareView.swift */; };
+		14A000000000000000000005 /* SpeakingHubViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000005 /* SpeakingHubViewModelTests.swift */; };
 		F70000000000000000000001 /* TranscriptAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TranscriptAssembler.swift */; };
 		F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* TranscriptAssemblerTests.swift */; };
 		G70000000000000000000001 /* SpeakingCallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = G80000000000000000000001 /* SpeakingCallState.swift */; };
@@ -51,7 +56,6 @@
 		B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000003 /* SpeakingPromptBuilder.swift */; };
 		B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000002 /* SpeakingAnalysis.swift */; };
 		B30000000000000000000001 /* SpeakingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000001 /* SpeakingModels.swift */; };
-		3000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift */; };
 		30003B7100030009 /* WidgetBackgroundContrastTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010009 /* WidgetBackgroundContrastTests.swift */; };
 		30003B7100020007 /* VocabWidgetPreviews.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
 		30003B7100030007 /* VocabWidgetPreviews.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B7100010007 /* VocabWidgetPreviews.swift */; };
@@ -528,7 +532,11 @@
 		A30000000000000000000003 /* SpeakingPromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingPromptBuilder.swift"; sourceTree = "<group>"; };
 		A30000000000000000000002 /* SpeakingAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingAnalysis.swift"; sourceTree = "<group>"; };
 		A30000000000000000000001 /* SpeakingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingModels.swift"; sourceTree = "<group>"; };
-		2000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingHubPlaceholderView.swift; sourceTree = "<group>"; };
+		14B000000000000000000001 /* SpeakingRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingRoute.swift; sourceTree = "<group>"; };
+		14B000000000000000000002 /* SpeakingHubViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingHubViewModel.swift; sourceTree = "<group>"; };
+		14B000000000000000000003 /* SpeakingHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingHubView.swift; sourceTree = "<group>"; };
+		14B000000000000000000004 /* SpeakingPrepareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPrepareView.swift; sourceTree = "<group>"; };
+		14B000000000000000000005 /* SpeakingHubViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingHubViewModelTests.swift"; sourceTree = "<group>"; };
 		A92000000000000000000001 /* SpeakingCallController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingCallController.swift; sourceTree = "<group>"; };
 		A92000000000000000000002 /* SpeakingCallControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingCallControllerTests.swift"; sourceTree = "<group>"; };
 		A92000000000000000000003 /* FakeLiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/Fakes/FakeLiveTransport.swift"; sourceTree = "<group>"; };
@@ -969,6 +977,8 @@
 		4000ABCDEF00000000000001 /* Speaking */ = {
 			isa = PBXGroup;
 			children = (
+				14B000000000000000000001 /* SpeakingRoute.swift */,
+				14B000000000000000000002 /* SpeakingHubViewModel.swift */,
 				13B000000000000000000002 /* SpeakingPrecheck.swift */,
 				A92000000000000000000001 /* SpeakingCallController.swift */,
 				A92000000000000000000005 /* SpeakingMonotonicClock.swift */,
@@ -980,7 +990,8 @@
 		4000ABCDEF00000000000002 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				2000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift */,
+				14B000000000000000000003 /* SpeakingHubView.swift */,
+				14B000000000000000000004 /* SpeakingPrepareView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1936,6 +1947,7 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				14B000000000000000000005 /* SpeakingHubViewModelTests.swift */,
 				13B000000000000000000003 /* SpeakingLocalizationTests.swift */,
 				13B000000000000000000004 /* SpeakingPrecheckTests.swift */,
 				A92000000000000000000002 /* SpeakingCallControllerTests.swift */,
@@ -2650,7 +2662,10 @@
 				30002FFDE20095760CB8 /* HomeSkeletonView.swift in Sources */,
 				3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
-				3000ABCDEF00000000000001 /* SpeakingHubPlaceholderView.swift in Sources */,
+				14A000000000000000000001 /* SpeakingRoute.swift in Sources */,
+				14A000000000000000000002 /* SpeakingHubViewModel.swift in Sources */,
+				14A000000000000000000003 /* SpeakingHubView.swift in Sources */,
+				14A000000000000000000004 /* SpeakingPrepareView.swift in Sources */,
 				30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */,
 				300047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
@@ -2769,6 +2784,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				H70000000000000000000006 /* PCMConverterTests.swift in Sources */,
+				14A000000000000000000005 /* SpeakingHubViewModelTests.swift in Sources */,
 				H70000000000000000000007 /* LearnerRecorderTests.swift in Sources */,
 				H70000000000000000000008 /* SpeakingAudioStorageTests.swift in Sources */,
 				13A000000000000000000003 /* SpeakingLocalizationTests.swift in Sources */,

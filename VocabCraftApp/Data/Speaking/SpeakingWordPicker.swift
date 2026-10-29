@@ -1,7 +1,7 @@
 import Foundation
 
 /// Selects learned vocabulary that needs the most speaking practice.
-struct SpeakingWordPicker {
+struct SpeakingWordPicker: Sendable {
     private let progressRepository: any UserProgressRepositoryProtocol
     private let vocabulary: any VocabularyDataSourceProtocol
 
