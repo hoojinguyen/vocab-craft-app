@@ -100,7 +100,15 @@ struct VocabCraftApp: App {
     @ViewBuilder
     private func contentView(for appContainer: AppContainer) -> some View {
         let args = ProcessInfo.processInfo.arguments
-        if args.contains("-show-shadowing") {
+        if args.contains("-show-speaking-hub") {
+            SpeakingHubView(
+                viewModel: appContainer.makeSpeakingHubViewModel(),
+                appContainer: appContainer
+            )
+            .environment(\.appContainer, appContainer)
+            .environment(\.appRouter, appContainer.appRouter)
+            .environment(\.ttsService, appContainer.ttsService)
+        } else if args.contains("-show-shadowing") {
             ShadowingPracticeView(viewModel: appContainer.makeShadowingPracticeViewModel(for: ShadowingVideoRepositoryImpl.sampleVideo))
                 .environment(\.appContainer, appContainer)
                 .environment(\.appRouter, appContainer.appRouter)

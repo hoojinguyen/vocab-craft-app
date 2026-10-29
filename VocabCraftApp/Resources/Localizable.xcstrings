@@ -1191,23 +1191,6 @@
         }
       }
     },
-    "app.ai_assistant.room.voice_picker_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select AI Voice"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chọn giọng đọc AI"
-          }
-        }
-      }
-    },
     "app.ai_call.active_badge": {
       "extractionState": "manual",
       "localizations": {
@@ -13886,23 +13869,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Luyện nói"
-          }
-        }
-      }
-    },
-    "app.speaking.hub.coming_soon": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speaking practice is being rebuilt."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tính năng luyện nói đang được xây lại."
           }
         }
       }

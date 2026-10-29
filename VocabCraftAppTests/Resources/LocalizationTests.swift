@@ -85,7 +85,7 @@ extension Bundle {
     }
 }
 
-@Suite("Speaking placeholder Localization Tests")
+@Suite("Speaking localization tests")
 struct LocalizationTests {
     init() {
         Bundle.swizzleLocalizationForTesting()
@@ -93,23 +93,19 @@ struct LocalizationTests {
     }
 
     private let expectedKeys: [String: (en: String, vi: String)] = [
-        "app.speaking.hub.title": (en: "Speaking", vi: "Luyện nói"),
-        "app.speaking.hub.coming_soon": (
-            en: "Speaking practice is being rebuilt.",
-            vi: "Tính năng luyện nói đang được xây lại."
-        )
+        "app.speaking.hub.title": (en: "Speaking", vi: "Luyện nói")
     ]
 
-    @Test("Verify Speaking placeholder localization keys exist in EN and VI")
-    func speakingPlaceholderKeysExist() {
+    @Test("Verify active Speaking localization keys exist in EN and VI")
+    func speakingKeysExist() {
         let keys = Array(expectedKeys.keys)
         for key in keys {
             #expect(Bundle.main.localizedString(forKey: key, value: nil, table: nil) != key)
         }
     }
 
-    @Test("Verify Speaking placeholder bilingual parity and catalog integrity in Localizable.xcstrings")
-    func speakingPlaceholderBilingualParity() throws {
+    @Test("Verify active Speaking key bilingual parity and catalog integrity in Localizable.xcstrings")
+    func speakingBilingualParity() throws {
         let catalogStrings = try #require(
             CatalogLookup.catalog(),
             "Localizable.xcstrings must be loaded"
