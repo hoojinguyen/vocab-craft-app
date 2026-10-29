@@ -37,8 +37,8 @@ public final class SpeakingHubViewModel {
         scenarios = SpeakingBlueprintCatalog.all.filter { $0.kind == .scenario }
         topics = SpeakingBlueprintCatalog.all.filter { $0.kind == .topic }
         do {
-            let sessions = try await repository.sessions(limit: 20).sorted { $0.startedAt > $1.startedAt }
-            history = sessions
+            let sessions = try await repository.sessions(limit: nil).sorted { $0.startedAt > $1.startedAt }
+            history = Array(sessions.prefix(20))
             let analyzed = sessions.filter { $0.status == .analyzed && $0.analysis != nil }.prefix(5)
             guard !analyzed.isEmpty else {
                 progress = nil

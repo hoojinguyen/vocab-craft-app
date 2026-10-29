@@ -17,6 +17,22 @@ struct SpeakingHubViewModelTests {
         #expect(model.progress == SpeakingProgressSummary(fluency: 3, grammar: 3, vocabulary: 3, pronunciation: 3, sessionCount: 5))
     }
 
+    @Test func progressIncludesAnalyzedSessionsOlderThanLatestTwentySessions() async {
+        let analyzedSessions = [1, 2, 3, 4, 5].enumerated().map { index, score in
+            snapshot(score: score, status: .analyzed, startedAt: Date(timeIntervalSince1970: Double(index + 1)))
+        }
+        let newerSessions = (6...27).map { timestamp in
+            snapshot(score: 5, status: .analysisFailed, startedAt: Date(timeIntervalSince1970: Double(timestamp)))
+        }
+        let model = makeViewModel(sessions: analyzedSessions + newerSessions)
+
+        await model.load()
+
+        #expect(model.progress == SpeakingProgressSummary(fluency: 3, grammar: 3, vocabulary: 3, pronunciation: 3, sessionCount: 5))
+        #expect(model.history.count == 20)
+        #expect(model.history.first?.startedAt == Date(timeIntervalSince1970: 27))
+    }
+
     @Test func makePlanIncludesWordsOnlyWhenToggled() async {
         let words = [SpeakingTargetWord(wordId: 1, lemma: "market", definitionVi: "chợ")]
         let model = makeViewModel(words: words)
