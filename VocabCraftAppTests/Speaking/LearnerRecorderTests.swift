@@ -83,6 +83,50 @@ struct LearnerRecorderTests {
         #expect(!FileManager.default.fileExists(atPath: storage.url(for: fileName).path))
     }
 
+    @Test func finishDrainsAcceptedAppendAndRejectsLaterPackets() throws {
+        let storage = try temporaryStorage()
+        let appendEnteredQueueing = DispatchSemaphore(value: 0)
+        let allowAppendToQueue = DispatchSemaphore(value: 0)
+        let recorder = LearnerRecorder(
+            storage: storage,
+            beforeWriteEnqueue: {
+                appendEnteredQueueing.signal()
+                allowAppendToQueue.wait()
+            }
+        )
+        let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1))
+        let fileName = try recorder.begin(sessionId: UUID(), format: format)
+        let packet = Data(repeating: 0x10, count: 3_200)
+        let appendDone = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            recorder.append(packet)
+            appendDone.signal()
+        }
+        #expect(appendEnteredQueueing.wait(timeout: .now() + 2) == .success)
+
+        let finishDone = DispatchSemaphore(value: 0)
+        let finishStarted = DispatchSemaphore(value: 0)
+        let finishResult = LockedRecorderResult()
+        DispatchQueue.global().async {
+            finishStarted.signal()
+            finishResult.url = recorder.finish()
+            finishDone.signal()
+        }
+        #expect(finishStarted.wait(timeout: .now() + 2) == .success)
+        #expect(finishDone.wait(timeout: .now() + 1) == .timedOut)
+        allowAppendToQueue.signal()
+
+        #expect(appendDone.wait(timeout: .now() + 2) == .success)
+        #expect(finishDone.wait(timeout: .now() + 2) == .success)
+        let finishedURL = try #require(finishResult.url)
+        recorder.append(Data(repeating: 0, count: 1_600))
+        let file = try AVAudioFile(forReading: finishedURL)
+
+        #expect(finishedURL.lastPathComponent == fileName)
+        #expect(abs(Double(file.length) / file.processingFormat.sampleRate - 0.1) < 0.05)
+        #expect(abs(recorder.elapsed - 0.1) < 0.001)
+    }
+
     private func temporaryStorage() throws -> SpeakingAudioStorage {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("speaking-recorder-\(UUID().uuidString)", isDirectory: true)
@@ -99,5 +143,15 @@ struct LearnerRecorderTests {
             channels[0][frame] = Float(sin(phase))
         }
         return buffer
+    }
+}
+
+private final class LockedRecorderResult: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storedURL: URL?
+
+    var url: URL? {
+        get { lock.withLock { storedURL } }
+        set { lock.withLock { storedURL = newValue } }
     }
 }

@@ -14,6 +14,7 @@ public final class LearnerRecorder: @unchecked Sendable {
     private let writerQueue = DispatchQueue(label: "app.vocabcraft.speaking.recorder-writer")
     private let stateLock = NSLock()
     private let maximumQueuedBytes: Int
+    private let beforeWriteEnqueue: () -> Void
     private var queuedBytes = 0
     private var writer: AVAudioFile?
     private var currentFileName: String?
@@ -25,9 +26,14 @@ public final class LearnerRecorder: @unchecked Sendable {
     private var recordingActive = false
     private var format: AVAudioFormat?
 
-    public init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000) {
+    public convenience init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000) {
+        self.init(storage: storage, maximumQueuedBytes: maximumQueuedBytes, beforeWriteEnqueue: {})
+    }
+
+    init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000, beforeWriteEnqueue: @escaping () -> Void) {
         self.storage = storage
         self.maximumQueuedBytes = max(2, maximumQueuedBytes)
+        self.beforeWriteEnqueue = beforeWriteEnqueue
     }
 
     public func begin(sessionId: UUID, format: AVAudioFormat) throws -> String {
@@ -88,6 +94,7 @@ public final class LearnerRecorder: @unchecked Sendable {
         queuedBytes += pcm16kMono.count
         pendingWriteOperations += 1
         acceptedFrames += Int64(pcm16kMono.count / 2)
+        beforeWriteEnqueue()
         writerQueue.async { [weak self] in
             guard let self else { return }
             defer {
@@ -129,15 +136,13 @@ public final class LearnerRecorder: @unchecked Sendable {
     var pendingWriteOperationCount: Int { stateLock.withLock { pendingWriteOperations } }
 
     public func finish() -> URL? {
-        writerQueue.sync {
+        stateLock.withLock { recordingActive = false }
+        return writerQueue.sync {
             let fileName = currentFileName
             writer = nil
             format = nil
             currentFileName = nil
-            let didFail = stateLock.withLock {
-                recordingActive = false
-                return writeFailed
-            }
+            let didFail = stateLock.withLock { writeFailed }
             guard let fileName else { return nil }
             guard writtenFrames > 0, !didFail else {
                 storage.delete(fileNames: [fileName])
