@@ -1,4 +1,5 @@
 import AVFoundation
+import Dispatch
 import Foundation
 import Testing
 @testable import VocabCraftApp
@@ -64,6 +65,22 @@ struct LearnerRecorderTests {
         #expect(recorder.finish() == nil)
         #expect(!FileManager.default.fileExists(atPath: storage.url(for: fileName).path))
         #expect(recorder.overflowCount == 1)
+    }
+
+    @Test func repeatedConcurrentOverflowDoesNotQueueFailureWorkAndDeletesPartialRecording() throws {
+        let storage = try temporaryStorage()
+        let recorder = LearnerRecorder(storage: storage, maximumQueuedBytes: 2)
+        let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1))
+        let fileName = try recorder.begin(sessionId: UUID(), format: format)
+
+        DispatchQueue.concurrentPerform(iterations: 2_048) { _ in
+            recorder.append(Data([0, 0, 0, 0]))
+        }
+
+        #expect(recorder.overflowCount == 2_048)
+        #expect(recorder.pendingWriteOperationCount == 0)
+        #expect(recorder.finish() == nil)
+        #expect(!FileManager.default.fileExists(atPath: storage.url(for: fileName).path))
     }
 
     private func temporaryStorage() throws -> SpeakingAudioStorage {

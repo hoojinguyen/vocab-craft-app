@@ -21,6 +21,8 @@ public final class LearnerRecorder: @unchecked Sendable {
     private var writtenFrames: Int64 = 0
     private var writeFailed = false
     private var recordedOverflowCount = 0
+    private var pendingWriteOperations = 0
+    private var recordingActive = false
     private var format: AVAudioFormat?
 
     public init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000) {
@@ -54,37 +56,48 @@ public final class LearnerRecorder: @unchecked Sendable {
             currentFileName = fileName
             acceptedFrames = 0
             writtenFrames = 0
-            writeFailed = false
-            stateLock.withLock { queuedBytes = 0; recordedOverflowCount = 0 }
+            stateLock.withLock {
+                queuedBytes = 0
+                recordedOverflowCount = 0
+                pendingWriteOperations = 0
+                writeFailed = false
+                recordingActive = true
+            }
             return fileName
         }
     }
 
-    /// Nonblocking bounded enqueue. Capacity contention or overflow invalidates the recording and is reported by finish().
+    /// Enqueues bounded PCM writes; a failed capacity reservation invalidates the recording synchronously.
     public func append(_ pcm16kMono: Data) {
         guard !pcm16kMono.isEmpty, pcm16kMono.count.isMultiple(of: 2) else { return }
-        guard stateLock.try() else {
-            writerQueue.async { [weak self] in
-                guard let self else { return }
-                self.writeFailed = true
-                self.stateLock.withLock { self.recordedOverflowCount += 1 }
-            }
+        stateLock.lock()
+        guard recordingActive else {
+            stateLock.unlock()
             return
         }
         guard queuedBytes + pcm16kMono.count <= maximumQueuedBytes else {
             recordedOverflowCount += 1
+            writeFailed = true
             stateLock.unlock()
-            writerQueue.async { [weak self] in self?.writeFailed = true }
+            return
+        }
+        guard !writeFailed else {
+            stateLock.unlock()
             return
         }
         queuedBytes += pcm16kMono.count
+        pendingWriteOperations += 1
         acceptedFrames += Int64(pcm16kMono.count / 2)
-        stateLock.unlock()
-
         writerQueue.async { [weak self] in
             guard let self else { return }
-            defer { self.stateLock.withLock { self.queuedBytes -= pcm16kMono.count } }
-            guard !self.writeFailed, let writer = self.writer, let format = self.format else { return }
+            defer {
+                self.stateLock.withLock {
+                    self.queuedBytes -= pcm16kMono.count
+                    self.pendingWriteOperations -= 1
+                }
+            }
+            let shouldWrite = self.stateLock.withLock { !self.writeFailed }
+            guard shouldWrite, let writer = self.writer, let format = self.format else { return }
             do {
                 let frames = pcm16kMono.count / 2
                 guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(frames)),
@@ -101,9 +114,10 @@ public final class LearnerRecorder: @unchecked Sendable {
                 try writer.write(from: buffer)
                 self.writtenFrames += Int64(buffer.frameLength)
             } catch {
-                self.writeFailed = true
+                self.stateLock.withLock { self.writeFailed = true }
             }
         }
+        stateLock.unlock()
     }
 
     public var elapsed: TimeInterval {
@@ -112,14 +126,20 @@ public final class LearnerRecorder: @unchecked Sendable {
 
     public var overflowCount: Int { stateLock.withLock { recordedOverflowCount } }
 
+    var pendingWriteOperationCount: Int { stateLock.withLock { pendingWriteOperations } }
+
     public func finish() -> URL? {
         writerQueue.sync {
             let fileName = currentFileName
             writer = nil
             format = nil
             currentFileName = nil
+            let didFail = stateLock.withLock {
+                recordingActive = false
+                return writeFailed
+            }
             guard let fileName else { return nil }
-            guard writtenFrames > 0, !writeFailed else {
+            guard writtenFrames > 0, !didFail else {
                 storage.delete(fileNames: [fileName])
                 return nil
             }

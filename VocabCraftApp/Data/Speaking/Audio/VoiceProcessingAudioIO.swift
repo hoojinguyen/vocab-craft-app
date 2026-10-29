@@ -37,8 +37,9 @@ final class SpeakingAudioCaptureState: @unchecked Sendable {
         lock.withLock { generation == currentGeneration }
     }
 
-    func reserveCapture(frames: Int, maximumFrames: Int) -> UInt64? {
+    func reserveCapture(frames: Int, maximumFrames: Int, ifCurrentGeneration generation: UInt64) -> UInt64? {
         lock.withLock {
+            guard generation == currentGeneration else { return nil }
             guard frames > 0, pendingFrames + frames <= maximumFrames else {
                 recordFailureLocked()
                 return nil
@@ -173,6 +174,19 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         return SpeakingCaptureSamples(sampleRate: buffer.format.sampleRate, channels: channels)
     }
 
+    static func ownedCaptureSamples(
+        from buffer: AVAudioPCMBuffer,
+        generation: UInt64,
+        captureState: SpeakingAudioCaptureState
+    ) -> SpeakingCaptureSamples? {
+        guard captureState.isCurrent(generation) else { return nil }
+        guard let samples = ownedCaptureSamples(from: buffer) else {
+            captureState.recordFailure(ifCurrentGeneration: generation)
+            return nil
+        }
+        return samples
+    }
+
     static func queuedCapturePacket(
         from samples: SpeakingCaptureSamples,
         generation: UInt64,
@@ -235,13 +249,19 @@ public final class VoiceProcessingAudioIO: SpeakingAudioIO, @unchecked Sendable 
         engine.attach(player)
         engine.connect(player, to: engine.mainMixerNode, format: playbackFormat)
         let maxCaptureFrames = Int(inputFormat.sampleRate * 2)
+        let tapGeneration = captureState.generation
         input.installTap(onBus: 0, bufferSize: 1_024, format: inputFormat) { [weak self] buffer, _ in
             guard let self else { return }
-            guard let ownedSamples = Self.ownedCaptureSamples(from: buffer) else {
-                self.captureState.recordFailure()
-                return
-            }
-            let reservation = self.captureState.reserveCapture(frames: ownedSamples.frameCount, maximumFrames: maxCaptureFrames)
+            guard let ownedSamples = Self.ownedCaptureSamples(
+                from: buffer,
+                generation: tapGeneration,
+                captureState: self.captureState
+            ) else { return }
+            let reservation = self.captureState.reserveCapture(
+                frames: ownedSamples.frameCount,
+                maximumFrames: maxCaptureFrames,
+                ifCurrentGeneration: tapGeneration
+            )
             guard let generation = reservation else { return }
 
             self.captureQueue.async { [self] in

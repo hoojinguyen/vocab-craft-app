@@ -140,6 +140,60 @@ struct PCMConverterTests {
         #expect(captureState.failureCount == 0)
     }
 
+    @Test func staleGraphBadFormatDoesNotIncrementCaptureFailureSignal() throws {
+        let captureState = SpeakingAudioCaptureState()
+        let staleGeneration = captureState.generation
+        captureState.advanceGeneration()
+        let format = try #require(AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 48_000, channels: 1, interleaved: true))
+        let buffer = try #require(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 32))
+        buffer.frameLength = 32
+
+        let samples = VoiceProcessingAudioIO.ownedCaptureSamples(
+            from: buffer,
+            generation: staleGeneration,
+            captureState: captureState
+        )
+
+        #expect(samples == nil)
+        #expect(captureState.failureCount == 0)
+    }
+
+    @Test func currentGraphBadFormatIncrementsCaptureFailureSignal() throws {
+        let captureState = SpeakingAudioCaptureState()
+        let format = try #require(AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 48_000, channels: 1, interleaved: true))
+        let buffer = try #require(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 32))
+        buffer.frameLength = 32
+
+        let samples = VoiceProcessingAudioIO.ownedCaptureSamples(
+            from: buffer,
+            generation: captureState.generation,
+            captureState: captureState
+        )
+
+        #expect(samples == nil)
+        #expect(captureState.failureCount == 1)
+    }
+
+    @Test func staleGraphCaptureQueueSaturationIsIgnored() {
+        let captureState = SpeakingAudioCaptureState()
+        let staleGeneration = captureState.generation
+        captureState.advanceGeneration()
+
+        let reservation = captureState.reserveCapture(frames: 4, maximumFrames: 1, ifCurrentGeneration: staleGeneration)
+
+        #expect(reservation == nil)
+        #expect(captureState.failureCount == 0)
+    }
+
+    @Test func currentGraphCaptureQueueSaturationIsObservable() {
+        let captureState = SpeakingAudioCaptureState()
+
+        let reservation = captureState.reserveCapture(frames: 4, maximumFrames: 1, ifCurrentGeneration: captureState.generation)
+
+        #expect(reservation == nil)
+        #expect(captureState.failureCount == 1)
+    }
+
     @Test func playbackRejectsEmptyPCM() {
         #expect(PCMConverter.playbackBuffer(fromPCM24k: Data()) == nil)
     }
