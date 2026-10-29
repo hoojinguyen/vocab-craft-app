@@ -457,6 +457,8 @@
 		B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000004 /* SpeakingRepositoryTests.swift */; };
 		B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000005 /* SchemaV4MigrationTests.swift */; };
 		B40000000000000000000006 /* AppSchemaV4.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000001 /* AppSchemaV4.swift */; };
+		B40000000000000000000007 /* AnalyzeSpeakingSessionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000006 /* AnalyzeSpeakingSessionUseCase.swift */; };
+		B40000000000000000000008 /* AnalyzeSpeakingSessionUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000007 /* AnalyzeSpeakingSessionUseCaseTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -910,6 +912,8 @@
 		A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		A40000000000000000000004 /* SpeakingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingRepositoryTests.swift"; sourceTree = "<group>"; };
 		A40000000000000000000005 /* SchemaV4MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/SchemaV4MigrationTests.swift"; sourceTree = "<group>"; };
+		A40000000000000000000006 /* AnalyzeSpeakingSessionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/AnalyzeSpeakingSessionUseCase.swift"; sourceTree = "<group>"; };
+		A40000000000000000000007 /* AnalyzeSpeakingSessionUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/AnalyzeSpeakingSessionUseCaseTests.swift"; sourceTree = "<group>"; };
 		F80000000000000000000001 /* TranscriptAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptAssembler.swift; sourceTree = "<group>"; };
 		F80000000000000000000002 /* TranscriptAssemblerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/TranscriptAssemblerTests.swift"; sourceTree = "<group>"; };
 		G80000000000000000000001 /* SpeakingCallState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingCallState.swift"; sourceTree = "<group>"; };
@@ -1265,6 +1269,7 @@
 				A30000000000000000000002 /* SpeakingAnalysis.swift */,
 				A30000000000000000000001 /* SpeakingModels.swift */,
 				A62100000000000000000004 /* SpeakingAnalyzing.swift */,
+				A40000000000000000000006 /* AnalyzeSpeakingSessionUseCase.swift */,
 				A40000000000000000000003 /* SpeakingRepositoryProtocol.swift */,
 				4000C597CF74B9A0760A /* Entities */,
 				4000260E29F35C2EBCD5 /* Models */,
@@ -1936,6 +1941,7 @@
 				A62100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift */,
 				A30000000000000000000007 /* Fixtures */,
 				A30000000000000000000006 /* SpeakingModelsCodableTests.swift */,
+				A40000000000000000000007 /* AnalyzeSpeakingSessionUseCaseTests.swift */,
 				A40000000000000000000005 /* SchemaV4MigrationTests.swift */,
 				A40000000000000000000004 /* SpeakingRepositoryTests.swift */,
 				A30000000000000000000005 /* SpeakingPromptBuilderTests.swift */,
@@ -2551,6 +2557,7 @@
 				3000DD5B9430286C339B /* UserProgressModelActor+Mutations.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				B40000000000000000000002 /* SpeakingModelActor.swift in Sources */,
+				B40000000000000000000007 /* AnalyzeSpeakingSessionUseCase.swift in Sources */,
 				300096397D4172E9A2C5 /* UserWordProgressData.swift in Sources */,
 				30007597124286610F99 /* MockVocabularyDataSource.swift in Sources */,
 				30008C212FC0A55E8C58 /* MockUserProgressRepository.swift in Sources */,
@@ -2761,6 +2768,7 @@
 				A61100000000000000000005 /* SpeakingAnalysisValidatorTests.swift in Sources */,
 				A61100000000000000000006 /* GeminiSpeakingAnalyzerTests.swift in Sources */,
 				B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */,
+				B40000000000000000000008 /* AnalyzeSpeakingSessionUseCaseTests.swift in Sources */,
 				B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */,
 				B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */,
 				B30000000000000000000005 /* SpeakingPromptBuilderTests.swift in Sources */,
