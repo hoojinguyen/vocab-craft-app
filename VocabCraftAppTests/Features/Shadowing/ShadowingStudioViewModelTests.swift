@@ -227,7 +227,7 @@ struct ShadowingStudioViewModelTests {
     @MainActor
     func testRound2PlaybackWithHeadphonesStartsRecording() async {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingStudioViewModel(
             video: sampleVideo,
             sessionCoordinator: sessionCoordinator
@@ -247,7 +247,7 @@ struct ShadowingStudioViewModelTests {
     @MainActor
     func testRound2PlaybackWithoutHeadphonesSkipsRecording() async {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingStudioViewModel(
             video: sampleVideo,
             sessionCoordinator: sessionCoordinator
@@ -265,7 +265,7 @@ struct ShadowingStudioViewModelTests {
     @MainActor
     func testHeadphoneDisconnectionDuringRound2StopsRecording() throws {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingStudioViewModel(
             video: sampleVideo,
             sessionCoordinator: sessionCoordinator
@@ -321,7 +321,7 @@ struct ShadowingStudioViewModelTests {
     func testRound3EchoDrillFullRecordingAndAssessmentFlow() async {
         let sampleVideo = makeSampleVideo()
         let mockAssessment = MockSpeechAssessmentService()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingStudioViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
@@ -496,7 +496,7 @@ struct ShadowingStudioViewModelTests {
     @MainActor
     func testPlayNativeAudioPreparesPlayback() async {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingStudioViewModel(
             video: sampleVideo,
             sessionCoordinator: sessionCoordinator

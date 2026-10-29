@@ -51,7 +51,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentSentence.id == "s1")
@@ -79,7 +79,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.playbackSpeed == 1.0)
@@ -97,7 +97,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startCurrentSentenceAsync()
@@ -112,7 +112,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -166,7 +166,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -198,7 +198,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -216,7 +216,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .listening(levels: [])
@@ -233,7 +233,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator(),
+            sessionCoordinator: makeTestShadowingSessionCoordinator(),
             toggleBookmarkUseCase: mockBookmarkUseCase
         )
 
@@ -261,7 +261,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: MockSpeechAssessmentService(),
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .evaluated(score: 85.0)
@@ -277,7 +277,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentEvaluationTokens == nil)
@@ -308,7 +308,7 @@ struct ShadowingPracticeViewModelTests {
     @MainActor
     func testPlayNativeAudioPreparesPlayback() async {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: MockSpeechAssessmentService(),
@@ -331,7 +331,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .listening(levels: [])
@@ -354,7 +354,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: emptyVideo,
             assessmentService: MockSpeechAssessmentService(),
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentSentence.id.isEmpty)
