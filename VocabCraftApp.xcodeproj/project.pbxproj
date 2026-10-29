@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		H70000000000000000000001 /* PCMConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000001 /* PCMConverter.swift */; };
+		H70000000000000000000002 /* SpeakingAudioIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000002 /* SpeakingAudioIO.swift */; };
+		H70000000000000000000003 /* VoiceProcessingAudioIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000003 /* VoiceProcessingAudioIO.swift */; };
+		H70000000000000000000004 /* LearnerRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000004 /* LearnerRecorder.swift */; };
+		H70000000000000000000005 /* SpeakingAudioStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000005 /* SpeakingAudioStorage.swift */; };
+		H70000000000000000000006 /* PCMConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000006 /* PCMConverterTests.swift */; };
+		H70000000000000000000007 /* LearnerRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000007 /* LearnerRecorderTests.swift */; };
+		H70000000000000000000008 /* SpeakingAudioStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H80000000000000000000008 /* SpeakingAudioStorageTests.swift */; };
 		F70000000000000000000001 /* TranscriptAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TranscriptAssembler.swift */; };
 		F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* TranscriptAssemblerTests.swift */; };
 		G70000000000000000000001 /* SpeakingCallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = G80000000000000000000001 /* SpeakingCallState.swift */; };
@@ -472,6 +480,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		H80000000000000000000001 /* PCMConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PCMConverter.swift; sourceTree = "<group>"; };
+		H80000000000000000000002 /* SpeakingAudioIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingAudioIO.swift; sourceTree = "<group>"; };
+		H80000000000000000000003 /* VoiceProcessingAudioIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceProcessingAudioIO.swift; sourceTree = "<group>"; };
+		H80000000000000000000004 /* LearnerRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnerRecorder.swift; sourceTree = "<group>"; };
+		H80000000000000000000005 /* SpeakingAudioStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingAudioStorage.swift; sourceTree = "<group>"; };
+		H80000000000000000000006 /* PCMConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/PCMConverterTests.swift"; sourceTree = "<group>"; };
+		H80000000000000000000007 /* LearnerRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/LearnerRecorderTests.swift"; sourceTree = "<group>"; };
+		H80000000000000000000008 /* SpeakingAudioStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingAudioStorageTests.swift"; sourceTree = "<group>"; };
 		C60000000000000000000001 /* SpeakingBlueprintCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingBlueprintCatalog.swift; sourceTree = "<group>"; };
 		C60000000000000000000002 /* SpeakingWordPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingWordPicker.swift; sourceTree = "<group>"; };
 		D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingBlueprintCatalogTests.swift"; sourceTree = "<group>"; };
@@ -1880,6 +1896,9 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				H80000000000000000000006 /* PCMConverterTests.swift */,
+				H80000000000000000000007 /* LearnerRecorderTests.swift */,
+				H80000000000000000000008 /* SpeakingAudioStorageTests.swift */,
 				G80000000000000000000002 /* SpeakingCallReducerTests.swift */,
 				F80000000000000000000002 /* TranscriptAssemblerTests.swift */,
 				D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */,
@@ -2218,6 +2237,7 @@
 		C40000000000000000000001 /* Speaking */ = {
 			isa = PBXGroup;
 			children = (
+				H90000000000000000000001 /* Audio */,
 				F80000000000000000000001 /* TranscriptAssembler.swift */,
 				C60000000000000000000001 /* SpeakingBlueprintCatalog.swift */,
 				C60000000000000000000002 /* SpeakingWordPicker.swift */,
@@ -2225,6 +2245,18 @@
 				E40000000000000000000001 /* Live */,
 			);
 			path = Speaking;
+			sourceTree = "<group>";
+		};
+		H90000000000000000000001 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				H80000000000000000000001 /* PCMConverter.swift */,
+				H80000000000000000000002 /* SpeakingAudioIO.swift */,
+				H80000000000000000000003 /* VoiceProcessingAudioIO.swift */,
+				H80000000000000000000004 /* LearnerRecorder.swift */,
+				H80000000000000000000005 /* SpeakingAudioStorage.swift */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 		E40000000000000000000001 /* Live */ = {
@@ -2388,6 +2420,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				H70000000000000000000001 /* PCMConverter.swift in Sources */,
+				H70000000000000000000002 /* SpeakingAudioIO.swift in Sources */,
+				H70000000000000000000003 /* VoiceProcessingAudioIO.swift in Sources */,
+				H70000000000000000000004 /* LearnerRecorder.swift in Sources */,
+				H70000000000000000000005 /* SpeakingAudioStorage.swift in Sources */,
 				G70000000000000000000001 /* SpeakingCallState.swift in Sources */,
 				F70000000000000000000001 /* TranscriptAssembler.swift in Sources */,
 				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,
@@ -2663,6 +2700,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				H70000000000000000000006 /* PCMConverterTests.swift in Sources */,
+				H70000000000000000000007 /* LearnerRecorderTests.swift in Sources */,
+				H70000000000000000000008 /* SpeakingAudioStorageTests.swift in Sources */,
 				G70000000000000000000002 /* SpeakingCallReducerTests.swift in Sources */,
 				F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */,
 				D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */,
