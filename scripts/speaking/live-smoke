@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
+temporary_dir=$(mktemp -d "${TMPDIR:-/tmp}/vocabcraft-live-smoke.XXXXXX")
+trap 'rm -rf "$temporary_dir"' EXIT HUP INT TERM
+
+swiftc -swift-version 5 -strict-concurrency=complete \
+    "$repo_root/VocabCraftApp/Data/Speaking/Live/LiveClientMessage.swift" \
+    "$repo_root/VocabCraftApp/Data/Speaking/Live/LiveServerEvent.swift" \
+    "$repo_root/VocabCraftApp/Data/Speaking/Live/LiveTransport.swift" \
+    "$repo_root/VocabCraftApp/Data/Speaking/Live/URLSessionLiveTransport.swift" \
+    "$script_dir/live-smoke.swift" \
+    -o "$temporary_dir/live-smoke"
+
+"$temporary_dir/live-smoke" "$@"

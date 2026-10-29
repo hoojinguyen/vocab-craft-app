@@ -11,6 +11,11 @@
 		C50000000000000000000002 /* SpeakingWordPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60000000000000000000002 /* SpeakingWordPicker.swift */; };
 		D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */; };
 		D50000000000000000000002 /* SpeakingWordPickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60000000000000000000002 /* SpeakingWordPickerTests.swift */; };
+		E50000000000000000000001 /* LiveClientMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000001 /* LiveClientMessage.swift */; };
+		E50000000000000000000002 /* LiveServerEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000002 /* LiveServerEvent.swift */; };
+		E50000000000000000000003 /* LiveTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000003 /* LiveTransport.swift */; };
+		E50000000000000000000004 /* URLSessionLiveTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000004 /* URLSessionLiveTransport.swift */; };
+		E50000000000000000000005 /* LiveMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60000000000000000000005 /* LiveMessagesTests.swift */; };
 
 		B30000000000000000000007 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000007 /* Fixtures */; };
 		B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30000000000000000000006 /* SpeakingModelsCodableTests.swift */; };
@@ -467,6 +472,11 @@
 		C60000000000000000000002 /* SpeakingWordPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingWordPicker.swift; sourceTree = "<group>"; };
 		D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingBlueprintCatalogTests.swift"; sourceTree = "<group>"; };
 		D60000000000000000000002 /* SpeakingWordPickerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingWordPickerTests.swift"; sourceTree = "<group>"; };
+		E60000000000000000000001 /* LiveClientMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveClientMessage.swift; sourceTree = "<group>"; };
+		E60000000000000000000002 /* LiveServerEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveServerEvent.swift; sourceTree = "<group>"; };
+		E60000000000000000000003 /* LiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTransport.swift; sourceTree = "<group>"; };
+		E60000000000000000000004 /* URLSessionLiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionLiveTransport.swift; sourceTree = "<group>"; };
+		E60000000000000000000005 /* LiveMessagesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/LiveMessagesTests.swift"; sourceTree = "<group>"; };
 
 		A30000000000000000000007 /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Speaking/Fixtures; sourceTree = "<group>"; };
 		A30000000000000000000006 /* SpeakingModelsCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingModelsCodableTests.swift"; sourceTree = "<group>"; };
@@ -1863,6 +1873,7 @@
 			children = (
 				D60000000000000000000001 /* SpeakingBlueprintCatalogTests.swift */,
 				D60000000000000000000002 /* SpeakingWordPickerTests.swift */,
+				E60000000000000000000005 /* LiveMessagesTests.swift */,
 				A30000000000000000000007 /* Fixtures */,
 				A30000000000000000000006 /* SpeakingModelsCodableTests.swift */,
 				A40000000000000000000005 /* SchemaV4MigrationTests.swift */,
@@ -2199,8 +2210,20 @@
 				C60000000000000000000001 /* SpeakingBlueprintCatalog.swift */,
 				C60000000000000000000002 /* SpeakingWordPicker.swift */,
 				A40000000000000000000002 /* SpeakingModelActor.swift */,
+				E40000000000000000000001 /* Live */,
 			);
 			path = Speaking;
+			sourceTree = "<group>";
+		};
+		E40000000000000000000001 /* Live */ = {
+			isa = PBXGroup;
+			children = (
+				E60000000000000000000001 /* LiveClientMessage.swift */,
+				E60000000000000000000002 /* LiveServerEvent.swift */,
+				E60000000000000000000003 /* LiveTransport.swift */,
+				E60000000000000000000004 /* URLSessionLiveTransport.swift */,
+			);
+			path = Live;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2356,6 +2379,10 @@
 				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,
 				B30000000000000000000002 /* SpeakingAnalysis.swift in Sources */,
 				B30000000000000000000001 /* SpeakingModels.swift in Sources */,
+				E50000000000000000000001 /* LiveClientMessage.swift in Sources */,
+				E50000000000000000000002 /* LiveServerEvent.swift in Sources */,
+				E50000000000000000000003 /* LiveTransport.swift in Sources */,
+				E50000000000000000000004 /* URLSessionLiveTransport.swift in Sources */,
 				C50000000000000000000001 /* SpeakingBlueprintCatalog.swift in Sources */,
 				C50000000000000000000002 /* SpeakingWordPicker.swift in Sources */,
 				B40000000000000000000003 /* SpeakingRepositoryProtocol.swift in Sources */,
@@ -2624,6 +2651,7 @@
 			files = (
 				D50000000000000000000001 /* SpeakingBlueprintCatalogTests.swift in Sources */,
 				D50000000000000000000002 /* SpeakingWordPickerTests.swift in Sources */,
+				E50000000000000000000005 /* LiveMessagesTests.swift in Sources */,
 				B30000000000000000000006 /* SpeakingModelsCodableTests.swift in Sources */,
 				B40000000000000000000005 /* SchemaV4MigrationTests.swift in Sources */,
 				B40000000000000000000004 /* SpeakingRepositoryTests.swift in Sources */,

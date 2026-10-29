@@ -108,7 +108,7 @@ Expected: không có dòng nào.
 - `UserSettingsStore`: đổi tên thuộc tính `roleplayVoiceId/roleplaySpeechRate/roleplaySpeechPitch` → `voiceProfileId/speechRate/speechPitch`, **giữ nguyên** storage key `roleplay_voice_id`, `roleplay_speech_rate`, `roleplay_speech_pitch` để không mất cài đặt.
 - `TextToSpeechService.init(audioSessionCoordinator:settingsStore:appleEngine:)`; bỏ `ActiveEngineType.gemini/.kokoro`, `resolvedApiKey`, mọi nhánh Gemini/Kokoro.
 
-- [ ] **Step 1: Viết test thất bại**
+- [x] **Step 1: Viết test thất bại**
 
 ```swift
 @Suite("Voice profile catalog") struct VoiceProfileCatalogTests {
@@ -354,11 +354,11 @@ Setup JSON gồm: `generationConfig.responseModalities ["AUDIO"]`, `generationCo
 @Test func unknownFieldsAreIgnored() throws { #expect(try LiveServerEvent.decode(Data(#"{"usageMetadata":{}}"#.utf8)).isEmpty) }
 ```
 
-- [ ] **Step 2: Chạy `swift test --filter LiveMessagesTests`** — Expected: FAIL.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Chạy lại** — Expected: PASS.
-- [ ] **Step 5: Smoke thật (thủ công, cần key người dùng)** — tạo `scripts/speaking/live-smoke.swift` (không thuộc target app): mở socket bằng `URLSessionLiveTransport`, gửi setup + `hiddenText("Say hello in one sentence.")`, in các event đã decode trong 10 giây. Yêu cầu: thấy `setupComplete`, ≥ 1 `audio`, `outputTranscript`, `turnComplete`. Nếu tên trường thực tế khác fixture, sửa fixture + decoder và ghi lại khác biệt vào commit message. Chỉ chạy khi người dùng cung cấp key qua biến môi trường `GEMINI_API_KEY`; không lưu key vào repo.
-- [ ] **Step 6: Commit** — `feat(speaking): add gemini live protocol and websocket transport`.
+- [x] **Step 2: Chạy `swift test --filter LiveMessagesTests`** — Expected: FAIL.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Chạy lại** — Expected: PASS.
+- [x] **Step 5: Chuẩn bị smoke CLI** — `scripts/speaking/live-smoke` biên dịch trực tiếp các source Foundation bằng `swiftc`, mở socket, gửi setup + `hiddenText("Say hello in one sentence.")`, in event type/status, áp timeout 10 giây, và đóng socket. Đã kiểm tra offline và nhánh thiếu key. Cuộc gọi API thật do người dùng hoãn; không đọc/đặt key hoặc gửi request.
+- [x] **Step 6: Commit** — `feat(speaking): add gemini live protocol and websocket transport`.
 
 ### Task 7: Ghép transcript
 
