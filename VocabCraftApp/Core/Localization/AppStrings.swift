@@ -420,11 +420,6 @@ extension AppStrings {
         public static var aiClearKeyText: String { String(localized: "app.settings.ai.clear_key", defaultValue: "Clear API Key", bundle: .module) }
     }
 
-    // MARK: - Temporary voice picker compatibility
-    public enum AIAssistant {
-        public static var selectVoiceTitle: LocalizedStringKey { "app.ai_assistant.room.voice_picker_title" }
-    }
-
     // MARK: - Home Learning Path
     public enum Home {
         // Header

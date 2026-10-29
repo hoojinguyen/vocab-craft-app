@@ -94,6 +94,34 @@ struct SpeakingLocalizationTests {
         }
     }
 
+    private func sourceReferences(for keyPrefix: String) throws -> [String] {
+        let sourceRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("VocabCraftApp")
+        let enumerator = try #require(FileManager.default.enumerator(at: sourceRoot, includingPropertiesForKeys: nil))
+        var references: [String] = []
+        for case let url as URL in enumerator where url.pathExtension == "swift" {
+            let source = try String(contentsOf: url, encoding: .utf8)
+            if source.contains(keyPrefix) {
+                references.append(url.path)
+            }
+        }
+        return references
+    }
+
+    @Test("Retired AI localization namespaces have no source or catalog references")
+    func retiredAILocalizationKeysHaveNoSourceOrCatalogReferences() throws {
+        let catalog = try loadCatalog()
+        let retiredPrefixes = ["app." + "ai_assistant.", "app." + "ai_pack."]
+
+        for prefix in retiredPrefixes {
+            #expect(try sourceReferences(for: prefix).isEmpty, "Source still references retired keys under \(prefix)")
+            #expect(!catalog.keys.contains { $0.hasPrefix(prefix) }, "Catalog still contains retired keys under \(prefix)")
+        }
+    }
+
     @Test("All speaking strings have complete English and Vietnamese translations")
     func everySpeakingKeyHasEnglishAndVietnamese() throws {
         let catalog = try loadCatalog()
