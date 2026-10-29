@@ -458,6 +458,101 @@ struct SpeakingCallControllerTests {
     }
 }
 
+extension SpeakingCallControllerTests {
+    @Test(arguments: [false, true], [false, true])
+    func staleAudioSendFailureCannotEndResumedConnection(duringSetup: Bool, transportDrop: Bool) async throws {
+        let harness = try Harness()
+        await harness.startLive()
+        await harness.emit("session-resumption-update")
+        await harness.transport.suspendNextAudioSend()
+        harness.audio.emitCapture(Data(repeating: 0x20, count: 3_200))
+        await waitUntil { await harness.transport.audioSendStarted() }
+        try #require(await harness.transport.audioSendStarted())
+        if transportDrop {
+            await harness.transport.fail(LiveTransportError.network)
+        } else {
+            await harness.emit("go-away")
+        }
+        await waitUntil { await harness.transport.connectCount == 2 }
+        try #require(await harness.transport.connectCount == 2)
+        if !duringSetup {
+            await harness.emit("setup-complete")
+            await waitUntil { harness.controller.phase == .live }
+        }
+        await harness.transport.failSuspendedAudioSend(LiveTransportError.network)
+        await waitUntil { await harness.transport.audioSendFinished }
+        // A current-stream event is a barrier after the old send's completion.
+        await harness.emit("setup-complete")
+        await harness.emit("input-transcription")
+        await waitUntil { !harness.controller.turns.isEmpty || harness.controller.result != nil }
+
+        #expect(harness.controller.phase == .live)
+        #expect(harness.controller.result == nil)
+        #expect(await harness.transport.connectCount == 2)
+        #expect(await harness.transport.closeCount == 0)
+        #expect(harness.audioSession.releasedCount == 0)
+        let packet = Data(repeating: 0x40, count: 3_200)
+        harness.audio.emitCapture(packet)
+        await waitUntil { await harness.transport.sent.contains(.audio(packet)) }
+        #expect(await harness.transport.sent.contains(.audio(packet)))
+        await harness.controller.end()
+        #expect(harness.audioSession.releasedCount == 1)
+    }
+
+    @Test func currentAudioSendErrorStillFinalizes() async throws {
+        let harness = try Harness()
+        await harness.startLive()
+        await harness.transport.suspendNextAudioSend()
+        harness.audio.emitCapture(Data(repeating: 0x20, count: 3_200))
+        await waitUntil { await harness.transport.audioSendStarted() }
+        try #require(await harness.transport.audioSendStarted())
+        await harness.transport.failSuspendedAudioSend(LiveTransportError.network)
+        await waitUntil { harness.controller.result != nil }
+
+        #expect(harness.controller.result?.endReason == .connectionLost)
+        #expect(await harness.transport.connectCount == 1)
+        #expect(harness.audioSession.releasedCount == 1)
+    }
+
+    @Test func returningAfterSetupInterruptionAllowsExplicitExitWithoutRestart() async throws {
+        let harness = try Harness()
+        await harness.controller.start()
+        harness.audioSession.emit(.interruptionBegan)
+        await waitUntil { harness.audioSession.releasedCount == 1 }
+        harness.audioSession.emit(.interruptionEnded(shouldResume: true))
+        await harness.controller.start()
+        await harness.controller.end()
+
+        #expect(harness.controller.phase == .ended(.interrupted))
+        #expect(harness.controller.result == nil)
+        #expect(SpeakingCallViewContent.shouldDismissAfterEndRequest(
+            startingPhase: harness.controller.phase, resultingPhase: harness.controller.phase, hasResult: false
+        ))
+        #expect(await harness.transport.connectCount == 1)
+        #expect(await harness.transport.closeCount == 1)
+        #expect(harness.audioSession.releasedCount == 1)
+    }
+
+    #if canImport(UIKit)
+    @Test func backgroundDuringSetupCanExitAfterReturning() async throws {
+        let harness = try Harness()
+        await harness.controller.start()
+        harness.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        await waitUntil { harness.audioSession.releasedCount == 1 }
+        harness.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        await harness.controller.end()
+
+        #expect(harness.controller.phase == .ended(.interrupted))
+        #expect(harness.controller.result == nil)
+        #expect(SpeakingCallViewContent.shouldDismissAfterEndRequest(
+            startingPhase: harness.controller.phase, resultingPhase: harness.controller.phase, hasResult: false
+        ))
+        #expect(await harness.transport.closeCount == 1)
+        #expect(harness.audioSession.releasedCount == 1)
+    }
+    #endif
+}
+
 @MainActor
 private struct Harness {
     let transport: FakeLiveTransport
@@ -551,84 +646,6 @@ private final class FakeAudioSessionCoordinator: AudioSessionCoordinating, @unch
     }
 }
 
-private struct TestSpeakingInstant: InstantProtocol {
-    var offset: Duration
-
-    func advanced(by duration: Duration) -> Self { Self(offset: offset + duration) }
-    func duration(to other: Self) -> Duration { other.offset - offset }
-    static func < (lhs: Self, rhs: Self) -> Bool { lhs.offset < rhs.offset }
-}
-
 private enum InjectedRecorderWriterError: Error {
     case failed
-}
-
-private final class TestSpeakingClock: Clock, @unchecked Sendable {
-    typealias Instant = TestSpeakingInstant
-    private struct Sleeper {
-        let deadline: Instant
-        let continuation: CheckedContinuation<Void, any Error>
-    }
-
-    private let lock = NSLock()
-    private var instant = Instant(offset: .zero)
-    private var sleepers: [UUID: Sleeper] = [:]
-    private var cancelled = Set<UUID>()
-
-    var now: Instant { lock.withLock { instant } }
-    var minimumResolution: Duration { .milliseconds(1) }
-    var pendingSleeperCount: Int { lock.withLock { sleepers.count } }
-
-    func sleep(until deadline: Instant, tolerance: Duration?) async throws {
-        try Task.checkCancellation()
-        let id = UUID()
-        try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                let state = lock.withLock { () -> Int in
-                    if cancelled.remove(id) != nil { return 2 }
-                    guard instant < deadline else { return 1 }
-                    sleepers[id] = Sleeper(deadline: deadline, continuation: continuation)
-                    return 0
-                }
-                if state == 1 { continuation.resume() }
-                if state == 2 { continuation.resume(throwing: CancellationError()) }
-            }
-        } onCancel: {
-            cancel(id)
-        }
-    }
-
-    func advance(by duration: Duration) {
-        let ready = lock.withLock { () -> [CheckedContinuation<Void, any Error>] in
-            instant = instant.advanced(by: duration)
-            let due = sleepers.filter { $0.value.deadline <= instant }
-            due.keys.forEach { sleepers.removeValue(forKey: $0) }
-            return due.values.map(\.continuation)
-        }
-        ready.forEach { $0.resume() }
-    }
-
-    func waitForSleeper(at deadline: Duration) async {
-        let clock = ContinuousClock()
-        let waitDeadline = clock.now.advanced(by: .seconds(3))
-        while clock.now < waitDeadline {
-            if pendingDeadlines.contains(deadline) { return }
-            try? await clock.sleep(for: .milliseconds(1))
-        }
-    }
-
-    private var pendingDeadlines: [Duration] {
-        lock.withLock { sleepers.values.map(\.deadline.offset) }
-    }
-
-    private func cancel(_ id: UUID) {
-        let continuation = lock.withLock { () -> CheckedContinuation<Void, any Error>? in
-            guard let sleeper = sleepers.removeValue(forKey: id) else {
-                cancelled.insert(id)
-                return nil
-            }
-            return sleeper.continuation
-        }
-        continuation?.resume(throwing: CancellationError())
-    }
 }

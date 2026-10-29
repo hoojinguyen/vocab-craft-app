@@ -14570,6 +14570,57 @@
         }
       }
     },
+    "app.speaking.call.analysis_saved_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your session is saved. You can open the review from history."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buổi luyện nói đã được lưu. Bạn có thể mở phần đánh giá từ lịch sử."
+          }
+        }
+      }
+    },
+    "app.speaking.call.ended": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call ended"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuộc gọi đã kết thúc"
+          }
+        }
+      }
+    },
+    "app.speaking.call.saving": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving your session…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang lưu buổi luyện nói…"
+          }
+        }
+      }
+    },
     "app.speaking.call.connecting": {
       "extractionState": "manual",
       "localizations": {

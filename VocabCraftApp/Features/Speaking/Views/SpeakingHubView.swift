@@ -43,7 +43,10 @@ struct SpeakingHubView: View {
             }
         }
 #if os(iOS)
-        .fullScreenCover(item: $pendingRoute, onDismiss: { callDependencies = nil }) { route in
+        .fullScreenCover(item: $pendingRoute, onDismiss: {
+            callDependencies = nil
+            Task { await viewModel.load() }
+        }) { route in
             switch route {
             case let .call(plan):
                 if let callDependencies {
@@ -60,7 +63,10 @@ struct SpeakingHubView: View {
             }
         }
 #else
-        .sheet(item: $pendingRoute, onDismiss: { callDependencies = nil }) { route in
+        .sheet(item: $pendingRoute, onDismiss: {
+            callDependencies = nil
+            Task { await viewModel.load() }
+        }) { route in
             switch route {
             case let .call(plan):
                 if let callDependencies {
@@ -145,11 +151,7 @@ struct SpeakingHubView: View {
                 CraftText(AppStrings.Speaking.hubHistory, style: .headline)
                 ForEach(viewModel.history) { session in
                     CraftCard {
-                        CraftListRow(
-                            title: LocalizedStringKey(session.plan.blueprint.titleKey),
-                        ) {
-                            CraftBadge(statusTitle(for: session.status), size: .sm)
-                        }
+                        Self.historyRow(for: session) { pendingRoute = .result($0) }
                     }
                 }
             }
@@ -159,7 +161,20 @@ struct SpeakingHubView: View {
         }
     }
 
-    private func statusTitle(for status: SpeakingSessionStatus) -> LocalizedStringKey {
+    static func historyRow(
+        for session: SpeakingSessionSnapshot,
+        onOpenResult: @escaping (UUID) -> Void
+    ) -> CraftListRow<CraftBadge> {
+        CraftListRow(
+            title: LocalizedStringKey(session.plan.blueprint.titleKey),
+            showChevron: true,
+            action: { onOpenResult(session.id) }
+        ) {
+            CraftBadge(statusTitle(for: session.status), size: .sm)
+        }
+    }
+
+    private static func statusTitle(for status: SpeakingSessionStatus) -> LocalizedStringKey {
         switch status {
         case .pendingAnalysis: AppStrings.Speaking.resultAnalyzing
         case .analyzed: AppStrings.Speaking.resultScores

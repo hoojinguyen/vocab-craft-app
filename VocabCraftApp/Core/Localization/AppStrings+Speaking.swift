@@ -42,6 +42,12 @@ extension AppStrings {
         public static var callReconnectingText: String { String(localized: "app.speaking.call.reconnecting", defaultValue: "Reconnecting…", bundle: .module) }
         public static var callHint: LocalizedStringKey { "app.speaking.call.hint" }
         public static var callHintText: String { String(localized: "app.speaking.call.hint", defaultValue: "Show me a hint", bundle: .module) }
+        public static var callSaving: LocalizedStringKey { "app.speaking.call.saving" }
+        public static var callSavingText: String { String(localized: "app.speaking.call.saving", bundle: .module) }
+        public static var callEnded: LocalizedStringKey { "app.speaking.call.ended" }
+        public static var callEndedText: String { String(localized: "app.speaking.call.ended", bundle: .module) }
+        public static var callAnalysisSavedHint: LocalizedStringKey { "app.speaking.call.analysis_saved_hint" }
+        public static var callAnalysisSavedHintText: String { String(localized: "app.speaking.call.analysis_saved_hint", bundle: .module) }
         public static var callEnd: LocalizedStringKey { "app.speaking.call.end" }
         public static var callEndText: String { String(localized: "app.speaking.call.end", defaultValue: "End session", bundle: .module) }
         public static var callSubtitlesShow: LocalizedStringKey { "app.speaking.call.subtitles_show" }

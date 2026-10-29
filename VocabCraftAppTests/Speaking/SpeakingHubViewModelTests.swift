@@ -33,6 +33,19 @@ struct SpeakingHubViewModelTests {
         #expect(model.history.first?.startedAt == Date(timeIntervalSince1970: 27))
     }
 
+    @Test(arguments: [SpeakingSessionStatus.analyzed, .analysisFailed, .pendingAnalysis, .tooShort])
+    func historyRowOpensSavedResult(status: SpeakingSessionStatus) throws {
+        let session = snapshot(score: 3, status: status, startedAt: Date())
+        var route: SpeakingRoute?
+        let row = SpeakingHubView.historyRow(for: session) { route = .result($0) }
+
+        let action = try #require(row.action)
+        action()
+
+        #expect(row.showChevron)
+        #expect(route == .result(session.id))
+    }
+
     @Test func makePlanIncludesWordsOnlyWhenToggled() async {
         let words = [SpeakingTargetWord(wordId: 1, lemma: "market", definitionVi: "chợ")]
         let model = makeViewModel(words: words)

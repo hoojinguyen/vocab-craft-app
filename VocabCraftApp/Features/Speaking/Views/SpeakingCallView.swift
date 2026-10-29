@@ -1,4 +1,5 @@
 import CraftUIKit
+import Observation
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -10,15 +11,63 @@ struct SpeakingCallDependencies {
     let analyzer: AnalyzeSpeakingSessionUseCase
 }
 
+// Owns saved-session work independently of SwiftUI's cancellable presentation task.
+@MainActor
+@Observable
+final class SpeakingCallCompletion {
+    enum Phase { case idle, saving, analyzing, saveFailed, completed }
+    private(set) var phase: Phase = .idle
+    private var hasExited = false
+
+    func run(
+        _ session: SpeakingSessionSnapshot,
+        repository: any SpeakingRepositoryProtocol,
+        analyzer: AnalyzeSpeakingSessionUseCase,
+        onShowResult: @escaping @MainActor (UUID) -> Void
+    ) async {
+        guard phase == .idle || phase == .saveFailed else { return }
+        phase = .saving
+        // Dismissing the call must not cancel saving or the analysis of saved data.
+        let work = Task { @MainActor in
+            do {
+                try await repository.save(session)
+            } catch {
+                phase = .saveFailed
+                return
+            }
+            phase = .analyzing
+            _ = await analyzer.execute(sessionId: session.id)
+            phase = .completed
+            guard !hasExited else { return }
+            onShowResult(session.id)
+        }
+        await work.value
+    }
+
+    func exit() -> Bool {
+        guard phase == .analyzing else { return false }
+        leave()
+        return true
+    }
+
+    func leave() { hasExited = true }
+}
+
 struct SpeakingCallViewContent: Equatable {
     let statusKey: String
     let timeLeft: Int?
     let showsHint: Bool
     let showsReconnecting: Bool
     let failure: SpeakingCallFailure?
+    let showsProgress: Bool
 
-    static func make(phase: SpeakingCallPhase, elapsed: TimeInterval, duration: TimeInterval) -> Self {
-        let statusKey: String
+    static func make(
+        phase: SpeakingCallPhase,
+        elapsed: TimeInterval,
+        duration: TimeInterval,
+        completionPhase: SpeakingCallCompletion.Phase = .idle
+    ) -> Self {
+        var statusKey: String
         let failure: SpeakingCallFailure?
         switch phase {
         case .idle, .connecting:
@@ -34,10 +83,15 @@ struct SpeakingCallViewContent: Equatable {
             statusKey = failureKey(value)
             failure = value
         case .ended:
-            statusKey = ""
+            statusKey = "app.speaking.call.ended"
             failure = nil
         }
 
+        switch completionPhase {
+        case .saving: statusKey = "app.speaking.call.saving"
+        case .analyzing: statusKey = "app.speaking.result.analyzing"
+        case .idle, .saveFailed, .completed: break
+        }
         let isActive = phase == .live || phase == .reconnecting
         let timeLeft = isActive ? max(0, Int(ceil(duration - elapsed))) : nil
         return Self(
@@ -45,16 +99,18 @@ struct SpeakingCallViewContent: Equatable {
             timeLeft: timeLeft,
             showsHint: phase == .live,
             showsReconnecting: phase == .reconnecting,
-            failure: failure
+            failure: failure,
+            showsProgress: completionPhase == .saving || completionPhase == .analyzing
         )
     }
 
     static func shouldDismissAfterEndRequest(
         startingPhase: SpeakingCallPhase,
         resultingPhase: SpeakingCallPhase,
-        hasResult: Bool
+        hasResult: Bool,
+        hasBeenLive: Bool = false
     ) -> Bool {
-        guard startingPhase == .connecting, !hasResult else { return false }
+        guard !hasBeenLive, !hasResult else { return false }
         if case .ended = resultingPhase { return true }
         return false
     }
@@ -85,6 +141,7 @@ struct SpeakingCallView: View {
     @State private var persistenceFailed = false
     @State private var failureDialogDismissed = false
     @State private var completionRetry = 0
+    @State private var completion = SpeakingCallCompletion()
     @State private var previousIdleTimerDisabled = false
 
     private var controller: SpeakingCallController { dependencies.controller }
@@ -92,7 +149,8 @@ struct SpeakingCallView: View {
         SpeakingCallViewContent.make(
             phase: controller.phase,
             elapsed: controller.elapsed,
-            duration: TimeInterval(plan.blueprint.durationSeconds)
+            duration: TimeInterval(plan.blueprint.durationSeconds),
+            completionPhase: completion.phase
         )
     }
 
@@ -116,6 +174,7 @@ struct SpeakingCallView: View {
         .task { await runCallLifecycle() }
         .task(id: completionTaskID) { await persistAndAnalyze() }
         .onDisappear {
+            completion.leave()
             guard !controller.phase.isTerminal else { return }
             Task { await controller.end() }
         }
@@ -150,15 +209,20 @@ struct SpeakingCallView: View {
             CraftIconButton(
                 iconName: "phone.down.fill",
                 variant: .danger,
-                accessibilityLabelKey: AppStrings.Speaking.callEnd
+                accessibilityLabelKey: controller.phase.isTerminal ? AppStrings.Speaking.errorExit : AppStrings.Speaking.callEnd
             ) {
                 let startingPhase = controller.phase
                 Task {
+                    if completion.exit() {
+                        dismiss()
+                        return
+                    }
                     await controller.end()
                     guard SpeakingCallViewContent.shouldDismissAfterEndRequest(
                         startingPhase: startingPhase,
                         resultingPhase: controller.phase,
-                        hasResult: controller.result != nil
+                        hasResult: controller.result != nil,
+                        hasBeenLive: controller.hasBeenLive
                     ) else { return }
                     dismiss()
                 }
@@ -181,10 +245,18 @@ struct SpeakingCallView: View {
 
     @ViewBuilder
     private var status: some View {
-        if content.showsReconnecting {
-            CraftText(AppStrings.Speaking.callReconnecting, style: .headline, color: theme.colors.statusWarning)
-        } else if content.statusKey == "app.speaking.call.connecting" {
-            CraftText(AppStrings.Speaking.callConnecting, style: .headline, color: theme.colors.textSecondary)
+        if content.showsProgress {
+            CraftSpinner()
+                .accessibilityLabel(LocalizedStringKey(content.statusKey))
+        }
+        if !content.statusKey.isEmpty {
+            CraftText(
+                LocalizedStringKey(content.statusKey), style: .headline,
+                color: content.showsReconnecting ? theme.colors.statusWarning : theme.colors.textSecondary
+            )
+        }
+        if completion.phase == .analyzing {
+            CraftText(AppStrings.Speaking.callAnalysisSavedHint, style: .bodyMedium, color: theme.colors.textSecondary)
         }
         if let timeLeft = content.timeLeft {
             CraftText(AppStrings.Speaking.callTimeLeftText(remainingSeconds: timeLeft), style: .bodyMedium)
@@ -212,6 +284,11 @@ struct SpeakingCallView: View {
 
     @ViewBuilder
     private var actions: some View {
+        if completion.phase == .analyzing {
+            CraftButton(AppStrings.Speaking.errorExit, variant: .secondary, isFullWidth: true) {
+                if completion.exit() { dismiss() }
+            }
+        }
         if content.showsHint {
             CraftButton(AppStrings.Speaking.callHint, variant: .secondary, isFullWidth: true) {
                 Task { await controller.requestHint() }
@@ -248,17 +325,9 @@ struct SpeakingCallView: View {
 
     private func persistAndAnalyze() async {
         guard let result = controller.result else { return }
-        do {
-            try await dependencies.repository.save(result)
-        } catch {
-            guard !Task.isCancelled else { return }
-            persistenceFailed = true
-            return
-        }
+        await completion.run(result, repository: dependencies.repository, analyzer: dependencies.analyzer, onShowResult: onShowResult)
         guard !Task.isCancelled else { return }
-        _ = await dependencies.analyzer.execute(sessionId: result.id)
-        guard !Task.isCancelled else { return }
-        onShowResult(result.id)
+        persistenceFailed = completion.phase == .saveFailed
     }
 
     private var failureActionTitle: LocalizedStringKey? {

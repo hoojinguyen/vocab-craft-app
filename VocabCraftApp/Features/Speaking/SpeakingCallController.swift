@@ -15,6 +15,7 @@ public final class SpeakingCallController {
     public private(set) var hintCount = 0
     public private(set) var isAISpeaking = false
     public private(set) var result: SpeakingSessionSnapshot?
+    public var hasBeenLive: Bool { reducer.hasBeenLive }
 
     private let plan: SpeakingSessionPlan
     private let apiKey: String
@@ -104,11 +105,13 @@ public final class SpeakingCallController {
 
     public func requestHint() async {
         guard phase == .live else { return }
+        let generation = socketGeneration
         do {
             try await transport.send(.hiddenText(SpeakingPromptBuilder.hintRequest))
+            guard generation == socketGeneration, !Task.isCancelled else { return }
             hintCount += 1
         } catch {
-            await handleTransportError(error, generation: socketGeneration)
+            await handleTransportError(error, generation: generation)
         }
     }
 
@@ -152,10 +155,11 @@ public final class SpeakingCallController {
         case let .openSocket(resumptionHandle):
             await openSocket(resumptionHandle: resumptionHandle)
         case .sendOpeningTrigger:
+            let generation = socketGeneration
             do {
                 try await transport.send(.hiddenText(SpeakingPromptBuilder.openingTrigger))
             } catch {
-                await handleTransportError(error, generation: socketGeneration)
+                await handleTransportError(error, generation: generation)
             }
         case .startAudio:
             await startAudio()
@@ -261,11 +265,13 @@ public final class SpeakingCallController {
             turns = transcriptAssembler.turns
         case let .toolCall(id, name):
             guard name == "end_session" else { return }
+            let generation = socketGeneration
             do {
                 try await transport.send(.toolResponse(id: id, name: name))
+                guard generation == socketGeneration, !Task.isCancelled else { return }
                 startGoodbyeDrain()
             } catch {
-                await handleTransportError(error, generation: socketGeneration)
+                await handleTransportError(error, generation: generation)
             }
         case .goAway:
             await dispatch(.goAway)
@@ -275,32 +281,6 @@ public final class SpeakingCallController {
             } else {
                 await dispatch(.resumptionUnavailable)
             }
-        }
-    }
-
-    private func handleStreamEnd() async {
-        switch phase {
-        case .live:
-            await dispatch(.transportDropped)
-        case .connecting, .reconnecting:
-            await dispatch(.connectFailed(.network))
-        case .idle, .ended, .failed:
-            break
-        }
-    }
-
-    private func handleTransportError(_ error: Error, generation: UInt64) async {
-        guard generation == socketGeneration else { return }
-        let failure = Self.failure(for: error)
-        switch phase {
-        case .live where failure == .unauthorized || failure == .quotaExceeded:
-            await dispatch(.connectFailed(failure))
-        case .live:
-            await dispatch(.transportDropped)
-        case .connecting, .reconnecting:
-            await dispatch(.connectFailed(failure))
-        case .idle, .ended, .failed:
-            break
         }
     }
 
@@ -333,10 +313,14 @@ public final class SpeakingCallController {
                         await self.dispatch(.audioFailure)
                         return
                     }
+                    let generation = self.socketGeneration
                     do {
                         try await self.transport.send(.audio(packet))
                     } catch {
-                        await self.handleTransportError(error, generation: self.socketGeneration)
+                        guard !Task.isCancelled else { return }
+                        // goAway preserves capture; only this packet belongs to the old socket.
+                        guard generation == self.socketGeneration, !(error is CancellationError) else { continue }
+                        await self.handleTransportError(error, generation: generation)
                         return
                     }
                 }
@@ -430,6 +414,32 @@ public final class SpeakingCallController {
 }
 
 private extension SpeakingCallController {
+    private func handleStreamEnd() async {
+        switch phase {
+        case .live:
+            await dispatch(.transportDropped)
+        case .connecting, .reconnecting:
+            await dispatch(.connectFailed(.network))
+        case .idle, .ended, .failed:
+            break
+        }
+    }
+
+    private func handleTransportError(_ error: Error, generation: UInt64) async {
+        guard generation == socketGeneration, !Task.isCancelled, !(error is CancellationError) else { return }
+        let failure = Self.failure(for: error)
+        switch phase {
+        case .live where failure == .unauthorized || failure == .quotaExceeded:
+            await dispatch(.connectFailed(failure))
+        case .live:
+            await dispatch(.transportDropped)
+        case .connecting, .reconnecting:
+            await dispatch(.connectFailed(failure))
+        case .idle, .ended, .failed:
+            break
+        }
+    }
+
     func startSetupTimeout(generation: UInt64) {
         setupTimeoutTask?.cancel()
         setupTimeoutTask = Task { @MainActor [weak self, clock] in
