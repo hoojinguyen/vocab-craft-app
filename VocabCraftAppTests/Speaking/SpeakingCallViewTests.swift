@@ -36,4 +36,34 @@ struct SpeakingCallViewTests {
 
         #expect(content.timeLeft == 0)
     }
+
+    @Test func endingWhileConnectingWithoutSnapshotDismisses() {
+        #expect(
+            SpeakingCallViewContent.shouldDismissAfterEndRequest(
+                startingPhase: .connecting,
+                resultingPhase: .ended(.learnerEnded),
+                hasResult: false
+            )
+        )
+    }
+
+    @Test func endingWithSnapshotPreservesResultFlow() {
+        #expect(
+            !SpeakingCallViewContent.shouldDismissAfterEndRequest(
+                startingPhase: .connecting,
+                resultingPhase: .ended(.learnerEnded),
+                hasResult: true
+            )
+        )
+    }
+
+    @Test func connectionFailureKeepsFailureDialogVisible() {
+        #expect(
+            !SpeakingCallViewContent.shouldDismissAfterEndRequest(
+                startingPhase: .connecting,
+                resultingPhase: .failed(.quotaExceeded),
+                hasResult: false
+            )
+        )
+    }
 }

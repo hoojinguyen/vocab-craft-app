@@ -49,6 +49,16 @@ struct SpeakingCallViewContent: Equatable {
         )
     }
 
+    static func shouldDismissAfterEndRequest(
+        startingPhase: SpeakingCallPhase,
+        resultingPhase: SpeakingCallPhase,
+        hasResult: Bool
+    ) -> Bool {
+        guard startingPhase == .connecting, !hasResult else { return false }
+        if case .ended = resultingPhase { return true }
+        return false
+    }
+
     private static func failureKey(_ failure: SpeakingCallFailure) -> String {
         switch failure {
         case .missingKey: "app.speaking.error.missing_key"
@@ -142,7 +152,16 @@ struct SpeakingCallView: View {
                 variant: .danger,
                 accessibilityLabelKey: AppStrings.Speaking.callEnd
             ) {
-                Task { await controller.end() }
+                let startingPhase = controller.phase
+                Task {
+                    await controller.end()
+                    guard SpeakingCallViewContent.shouldDismissAfterEndRequest(
+                        startingPhase: startingPhase,
+                        resultingPhase: controller.phase,
+                        hasResult: controller.result != nil
+                    ) else { return }
+                    dismiss()
+                }
             }
         }
     }
