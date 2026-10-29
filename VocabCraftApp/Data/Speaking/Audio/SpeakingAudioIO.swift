@@ -7,6 +7,7 @@ public protocol SpeakingAudioIO: AnyObject, Sendable {
     func enqueuePlayback(_ pcm24k: Data)
     func flushPlayback()
     var isPlaying: Bool { get }
+    var captureOverflowCount: Int { get }
     func stop() async
     func restartAfterRouteChange() async throws
 }

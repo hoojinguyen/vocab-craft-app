@@ -55,6 +55,23 @@ struct PCMConverterTests {
         #expect(VoiceProcessingAudioIO.canSchedulePlayback(pendingFrames: 40_000, incomingFrames: 8_000, maximumFrames: 48_000))
     }
 
+    @Test func tapCopyOwnsSamplesForOffCallbackConversion() throws {
+        let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 48_000, channels: 1))
+        let source = try sine(format: format, frames: 32)
+        let copied = try #require(VoiceProcessingAudioIO.ownedCaptureSamples(from: source))
+        let originalFirstSample = copied.channels[0][0]
+        source.floatChannelData?[0][0] = 0.75
+
+        #expect(copied.sampleRate == 48_000)
+        #expect(copied.frameCount == 32)
+        #expect(copied.channels[0][0] == originalFirstSample)
+    }
+
+    @Test func captureQueueRejectsSamplesBeyondTwoSecondBound() {
+        #expect(!VoiceProcessingAudioIO.canQueueCapture(pendingFrames: 95_000, incomingFrames: 2_000, maximumFrames: 96_000))
+        #expect(VoiceProcessingAudioIO.canQueueCapture(pendingFrames: 80_000, incomingFrames: 16_000, maximumFrames: 96_000))
+    }
+
     @Test func playbackRejectsEmptyPCM() {
         #expect(PCMConverter.playbackBuffer(fromPCM24k: Data()) == nil)
     }
