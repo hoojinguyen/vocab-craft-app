@@ -72,6 +72,28 @@ struct PCMConverterTests {
         #expect(VoiceProcessingAudioIO.canQueueCapture(pendingFrames: 80_000, incomingFrames: 16_000, maximumFrames: 96_000))
     }
 
+    @Test func captureReconstructionFailureIncrementsObservableFailureSignal() {
+        let failures = SpeakingAudioCaptureFailureSignal()
+        let invalidSamples = SpeakingCaptureSamples(sampleRate: 0, channels: [[0.25, -0.25]])
+
+        let packet = VoiceProcessingAudioIO.convertedCapturePacket(from: invalidSamples, failureSignal: failures)
+
+        #expect(packet == nil)
+        #expect(failures.count == 1)
+    }
+
+    @Test func captureConversionFailureIncrementsObservableFailureSignal() throws {
+        let failures = SpeakingAudioCaptureFailureSignal()
+        let samples = SpeakingCaptureSamples(sampleRate: 48_000, channels: [[0.25, -0.25]])
+
+        let packet = VoiceProcessingAudioIO.convertedCapturePacket(from: samples, failureSignal: failures) { _ in
+            throw URLError(.cannotDecodeContentData)
+        }
+
+        #expect(packet == nil)
+        #expect(failures.count == 1)
+    }
+
     @Test func playbackRejectsEmptyPCM() {
         #expect(PCMConverter.playbackBuffer(fromPCM24k: Data()) == nil)
     }
