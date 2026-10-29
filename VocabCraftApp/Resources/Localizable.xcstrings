@@ -14791,6 +14791,23 @@
         }
       }
     },
+    "app.speaking.error.save_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This session could not be saved. Try again to keep your progress."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể lưu buổi luyện này. Hãy thử lại để giữ tiến độ."
+          }
+        }
+      }
+    },
     "app.speaking.error.offline": {
       "extractionState": "manual",
       "localizations": {

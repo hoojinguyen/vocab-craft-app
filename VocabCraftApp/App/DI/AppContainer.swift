@@ -291,6 +291,15 @@ public final class AppContainer {
         )
     }
 
+    func makeSpeakingCallDependencies(plan: SpeakingSessionPlan) -> SpeakingCallDependencies? {
+        guard let controller = makeSpeakingCallController(plan: plan) else { return nil }
+        return SpeakingCallDependencies(
+            controller: controller,
+            repository: speakingRepository,
+            analyzer: analyzeSpeakingSessionUseCase
+        )
+    }
+
     public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
         ResilientReflexSpeechEngine(audioSessionCoordinator: audioSessionCoordinator)
     }

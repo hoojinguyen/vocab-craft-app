@@ -3,12 +3,17 @@ import SwiftUI
 
 struct SpeakingHubView: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.appRouter) private var appRouter
     @State private var viewModel: SpeakingHubViewModel
     @State private var selectedBlueprint: SpeakingBlueprint?
     @State private var pendingRoute: SpeakingRoute?
+    @State private var callDependencies: SpeakingCallDependencies?
 
-    init(viewModel: SpeakingHubViewModel) {
+    let appContainer: AppContainer
+
+    init(viewModel: SpeakingHubViewModel, appContainer: AppContainer) {
         _viewModel = State(initialValue: viewModel)
+        self.appContainer = appContainer
     }
 
     var body: some View {
@@ -27,10 +32,43 @@ struct SpeakingHubView: View {
         .task { await viewModel.load() }
         .sheet(item: $selectedBlueprint) { blueprint in
             SpeakingPrepareView(blueprint: blueprint, viewModel: viewModel) { plan in
+                guard let dependencies = appContainer.makeSpeakingCallDependencies(plan: plan) else {
+                    appRouter.selectTab(.settings)
+                    selectedBlueprint = nil
+                    return
+                }
+                callDependencies = dependencies
                 pendingRoute = .call(plan)
                 selectedBlueprint = nil
             }
         }
+#if os(iOS)
+        .fullScreenCover(item: $pendingRoute, onDismiss: { callDependencies = nil }) { route in
+            switch route {
+            case let .call(plan):
+                if let callDependencies {
+                    SpeakingCallView(plan: plan, dependencies: callDependencies) { sessionId in
+                        pendingRoute = .result(sessionId)
+                    }
+                }
+            case .prepare, .result, .phrasebook:
+                EmptyView()
+            }
+        }
+#else
+        .sheet(item: $pendingRoute, onDismiss: { callDependencies = nil }) { route in
+            switch route {
+            case let .call(plan):
+                if let callDependencies {
+                    SpeakingCallView(plan: plan, dependencies: callDependencies) { sessionId in
+                        pendingRoute = .result(sessionId)
+                    }
+                }
+            case .prepare, .result, .phrasebook:
+                EmptyView()
+            }
+        }
+#endif
     }
 
     private var header: some View {

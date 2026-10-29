@@ -170,7 +170,10 @@ public struct HomepageView: View {
             case .vocabulary:
                 VocabularyView(vaultViewModel: vaultVM ?? appContainer.makePersonalVaultViewModel())
             case .aiAssistant:
-                SpeakingHubView(viewModel: speakingHubVM ?? appContainer.makeSpeakingHubViewModel())
+                SpeakingHubView(
+                    viewModel: speakingHubVM ?? appContainer.makeSpeakingHubViewModel(),
+                    appContainer: appContainer
+                )
             case .reflex:
                 ReflexBlitzView(
                     viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(),

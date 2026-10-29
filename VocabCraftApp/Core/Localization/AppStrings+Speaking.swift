@@ -118,6 +118,8 @@ extension AppStrings {
         public static var errorOfflineText: String { String(localized: "app.speaking.error.offline", defaultValue: "You're offline.", bundle: .module) }
         public static var errorNetwork: LocalizedStringKey { "app.speaking.error.network" }
         public static var errorNetworkText: String { String(localized: "app.speaking.error.network", defaultValue: "A network error interrupted the session.", bundle: .module) }
+        public static var errorSaveFailed: LocalizedStringKey { "app.speaking.error.save_failed" }
+        public static var errorSaveFailedText: String { String(localized: "app.speaking.error.save_failed", defaultValue: "This session could not be saved. Try again to keep your progress.", bundle: .module) }
         public static var errorMicrophoneDenied: LocalizedStringKey { "app.speaking.error.microphone_denied" }
         public static var errorMicrophoneDeniedText: String { String(localized: "app.speaking.error.microphone_denied", defaultValue: "Microphone access is turned off.", bundle: .module) }
         public static var errorUnknown: LocalizedStringKey { "app.speaking.error.unknown" }

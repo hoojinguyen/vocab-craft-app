@@ -29,6 +29,8 @@
 		14A000000000000000000003 /* SpeakingHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000003 /* SpeakingHubView.swift */; };
 		14A000000000000000000004 /* SpeakingPrepareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000004 /* SpeakingPrepareView.swift */; };
 		14A000000000000000000005 /* SpeakingHubViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B000000000000000000005 /* SpeakingHubViewModelTests.swift */; };
+		15A000000000000000000001 /* SpeakingCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B000000000000000000001 /* SpeakingCallView.swift */; };
+		15A000000000000000000002 /* SpeakingCallViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15B000000000000000000002 /* SpeakingCallViewTests.swift */; };
 		F70000000000000000000001 /* TranscriptAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TranscriptAssembler.swift */; };
 		F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* TranscriptAssemblerTests.swift */; };
 		G70000000000000000000001 /* SpeakingCallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = G80000000000000000000001 /* SpeakingCallState.swift */; };
@@ -537,6 +539,8 @@
 		14B000000000000000000003 /* SpeakingHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingHubView.swift; sourceTree = "<group>"; };
 		14B000000000000000000004 /* SpeakingPrepareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPrepareView.swift; sourceTree = "<group>"; };
 		14B000000000000000000005 /* SpeakingHubViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingHubViewModelTests.swift"; sourceTree = "<group>"; };
+		15B000000000000000000001 /* SpeakingCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingCallView.swift; sourceTree = "<group>"; };
+		15B000000000000000000002 /* SpeakingCallViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingCallViewTests.swift"; sourceTree = "<group>"; };
 		A92000000000000000000001 /* SpeakingCallController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingCallController.swift; sourceTree = "<group>"; };
 		A92000000000000000000002 /* SpeakingCallControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingCallControllerTests.swift"; sourceTree = "<group>"; };
 		A92000000000000000000003 /* FakeLiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/Fakes/FakeLiveTransport.swift"; sourceTree = "<group>"; };
@@ -992,6 +996,7 @@
 			children = (
 				14B000000000000000000003 /* SpeakingHubView.swift */,
 				14B000000000000000000004 /* SpeakingPrepareView.swift */,
+				15B000000000000000000001 /* SpeakingCallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1948,6 +1953,7 @@
 			isa = PBXGroup;
 			children = (
 				14B000000000000000000005 /* SpeakingHubViewModelTests.swift */,
+				15B000000000000000000002 /* SpeakingCallViewTests.swift */,
 				13B000000000000000000003 /* SpeakingLocalizationTests.swift */,
 				13B000000000000000000004 /* SpeakingPrecheckTests.swift */,
 				A92000000000000000000002 /* SpeakingCallControllerTests.swift */,
@@ -2666,6 +2672,7 @@
 				14A000000000000000000002 /* SpeakingHubViewModel.swift in Sources */,
 				14A000000000000000000003 /* SpeakingHubView.swift in Sources */,
 				14A000000000000000000004 /* SpeakingPrepareView.swift in Sources */,
+				15A000000000000000000001 /* SpeakingCallView.swift in Sources */,
 				30009BE62F2AD72B05CC /* LearningPathSwitchSheet.swift in Sources */,
 				300047143FFD9EB51A6F /* MilestoneLexicalDeltaSheet.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
@@ -2785,6 +2792,7 @@
 			files = (
 				H70000000000000000000006 /* PCMConverterTests.swift in Sources */,
 				14A000000000000000000005 /* SpeakingHubViewModelTests.swift in Sources */,
+				15A000000000000000000002 /* SpeakingCallViewTests.swift in Sources */,
 				H70000000000000000000007 /* LearnerRecorderTests.swift in Sources */,
 				H70000000000000000000008 /* SpeakingAudioStorageTests.swift in Sources */,
 				13A000000000000000000003 /* SpeakingLocalizationTests.swift in Sources */,
