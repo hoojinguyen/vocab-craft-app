@@ -19,6 +19,7 @@
 		A91000000000000000000002 /* SpeakingCallControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000002 /* SpeakingCallControllerTests.swift */; };
 		A91000000000000000000003 /* FakeLiveTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000003 /* FakeLiveTransport.swift */; };
 		A91000000000000000000004 /* FakeSpeakingAudioIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000004 /* FakeSpeakingAudioIO.swift */; };
+		A91000000000000000000005 /* SpeakingMonotonicClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92000000000000000000005 /* SpeakingMonotonicClock.swift */; };
 		F70000000000000000000001 /* TranscriptAssembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* TranscriptAssembler.swift */; };
 		F70000000000000000000002 /* TranscriptAssemblerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000002 /* TranscriptAssemblerTests.swift */; };
 		G70000000000000000000001 /* SpeakingCallState.swift in Sources */ = {isa = PBXBuildFile; fileRef = G80000000000000000000001 /* SpeakingCallState.swift */; };
@@ -514,6 +515,7 @@
 		A92000000000000000000002 /* SpeakingCallControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/SpeakingCallControllerTests.swift"; sourceTree = "<group>"; };
 		A92000000000000000000003 /* FakeLiveTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/Fakes/FakeLiveTransport.swift"; sourceTree = "<group>"; };
 		A92000000000000000000004 /* FakeSpeakingAudioIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Speaking/Fakes/FakeSpeakingAudioIO.swift"; sourceTree = "<group>"; };
+		A92000000000000000000005 /* SpeakingMonotonicClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingMonotonicClock.swift; sourceTree = "<group>"; };
 		20003B700001000D /* WidgetDueQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetDueQuery.swift"; sourceTree = "<group>"; };
 		20003B700001000E /* WidgetReviewRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetReviewRecorder.swift"; sourceTree = "<group>"; };
 		20003B7000010012 /* VocabWidgetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetViewTests.swift"; sourceTree = "<group>"; };
@@ -944,6 +946,7 @@
 			isa = PBXGroup;
 			children = (
 				A92000000000000000000001 /* SpeakingCallController.swift */,
+				A92000000000000000000005 /* SpeakingMonotonicClock.swift */,
 				4000ABCDEF00000000000002 /* Views */,
 			);
 			path = Speaking;
@@ -2438,6 +2441,7 @@
 				H70000000000000000000004 /* LearnerRecorder.swift in Sources */,
 				H70000000000000000000005 /* SpeakingAudioStorage.swift in Sources */,
 				A91000000000000000000001 /* SpeakingCallController.swift in Sources */,
+				A91000000000000000000005 /* SpeakingMonotonicClock.swift in Sources */,
 				G70000000000000000000001 /* SpeakingCallState.swift in Sources */,
 				F70000000000000000000001 /* TranscriptAssembler.swift in Sources */,
 				B30000000000000000000003 /* SpeakingPromptBuilder.swift in Sources */,

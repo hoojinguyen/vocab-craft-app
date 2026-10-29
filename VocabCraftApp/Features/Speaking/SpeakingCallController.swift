@@ -35,6 +35,7 @@ public final class SpeakingCallController {
     private var setupTimeoutTask: Task<Void, Never>?
     private var reconnectTimeoutTask: Task<Void, Never>?
     private var sessionClockTask: Task<Void, Never>?
+    private var wrapUpSendTask: Task<Void, Never>?
     private var goodbyeDrainTask: Task<Void, Never>?
     private var captureContinuation: AsyncStream<Data>.Continuation?
     private var socketGeneration: UInt64 = 0
@@ -47,6 +48,7 @@ public final class SpeakingCallController {
     private var didSendWrapUp = false
     private var initialCaptureOverflowCount = 0
     private var initialRecorderOverflowCount = 0
+    private var initialRecorderWriteFailureCount = 0
     private var hasCaptureBaseline = false
     private let captureQueueOverflow = CaptureQueueOverflowSignal()
     private let captureGenerationGate = CaptureGenerationGate()
@@ -129,6 +131,8 @@ public final class SpeakingCallController {
         if phase.isTerminal {
             goodbyeDrainTask?.cancel()
             goodbyeDrainTask = nil
+            wrapUpSendTask?.cancel()
+            wrapUpSendTask = nil
         }
         for effect in effects {
             if phase.isTerminal {
@@ -166,11 +170,7 @@ public final class SpeakingCallController {
             reconnectTimeoutTask?.cancel()
             reconnectTimeoutTask = nil
         case .sendWrapUp:
-            do {
-                try await transport.send(.hiddenText(SpeakingPromptBuilder.wrapUpRequest))
-            } catch {
-                await handleTransportError(error, generation: socketGeneration)
-            }
+            startWrapUpSend()
         case let .finalize(reason):
             await finalize(reason: reason)
         }
@@ -318,6 +318,7 @@ public final class SpeakingCallController {
             if !hasCaptureBaseline {
                 initialCaptureOverflowCount = audio.captureOverflowCount
                 initialRecorderOverflowCount = recorder.overflowCount
+                initialRecorderWriteFailureCount = recorder.writeFailureCount
                 hasCaptureBaseline = true
             }
             let (stream, continuation) = AsyncStream<Data>.makeStream(
@@ -445,6 +446,19 @@ private extension SpeakingCallController {
         }
     }
 
+    func startWrapUpSend() {
+        wrapUpSendTask?.cancel()
+        let generation = socketGeneration
+        wrapUpSendTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.transport.send(.hiddenText(SpeakingPromptBuilder.wrapUpRequest))
+            } catch {
+                await self.handleTransportError(error, generation: generation)
+            }
+        }
+    }
+
     func startReconnectTimer(seconds: Int) {
         reconnectTimerGeneration &+= 1
         let generation = reconnectTimerGeneration
@@ -569,6 +583,7 @@ private extension SpeakingCallController {
         hasCaptureBaseline && (
             audio.captureOverflowCount > initialCaptureOverflowCount ||
             recorder.overflowCount > initialRecorderOverflowCount ||
+            recorder.writeFailureCount > initialRecorderWriteFailureCount ||
             captureQueueOverflow.didOverflow
         )
     }
@@ -590,65 +605,6 @@ private extension SpeakingCallController {
         let parts = duration.components
         return TimeInterval(parts.seconds) + TimeInterval(parts.attoseconds) / 1_000_000_000_000_000_000
     }
-}
-
-private struct AnySpeakingClock: Sendable {
-    private let readNow: @Sendable () -> AnySpeakingInstant
-    private let sleepFor: @Sendable (Duration) async throws -> Void
-
-    init<C: Clock>(_ clock: C) where C.Duration == Duration {
-        readNow = {
-            AnySpeakingInstant(clock.now) { deadline in
-                try await clock.sleep(until: deadline, tolerance: nil)
-            }
-        }
-        sleepFor = { duration in
-            try await clock.sleep(until: clock.now.advanced(by: duration), tolerance: nil)
-        }
-    }
-
-    var now: AnySpeakingInstant { readNow() }
-
-    func sleep(for duration: Duration) async throws {
-        try await sleepFor(duration)
-    }
-
-    func sleep(until instant: AnySpeakingInstant) async throws {
-        try await instant.sleepUntil()
-    }
-}
-
-private struct AnySpeakingInstant: @unchecked Sendable {
-    private let value: Any
-    private let durationTo: @Sendable (Any) -> Duration
-    private let advance: @Sendable (Duration) -> AnySpeakingInstant
-    private let sleep: @Sendable () async throws -> Void
-
-    init<I: InstantProtocol>(
-        _ instant: I,
-        sleepUntil: @escaping @Sendable (I) async throws -> Void
-    ) where I.Duration == Duration {
-        value = instant
-        durationTo = { other in
-            guard let otherInstant = other as? I else {
-                preconditionFailure("Clock instant types must match")
-            }
-            return instant.duration(to: otherInstant)
-        }
-        advance = { duration in
-            AnySpeakingInstant(instant.advanced(by: duration), sleepUntil: sleepUntil)
-        }
-        sleep = { try await sleepUntil(instant) }
-    }
-
-    func duration(to other: AnySpeakingInstant) -> Duration { durationTo(other.value) }
-
-    func advanced(by duration: Duration) -> AnySpeakingInstant { advance(duration) }
-
-    func sleepUntil() async throws {
-        try await sleep()
-    }
-
 }
 
 private final class CaptureQueueOverflowSignal: @unchecked Sendable {

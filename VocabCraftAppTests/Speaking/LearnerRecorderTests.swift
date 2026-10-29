@@ -67,6 +67,23 @@ struct LearnerRecorderTests {
         #expect(recorder.overflowCount == 1)
     }
 
+    @Test func asynchronousWriteFailureIsExposedSeparatelyFromOverflow() throws {
+        let storage = try temporaryStorage()
+        let recorder = LearnerRecorder(
+            storage: storage,
+            beforeWriteEnqueue: {},
+            writeBuffer: { _, _ in throw InjectedRecorderWriterError.failed }
+        )
+        let format = try #require(AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1))
+        let fileName = try recorder.begin(sessionId: UUID(), format: format)
+        recorder.append(Data(repeating: 0, count: 3_200))
+
+        #expect(recorder.finish() == nil)
+        #expect(recorder.writeFailureCount == 1)
+        #expect(recorder.overflowCount == 0)
+        #expect(!FileManager.default.fileExists(atPath: storage.url(for: fileName).path))
+    }
+
     @Test func repeatedConcurrentOverflowDoesNotQueueFailureWorkAndDeletesPartialRecording() throws {
         let storage = try temporaryStorage()
         let recorder = LearnerRecorder(storage: storage, maximumQueuedBytes: 2)
@@ -144,6 +161,10 @@ struct LearnerRecorderTests {
         }
         return buffer
     }
+}
+
+private enum InjectedRecorderWriterError: Error {
+    case failed
 }
 
 private final class LockedRecorderResult: @unchecked Sendable {

@@ -4,6 +4,9 @@ import Foundation
 actor FakeLiveTransport: LiveTransport {
     private var continuation: AsyncThrowingStream<Data, Error>.Continuation?
     private var connectError: LiveTransportError?
+    private var shouldSuspendWrapUp = false
+    private var wrapUpSendContinuation: CheckedContinuation<Void, Never>?
+    private var didStartWrapUpSend = false
     private(set) var sent: [LiveClientMessage] = []
     private(set) var connectCount = 0
     private(set) var closeCount = 0
@@ -26,6 +29,13 @@ actor FakeLiveTransport: LiveTransport {
 
     func send(_ message: LiveClientMessage) async throws {
         sent.append(message)
+        guard case let .hiddenText(text) = message,
+              text == SpeakingPromptBuilder.wrapUpRequest,
+              shouldSuspendWrapUp else { return }
+        didStartWrapUpSend = true
+        await withCheckedContinuation { continuation in
+            wrapUpSendContinuation = continuation
+        }
     }
 
     func close() async {
@@ -41,5 +51,19 @@ actor FakeLiveTransport: LiveTransport {
     func fail(_ error: Error) {
         continuation?.finish(throwing: error)
         continuation = nil
+    }
+
+    func suspendWrapUpSend() {
+        shouldSuspendWrapUp = true
+    }
+
+    func wrapUpSendStarted() -> Bool {
+        didStartWrapUpSend
+    }
+
+    func resumeWrapUpSend() {
+        shouldSuspendWrapUp = false
+        wrapUpSendContinuation?.resume()
+        wrapUpSendContinuation = nil
     }
 }

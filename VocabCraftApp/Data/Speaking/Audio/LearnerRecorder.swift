@@ -15,6 +15,7 @@ public final class LearnerRecorder: @unchecked Sendable {
     private let stateLock = NSLock()
     private let maximumQueuedBytes: Int
     private let beforeWriteEnqueue: () -> Void
+    private let writeBuffer: (AVAudioFile, AVAudioPCMBuffer) throws -> Void
     private var queuedBytes = 0
     private var writer: AVAudioFile?
     private var currentFileName: String?
@@ -22,18 +23,30 @@ public final class LearnerRecorder: @unchecked Sendable {
     private var writtenFrames: Int64 = 0
     private var writeFailed = false
     private var recordedOverflowCount = 0
+    private var recordedWriteFailureCount = 0
     private var pendingWriteOperations = 0
     private var recordingActive = false
     private var format: AVAudioFormat?
 
     public convenience init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000) {
-        self.init(storage: storage, maximumQueuedBytes: maximumQueuedBytes, beforeWriteEnqueue: {})
+        self.init(
+            storage: storage,
+            maximumQueuedBytes: maximumQueuedBytes,
+            beforeWriteEnqueue: {},
+            writeBuffer: { try $0.write(from: $1) }
+        )
     }
 
-    init(storage: SpeakingAudioStorage, maximumQueuedBytes: Int = 64_000, beforeWriteEnqueue: @escaping () -> Void) {
+    init(
+        storage: SpeakingAudioStorage,
+        maximumQueuedBytes: Int = 64_000,
+        beforeWriteEnqueue: @escaping () -> Void,
+        writeBuffer: @escaping (AVAudioFile, AVAudioPCMBuffer) throws -> Void = { try $0.write(from: $1) }
+    ) {
         self.storage = storage
         self.maximumQueuedBytes = max(2, maximumQueuedBytes)
         self.beforeWriteEnqueue = beforeWriteEnqueue
+        self.writeBuffer = writeBuffer
     }
 
     public func begin(sessionId: UUID, format: AVAudioFormat) throws -> String {
@@ -65,6 +78,7 @@ public final class LearnerRecorder: @unchecked Sendable {
             stateLock.withLock {
                 queuedBytes = 0
                 recordedOverflowCount = 0
+                recordedWriteFailureCount = 0
                 pendingWriteOperations = 0
                 writeFailed = false
                 recordingActive = true
@@ -118,10 +132,13 @@ public final class LearnerRecorder: @unchecked Sendable {
                         samples[index] = Float(value) / 32_768
                     }
                 }
-                try writer.write(from: buffer)
+                try self.writeBuffer(writer, buffer)
                 self.writtenFrames += Int64(buffer.frameLength)
             } catch {
-                self.stateLock.withLock { self.writeFailed = true }
+                self.stateLock.withLock {
+                    self.recordedWriteFailureCount += 1
+                    self.writeFailed = true
+                }
             }
         }
         stateLock.unlock()
@@ -132,6 +149,8 @@ public final class LearnerRecorder: @unchecked Sendable {
     }
 
     public var overflowCount: Int { stateLock.withLock { recordedOverflowCount } }
+
+    public var writeFailureCount: Int { stateLock.withLock { recordedWriteFailureCount } }
 
     var pendingWriteOperationCount: Int { stateLock.withLock { pendingWriteOperations } }
 

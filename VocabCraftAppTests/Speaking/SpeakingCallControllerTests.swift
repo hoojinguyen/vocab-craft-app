@@ -68,6 +68,37 @@ struct SpeakingCallControllerTests {
         #expect(harness.controller.elapsed == 390)
     }
 
+    @Test func largeClockJumpAcrossBothDeadlinesStillFinalizesAt390Seconds() async throws {
+        let clock = TestSpeakingClock()
+        let harness = try Harness(clock: clock)
+        await harness.startLive()
+        await clock.waitForSleeper(at: .seconds(1))
+
+        clock.advance(by: .seconds(390))
+        await waitUntil { harness.controller.result?.endReason == .timeLimit }
+
+        #expect(harness.controller.elapsed == 390)
+        #expect(harness.controller.phase == .ended(.timeLimit))
+    }
+
+    @Test func hardStopIsNotBlockedBySuspendedWrapUpSend() async throws {
+        let clock = TestSpeakingClock()
+        let harness = try Harness(clock: clock)
+        await harness.startLive()
+        await harness.transport.suspendWrapUpSend()
+        await clock.waitForSleeper(at: .seconds(1))
+
+        clock.advance(by: .seconds(330))
+        await waitUntil { await harness.transport.wrapUpSendStarted() }
+        clock.advance(by: .seconds(60))
+        await waitUntil { harness.controller.result != nil }
+        let result = harness.controller.result
+        await harness.transport.resumeWrapUpSend()
+
+        #expect(result?.endReason == .timeLimit)
+        #expect(harness.controller.elapsed == 390)
+    }
+
     @Test func unauthorizedOnConnectFailsWithoutSnapshotAndReleasesLeaseOnce() async throws {
         let harness = try Harness(connectError: LiveTransportError.unauthorized)
         await harness.controller.start()
@@ -331,6 +362,23 @@ struct SpeakingCallControllerTests {
         #expect(harness.controller.phase == .failed(.microphoneDenied))
     }
 
+    @Test func asynchronousRecorderWriteFailureFinalizesLiveSession() async throws {
+        let clock = TestSpeakingClock()
+        let harness = try Harness(clock: clock, recorderWriteFailure: true)
+        await harness.startLive()
+        await clock.waitForSleeper(at: .seconds(1))
+
+        harness.audio.emitCapture(Data(repeating: 0, count: 3_200))
+        await waitUntil { harness.recorder.writeFailureCount == 1 }
+        clock.advance(by: .seconds(1))
+        await waitUntil { harness.controller.result != nil }
+
+        #expect(harness.controller.phase == .failed(.microphoneDenied))
+        #expect(harness.controller.result?.endReason == .interrupted)
+        #expect(harness.recorder.overflowCount == 0)
+        #expect(harness.audioSession.releasedCount == 1)
+    }
+
     @Test func captureOverflowIsStillSurfacedWhenLearnerEndsBeforeTimerTick() async throws {
         let harness = try Harness()
         await harness.startLive()
@@ -419,11 +467,24 @@ private struct Harness {
     let notificationCenter: NotificationCenter
     let controller: SpeakingCallController
 
-    init(clock: TestSpeakingClock = TestSpeakingClock(), connectError: LiveTransportError? = nil) throws {
+    init(
+        clock: TestSpeakingClock = TestSpeakingClock(),
+        connectError: LiveTransportError? = nil,
+        recorderWriteFailure: Bool = false
+    ) throws {
         transport = FakeLiveTransport(connectError: connectError)
         audio = FakeSpeakingAudioIO()
         audioSession = FakeAudioSessionCoordinator()
-        recorder = LearnerRecorder(storage: try Self.temporaryStorage())
+        let storage = try Self.temporaryStorage()
+        if recorderWriteFailure {
+            recorder = LearnerRecorder(
+                storage: storage,
+                beforeWriteEnqueue: {},
+                writeBuffer: { _, _ in throw InjectedRecorderWriterError.failed }
+            )
+        } else {
+            recorder = LearnerRecorder(storage: storage)
+        }
         notificationCenter = NotificationCenter()
         controller = SpeakingCallController(
             plan: .fixture(), apiKey: "test-key", transport: transport, audio: audio,
@@ -436,6 +497,7 @@ private struct Harness {
         await controller.start()
         await emit("setup-complete")
         await waitUntil { controller.phase == .live }
+        await waitUntil { audio.startCount == 1 }
     }
 
     func emit(_ fixture: String) async {
@@ -497,6 +559,10 @@ private struct TestSpeakingInstant: InstantProtocol {
     static func < (lhs: Self, rhs: Self) -> Bool { lhs.offset < rhs.offset }
 }
 
+private enum InjectedRecorderWriterError: Error {
+    case failed
+}
+
 private final class TestSpeakingClock: Clock, @unchecked Sendable {
     typealias Instant = TestSpeakingInstant
     private struct Sleeper {
@@ -543,9 +609,11 @@ private final class TestSpeakingClock: Clock, @unchecked Sendable {
     }
 
     func waitForSleeper(at deadline: Duration) async {
-        for _ in 0..<2_000 {
+        let clock = ContinuousClock()
+        let waitDeadline = clock.now.advanced(by: .seconds(3))
+        while clock.now < waitDeadline {
             if pendingDeadlines.contains(deadline) { return }
-            await Task.yield()
+            try? await clock.sleep(for: .milliseconds(1))
         }
     }
 
