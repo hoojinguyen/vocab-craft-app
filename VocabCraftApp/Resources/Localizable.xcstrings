@@ -14195,6 +14195,414 @@
           }
         }
       }
+    },
+    "app.speaking.blueprint.cafe_order.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order at a Cafe"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt món tại quán cà phê"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.cafe_order.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order a drink and ask about the menu."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gọi đồ uống và hỏi về thực đơn."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.hotel_checkin.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check In at a Hotel"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Làm thủ tục nhận phòng khách sạn"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.hotel_checkin.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check in and ask about a hotel service."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhận phòng và hỏi về một dịch vụ của khách sạn."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.ask_directions.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask for Directions"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hỏi đường"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.ask_directions.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find your way to a place nearby."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm đường đến một địa điểm gần đó."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.doctor_visit.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visit a Doctor"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khám bác sĩ"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.doctor_visit.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe a simple symptom at a clinic."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô tả một triệu chứng đơn giản tại phòng khám."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.job_interview_intro.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce Yourself in an Interview"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giới thiệu bản thân khi phỏng vấn"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.job_interview_intro.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce yourself and share one strength."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giới thiệu bản thân và chia sẻ một điểm mạnh."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.return_item_shop.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Return an Item to a Shop"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi trả hàng tại cửa hàng"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.return_item_shop.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explain why you want to return an item."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giải thích lý do bạn muốn đổi trả một món hàng."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_daily_routine.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Routine"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thói quen hằng ngày"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_daily_routine.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk about how you spend a typical day."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trò chuyện về một ngày thường của bạn."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_travel.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travel"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du lịch"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_travel.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share places you have visited or want to see."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chia sẻ những nơi bạn đã đến hoặc muốn khám phá."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_work_study.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work and Study"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công việc và học tập"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_work_study.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk about what you do and what you are learning."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trò chuyện về công việc và những điều bạn đang học."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_movies_music.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movies and Music"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phim ảnh và âm nhạc"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_movies_music.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share what you like to watch or listen to."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chia sẻ những gì bạn thích xem hoặc nghe."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_food.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Food"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ẩm thực"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_food.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk about dishes, cooking, and favorite places to eat."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trò chuyện về món ăn, nấu nướng và nơi bạn thích dùng bữa."
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_weekend_plans.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekend Plans"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kế hoạch cuối tuần"
+          }
+        }
+      }
+    },
+    "app.speaking.blueprint.topic_weekend_plans.brief": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk about how you like to spend your free time."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trò chuyện về cách bạn muốn tận hưởng thời gian rảnh."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
