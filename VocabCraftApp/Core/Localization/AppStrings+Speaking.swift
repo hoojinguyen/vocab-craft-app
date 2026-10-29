@@ -64,6 +64,14 @@ extension AppStrings {
         public static var resultAnalyzingText: String { String(localized: "app.speaking.result.analyzing", defaultValue: "Reviewing your conversation…", bundle: .module) }
         public static var resultFailed: LocalizedStringKey { "app.speaking.result.failed" }
         public static var resultFailedText: String { String(localized: "app.speaking.result.failed", defaultValue: "We couldn't analyze this session.", bundle: .module) }
+        public static var resultPendingAnalysisFailed: LocalizedStringKey { "app.speaking.result.pending_analysis_failed" }
+        public static var resultPendingAnalysisFailedText: String {
+            String(
+                localized: "app.speaking.result.pending_analysis_failed",
+                defaultValue: "Analysis could not be completed. Try again.",
+                bundle: .module
+            )
+        }
         public static func resultScoreValueText(value: Int) -> String {
             String(
                 format: String(localized: "app.speaking.result.score_value", defaultValue: "%lld/5", bundle: .module),

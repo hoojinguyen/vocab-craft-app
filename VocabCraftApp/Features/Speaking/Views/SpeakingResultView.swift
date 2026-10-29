@@ -60,7 +60,7 @@ struct SpeakingResultView: View {
         } else if viewModel.didFailToLoad || viewModel.session == nil {
             CraftText(AppStrings.Speaking.resultFailed, style: .bodyMedium, color: theme.colors.statusWarning)
         } else if viewModel.didFailAnalysisWhilePending {
-            analysisFailedState
+            analysisFailedState(message: AppStrings.Speaking.resultPendingAnalysisFailed)
         } else if viewModel.session?.status == .pendingAnalysis {
             loadingState
         } else if let session = viewModel.session {
@@ -68,7 +68,7 @@ struct SpeakingResultView: View {
             case .pendingAnalysis:
                 loadingState
             case .analysisFailed:
-                analysisFailedState
+                analysisFailedState(message: AppStrings.Speaking.resultFailed)
             case .tooShort:
                 CraftCard {
                     CraftText(AppStrings.Speaking.resultTooShort, style: .bodyMedium)
@@ -93,10 +93,10 @@ struct SpeakingResultView: View {
         }
     }
 
-    private var analysisFailedState: some View {
+    private func analysisFailedState(message: LocalizedStringKey) -> some View {
         CraftCard {
             VStack(alignment: .leading, spacing: theme.spacing.md) {
-                CraftText(AppStrings.Speaking.resultFailed, style: .headline)
+                CraftText(message, style: .headline)
                 if viewModel.canRetry {
                     CraftButton(AppStrings.Speaking.resultRetry, isLoading: viewModel.isAnalyzing) {
                         Task { await viewModel.retry() }

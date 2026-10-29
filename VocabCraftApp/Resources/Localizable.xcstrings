@@ -15386,6 +15386,23 @@
         }
       }
     },
+    "app.speaking.result.pending_analysis_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analysis could not be completed. Try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa thể hoàn tất phân tích. Hãy thử lại."
+          }
+        }
+      }
+    },
     "app.speaking.result.pronunciation": {
       "extractionState": "manual",
       "localizations": {
