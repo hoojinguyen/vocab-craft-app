@@ -40,4 +40,22 @@ struct SpeakingPrecheckTests {
         )
         #expect(await precheck.run().isEmpty)
     }
+
+    @Test("Does not report offline until the network path has been observed")
+    func unobservedPathIsNotReportedAsOffline() async throws {
+        var pathIsOnline: Bool?
+        let precheck = SpeakingPrecheck(
+            settings: try settings(with: "valid-key"),
+            microphone: { true },
+            isOnline: { pathIsOnline }
+        )
+
+        #expect(await precheck.run().isEmpty)
+
+        pathIsOnline = false
+        #expect(await precheck.run() == [.offline])
+
+        pathIsOnline = true
+        #expect(await precheck.run().isEmpty)
+    }
 }

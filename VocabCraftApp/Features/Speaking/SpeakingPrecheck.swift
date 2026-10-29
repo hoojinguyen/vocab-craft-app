@@ -12,12 +12,12 @@ public struct SpeakingPrecheck {
 
     private let settings: UserSettingsStore
     private let microphone: @MainActor () async -> Bool
-    private let isOnline: @MainActor () -> Bool
+    private let isOnline: @MainActor () -> Bool?
 
     public init(
         settings: UserSettingsStore,
         microphone: @escaping @MainActor () async -> Bool,
-        isOnline: @escaping @MainActor () -> Bool
+        isOnline: @escaping @MainActor () -> Bool?
     ) {
         self.settings = settings
         self.microphone = microphone
@@ -41,7 +41,7 @@ public struct SpeakingPrecheck {
         if !(await microphone()) {
             issues.append(.microphoneDenied)
         }
-        if !isOnline() {
+        if isOnline() == false {
             issues.append(.offline)
         }
 
@@ -54,13 +54,20 @@ private final class SpeakingNetworkMonitor {
     static let shared = SpeakingNetworkMonitor()
 
     private let monitor: NWPathMonitor
+    private var hasObservedPath = false
 
     private init() {
         monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.hasObservedPath = true
+            }
+        }
         monitor.start(queue: DispatchQueue(label: "app.speaking.network-monitor"))
     }
 
-    var isOnline: Bool {
-        monitor.currentPath.status == .satisfied
+    var isOnline: Bool? {
+        guard hasObservedPath else { return nil }
+        return monitor.currentPath.status == .satisfied
     }
 }
