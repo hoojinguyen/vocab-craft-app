@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class InteractiveCardTests: XCTestCase {
 
     // MARK: - CraftChoiceState Tests
@@ -63,7 +64,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(centeredCard.textAlignment, .center)
         XCTAssertEqual(centeredCard.prefixStyle, .none)
         XCTAssertFalse(centeredCard.showsStatusIndicator)
-        XCTAssertNotNil(centeredCard.body)
+        assertHosted(centeredCard)
     }
 
     func testChoiceCardLocalizedKeyWithTextAlignment() {
@@ -74,7 +75,7 @@ final class InteractiveCardTests: XCTestCase {
         ) {}
         XCTAssertEqual(localizedCard.textAlignment, .center)
         XCTAssertFalse(localizedCard.showsStatusIndicator)
-        XCTAssertNotNil(localizedCard.body)
+        assertHosted(localizedCard)
     }
 
     func testChoiceCardSymbolInitializerWithTextAlignment() {
@@ -85,7 +86,7 @@ final class InteractiveCardTests: XCTestCase {
             correctSymbol: .checkmarkCircle
         ) {}
         XCTAssertEqual(symbolCard.textAlignment, .trailing)
-        XCTAssertNotNil(symbolCard.body)
+        assertHosted(symbolCard)
     }
 
     func testChoiceCardCenteredAlignmentAcrossStates() {
@@ -102,7 +103,7 @@ final class InteractiveCardTests: XCTestCase {
             ) {}
             XCTAssertEqual(pureCard.textAlignment, .center)
             XCTAssertEqual(pureCard.state, state)
-            XCTAssertNotNil(pureCard.body)
+            assertHosted(pureCard)
 
             // Centered with prefix
             let centeredWithPrefixCard = CraftChoiceCard(
@@ -115,7 +116,7 @@ final class InteractiveCardTests: XCTestCase {
             ) {}
             XCTAssertEqual(centeredWithPrefixCard.textAlignment, .center)
             XCTAssertEqual(centeredWithPrefixCard.state, state)
-            XCTAssertNotNil(centeredWithPrefixCard.body)
+            assertHosted(centeredWithPrefixCard)
         }
     }
 
@@ -158,7 +159,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(card.title, "Option B")
         XCTAssertEqual(card.subtitle, "Secondary explanation text")
         XCTAssertEqual(card.state, .selected)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardMultiCharacterPrefixAndLongText() {
@@ -172,7 +173,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(card.prefix, "10.")
         XCTAssertEqual(card.title, "Very long vocabulary term spanning across multiple lines of text")
         XCTAssertEqual(card.subtitle, "Comprehensive explanation detailing linguistic etymology and connotations")
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardLocalizedLongPrefix() {
@@ -183,7 +184,7 @@ final class InteractiveCardTests: XCTestCase {
             state: .idle
         ) {}
 
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardNilPrefix() {
@@ -195,7 +196,7 @@ final class InteractiveCardTests: XCTestCase {
 
         XCTAssertNil(card.prefix)
         XCTAssertEqual(card.title, "No prefix choice")
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardDisabledState() {
@@ -206,7 +207,7 @@ final class InteractiveCardTests: XCTestCase {
         ) {}
 
         XCTAssertEqual(card.state, .disabled)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardAllStatesBodyRendering() {
@@ -218,7 +219,7 @@ final class InteractiveCardTests: XCTestCase {
                 state: state
             ) {}
             XCTAssertEqual(card.state, state)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -236,7 +237,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNil(card.title)
         XCTAssertNil(card.subtitle)
         XCTAssertEqual(card.state, .selected)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         card.action()
         XCTAssertTrue(tapped)
     }
@@ -253,7 +254,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(correctCard.prefix, "A")
         XCTAssertEqual(correctCard.title, "Selected Option")
         XCTAssertEqual(correctCard.state, .correct)
-        XCTAssertNotNil(correctCard.body)
+        assertHosted(correctCard)
         correctCard.action()
         XCTAssertTrue(tapped)
 
@@ -263,7 +264,7 @@ final class InteractiveCardTests: XCTestCase {
             state: .wrong
         ) {}
         XCTAssertEqual(wrongCard.state, .wrong)
-        XCTAssertNotNil(wrongCard.body)
+        assertHosted(wrongCard)
     }
 
     func testChoiceCardAllStatesWithTheme() {
@@ -275,7 +276,7 @@ final class InteractiveCardTests: XCTestCase {
                 subtitle: "Subtitle for \(state.rawValue)",
                 state: state
             ) {}
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
             let view = card.craftTheme(theme)
             XCTAssertNotNil(view)
         }
@@ -292,10 +293,10 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(correctCard.state, .correct)
         XCTAssertEqual(wrongCard.state, .wrong)
 
-        XCTAssertNotNil(idleCard.body)
-        XCTAssertNotNil(selectedCard.body)
-        XCTAssertNotNil(correctCard.body)
-        XCTAssertNotNil(wrongCard.body)
+        assertHosted(idleCard)
+        assertHosted(selectedCard)
+        assertHosted(correctCard)
+        assertHosted(wrongCard)
     }
 
     func testChoiceCardGlassStyleAcrossStates() {
@@ -307,8 +308,8 @@ final class InteractiveCardTests: XCTestCase {
                 state: state,
                 style: .glass
             ) {}
-            XCTAssertEqual(card.style, .glass)
-            XCTAssertNotNil(card.body)
+            assertHosted(card) { XCTAssertEqual($0.style, .glass) }
+            assertHosted(card)
         }
     }
 
@@ -320,20 +321,20 @@ final class InteractiveCardTests: XCTestCase {
 
     func testChoiceCardEnvironmentSurfaceStyleInheritance() {
         let defaultCard = CraftChoiceCard(title: "Default Card") {}
-        XCTAssertEqual(defaultCard.style, .tactile3D)
-        XCTAssertEqual(defaultCard.resolvedStyle, .tactile3D)
+        assertHosted(defaultCard) { XCTAssertEqual($0.style, .tactile3D) }
+        assertHosted(defaultCard) { XCTAssertEqual($0.resolvedStyle, .tactile3D) }
 
         let explicitGlass = CraftChoiceCard(title: "Glass", style: .glass) {}
-        XCTAssertEqual(explicitGlass.style, .glass)
+        assertHosted(explicitGlass) { XCTAssertEqual($0.style, .glass) }
 
         let explicitFlat = CraftChoiceCard(title: "Flat", style: .flat) {}
-        XCTAssertEqual(explicitFlat.style, .flat)
+        assertHosted(explicitFlat) { XCTAssertEqual($0.style, .flat) }
 
         let explicitElevated = CraftChoiceCard(title: "Elevated", style: .elevated) {}
-        XCTAssertEqual(explicitElevated.style, .elevated)
+        assertHosted(explicitElevated) { XCTAssertEqual($0.style, .elevated) }
 
         let explicitOutlined = CraftChoiceCard(title: "Outlined", style: .outlined) {}
-        XCTAssertEqual(explicitOutlined.style, .outlined)
+        assertHosted(explicitOutlined) { XCTAssertEqual($0.style, .outlined) }
     }
 
     func testChoiceCardButtonStyleConfiguration() {
@@ -374,9 +375,9 @@ final class InteractiveCardTests: XCTestCase {
                 style: .tactile3D,
                 showsStatusIndicator: false
             ) {}
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
             XCTAssertEqual(card.state, state)
-            XCTAssertEqual(card.style, .tactile3D)
+            assertHosted(card) { XCTAssertEqual($0.style, .tactile3D) }
         }
     }
 
@@ -390,11 +391,11 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(card.title, "Contract Test")
         XCTAssertNil(card.subtitle)
         XCTAssertEqual(card.state, .idle)
-        XCTAssertEqual(card.style, .tactile3D)
-        XCTAssertEqual(card.resolvedStyle, .tactile3D)
+        assertHosted(card) { XCTAssertEqual($0.style, .tactile3D) }
+        assertHosted(card) { XCTAssertEqual($0.resolvedStyle, .tactile3D) }
         card.action()
         XCTAssertTrue(tapped)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testChoiceCardPrefixStylesAndCustomization() {
@@ -413,8 +414,8 @@ final class InteractiveCardTests: XCTestCase {
             XCTAssertEqual(card.title, "Custom Card \(prefixStyle.rawValue)")
             XCTAssertEqual(card.subtitle, "Custom Subtitle")
             XCTAssertEqual(card.state, .selected)
-            XCTAssertEqual(card.style, .glass)
-            XCTAssertNotNil(card.body)
+            assertHosted(card) { XCTAssertEqual($0.style, .glass) }
+            assertHosted(card)
         }
     }
 
@@ -428,7 +429,7 @@ final class InteractiveCardTests: XCTestCase {
         ) {}
         XCTAssertNil(nilPrefixCard.prefix)
         XCTAssertEqual(nilPrefixCard.prefixStyle, .none)
-        XCTAssertNotNil(nilPrefixCard.body)
+        assertHosted(nilPrefixCard)
 
         // With explicit non-nil prefix (prefixStyle .none hides the badge)
         let withPrefixCard = CraftChoiceCard(
@@ -439,7 +440,7 @@ final class InteractiveCardTests: XCTestCase {
         ) {}
         XCTAssertEqual(withPrefixCard.prefix, "Z")
         XCTAssertEqual(withPrefixCard.prefixStyle, .none)
-        XCTAssertNotNil(withPrefixCard.body)
+        assertHosted(withPrefixCard)
     }
 
     func testChoiceCardLocalizedPrefixStyles() {
@@ -457,8 +458,8 @@ final class InteractiveCardTests: XCTestCase {
             XCTAssertNil(localizedCard.title)
             XCTAssertNil(localizedCard.subtitle)
             XCTAssertEqual(localizedCard.state, .correct)
-            XCTAssertEqual(localizedCard.style, .elevated)
-            XCTAssertNotNil(localizedCard.body)
+            assertHosted(localizedCard) { XCTAssertEqual($0.style, .elevated) }
+            assertHosted(localizedCard)
         }
     }
 
@@ -477,8 +478,8 @@ final class InteractiveCardTests: XCTestCase {
                     XCTAssertEqual(card.prefix, "X")
                     XCTAssertEqual(card.prefixStyle, prefixStyle)
                     XCTAssertEqual(card.state, state)
-                    XCTAssertEqual(card.style, surfaceStyle)
-                    XCTAssertNotNil(card.body)
+                    assertHosted(card) { XCTAssertEqual($0.style, surfaceStyle) }
+                    assertHosted(card)
                 }
             }
         }
@@ -497,7 +498,7 @@ final class InteractiveCardTests: XCTestCase {
 
         XCTAssertFalse(flipCard.isFlipped)
         XCTAssertEqual(flipCard.axis, .horizontal)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
 
         // Toggle state
         flipped = true
@@ -515,7 +516,7 @@ final class InteractiveCardTests: XCTestCase {
 
         XCTAssertTrue(flipCard.isFlipped)
         XCTAssertEqual(flipCard.axis, .vertical)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
     }
 
     func testFlipCardCustomContentRendering() {
@@ -535,7 +536,7 @@ final class InteractiveCardTests: XCTestCase {
 
         XCTAssertNotNil(flipCard.front)
         XCTAssertNotNil(flipCard.back)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
     }
 
     func testFlipCardSpecularGlareAndEdgeThickness() {
@@ -557,7 +558,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertTrue(flipCard.showSpecularGlare)
         XCTAssertEqual(flipCard.cornerRadius, 20)
         XCTAssertEqual(flipCard.axis, .horizontal)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
     }
 
     func testSpecularGlareModifierAnimatableData() {
@@ -601,7 +602,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(flipCard.edgeThickness, 0)
         XCTAssertFalse(flipCard.showSpecularGlare)
         XCTAssertEqual(flipCard.axis, .vertical)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
     }
 
     func testFlipCardPerspectiveAndCustomAnimation() {
@@ -619,7 +620,7 @@ final class InteractiveCardTests: XCTestCase {
 
         XCTAssertEqual(flipCard.perspective, 0.75)
         XCTAssertNotNil(flipCard.animation)
-        XCTAssertNotNil(flipCard.body)
+        assertHosted(flipCard)
     }
 
     func testFlipCardLocalizationKeys() {
@@ -666,7 +667,7 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(card.showsHighlightBorder, false)
         XCTAssertEqual(card.isTapToFlipEnabled, true)
         XCTAssertEqual(card.perspective, 0.45)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     // MARK: - Craft3DFlipModifier Tests
@@ -750,7 +751,7 @@ final class InteractiveCardTests: XCTestCase {
                 subtitle: "Testing squash & stretch trigger",
                 state: state
             ) {}
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 }

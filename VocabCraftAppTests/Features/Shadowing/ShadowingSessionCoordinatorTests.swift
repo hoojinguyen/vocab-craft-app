@@ -10,7 +10,7 @@ struct ShadowingSessionCoordinatorTests {
     @MainActor
     func testLeaseTransition() async throws {
         let mockCoordinator = MockAudioSessionCoordinator()
-        let sessionCoordinator = ShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
+        let sessionCoordinator = makeTestShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
 
         try await sessionCoordinator.prepareForNativePlayback()
         #expect(mockCoordinator.activeIntent == .playback)
@@ -26,7 +26,7 @@ struct ShadowingSessionCoordinatorTests {
     @MainActor
     func testReleasesPreviousLeaseOnSubsequentPrepare() async throws {
         let mockCoordinator = MockAudioSessionCoordinator()
-        let sessionCoordinator = ShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
+        let sessionCoordinator = makeTestShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
 
         try await sessionCoordinator.prepareForNativePlayback()
         #expect(mockCoordinator.activeIntent == .playback)
@@ -46,7 +46,7 @@ struct ShadowingSessionCoordinatorTests {
     func testAcquisitionFailureHandling() async throws {
         let mockCoordinator = MockAudioSessionCoordinator()
         mockCoordinator.shouldFailAcquire = true
-        let sessionCoordinator = ShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
+        let sessionCoordinator = makeTestShadowingSessionCoordinator(audioCoordinator: mockCoordinator)
 
         await #expect(throws: MockAudioSessionCoordinator.MockError.simulatedFailure) {
             try await sessionCoordinator.prepareForNativePlayback()
@@ -57,24 +57,94 @@ struct ShadowingSessionCoordinatorTests {
     @Test("ShadowingAudioRecorder generates unique .m4a file in temporary directory")
     @MainActor
     func testRecorderFileGeneration() throws {
-        let recorder = ShadowingAudioRecorder()
+        let state = FakeAudioRecordingDevice.State()
+        let recorder = ShadowingAudioRecorder(audioRecorderFactory: { _ in
+            FakeAudioRecordingDevice(state: state)
+        })
         let sentenceId = "sent_test_123"
 
         let fileURL = try recorder.startRecording(sentenceId: sentenceId)
         #expect(fileURL.pathExtension == "m4a")
         #expect(fileURL.lastPathComponent.contains(sentenceId))
         #expect(recorder.lastRecordedURL == fileURL)
+        #expect(state.createdCount == 1)
+        #expect(recorder.isRecording)
 
         recorder.stopRecording()
         #expect(!recorder.isRecording)
     }
 
+    @Test("Failed recorder start stops and releases the device")
+    @MainActor
+    func recorderStartFailureStopsAndReleasesDevice() {
+        let state = FakeAudioRecordingDevice.State()
+        weak var failedDevice: FakeAudioRecordingDevice?
+        let recorder = ShadowingAudioRecorder(audioRecorderFactory: { _ in
+            let device = FakeAudioRecordingDevice(state: state, startsSuccessfully: false)
+            failedDevice = device
+            return device
+        })
+
+        #expect(throws: ShadowingAudioRecorderError.failedToStartRecording) {
+            try recorder.startRecording(sentenceId: "failed_start")
+        }
+
+        #expect(state.stopCallCount == 1)
+        #expect(failedDevice == nil)
+        #expect(!recorder.isRecording)
+        #expect(recorder.lastRecordedURL == nil)
+    }
+
     @Test("ShadowingAudioRecorder stopPlayback resets playing state")
     @MainActor
     func testRecorderStopPlayback() {
-        let recorder = ShadowingAudioRecorder()
+        let recorder = makeTestShadowingAudioRecorder()
         recorder.stopPlayback()
         #expect(!recorder.isPlaying)
+    }
+}
+
+@MainActor
+func makeTestShadowingSessionCoordinator(
+    audioCoordinator: any AudioSessionCoordinating = NoOpAudioSessionCoordinator()
+) -> ShadowingSessionCoordinator {
+    let recorder = makeTestShadowingAudioRecorder()
+    return ShadowingSessionCoordinator(audioCoordinator: audioCoordinator, recorder: recorder)
+}
+
+@MainActor
+func makeTestShadowingAudioRecorder() -> ShadowingAudioRecorder {
+    ShadowingAudioRecorder(audioRecorderFactory: { _ in
+        FakeAudioRecordingDevice(state: FakeAudioRecordingDevice.State())
+    })
+}
+
+@MainActor
+final class FakeAudioRecordingDevice: AudioRecordingDevice {
+    @MainActor
+    final class State {
+        var createdCount = 0
+        var stopCallCount = 0
+    }
+
+    private let state: State
+    private let startsSuccessfully: Bool
+    private(set) var isRecording = false
+
+    init(state: State, startsSuccessfully: Bool = true) {
+        self.state = state
+        self.startsSuccessfully = startsSuccessfully
+        state.createdCount += 1
+    }
+
+    func record() -> Bool {
+        isRecording = startsSuccessfully
+        return startsSuccessfully
+    }
+
+    func stop() {
+        state.stopCallCount += 1
+        isRecording = false
     }
 }
 

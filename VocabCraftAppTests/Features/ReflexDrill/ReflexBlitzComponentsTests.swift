@@ -16,6 +16,7 @@ import XCTest
 import AppKit
 #endif
 
+@MainActor
 final class ReflexBlitzComponentsTests: XCTestCase {
     private func assertColorsEqual(_ color1: Color, _ color2: Color, file: StaticString = #filePath, line: UInt = #line) {
         #if canImport(UIKit)
@@ -52,7 +53,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(header.comboStreak, 3)
         XCTAssertEqual(header.fractionRemaining, 0.75)
         XCTAssertEqual(header.timerStage, .warning)
-        assertColorsEqual(header.timerBarColor, theme.colors.statusWarning)
+        assertHosted(header) { self.assertColorsEqual($0.timerBarColor, theme.colors.statusWarning) }
         header.onClose()
         header.onSkip?()
         XCTAssertTrue(didClose)
@@ -63,13 +64,13 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     func testHeaderViewTimerStagesColor() {
         let theme = CraftDefaultTheme()
         let steadyHeader = ReflexBlitzHeaderView(currentIndex: 0, totalCount: 5, comboStreak: 0, fractionRemaining: 1.0, timerStage: .steady, onClose: {})
-        assertColorsEqual(steadyHeader.timerBarColor, theme.colors.brandPrimary)
+        assertHosted(steadyHeader) { self.assertColorsEqual($0.timerBarColor, theme.colors.brandPrimary) }
 
         let warningHeader = ReflexBlitzHeaderView(currentIndex: 1, totalCount: 5, comboStreak: 0, fractionRemaining: 0.4, timerStage: .warning, onClose: {})
-        assertColorsEqual(warningHeader.timerBarColor, theme.colors.statusWarning)
+        assertHosted(warningHeader) { self.assertColorsEqual($0.timerBarColor, theme.colors.statusWarning) }
 
         let urgentHeader = ReflexBlitzHeaderView(currentIndex: 2, totalCount: 5, comboStreak: 0, fractionRemaining: 0.1, timerStage: .urgent, onClose: {})
-        assertColorsEqual(urgentHeader.timerBarColor, theme.colors.statusDanger)
+        assertHosted(urgentHeader) { self.assertColorsEqual($0.timerBarColor, theme.colors.statusDanger) }
     }
 
     @MainActor
@@ -80,19 +81,19 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             ReflexBlitzAttempt(wordId: 2, lemma: "b", pos: "", ipa: "", definitionVi: "", responseTimeMs: 2000, usedHint: false, isCorrect: false)
         ]
         let header = ReflexBlitzHeaderView(currentIndex: 2, totalCount: 5, comboStreak: 0, attempts: attempts, onClose: {})
-        assertColorsEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
-        assertColorsEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
-        assertColorsEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
-        XCTAssertNotNil(header.segmentColor(for: 3))
+        assertHosted(header) { self.assertColorsEqual($0.segmentColor(for: 0), theme.colors.statusSuccess) }
+        assertHosted(header) { self.assertColorsEqual($0.segmentColor(for: 1), theme.colors.statusDanger) }
+        assertHosted(header) { self.assertColorsEqual($0.segmentColor(for: 2), theme.colors.brandPrimary) }
+        assertHosted(header) { XCTAssertNotNil($0.segmentColor(for: 3)) }
     }
 
     @MainActor
     func testHeaderViewBodyRendersAcrossComboThresholds() {
         let noCombo = ReflexBlitzHeaderView(currentIndex: 0, totalCount: 5, comboStreak: 1, fractionRemaining: 0.9, timerStage: .steady, onClose: {}, onSkip: {})
-        XCTAssertNotNil(noCombo.body)
+        assertHosted(noCombo)
 
         let combo = ReflexBlitzHeaderView(currentIndex: 4, totalCount: 5, comboStreak: 4, fractionRemaining: 0.2, timerStage: .urgent, onClose: {}, onSkip: {})
-        XCTAssertNotNil(combo.body)
+        assertHosted(combo)
     }
 
     @MainActor
@@ -102,7 +103,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .steady, showSkipInHeader: true, onClose: {}, onSkip: {}
         )
         XCTAssertTrue(header.showSkipInHeader)
-        XCTAssertNotNil(header.body)
+        assertHosted(header)
     }
 
     @MainActor
@@ -115,7 +116,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(active.wordStartTime, now)
         XCTAssertEqual(active.timeLimitSeconds, 6.0)
         XCTAssertTrue(active.isTimerActive)
-        XCTAssertNotNil(active.body)
+        assertHosted(active)
     }
 
     @MainActor
@@ -123,12 +124,12 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         let overlay3 = ReflexCountdownOverlayView(count: 3)
         XCTAssertNotNil(overlay3)
         XCTAssertEqual(overlay3.count, 3)
-        XCTAssertNotNil(overlay3.body)
+        assertHosted(overlay3)
 
         let overlay0 = ReflexCountdownOverlayView(count: 0)
         XCTAssertNotNil(overlay0)
         XCTAssertEqual(overlay0.count, 0)
-        XCTAssertNotNil(overlay0.body)
+        assertHosted(overlay0)
     }
 
     @MainActor
@@ -151,7 +152,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onSelectOption: nil,
             onReplayAudio: nil
         )
-        XCTAssertNotNil(activeCard.body)
+        assertHosted(activeCard)
 
         // Reviewed State: back card has CEFR badge and audio replay
         let reviewedCard = ReflexMultipleChoiceModeView(
@@ -168,7 +169,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onSelectOption: nil,
             onReplayAudio: {}
         )
-        XCTAssertNotNil(reviewedCard.body)
+        assertHosted(reviewedCard)
     }
 
     @MainActor
@@ -197,7 +198,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertEqual(stage0Card.choiceState(for: wrongOption), CraftChoiceState.idle)
         XCTAssertEqual(stage0Card.choiceState(for: correctOption), CraftChoiceState.idle)
-        XCTAssertNotNil(stage0Card.body)
+        assertHosted(stage0Card)
 
         // Stage 3: eliminated option is disabled, correct option is idle
         let stage3Card = ReflexMultipleChoiceModeView(
@@ -218,6 +219,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertEqual(stage3Card.choiceState(for: wrongOption), CraftChoiceState.disabled)
         XCTAssertEqual(stage3Card.choiceState(for: correctOption), CraftChoiceState.idle)
-        XCTAssertNotNil(stage3Card.body)
+        assertHosted(stage3Card)
     }
 }

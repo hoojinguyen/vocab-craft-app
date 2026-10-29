@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class ContainerOverlayTests: XCTestCase {
 
     // MARK: - CraftCard Tests
@@ -14,7 +15,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .elevated)
         XCTAssertTrue(card.isPressable)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardAllStyles() {
@@ -24,7 +25,7 @@ final class ContainerOverlayTests: XCTestCase {
             }
             XCTAssertEqual(card.style, style)
             XCTAssertFalse(card.isPressable)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -34,7 +35,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .glass)
         XCTAssertEqual(card.style.surfaceStyle, .glass)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardSurfaceStyleMapping() {
@@ -58,7 +59,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .glass)
         XCTAssertTrue(card.isPressable)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardCustomSolidTint() {
@@ -67,7 +68,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .glass)
         XCTAssertEqual(card.customTint, .purple)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardPressableAction() {
@@ -80,7 +81,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertTrue(card.isPressable)
         card.action?()
         XCTAssertTrue(tapped)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardCustomPaddingAndCornerRadius() {
@@ -93,7 +94,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.cornerRadius, 20)
         XCTAssertEqual(card.padding, 24)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardCustomGradient() {
@@ -110,7 +111,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .gradient)
         XCTAssertNotNil(card.customGradient)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCardTactile3DStyle() {
@@ -122,7 +123,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .tactile3D)
         XCTAssertTrue(card.isPressable)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         card.action?()
         XCTAssertTrue(tapped)
     }
@@ -133,7 +134,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(card.style, .tactile3D)
         XCTAssertFalse(card.isPressable)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testTactileCardButtonStyle() {
@@ -156,7 +157,7 @@ final class ContainerOverlayTests: XCTestCase {
 
         let barNormal = CraftProgressBar(progress: 0.65)
         XCTAssertEqual(barNormal.clampedProgress, 0.65, accuracy: 0.001)
-        XCTAssertNotNil(barNormal.body)
+        assertHosted(barNormal)
     }
 
     func testProgressBarSteppedInit() {
@@ -165,7 +166,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(steppedBar.clampedProgress, 0.6, accuracy: 0.001)
         XCTAssertEqual(steppedBar.currentStep, 3)
         XCTAssertEqual(steppedBar.totalSteps, 5)
-        XCTAssertNotNil(steppedBar.body)
+        assertHosted(steppedBar)
     }
 
     func testProgressBarCustomStyling() {
@@ -180,7 +181,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(bar.tintColor, .blue)
         XCTAssertEqual(bar.trackColor, .gray)
         XCTAssertEqual(bar.cornerRadius, 6)
-        XCTAssertNotNil(bar.body)
+        assertHosted(bar)
     }
 
     // MARK: - CraftProgressRing Tests
@@ -197,7 +198,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(ringNormal.lineWidth, 10)
         XCTAssertEqual(ringNormal.size, 100)
         XCTAssertEqual(ringNormal.accessibilityLabel, "Progress")
-        XCTAssertNotNil(ringNormal.body)
+        assertHosted(ringNormal)
     }
 
     func testProgressRingCustomAccessibilityLabel() {
@@ -208,7 +209,7 @@ final class ContainerOverlayTests: XCTestCase {
             Text("50%")
         }
         XCTAssertEqual(ring.accessibilityLabel, "Daily Mastery Target")
-        XCTAssertNotNil(ring.body)
+        assertHosted(ring)
     }
 
     func testProgressRingCustomCenterContent() {
@@ -216,7 +217,7 @@ final class ContainerOverlayTests: XCTestCase {
             Text("80%")
         }
         XCTAssertEqual(ring.clampedProgress, 0.8, accuracy: 0.001)
-        XCTAssertNotNil(ring.body)
+        assertHosted(ring)
     }
 
     // MARK: - CraftListRow Tests
@@ -241,7 +242,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(row.iconColor, .white)
         XCTAssertEqual(row.iconBackgroundColor, .blue)
         XCTAssertTrue(row.showChevron)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
 
         row.action?()
         XCTAssertTrue(actionTriggered)
@@ -256,7 +257,7 @@ final class ContainerOverlayTests: XCTestCase {
         )
         XCTAssertEqual(row.title, "Account Settings")
         XCTAssertTrue(row.showChevron)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
     }
 
     func testListRowLocalization() {
@@ -274,7 +275,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNil(row.subtitle)
         XCTAssertEqual(row.iconName, "book.fill")
         XCTAssertTrue(row.showChevron)
-        XCTAssertNotNil(row.body)
+        assertHosted(row)
 
         row.action?()
         XCTAssertTrue(actionTriggered)
@@ -298,7 +299,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(emptyState.iconName, "character.book.closed")
         XCTAssertEqual(emptyState.buttonTitle, "Add Word")
         XCTAssertEqual(emptyState.buttonIcon, "plus")
-        XCTAssertNotNil(emptyState.body)
+        assertHosted(emptyState)
 
         emptyState.buttonAction?()
         XCTAssertTrue(buttonTapped)
@@ -307,7 +308,7 @@ final class ContainerOverlayTests: XCTestCase {
     func testDefaultEmptyStateIllustrationWithSymbol() {
         let illustration = CraftDefaultEmptyStateIllustration(symbol: .bookmark)
         XCTAssertEqual(illustration.iconName, "bookmark")
-        XCTAssertNotNil(illustration.body)
+        assertHosted(illustration)
     }
 
     func testEmptyStateWithIconAndButton() {
@@ -326,7 +327,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(emptyState.iconName, "tray")
         XCTAssertEqual(emptyState.buttonTitle, "Explore Now")
         XCTAssertEqual(emptyState.buttonIcon, "sparkles")
-        XCTAssertNotNil(emptyState.body)
+        assertHosted(emptyState)
 
         emptyState.buttonAction?()
         XCTAssertTrue(buttonTapped)
@@ -341,13 +342,13 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(emptyState.title, "No Results")
         XCTAssertEqual(emptyState.message, "Try searching something else.")
-        XCTAssertNotNil(emptyState.body)
+        assertHosted(emptyState)
     }
 
     func testDefaultEmptyStateIllustrationView() {
         let illustration = CraftDefaultEmptyStateIllustration(iconName: "star.fill")
         XCTAssertEqual(illustration.iconName, "star.fill")
-        XCTAssertNotNil(illustration.body)
+        assertHosted(illustration)
     }
 
     func testEmptyStateLocalization() {
@@ -366,7 +367,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(emptyState.iconName, "tray.fill")
         XCTAssertNil(emptyState.buttonTitle)
         XCTAssertEqual(emptyState.buttonIcon, "plus")
-        XCTAssertNotNil(emptyState.body)
+        assertHosted(emptyState)
 
         emptyState.buttonAction?()
         XCTAssertTrue(buttonTapped)
@@ -415,7 +416,7 @@ final class ContainerOverlayTests: XCTestCase {
             XCTAssertEqual(toastView.title, "Alert")
             XCTAssertEqual(toastView.message, "Test message")
             XCTAssertEqual(toastView.surfaceStyle, .elevated)
-            XCTAssertNotNil(toastView.body)
+            assertHosted(toastView)
         }
     }
 
@@ -427,7 +428,7 @@ final class ContainerOverlayTests: XCTestCase {
             surfaceStyle: .glass
         )
         XCTAssertEqual(toast.surfaceStyle, .glass)
-        XCTAssertNotNil(toast.body)
+        assertHosted(toast)
     }
 
     func testToastLocalizedStringKeyInit() {
@@ -439,7 +440,7 @@ final class ContainerOverlayTests: XCTestCase {
         )
         XCTAssertEqual(toast.style, .warning)
         XCTAssertEqual(toast.surfaceStyle, .glass)
-        XCTAssertNotNil(toast.body)
+        assertHosted(toast)
     }
 
     func testToastViewModifier() {
@@ -487,7 +488,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertEqual(sheet.title, "Options")
         XCTAssertEqual(sheet.style, .glass)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
 
         let hostView = Text("Host View")
             .craftBottomSheet(
@@ -510,7 +511,7 @@ final class ContainerOverlayTests: XCTestCase {
         }
         XCTAssertNil(sheet.title)
         XCTAssertEqual(sheet.style, .elevated)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
 
         let hostView = Text("Host View")
             .craftBottomSheet(
@@ -535,7 +536,7 @@ final class ContainerOverlayTests: XCTestCase {
                 Text("Content")
             }
             XCTAssertEqual(sheet.style, style)
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
     }
 
@@ -564,7 +565,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.primaryButtonVariant, .danger)
         XCTAssertEqual(dialog.cancelButtonTitle, "Cancel")
         XCTAssertEqual(dialog.style, .glass)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
 
         dialog.primaryAction()
         XCTAssertTrue(confirmed)
@@ -581,7 +582,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.primaryButtonTitle, CraftLocalized.string("craft.common.action.confirm"))
         XCTAssertEqual(dialog.cancelButtonTitle, CraftLocalized.string("craft.common.action.cancel"))
         XCTAssertEqual(dialog.style, .elevated)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogLocalizedStringKeyInit() {
@@ -601,7 +602,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.title, "")
         XCTAssertNil(dialog.message)
         XCTAssertEqual(dialog.style, .glass)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
 
         dialog.primaryAction()
         XCTAssertTrue(confirmed)
@@ -618,7 +619,7 @@ final class ContainerOverlayTests: XCTestCase {
                 style: style
             )
             XCTAssertEqual(dialog.style, style)
-            XCTAssertNotNil(dialog.body)
+            assertHosted(dialog)
         }
     }
 
@@ -670,7 +671,7 @@ final class ContainerOverlayTests: XCTestCase {
         )
         XCTAssertNil(dialog.cancelButtonTitle)
         XCTAssertNil(dialog.cancelAction)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogButtonLayoutEnumCases() {
@@ -718,7 +719,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.iconColor, .orange)
         XCTAssertEqual(dialog.iconName, "bell.fill")
         XCTAssertEqual(dialog.cancelButtonVariant, .outline)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogVerticalButtonLayout() {
@@ -730,7 +731,7 @@ final class ContainerOverlayTests: XCTestCase {
 
         XCTAssertEqual(dialog.buttonLayout, .vertical)
         XCTAssertNil(dialog.cancelButtonVariant)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogCustomCancelButtonVariant() {
@@ -741,7 +742,7 @@ final class ContainerOverlayTests: XCTestCase {
         )
 
         XCTAssertEqual(dialog.cancelButtonVariant, .danger)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogLocalizedStringKeyWithNewProperties() {
@@ -763,7 +764,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.buttonLayout, .vertical)
         XCTAssertEqual(dialog.iconColor, .red)
         XCTAssertEqual(dialog.cancelButtonVariant, .ghost)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     func testDialogCustomContentWithNewProperties() {
@@ -780,7 +781,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.buttonLayout, .automatic)
         XCTAssertEqual(dialog.iconColor, .blue)
         XCTAssertEqual(dialog.cancelButtonVariant, .secondary)
-        XCTAssertNotNil(dialog.body)
+        assertHosted(dialog)
     }
 
     // MARK: - View.craftDialog Extension Tests

@@ -1,0 +1,57 @@
+{
+  "learnerTranscript": [
+    {
+      "turnIndex": 1,
+      "text": "I want coffee."
+    }
+  ],
+  "scores": {
+    "fluency": {
+      "value": 3,
+      "reason": "Clear everyday English."
+    },
+    "grammar": {
+      "value": 3,
+      "reason": "Clear everyday English."
+    },
+    "vocabulary": {
+      "value": 3,
+      "reason": "Clear everyday English."
+    },
+    "pronunciation": {
+      "value": 3,
+      "reason": "Clear everyday English."
+    }
+  },
+  "corrections": [
+    {
+      "turnIndex": 1,
+      "original": "I want coffee.",
+      "corrected": "I would like a coffee.",
+      "category": "wordChoice",
+      "explanation": "Lịch sự hơn."
+    }
+  ],
+  "naturalPhrasings": [
+    {
+      "original": "I want coffee.",
+      "natural": "Could I have a coffee?",
+      "note": "Cách gọi món tự nhiên."
+    }
+  ],
+  "pronunciation": [
+    {
+      "word": "coffee",
+      "issue": "Stress",
+      "tip": "Nhấn âm đầu."
+    }
+  ],
+  "summary": {
+    "strengths": [
+      "Diễn đạt rõ."
+    ],
+    "focusNext": [
+      "Luyện cách gọi món lịch sự."
+    ]
+  }
+}

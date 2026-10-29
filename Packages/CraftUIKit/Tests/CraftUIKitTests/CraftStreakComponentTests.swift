@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftStreakComponentTests: XCTestCase {
     // MARK: - CraftStreakBadgeSize Tests
 
@@ -28,7 +29,7 @@ final class CraftStreakComponentTests: XCTestCase {
             isCompletedToday: true,
             size: .sm
         )
-        XCTAssertNotNil(badge.body)
+        assertHosted(badge)
         XCTAssertEqual(badge.count, 14)
         XCTAssertEqual(badge.tier, .blaze)
         XCTAssertTrue(badge.isCompletedToday)
@@ -41,15 +42,15 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(starterBadge.tier, .starter)
         XCTAssertFalse(starterBadge.isCompletedToday)
         XCTAssertEqual(starterBadge.size, .md)
-        XCTAssertNotNil(starterBadge.body)
+        assertHosted(starterBadge)
 
         let blazeBadge = CraftStreakBadge(count: 10)
         XCTAssertEqual(blazeBadge.tier, .blaze)
-        XCTAssertNotNil(blazeBadge.body)
+        assertHosted(blazeBadge)
 
         let legendaryBadge = CraftStreakBadge(count: 35)
         XCTAssertEqual(legendaryBadge.tier, .legendary)
-        XCTAssertNotNil(legendaryBadge.body)
+        assertHosted(legendaryBadge)
     }
 
     func testCraftStreakBadgeTiersAndSizesRendering() {
@@ -65,7 +66,7 @@ final class CraftStreakComponentTests: XCTestCase {
                     XCTAssertEqual(badge.tier, tier)
                     XCTAssertEqual(badge.size, size)
                     XCTAssertEqual(badge.isCompletedToday, isCompleted)
-                    XCTAssertNotNil(badge.body)
+                    assertHosted(badge)
                 }
             }
         }
@@ -82,7 +83,7 @@ final class CraftStreakComponentTests: XCTestCase {
             didTap = true
         }
 
-        XCTAssertNotNil(badge.body)
+        assertHosted(badge)
         XCTAssertNotNil(badge.onTap)
         badge.onTap?()
         XCTAssertTrue(didTap)
@@ -102,7 +103,7 @@ final class CraftStreakComponentTests: XCTestCase {
 
         XCTAssertEqual(badge.customAccessibilityLabel, customLabel)
         XCTAssertEqual(badge.customAccessibilityHint, customHint)
-        XCTAssertNotNil(badge.body)
+        assertHosted(badge)
     }
 
     func testCraftStreakBadgeSurfaceStyles() {
@@ -115,7 +116,7 @@ final class CraftStreakComponentTests: XCTestCase {
                 style: style
             )
             XCTAssertEqual(badge.style, style)
-            XCTAssertNotNil(badge.body)
+            assertHosted(badge)
         }
     }
 
@@ -124,8 +125,8 @@ final class CraftStreakComponentTests: XCTestCase {
         let mdBadge = CraftStreakBadge(count: 14, size: .md)
         XCTAssertEqual(smBadge.size.height, 32)
         XCTAssertEqual(mdBadge.size.height, 40)
-        XCTAssertNotNil(smBadge.body)
-        XCTAssertNotNil(mdBadge.body)
+        assertHosted(smBadge)
+        assertHosted(mdBadge)
     }
 
     // MARK: - CraftStreakCard Tests
@@ -150,7 +151,7 @@ final class CraftStreakComponentTests: XCTestCase {
             weekDays: mockDays
         )
         let card = CraftStreakCard(data: streakData)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(card.data.currentStreak, 14)
         XCTAssertEqual(card.data.bestStreak, 30)
         XCTAssertEqual(card.data.freezeTokens, 2)
@@ -177,7 +178,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onMilestoneTap: { didTapMilestone = true }
         )
 
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertNotNil(card.onFreezeTap)
         XCTAssertNotNil(card.onMilestoneTap)
 
@@ -207,7 +208,7 @@ final class CraftStreakComponentTests: XCTestCase {
             )
 
             let card = CraftStreakCard(data: data)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
             XCTAssertEqual(card.data.tier, CraftStreakTier.tier(for: streakCount))
         }
     }
@@ -225,7 +226,7 @@ final class CraftStreakComponentTests: XCTestCase {
 
         XCTAssertEqual(card.customAccessibilityLabel, customLabel)
         XCTAssertEqual(card.customAccessibilityHint, customHint)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     // MARK: - CraftStreakCelebrationSheet Tests
@@ -237,7 +238,7 @@ final class CraftStreakComponentTests: XCTestCase {
             weekDays: [],
             onContinue: {}
         )
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
         XCTAssertEqual(sheet.currentStreak, 14)
         XCTAssertEqual(sheet.previousStreak, 13)
         XCTAssertEqual(sheet.tier, .blaze)
@@ -260,7 +261,7 @@ final class CraftStreakComponentTests: XCTestCase {
             weekDays: mockDays,
             onContinue: {}
         )
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
         XCTAssertEqual(sheet.weekDays.count, 7)
         XCTAssertEqual(sheet.tier, .starter)
     }
@@ -275,7 +276,7 @@ final class CraftStreakComponentTests: XCTestCase {
                 didContinue = true
             }
         )
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
         XCTAssertEqual(sheet.tier, .legendary)
         sheet.onContinue()
         XCTAssertTrue(didContinue)
@@ -318,7 +319,7 @@ final class CraftStreakComponentTests: XCTestCase {
         )
         XCTAssertEqual(sheet.customAccessibilityLabel, customLabel)
         XCTAssertEqual(sheet.customAccessibilityHint, customHint)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     // MARK: - 3D Tactile & Bento Dashboard Integration Tests
@@ -334,7 +335,7 @@ final class CraftStreakComponentTests: XCTestCase {
         )
         let tactileCard = CraftStreakCard(data: streakData, cardStyle: .tactile3D)
         XCTAssertEqual(tactileCard.cardStyle, .tactile3D)
-        XCTAssertNotNil(tactileCard.body)
+        assertHosted(tactileCard)
     }
 
     func testCraftStreakCardDayNodeStatusesComprehensive() {
@@ -357,7 +358,7 @@ final class CraftStreakComponentTests: XCTestCase {
             weekDays: days
         )
         let card = CraftStreakCard(data: data)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(card.data.weekDays.count, 7)
         XCTAssertEqual(card.data.weekDays[0].status, .completed)
         XCTAssertEqual(card.data.weekDays[1].status, .frozen)
@@ -410,7 +411,7 @@ final class CraftStreakComponentTests: XCTestCase {
         )
 
         let card = CraftActivityTrackerCard(data: activityData)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(card.data.currentValue, 14)
         XCTAssertEqual(card.data.bestRecord, 25)
         XCTAssertEqual(card.data.tier, .blaze)
@@ -437,7 +438,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onMilestoneTap: { didTapMilestone = true }
         )
 
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertNotNil(card.onShieldTap)
         XCTAssertNotNil(card.onMilestoneTap)
 
@@ -457,7 +458,7 @@ final class CraftStreakComponentTests: XCTestCase {
         for style in CraftCardStyle.allCases {
             let card = CraftActivityTrackerCard(data: data, cardStyle: style)
             XCTAssertEqual(card.cardStyle, style)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -474,7 +475,7 @@ final class CraftStreakComponentTests: XCTestCase {
 
         XCTAssertEqual(card.customAccessibilityLabel, customLabel)
         XCTAssertEqual(card.customAccessibilityHint, customHint)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCraftCelebrationSheetRenderingAndMilestoneDetection() {
@@ -487,7 +488,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onContinue: {}
         )
 
-        XCTAssertNotNil(sheetMilestone.body)
+        assertHosted(sheetMilestone)
         XCTAssertEqual(sheetMilestone.currentValue, 30)
         XCTAssertEqual(sheetMilestone.previousValue, 29)
         XCTAssertEqual(sheetMilestone.tier, .legendary)
@@ -513,7 +514,7 @@ final class CraftStreakComponentTests: XCTestCase {
             }
         )
 
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
         sheet.onContinue()
         XCTAssertTrue(didContinue)
     }
@@ -531,7 +532,7 @@ final class CraftStreakComponentTests: XCTestCase {
 
         XCTAssertEqual(sheet.customAccessibilityLabel, customLabel)
         XCTAssertEqual(sheet.customAccessibilityHint, customHint)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     // MARK: - Task 2: Recessed Tray, onDayTap & CraftSurfaceStyle Tests
@@ -593,7 +594,7 @@ final class CraftStreakComponentTests: XCTestCase {
             let card = CraftStreakCard(data: streakData, surfaceStyle: style)
             XCTAssertEqual(card.surfaceStyle, style)
             XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: style))
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -603,7 +604,7 @@ final class CraftStreakComponentTests: XCTestCase {
             let card = CraftActivityTrackerCard(data: data, surfaceStyle: style)
             XCTAssertEqual(card.surfaceStyle, style)
             XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: style))
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -618,7 +619,7 @@ final class CraftStreakComponentTests: XCTestCase {
                 onContinue: {}
             )
             XCTAssertEqual(sheet.surfaceStyle, style)
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
     }
 
@@ -630,7 +631,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onContinue: {}
         )
         XCTAssertEqual(streakSheet.surfaceStyle, .glass)
-        XCTAssertNotNil(streakSheet.body)
+        assertHosted(streakSheet)
     }
 
     // MARK: - Task 1: Milestone Formatting & Percentage Progress Tests
@@ -642,7 +643,7 @@ final class CraftStreakComponentTests: XCTestCase {
             nextMilestone: 21
         )
         let card = CraftActivityTrackerCard(data: data)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(data.milestoneProgress, 14.0 / 21.0, accuracy: 0.001)
 
         // Verify localized format strings
@@ -675,7 +676,7 @@ final class CraftStreakComponentTests: XCTestCase {
             cycleDays: mockDays
         )
         let card = CraftActivityTrackerCard(data: data, cardStyle: .elevated)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(card.data.currentValue, 14)
         XCTAssertEqual(card.data.bestRecord, 30)
         XCTAssertEqual(card.cardStyle, .elevated)
@@ -690,7 +691,7 @@ final class CraftStreakComponentTests: XCTestCase {
             )
             for style in CraftCardStyle.allCases {
                 let tierCard = CraftActivityTrackerCard(data: tierData, cardStyle: style)
-                XCTAssertNotNil(tierCard.body)
+                assertHosted(tierCard)
                 XCTAssertEqual(tierCard.data.tier, tier)
                 XCTAssertEqual(tierCard.cardStyle, style)
             }
@@ -714,7 +715,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onDayTap: { _ in dayTapped = true }
         )
 
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertNotNil(card.onTap)
         XCTAssertNotNil(card.onFreezeTap)
         XCTAssertNotNil(card.onDayTap)
@@ -746,7 +747,7 @@ final class CraftStreakComponentTests: XCTestCase {
             onDayTap: { _ in dayTapped = true }
         )
 
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertNotNil(card.onCardTap)
         XCTAssertNotNil(card.onShieldTap)
         XCTAssertNotNil(card.onMilestoneTap)
@@ -776,7 +777,7 @@ final class CraftStreakComponentTests: XCTestCase {
                 onTap: {}
             )
             XCTAssertEqual(card.cardStyle, style)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -808,7 +809,7 @@ final class CraftStreakComponentTests: XCTestCase {
             )
 
             XCTAssertEqual(card.cardStyle, style)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
             XCTAssertNotNil(card.onTap)
             XCTAssertNotNil(card.onFreezeTap)
             XCTAssertNotNil(card.onMilestoneTap)
@@ -834,7 +835,7 @@ final class CraftStreakComponentTests: XCTestCase {
             let card = CraftStreakCard(data: streakData, surfaceStyle: surfaceStyle)
             XCTAssertEqual(card.surfaceStyle, surfaceStyle)
             XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: surfaceStyle))
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 
@@ -865,7 +866,7 @@ final class CraftStreakComponentTests: XCTestCase {
             let card = CraftStreakCard(data: data, cardStyle: .gradient)
             XCTAssertEqual(card.data.tier, tier)
             XCTAssertEqual(card.cardStyle, .gradient)
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
         }
     }
 }

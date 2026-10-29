@@ -6,12 +6,13 @@ import SwiftData
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
 public enum AppMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self]
     }
     public static var stages: [MigrationStage] {
         [
             .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
-            .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self)
+            .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self),
+            .lightweight(fromVersion: SchemaV3.self, toVersion: SchemaV4.self)
         ]
     }
 }
@@ -108,7 +109,7 @@ public struct SharedAppGroupContainer {
         storeURL: URL? = nil,
         inMemory: Bool = false
     ) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if inMemory || (isTesting && configuration == nil && storeURL == nil) {
@@ -161,7 +162,7 @@ public struct SharedAppGroupContainer {
             try? fileManager.removeItem(at: shm)
         }
 
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
         try? fileManager.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let targetConfig = configuration ?? ModelConfiguration(schema: schema, url: storeURL)
 
@@ -196,9 +197,13 @@ public struct SharedAppGroupContainer {
         attemptDesc.fetchLimit = 1
         if (try? context.fetchCount(attemptDesc)) ?? 0 > 0 { return true }
 
-        var practiceDesc = FetchDescriptor<PracticeSessionRecord>()
-        practiceDesc.fetchLimit = 1
-        if (try? context.fetchCount(practiceDesc)) ?? 0 > 0 { return true }
+        var speakingDesc = FetchDescriptor<SpeakingSessionRecord>()
+        speakingDesc.fetchLimit = 1
+        if (try? context.fetchCount(speakingDesc)) ?? 0 > 0 { return true }
+
+        var phraseDesc = FetchDescriptor<SavedPhraseRecord>()
+        phraseDesc.fetchLimit = 1
+        if (try? context.fetchCount(phraseDesc)) ?? 0 > 0 { return true }
 
         return false
     }

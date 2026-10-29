@@ -4,6 +4,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class FeedbackComponentTests: XCTestCase {
     func testCraftFeedbackStatusProperties() {
         XCTAssertEqual(CraftFeedbackStatus.success.iconName, "checkmark.circle.fill")
@@ -34,7 +35,7 @@ final class FeedbackComponentTests: XCTestCase {
 
         sheet.onContinue()
         XCTAssertTrue(continueTriggered)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     func testCraftFeedbackSheetWithExtraContent() {
@@ -57,7 +58,7 @@ final class FeedbackComponentTests: XCTestCase {
         sheet.onSecondaryAction?()
         XCTAssertTrue(secondaryTriggered)
         XCTAssertNotNil(sheet.extraContent)
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     func testCraftFeedbackSheetAllStatusesAndSurfaceStyles() {
@@ -70,7 +71,7 @@ final class FeedbackComponentTests: XCTestCase {
                 )
                 XCTAssertEqual(sheet.status, status)
                 XCTAssertEqual(sheet.surfaceStyle, surfaceStyle)
-                XCTAssertNotNil(sheet.body)
+                assertHosted(sheet)
             }
         }
     }
@@ -169,7 +170,7 @@ final class FeedbackComponentTests: XCTestCase {
                 onContinue: {}
             )
             XCTAssertEqual(sheet.surfaceStyle, style)
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
 
             // Sheet with extra content and explicit style
             let sheetWithExtra = CraftFeedbackSheet(
@@ -181,7 +182,7 @@ final class FeedbackComponentTests: XCTestCase {
                 Text("Auxiliary hint for \(style.rawValue)")
             }
             XCTAssertEqual(sheetWithExtra.surfaceStyle, style)
-            XCTAssertNotNil(sheetWithExtra.body)
+            assertHosted(sheetWithExtra)
 
             // Modifier presentation with explicit style
             let isPresented = Binding.constant(true)
@@ -202,7 +203,7 @@ final class FeedbackComponentTests: XCTestCase {
             onContinue: {}
         )
         XCTAssertNil(sheetWithoutExplicitStyle.surfaceStyle)
-        XCTAssertNotNil(sheetWithoutExplicitStyle.body)
+        assertHosted(sheetWithoutExplicitStyle)
 
         // Test inside custom surface style environment wrapper
         let inheritedGlassView = CraftFeedbackSheet(
@@ -276,7 +277,7 @@ extension FeedbackComponentTests {
             XCTAssertFalse(defaultSheet.resolvedTitle.isEmpty)
             XCTAssertEqual(defaultSheet.resolvedActionTitle, "Continue")
             XCTAssertFalse(status.iconName.isEmpty)
-            XCTAssertNotNil(defaultSheet.body)
+            assertHosted(defaultSheet)
         }
 
         // 3. Verify custom sheet with secondary action and message accessibility structure
@@ -298,7 +299,7 @@ extension FeedbackComponentTests {
         XCTAssertEqual(detailedSheet.message, "Correct answer: Phenomenon")
         XCTAssertEqual(detailedSheet.resolvedActionTitle, "NEXT QUESTION")
         XCTAssertEqual(detailedSheet.secondaryActionTitle, "View Explanation")
-        XCTAssertNotNil(detailedSheet.body)
+        assertHosted(detailedSheet)
 
         detailedSheet.onSecondaryAction?()
         XCTAssertTrue(secondaryInvoked)
@@ -343,7 +344,7 @@ extension FeedbackComponentTests {
                 message: "Status message for \(status.rawValue)",
                 onContinue: {}
             )
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
 
         // 3. Test custom theme with customized semantic status color palette
@@ -438,14 +439,14 @@ extension FeedbackComponentTests {
             XCTAssertEqual(sheet.style, style)
             XCTAssertEqual(sheet.surfaceStyle, style)
             XCTAssertEqual(sheet.resolvedSurfaceStyle, style)
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
 
         let hintCard = CraftFeedbackHintCard("Custom Hint", icon: "sparkles", tint: .green)
         XCTAssertEqual(hintCard.text, "Custom Hint")
         XCTAssertEqual(hintCard.icon, "sparkles")
         XCTAssertEqual(hintCard.tint, .green)
-        XCTAssertNotNil(hintCard.body)
+        assertHosted(hintCard)
     }
 
     // MARK: - Edge-to-Edge Docking, Streak, and Custom Titles Tests
@@ -459,7 +460,7 @@ extension FeedbackComponentTests {
         )
         XCTAssertEqual(sheet.streakCount, 5)
         XCTAssertEqual(sheet.resolvedTitle, "Chính xác!")
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
 
         // Sheet with nil streak
         let sheetNoStreak = CraftFeedbackSheet(
@@ -469,7 +470,7 @@ extension FeedbackComponentTests {
         )
         XCTAssertNil(sheetNoStreak.streakCount)
         XCTAssertEqual(sheetNoStreak.resolvedTitle, "✕ Chưa chính xác")
-        XCTAssertNotNil(sheetNoStreak.body)
+        assertHosted(sheetNoStreak)
     }
 
     func testCraftFeedbackSheetEdgeToEdgeAndCustomActionTitles() {
@@ -481,7 +482,7 @@ extension FeedbackComponentTests {
         )
         XCTAssertEqual(timeoutSheet.resolvedTitle, "⏰ Hết giờ!")
         XCTAssertEqual(timeoutSheet.resolvedActionTitle, "Đã hiểu")
-        XCTAssertNotNil(timeoutSheet.body)
+        assertHosted(timeoutSheet)
 
         let correctSheet = CraftFeedbackSheet(
             status: .success,
@@ -493,7 +494,7 @@ extension FeedbackComponentTests {
         XCTAssertEqual(correctSheet.resolvedTitle, "✓ Chính xác!")
         XCTAssertEqual(correctSheet.resolvedActionTitle, "Tiếp tục")
         XCTAssertEqual(correctSheet.streakCount, 12)
-        XCTAssertNotNil(correctSheet.body)
+        assertHosted(correctSheet)
     }
 
     func testCraftFeedbackSheetModifierWithStreak() {

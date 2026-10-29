@@ -1,0 +1,11 @@
+{
+  "learnerTranscript": [{"turnIndex": 1, "text": "I’m want a latte"}],
+  "scores": {
+    "fluency": {"value": 3, "reason": "Nhịp nói rõ."}, "grammar": {"value": 3, "reason": "Cấu trúc cơ bản tốt."},
+    "vocabulary": {"value": 3, "reason": "Từ vựng phù hợp."}, "pronunciation": {"value": 3, "reason": "Dễ hiểu."}
+  },
+  "corrections": [{"turnIndex": 1, "original": "I'm want a latte", "corrected": "I want a latte", "category": "grammar", "explanation": "Bỏ trợ động từ thừa."}],
+  "naturalPhrasings": [], "pronunciation": [],
+  "targetWords": [{"lemma": "latte", "used": true, "usedCorrectly": true, "quote": "I’m want a latte"}],
+  "objective": null, "summary": {"strengths": [], "focusNext": []}
+}

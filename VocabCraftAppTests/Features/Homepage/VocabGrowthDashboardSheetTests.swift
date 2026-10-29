@@ -64,7 +64,7 @@ struct VocabGrowthDashboardSheetTests {
             ]
         )
         let view = VocabGrowthDashboardSheet(snapshot: snapshot, dailyPace: 15, onDismiss: {})
-        _ = view.body
+        assertHosted(view)
         #expect(view.snapshot.totalWordsAcquired == 1250)
         #expect(view.snapshot.masteredWordsCount == 700)
         #expect(view.snapshot.consolidatingWordsCount == 350)
@@ -82,7 +82,7 @@ struct VocabGrowthDashboardSheetTests {
             cefrDistribution: []
         )
         let view = VocabGrowthDashboardSheet(snapshot: snapshot, onDismiss: {})
-        _ = view.body
+        assertHosted(view)
         #expect(view.snapshot.totalWordsAcquired == 0)
     }
 

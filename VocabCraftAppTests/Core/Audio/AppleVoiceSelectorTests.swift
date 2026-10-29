@@ -3,6 +3,7 @@ import Testing
 @testable import VocabCraftApp
 
 @Suite("Apple Voice Selector Tests")
+@MainActor
 struct AppleVoiceSelectorTests {
     @Test("Verify blacklisted novelty/distorted voices are rejected")
     func test_blacklistedVoices_rejected() {
@@ -58,10 +59,12 @@ struct AppleVoiceSelectorTests {
     @Test("Verify concurrent resolution safety")
     func test_concurrentAccess() async {
         AppleVoiceSelector.clearCache()
-        await withTaskGroup(of: AVSpeechSynthesisVoice?.self) { group in
+        await withTaskGroup(of: String?.self) { group in
             for _ in 0..<50 {
                 group.addTask {
-                    AppleVoiceSelector.resolveBestVoice(for: "en-US")
+                    await MainActor.run {
+                        AppleVoiceSelector.resolveBestVoice(for: "en-US")?.identifier
+                    }
                 }
             }
             for await voice in group {

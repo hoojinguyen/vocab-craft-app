@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @Suite("CraftJourneyNode Tests")
+@MainActor
 struct CraftJourneyNodeTests {
     @Test("Verify diameters across progression states")
     func testNodeDiameters() {

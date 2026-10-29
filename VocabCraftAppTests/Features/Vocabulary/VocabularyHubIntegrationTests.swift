@@ -7,7 +7,12 @@ import XCTest
 @MainActor
 final class VocabularyHubIntegrationTests: XCTestCase {
     func test_endToEnd_smartReview_reinforcesWeakWordsAndUpdatesMastery() async throws {
-        let container = AppContainer(useMockData: true, useSampleData: true)
+        // Seeded word IDs and search assertions belong to the bundled JSON fixture, not installed SQLite content.
+        let container = AppContainer(
+            useMockData: true,
+            useSampleData: true,
+            vocabularyDataSource: BundledVocabularyDataSource()
+        )
 
         // Seed a weak word in progress repository
         try await container.userProgressRepository.saveProgress(
@@ -49,7 +54,12 @@ final class VocabularyHubIntegrationTests: XCTestCase {
     }
 
     func test_endToEnd_personalVault_searchFilterAndBookmarkInteractions() async throws {
-        let container = AppContainer(useMockData: true, useSampleData: true)
+        // Seeded word IDs and search assertions belong to the bundled JSON fixture, not installed SQLite content.
+        let container = AppContainer(
+            useMockData: true,
+            useSampleData: true,
+            vocabularyDataSource: BundledVocabularyDataSource()
+        )
 
         // Seed 3 words with varied state
         try await container.userProgressRepository.saveProgress(

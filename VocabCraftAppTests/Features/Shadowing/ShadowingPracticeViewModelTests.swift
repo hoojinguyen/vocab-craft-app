@@ -51,7 +51,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentSentence.id == "s1")
@@ -79,7 +79,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.playbackSpeed == 1.0)
@@ -97,7 +97,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startCurrentSentenceAsync()
@@ -112,7 +112,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -166,7 +166,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -198,7 +198,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         await viewModel.startRecordingAsync()
@@ -216,7 +216,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .listening(levels: [])
@@ -224,7 +224,7 @@ struct ShadowingPracticeViewModelTests {
         #expect(viewModel.playbackPhase == .evaluating)
     }
 
-    @Test("Verifies word bookmarking and popover selection")
+    @Test("Verifies word bookmarking and popover selection", .timeLimit(.minutes(1)))
     @MainActor
     func testWordBookmarking() async {
         let sampleVideo = makeSampleVideo()
@@ -233,7 +233,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator(),
+            sessionCoordinator: makeTestShadowingSessionCoordinator(),
             toggleBookmarkUseCase: mockBookmarkUseCase
         )
 
@@ -245,9 +245,9 @@ struct ShadowingPracticeViewModelTests {
         viewModel.toggleBookmark(for: keyword)
         #expect(viewModel.bookmarkedWordIds.contains("hello"))
 
-        // Give async task brief execution window
-        try? await Task.sleep(nanoseconds: 10_000_000)
-        #expect(mockBookmarkUseCase.executedWordIds.contains(42))
+        // Synchronize with the use case invocation rather than a scheduler-dependent delay.
+        await mockBookmarkUseCase.waitForExecution()
+        #expect(await mockBookmarkUseCase.executedWordIds.contains(42))
 
         // Toggle bookmark OFF
         viewModel.toggleBookmark(lemma: "hello")
@@ -261,7 +261,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: MockSpeechAssessmentService(),
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .evaluated(score: 85.0)
@@ -277,7 +277,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentEvaluationTokens == nil)
@@ -308,7 +308,7 @@ struct ShadowingPracticeViewModelTests {
     @MainActor
     func testPlayNativeAudioPreparesPlayback() async {
         let sampleVideo = makeSampleVideo()
-        let sessionCoordinator = ShadowingSessionCoordinator()
+        let sessionCoordinator = makeTestShadowingSessionCoordinator()
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: MockSpeechAssessmentService(),
@@ -331,7 +331,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: sampleVideo,
             assessmentService: mockAssessment,
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         viewModel.playbackPhase = .listening(levels: [])
@@ -354,7 +354,7 @@ struct ShadowingPracticeViewModelTests {
         let viewModel = ShadowingPracticeViewModel(
             video: emptyVideo,
             assessmentService: MockSpeechAssessmentService(),
-            sessionCoordinator: ShadowingSessionCoordinator()
+            sessionCoordinator: makeTestShadowingSessionCoordinator()
         )
 
         #expect(viewModel.currentSentence.id.isEmpty)
@@ -362,11 +362,23 @@ struct ShadowingPracticeViewModelTests {
     }
 }
 
-private final class MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol, @unchecked Sendable {
-    var executedWordIds: [Int64] = []
+private actor MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol {
+    func waitForExecution() async {
+        var events = executions.makeAsyncIterator()
+        _ = await events.next()
+    }
+
+    private(set) var executedWordIds: [Int64] = []
+    private let executions: AsyncStream<Int64>
+    private let executionContinuation: AsyncStream<Int64>.Continuation
+
+    init() {
+        (executions, executionContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(1))
+    }
 
     func execute(wordId: Int64) async throws -> Bool {
         executedWordIds.append(wordId)
+        executionContinuation.yield(wordId)
         return true
     }
 }

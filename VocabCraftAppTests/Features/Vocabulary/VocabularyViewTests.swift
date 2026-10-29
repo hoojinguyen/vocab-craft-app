@@ -18,14 +18,14 @@ struct VocabularyViewTestingTests {
     @MainActor
     func testVocabularyViewInitialization() {
         let view = VocabularyView()
-        _ = view.body
+        assertHosted(view)
     }
 
     @Test("VocabularyView with search visible state")
     @MainActor
     func testVocabularyViewSearchVisibleState() {
         let view = VocabularyView(isSearchHiddenByScroll: true)
-        _ = view.body
+        assertHosted(view)
     }
 
     @Test("VocabularyView with PersonalVaultViewModel and search queries")

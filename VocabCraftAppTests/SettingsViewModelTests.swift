@@ -27,6 +27,25 @@ final class SettingsViewModelTests: XCTestCase {
         return SettingsViewModel(store: store, ttsService: tts, resetProgressUseCase: resetProgressUseCase)
     }
 
+    func testLegacyVoiceKeysAreReadAfterRename() throws {
+        let suiteName = "Task2VoiceSettings.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set("apple-daniel", forKey: "roleplay_voice_id")
+        defaults.set(1.1, forKey: "roleplay_speech_rate")
+        defaults.set(0.95, forKey: "roleplay_speech_pitch")
+        let store = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.voiceProfileId, "apple-daniel")
+        XCTAssertEqual(store.speechRate, 1.1)
+        XCTAssertEqual(store.speechPitch, 0.95)
+        store.voiceProfileId = "apple-ava"
+        store.speechRate = 0.9
+        store.speechPitch = 1.05
+        XCTAssertEqual(defaults.string(forKey: "roleplay_voice_id"), "apple-ava")
+        XCTAssertEqual(defaults.double(forKey: "roleplay_speech_rate"), 0.9)
+        XCTAssertEqual(defaults.double(forKey: "roleplay_speech_pitch"), 1.05)
+    }
+
     func testSettingsViewModelInitialization() {
         let vm = makeSUT()
         XCTAssertFalse(vm.isPlayingAudio)

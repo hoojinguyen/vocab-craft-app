@@ -34,7 +34,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>VocabCraft cần sử dụng micro để thu âm và chấm điểm phản xạ nói tiếng Anh của bạn.</string>
+	<string>VocabCraft cần sử dụng micro để thu âm, hỗ trợ luyện nói tiếng Anh với AI và chấm điểm phản xạ nói.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>VocabCraft cần quyền nhận diện giọng nói để đánh giá độ chính xác câu phản xạ.</string>
 	<key>UIApplicationSceneManifest</key>

@@ -19,7 +19,7 @@ public struct HomepageView: View {
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
-    @State private var aiAssistantHubVM: AIAssistantHubViewModel?
+    @State private var speakingHubVM: SpeakingHubViewModel?
     @State private var activeLessonLearningVM: LessonLearningViewModel?
     @State private var activeTreasureClaimNode: LessonNodeModel?
     @State private var lessonLaunchTask: Task<Void, Never>?
@@ -170,7 +170,10 @@ public struct HomepageView: View {
             case .vocabulary:
                 VocabularyView(vaultViewModel: vaultVM ?? appContainer.makePersonalVaultViewModel())
             case .aiAssistant:
-                AIAssistantHubView(viewModel: aiAssistantHubVM ?? appContainer.makeAIAssistantHubViewModel())
+                SpeakingHubView(
+                    viewModel: speakingHubVM ?? appContainer.makeSpeakingHubViewModel(),
+                    appContainer: appContainer
+                )
             case .reflex:
                 ReflexBlitzView(
                     viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(),
@@ -213,8 +216,8 @@ public struct HomepageView: View {
             if settingsVM == nil {
                 settingsVM = appContainer.makeSettingsViewModel()
             }
-            if aiAssistantHubVM == nil {
-                aiAssistantHubVM = appContainer.makeAIAssistantHubViewModel()
+            if appRouter.selectedTab == .aiAssistant, speakingHubVM == nil {
+                speakingHubVM = appContainer.makeSpeakingHubViewModel()
             }
 
             if let config = appRouter.pendingReflexBlitzConfig {

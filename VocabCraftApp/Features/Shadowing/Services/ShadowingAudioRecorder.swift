@@ -1,6 +1,47 @@
 @preconcurrency import AVFoundation
 import Foundation
 
+@MainActor
+protocol AudioRecordingDevice: AnyObject {
+    var isRecording: Bool { get }
+
+    func record() -> Bool
+    func stop()
+}
+
+enum ShadowingAudioRecorderError: Error, Equatable {
+    case failedToStartRecording
+}
+
+typealias AudioRecorderFactory = @MainActor (URL) throws -> any AudioRecordingDevice
+
+@MainActor
+private final class AVAudioRecordingDevice: AudioRecordingDevice {
+    private let recorder: AVAudioRecorder
+
+    init(url: URL) throws {
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 44100.0,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+        recorder = try AVAudioRecorder(url: url, settings: settings)
+    }
+
+    var isRecording: Bool {
+        recorder.isRecording
+    }
+
+    func record() -> Bool {
+        recorder.record()
+    }
+
+    func stop() {
+        recorder.stop()
+    }
+}
+
 private final class AudioPlayerTransferBox: @unchecked Sendable {
     let player: AVAudioPlayer
 
@@ -10,19 +51,16 @@ private final class AudioPlayerTransferBox: @unchecked Sendable {
 }
 
 @MainActor
-public final class ShadowingAudioRecorder: NSObject, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
-    private var audioRecorder: AVAudioRecorder?
+public final class ShadowingAudioRecorder: NSObject, AVAudioPlayerDelegate {
+    private var audioRecorder: (any AudioRecordingDevice)?
     private var audioPlayer: AVAudioPlayer?
     private var playbackFinishedHandler: (@Sendable () -> Void)?
-    private var isActivelyRecording: Bool = false
+    private let audioRecorderFactory: AudioRecorderFactory
 
     public private(set) var lastRecordedURL: URL?
 
     public var isRecording: Bool {
-        if let recorder = audioRecorder, recorder.isRecording {
-            return true
-        }
-        return isActivelyRecording
+        audioRecorder?.isRecording ?? false
     }
 
     public var isPlaying: Bool {
@@ -30,6 +68,14 @@ public final class ShadowingAudioRecorder: NSObject, AVAudioRecorderDelegate, AV
     }
 
     override public init() {
+        audioRecorderFactory = { url in
+            try AVAudioRecordingDevice(url: url)
+        }
+        super.init()
+    }
+
+    init(audioRecorderFactory: @escaping AudioRecorderFactory) {
+        self.audioRecorderFactory = audioRecorderFactory
         super.init()
     }
 
@@ -37,24 +83,18 @@ public final class ShadowingAudioRecorder: NSObject, AVAudioRecorderDelegate, AV
         let tempDir = FileManager.default.temporaryDirectory
         let fileURL = tempDir.appendingPathComponent("shadowing_\(sentenceId)_\(UUID().uuidString).m4a")
 
-        let settings: [String: Any] = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 44100.0,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
+        let recorder = try audioRecorderFactory(fileURL)
+        guard recorder.record() else {
+            recorder.stop()
+            throw ShadowingAudioRecorderError.failedToStartRecording
+        }
 
-        let recorder = try AVAudioRecorder(url: fileURL, settings: settings)
-        recorder.delegate = self
-        recorder.record()
         self.audioRecorder = recorder
         self.lastRecordedURL = fileURL
-        self.isActivelyRecording = true
         return fileURL
     }
 
     public func stopRecording() {
-        isActivelyRecording = false
         audioRecorder?.stop()
         audioRecorder = nil
     }

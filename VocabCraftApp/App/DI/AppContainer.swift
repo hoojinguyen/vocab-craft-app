@@ -19,7 +19,8 @@ public final class AppContainer {
     public let srsRepository: SRSRepositoryProtocol
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
     public let shadowingProgressRepository: any ShadowingProgressRepositoryProtocol
-    public let practiceRepository: (any PracticeRepositoryProtocol)?
+    public let speakingRepository: any SpeakingRepositoryProtocol
+    public let analyzeSpeakingSessionUseCase: AnalyzeSpeakingSessionUseCase
 
     // MARK: - Services
     public let audioSessionCoordinator: any AudioSessionCoordinating
@@ -47,7 +48,6 @@ public final class AppContainer {
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
     public let appRouter: AppRouter
-    public let aiPackRegistry: AIPackRegistry
 
     // swiftlint:disable:next function_body_length
     public init(
@@ -71,9 +71,7 @@ public final class AppContainer {
         ttsService: TextToSpeechProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil,
-        aiPackRegistry: AIPackRegistry? = nil,
-        shadowingProgressRepository: (any ShadowingProgressRepositoryProtocol)? = nil,
-        practiceRepository: (any PracticeRepositoryProtocol)? = nil
+        shadowingProgressRepository: (any ShadowingProgressRepositoryProtocol)? = nil
     ) {
         self.useSampleData = useSampleData
         self.modelContainer = modelContainer
@@ -95,20 +93,23 @@ public final class AppContainer {
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
             ? MockVocabularyRepository()
             : VocabularyRepositoryImpl(dataSource: resolvedDataSource, progressActor: progressActor)
-        let resolvedPracticeRepo: (any PracticeRepositoryProtocol)? = practiceRepository
-            ?? (modelContainer.map { PracticeModelActor(modelContainer: $0) })
-        self.practiceRepository = resolvedPracticeRepo
-
-        let srsRepo = SRSRepositoryImpl(
-            modelContext: modelContainer?.mainContext,
-            practiceRepository: resolvedPracticeRepo
-        )
+        let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
         let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
         self.vocabularyRepository = vocabRepo
         self.srsRepository = srsRepo
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
         self.shadowingProgressRepository = shadowingProgressRepository ?? ShadowingProgressRepositoryImpl()
+
+        let speakingRepository: any SpeakingRepositoryProtocol
+        if shouldMock || modelContainer == nil {
+            speakingRepository = InMemorySpeakingRepository()
+        } else if let modelContainer {
+            speakingRepository = SpeakingModelActor(modelContainer: modelContainer)
+        } else {
+            speakingRepository = InMemorySpeakingRepository()
+        }
+        self.speakingRepository = speakingRepository
 
         #if canImport(SwiftDataMacros) || canImport(SwiftData)
         let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
@@ -119,7 +120,15 @@ public final class AppContainer {
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
 
-        self.aiPackRegistry = aiPackRegistry ?? Self.makeDefaultAIPackRegistry(settingsStore: effectiveUserSettingsStore)
+        let speakingStorage = Self.makeSpeakingAudioStorage()
+        let speakingAnalyzer = GeminiSpeakingAnalyzer(apiKey: { [effectiveUserSettingsStore] in
+            await MainActor.run { effectiveUserSettingsStore.geminiApiKey }
+        })
+        self.analyzeSpeakingSessionUseCase = AnalyzeSpeakingSessionUseCase(
+            repository: speakingRepository,
+            analyzer: speakingAnalyzer,
+            storage: speakingStorage
+        )
 
         let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
             ?? AudioSessionCoordinator()
@@ -133,10 +142,7 @@ public final class AppContainer {
 
         // Existing Use Cases
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
-        self.resetUserProgressUseCase = ResetUserProgressUseCase(
-            srsRepository: srsRepo,
-            practiceRepository: resolvedPracticeRepo
-        )
+        self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
         // Learning Path Use Cases
         let resolvedFetchLearningPath: FetchLearningPathUseCaseProtocol = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
@@ -202,51 +208,6 @@ public final class AppContainer {
         )
     }
 
-    private static func makeDefaultAIPackRegistry(settingsStore: UserSettingsStore) -> AIPackRegistry {
-        let applePack = AppleDefaultPack()
-        let offlinePack = OfflineAIPack(
-            isKokoroReady: {
-                if Thread.isMainThread {
-                    return MainActor.assumeIsolated {
-                        OnDemandAIModelManager.shared.isModelReady(.kokoro)
-                    }
-                } else {
-                    return DispatchQueue.main.sync {
-                        OnDemandAIModelManager.shared.isModelReady(.kokoro)
-                    }
-                }
-            },
-            isWhisperReady: {
-                if Thread.isMainThread {
-                    return MainActor.assumeIsolated {
-                        OnDemandAIModelManager.shared.isModelReady(.whisper)
-                    }
-                } else {
-                    return DispatchQueue.main.sync {
-                        OnDemandAIModelManager.shared.isModelReady(.whisper)
-                    }
-                }
-            },
-            isLlamaReady: {
-                if Thread.isMainThread {
-                    return MainActor.assumeIsolated {
-                        OnDemandAIModelManager.shared.isModelReady(.llama)
-                    }
-                } else {
-                    return DispatchQueue.main.sync {
-                        OnDemandAIModelManager.shared.isModelReady(.llama)
-                    }
-                }
-            }
-        )
-        let geminiPack = GeminiCloudPack(settingsStore: settingsStore)
-
-        return AIPackRegistry(
-            packs: [applePack, offlinePack, geminiPack],
-            settingsStore: settingsStore
-        )
-    }
-
     // MARK: - Use Case Factories
 
     public func makeFetchLearningPathUseCase() -> FetchLearningPathUseCaseProtocol {
@@ -304,6 +265,47 @@ public final class AppContainer {
             userSettings: userSettingsStore,
             claimTreasureRewardUseCase: claimTreasureRewardUseCase,
             fastTrackUnitUseCase: fastTrackUnitUseCase
+        )
+    }
+
+    public func makeSpeakingHubViewModel() -> SpeakingHubViewModel {
+        let wordPicker = SpeakingWordPicker(progressRepository: userProgressRepository, vocabulary: vocabularyDataSource)
+        return SpeakingHubViewModel(
+            repository: speakingRepository,
+            wordPicker: wordPicker,
+            precheck: SpeakingPrecheck(settings: userSettingsStore)
+        )
+    }
+
+    public func makeSpeakingResultViewModel(sessionId: UUID) -> SpeakingResultViewModel {
+        SpeakingResultViewModel(
+            sessionId: sessionId,
+            repository: speakingRepository,
+            analyze: analyzeSpeakingSessionUseCase,
+            storage: Self.makeSpeakingAudioStorage()
+        )
+    }
+
+    public func makeSpeakingCallController(plan: SpeakingSessionPlan) -> SpeakingCallController? {
+        let apiKey = userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !apiKey.isEmpty else { return nil }
+        let storage = Self.makeSpeakingAudioStorage()
+        return SpeakingCallController(
+            plan: plan,
+            apiKey: apiKey,
+            transport: URLSessionLiveTransport(),
+            audio: VoiceProcessingAudioIO(),
+            recorder: LearnerRecorder(storage: storage),
+            audioSession: audioSessionCoordinator
+        )
+    }
+
+    func makeSpeakingCallDependencies(plan: SpeakingSessionPlan) -> SpeakingCallDependencies? {
+        guard let controller = makeSpeakingCallController(plan: plan) else { return nil }
+        return SpeakingCallDependencies(
+            controller: controller,
+            repository: speakingRepository,
+            analyzer: analyzeSpeakingSessionUseCase
         )
     }
 
@@ -382,73 +384,9 @@ public final class AppContainer {
     }
 }
 
-// MARK: - AI Assistant & Shadowing Factories
+// MARK: - Shadowing Factories
 
 extension AppContainer {
-    public var llmProvider: any LLMProviderProtocol {
-        (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
-    }
-
-    public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
-        FetchRoleplayScenariosUseCase()
-    }
-
-    public func makeExecuteRoleplayTurnUseCase() -> ExecuteRoleplayTurnUseCase {
-        let llm = (try? aiPackRegistry.resolveActiveLLM()) ?? IntelligentMockLLMProvider()
-        return ExecuteRoleplayTurnUseCase(llmProvider: llm)
-    }
-
-    public func makeCompleteRoleplaySessionUseCase() -> CompleteRoleplaySessionUseCase {
-        CompleteRoleplaySessionUseCase(
-            userSettingsStore: userSettingsStore,
-            userProgressRepository: userProgressRepository,
-            vocabularyDataSource: vocabularyDataSource
-        )
-    }
-
-    @MainActor
-    public func makeAIAssistantHubViewModel() -> AIAssistantHubViewModel {
-        AIAssistantHubViewModel(fetchScenariosUseCase: makeFetchRoleplayScenariosUseCase())
-    }
-
-    @MainActor
-    public func makeRoleplayRoomViewModel(for scenario: RoleplayScenario) -> RoleplayRoomViewModel {
-        RoleplayRoomViewModel(
-            scenario: scenario,
-            executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
-            completeSessionUseCase: makeCompleteRoleplaySessionUseCase(),
-            ttsService: ttsService
-        )
-    }
-
-    @MainActor
-    public func makeResilientConversationSpeechEngine(for scenario: RoleplayScenario) -> ResilientConversationSpeechEngine {
-        ResilientConversationSpeechEngine(
-            scenario: scenario,
-            ttsService: ttsService,
-            executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
-            completeSessionUseCase: makeCompleteRoleplaySessionUseCase(),
-            audioSessionCoordinator: audioSessionCoordinator
-        )
-    }
-
-    @MainActor
-    public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
-        let activePack = (try? aiPackRegistry.resolveActivePack()) ?? aiPackRegistry.pack(for: .appleDefault)
-        let llm = (try? activePack?.makeLLMProvider()) ?? IntelligentMockLLMProvider()
-        let tts = (try? activePack?.makeTTSEngine()) ?? AppleTTSEngineAdapter(coordinator: audioSessionCoordinator)
-        let stt = (try? activePack?.makeSTTEngine()) ?? AppleSTTEngineAdapter(coordinator: audioSessionCoordinator)
-
-        let engine = TurnBasedVoiceConversationEngine(
-            scenario: scenario,
-            llmProvider: llm,
-            ttsEngine: tts,
-            sttEngine: stt,
-            audioSessionCoordinator: audioSessionCoordinator
-        )
-        return RoleplayVoiceCallViewModel(engine: engine, ttsService: ttsService)
-    }
-
     @MainActor
     public func makeShadowingPracticeViewModel(for video: ShadowingVideo) -> ShadowingPracticeViewModel {
         let coordinator = ShadowingSessionCoordinator(audioCoordinator: audioSessionCoordinator)
@@ -486,58 +424,6 @@ extension AppContainer {
             catalogRepository: catalogRepo,
             progressRepository: shadowingProgressRepository,
             streakDays: max(userSettingsStore.currentStreak, 1)
-        )
-    }
-
-    // MARK: - Guided Communication Practice Factories
-
-    @MainActor
-    public func makePracticeHubViewModel() -> PracticeHubViewModel {
-        let repo = self.practiceRepository ?? MockPracticeRepository()
-        let reader = PracticeLearningContextReader(
-            vocabularyDataSource: self.vocabularyDataSource,
-            progressRepository: self.userProgressRepository,
-            practiceRepository: repo
-        )
-        return PracticeHubViewModel(
-            contextReader: reader,
-            repository: repo,
-            selector: SelectPracticeMissionUseCase(),
-            clock: SystemPracticeClock()
-        )
-    }
-
-    @MainActor
-    public func makePracticeSessionCoordinator(
-        policy: PracticePolicyConfiguration = .v1
-    ) -> PracticeSessionCoordinator {
-        let activePack = (try? aiPackRegistry.resolveActivePack()) ?? aiPackRegistry.pack(for: .appleDefault)
-        let llm = (try? activePack?.makeLLMProvider()) ?? IntelligentMockLLMProvider()
-        let tts = (try? activePack?.makeTTSEngine()) ?? AppleTTSEngineAdapter(coordinator: audioSessionCoordinator)
-        let stt = (try? activePack?.makeSTTEngine()) ?? AppleSTTEngineAdapter(coordinator: audioSessionCoordinator)
-
-        let aiCapability: PracticeCapability = (llm is MockLLMProvider || llm is IntelligentMockLLMProvider)
-            ? .standardCloud
-            : PracticeCapability(
-                canGenerateDialogue: true,
-                canAssessUsage: true,
-                canCaptureSpeech: true,
-                canPlaySpeech: true,
-                providerIdentity: "active-provider"
-            )
-        let aiAdapter = PracticeAIAdapter(provider: llm, capability: aiCapability)
-        let speechAdapter = PracticeSpeechAdapter(
-            sttEngine: stt,
-            ttsEngine: tts,
-            audioCoordinator: audioSessionCoordinator
-        )
-        let repo = self.practiceRepository ?? MockPracticeRepository()
-        return PracticeSessionCoordinator(
-            repository: repo,
-            ai: aiAdapter,
-            speech: speechAdapter,
-            clock: SystemPracticeClock(),
-            policy: policy
         )
     }
 
@@ -624,6 +510,53 @@ extension AppContainer {
         )
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
+
+    private static func makeSpeakingAudioStorage() -> SpeakingAudioStorage {
+        let baseDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        let directory = baseDirectory
+            .appendingPathComponent("VocabCraft", isDirectory: true)
+            .appendingPathComponent("SpeakingAudio", isDirectory: true)
+        return SpeakingAudioStorage(directory: directory)
+    }
+}
+
+private actor InMemorySpeakingRepository: SpeakingRepositoryProtocol {
+    private var sessionsByID: [UUID: SpeakingSessionSnapshot] = [:]
+    private var savedPhrases: [UUID: SavedPhrase] = [:]
+
+    func save(_ session: SpeakingSessionSnapshot) { sessionsByID[session.id] = session }
+    func session(id: UUID) -> SpeakingSessionSnapshot? { sessionsByID[id] }
+    func sessions(limit: Int?) -> [SpeakingSessionSnapshot] {
+        let values = sessionsByID.values.sorted { $0.startedAt > $1.startedAt }
+        return limit.map { Array(values.prefix(max(0, $0))) } ?? values
+    }
+    func updateAnalysis(sessionId: UUID, status: SpeakingSessionStatus, analysis: SpeakingAnalysis?) {
+        guard var session = sessionsByID[sessionId] else { return }
+        session.status = status
+        session.analysis = analysis
+        sessionsByID[sessionId] = session
+    }
+    func savePhrase(_ phrase: SavedPhrase) -> Bool {
+        let key = QuoteNormalizer.normalize(phrase.suggestion)
+        guard !savedPhrases.values.contains(where: { QuoteNormalizer.normalize($0.suggestion) == key }) else { return false }
+        savedPhrases[phrase.id] = phrase
+        return true
+    }
+    func phrases() -> [SavedPhrase] { savedPhrases.values.sorted { $0.createdAt > $1.createdAt } }
+    func deletePhrase(id: UUID) { savedPhrases[id] = nil }
+    func detachAudio(keepingLatest count: Int) -> [String] {
+        let ordered = sessionsByID.values.sorted { $0.startedAt > $1.startedAt }
+        var removed: [String] = []
+        for var session in ordered.dropFirst(max(0, count)) {
+            if let fileName = session.audioFileName {
+                removed.append(fileName)
+                session.audioFileName = nil
+                sessionsByID[session.id] = session
+            }
+        }
+        return removed
+    }
 }
 
 /// Keeps previews and tests from reading or writing the real App Group widget deck.

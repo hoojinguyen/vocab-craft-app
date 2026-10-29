@@ -225,18 +225,18 @@ final class UserSettingsStoreTests: XCTestCase {
         }
         let store = UserSettingsStore(defaults: defaults)
 
-        XCTAssertEqual(store.roleplayVoiceId, "systemAuto")
-        XCTAssertEqual(store.roleplaySpeechRate, 1.0)
-        XCTAssertEqual(store.roleplaySpeechPitch, 1.0)
+        XCTAssertEqual(store.voiceProfileId, "systemAuto")
+        XCTAssertEqual(store.speechRate, 1.0)
+        XCTAssertEqual(store.speechPitch, 1.0)
 
-        store.roleplayVoiceId = "apple-daniel"
-        store.roleplaySpeechRate = 1.15
-        store.roleplaySpeechPitch = 0.95
+        store.voiceProfileId = "apple-daniel"
+        store.speechRate = 1.15
+        store.speechPitch = 0.95
 
         let reloadedStore = UserSettingsStore(defaults: defaults)
-        XCTAssertEqual(reloadedStore.roleplayVoiceId, "apple-daniel")
-        XCTAssertEqual(reloadedStore.roleplaySpeechRate, 1.15, accuracy: 0.001)
-        XCTAssertEqual(reloadedStore.roleplaySpeechPitch, 0.95, accuracy: 0.001)
+        XCTAssertEqual(reloadedStore.voiceProfileId, "apple-daniel")
+        XCTAssertEqual(reloadedStore.speechRate, 1.15, accuracy: 0.001)
+        XCTAssertEqual(reloadedStore.speechPitch, 0.95, accuracy: 0.001)
 
         defaults.removePersistentDomain(forName: suiteName)
     }
@@ -270,18 +270,18 @@ struct UserSettingsStoreRoleplayVoiceTests {
         let defaults = UserDefaults(suiteName: suiteName)!
         let store = UserSettingsStore(defaults: defaults)
 
-        #expect(store.roleplayVoiceId == "systemAuto")
-        #expect(store.roleplaySpeechRate == 1.0)
-        #expect(store.roleplaySpeechPitch == 1.0)
+        #expect(store.voiceProfileId == "systemAuto")
+        #expect(store.speechRate == 1.0)
+        #expect(store.speechPitch == 1.0)
 
-        store.roleplayVoiceId = "apple-daniel"
-        store.roleplaySpeechRate = 1.15
-        store.roleplaySpeechPitch = 0.95
+        store.voiceProfileId = "apple-daniel"
+        store.speechRate = 1.15
+        store.speechPitch = 0.95
 
         let reloadedStore = UserSettingsStore(defaults: defaults)
-        #expect(reloadedStore.roleplayVoiceId == "apple-daniel")
-        #expect(abs(reloadedStore.roleplaySpeechRate - 1.15) < 0.001)
-        #expect(abs(reloadedStore.roleplaySpeechPitch - 0.95) < 0.001)
+        #expect(reloadedStore.voiceProfileId == "apple-daniel")
+        #expect(abs(reloadedStore.speechRate - 1.15) < 0.001)
+        #expect(abs(reloadedStore.speechPitch - 0.95) < 0.001)
     }
 
     @Test("Verify resetAllSettings resets roleplay voice settings to defaults")
@@ -290,15 +290,15 @@ struct UserSettingsStoreRoleplayVoiceTests {
         let defaults = UserDefaults(suiteName: suiteName)!
         let store = UserSettingsStore(defaults: defaults)
 
-        store.roleplayVoiceId = "gemini-aoede"
-        store.roleplaySpeechRate = 1.2
-        store.roleplaySpeechPitch = 0.8
+        store.voiceProfileId = "gemini-aoede"
+        store.speechRate = 1.2
+        store.speechPitch = 0.8
 
         store.resetAllSettings()
 
-        #expect(store.roleplayVoiceId == "systemAuto")
-        #expect(store.roleplaySpeechRate == 1.0)
-        #expect(store.roleplaySpeechPitch == 1.0)
+        #expect(store.voiceProfileId == "systemAuto")
+        #expect(store.speechRate == 1.0)
+        #expect(store.speechPitch == 1.0)
     }
 }
 #endif

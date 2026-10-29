@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CraftSpeechUIComponentTests: XCTestCase {
     func testTokenViewVisualPropertiesForStatuses() {
         let pending = CraftSpeechWordToken(targetWord: "hello", status: .pending)
@@ -26,10 +27,10 @@ final class CraftSpeechUIComponentTests: XCTestCase {
         XCTAssertEqual(fuzzyView.token.targetWord, "good")
         XCTAssertEqual(mismatchedView.token.targetWord, "job")
 
-        XCTAssertNotNil(pendingView.body)
-        XCTAssertNotNil(matchedView.body)
-        XCTAssertNotNil(fuzzyView.body)
-        XCTAssertNotNil(mismatchedView.body)
+        assertHosted(pendingView)
+        assertHosted(matchedView)
+        assertHosted(fuzzyView)
+        assertHosted(mismatchedView)
     }
 
     func testFlowLayoutDefaultInitialization() {
@@ -82,24 +83,24 @@ final class CraftSpeechUIComponentTests: XCTestCase {
         XCTAssertEqual(idleView.speechState, .idle)
         idleView.onTapMic()
         XCTAssertTrue(tapped)
-        XCTAssertNotNil(idleView.body)
+        assertHosted(idleView)
 
         let listeningView = CraftTactileMicHubView(speechState: .listening(audioLevels: [0.1, 0.5, 0.8]), onTapMic: {})
         XCTAssertEqual(listeningView.speechState, .listening(audioLevels: [0.1, 0.5, 0.8]))
-        XCTAssertNotNil(listeningView.body)
+        assertHosted(listeningView)
 
         let processingView = CraftTactileMicHubView(speechState: .processing, onTapMic: {})
         XCTAssertEqual(processingView.speechState, .processing)
-        XCTAssertNotNil(processingView.body)
+        assertHosted(processingView)
 
         let evaluatedView = CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), onTapMic: {})
         XCTAssertEqual(evaluatedView.speechState, .evaluated(overallScore: 92))
         XCTAssertNil(evaluatedView.customSubtitle)
-        XCTAssertNotNil(evaluatedView.body)
+        assertHosted(evaluatedView)
 
         let customSubtitleView = CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), customSubtitle: "", onTapMic: {})
         XCTAssertEqual(customSubtitleView.customSubtitle, "")
-        XCTAssertNotNil(customSubtitleView.body)
+        assertHosted(customSubtitleView)
     }
 
     func testCraftVoiceMatchCardInitializesCleanly() {
@@ -111,7 +112,7 @@ final class CraftSpeechUIComponentTests: XCTestCase {
             onTapMic: {}
         )
         XCTAssertNotNil(card)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCraftVoiceMatchCardWithExplicitTokens() {
@@ -132,7 +133,7 @@ final class CraftSpeechUIComponentTests: XCTestCase {
             onReset: {}
         )
         XCTAssertNotNil(card)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
         XCTAssertEqual(card.originText, "It was a good job.")
         XCTAssertEqual(card.explicitTokens?.count, 5)
         XCTAssertEqual(card.customInstruction, "Speak clearly into the microphone")
@@ -146,7 +147,7 @@ final class CraftSpeechUIComponentTests: XCTestCase {
             onTapMic: {}
         )
         XCTAssertNotNil(card)
-        XCTAssertNotNil(card.body)
+        assertHosted(card)
     }
 
     func testCraftSpeechStatePreparingAndUnavailable() {
@@ -169,8 +170,8 @@ final class CraftSpeechUIComponentTests: XCTestCase {
 
         let preparingHub = CraftTactileMicHubView(speechState: .preparing, onTapMic: {})
         let unavailableHub = CraftTactileMicHubView(speechState: .unavailable, onTapMic: {})
-        XCTAssertNotNil(preparingHub.body)
-        XCTAssertNotNil(unavailableHub.body)
+        assertHosted(preparingHub)
+        assertHosted(unavailableHub)
 
         let preparingCard = CraftVoiceMatchCard(
             originText: "apple",
@@ -182,8 +183,8 @@ final class CraftSpeechUIComponentTests: XCTestCase {
             speechState: .unavailable,
             onTapMic: {}
         )
-        XCTAssertNotNil(preparingCard.body)
-        XCTAssertNotNil(unavailableCard.body)
+        assertHosted(preparingCard)
+        assertHosted(unavailableCard)
     }
 }
 

@@ -7,14 +7,9 @@ import SwiftData
 @MainActor
 public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     private let modelContext: ModelContext?
-    private let practiceRepository: (any PracticeRepositoryProtocol)?
 
-    public init(
-        modelContext: ModelContext? = nil,
-        practiceRepository: (any PracticeRepositoryProtocol)? = nil
-    ) {
+    public init(modelContext: ModelContext? = nil) {
         self.modelContext = modelContext
-        self.practiceRepository = practiceRepository
     }
 
     public func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
@@ -80,10 +75,6 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     }
 
     public func resetAllProgress() async throws {
-        if let practiceRepository {
-            try await practiceRepository.resetAllLearningProgress()
-            return
-        }
         guard let context = modelContext else { return }
         try context.delete(model: UserWordProgress.self)
         try context.delete(model: ReflexSessionLog.self)
@@ -95,13 +86,8 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
 @MainActor
 public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     private var records: [Int64: SRSProgressItem] = [:]
-    private let practiceRepository: (any PracticeRepositoryProtocol)?
 
-    public init(
-        modelContext: Any? = nil,
-        practiceRepository: (any PracticeRepositoryProtocol)? = nil
-    ) {
-        self.practiceRepository = practiceRepository
+    public init(modelContext: Any? = nil) {
     }
 
     public func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
@@ -115,9 +101,6 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     public func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws {}
 
     public func resetAllProgress() async throws {
-        if let practiceRepository {
-            try await practiceRepository.resetAllLearningProgress()
-        }
         records.removeAll()
     }
 }

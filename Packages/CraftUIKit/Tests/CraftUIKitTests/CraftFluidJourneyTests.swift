@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @Suite("CraftFluidJourney Tests")
+@MainActor
 struct CraftFluidJourneyTests {
     @Test("Verify container initialization with sections")
     func testContainerInit() {

@@ -3,6 +3,7 @@ import SwiftUI
 import Testing
 
 @Suite("CraftUnitDrawerSheet Tests")
+@MainActor
 struct CraftUnitDrawerSheetTests {
     @Test("Verify drawer initialization")
     func testDrawerInit() {

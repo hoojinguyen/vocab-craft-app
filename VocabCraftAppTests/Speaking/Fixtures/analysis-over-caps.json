@@ -1,0 +1,27 @@
+{
+  "learnerTranscript": [{"turnIndex": 1, "text": "I want coffee."}],
+  "scores": {
+    "fluency": {"value": 3, "reason": "Ổn."}, "grammar": {"value": 3, "reason": "Ổn."},
+    "vocabulary": {"value": 3, "reason": "Ổn."}, "pronunciation": {"value": 3, "reason": "Ổn."}
+  },
+  "corrections": [
+    {"turnIndex": 1, "original": "I want", "corrected": "I'd like", "category": "wordChoice", "explanation": "1."},
+    {"turnIndex": 1, "original": "want coffee", "corrected": "want a coffee", "category": "grammar", "explanation": "2."},
+    {"turnIndex": 1, "original": "I want coffee", "corrected": "I would like coffee", "category": "wordChoice", "explanation": "3."},
+    {"turnIndex": 1, "original": "coffee", "corrected": "a coffee", "category": "grammar", "explanation": "4."},
+    {"turnIndex": 1, "original": "I", "corrected": "I would", "category": "other", "explanation": "5."},
+    {"turnIndex": 1, "original": "I want coffee.", "corrected": "May I have coffee?", "category": "other", "explanation": "6."}
+  ],
+  "naturalPhrasings": [
+    {"original": "I want", "natural": "I'd like", "note": "1."},
+    {"original": "want coffee", "natural": "Could I get coffee?", "note": "2."},
+    {"original": "I want coffee", "natural": "May I have coffee?", "note": "3."},
+    {"original": "coffee", "natural": "a coffee please", "note": "4."}
+  ],
+  "pronunciation": [
+    {"word": "I", "issue": "1", "tip": "1."}, {"word": "want", "issue": "2", "tip": "2."},
+    {"word": "coffee", "issue": "3", "tip": "3."}, {"word": "coffee", "issue": "4", "tip": "4."}
+  ],
+  "targetWords": [], "objective": null,
+  "summary": {"strengths": [], "focusNext": []}
+}

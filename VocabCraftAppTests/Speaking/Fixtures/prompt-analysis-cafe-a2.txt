@@ -1,0 +1,13 @@
+Analyze this A2 English speaking practice session.
+AI role: a friendly barista
+Setting: a quiet cafe
+Objective: Order a coffee
+Conversation turns:
+[0] AI: Hi!
+[1] LEARNER: I want coffee.
+Hint count: 1
+Target words: coffee
+
+First transcribe the learner's audio verbatim into learnerTranscript using the turn indexes. Quote only from that transcript.
+Score 1–5 aligned to CEFR A2–B1. At most 5 corrections, 3 natural phrasings, 3 pronunciation notes, and 3 target word uses.
+Write explanation, note, tip, reason, strengths and focusNext in Vietnamese.

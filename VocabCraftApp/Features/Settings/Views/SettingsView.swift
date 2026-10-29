@@ -30,11 +30,9 @@ public struct SettingsView: View {
 
                     // 3. Audio & Speech Section
                     audioSection
-
-                    // 4. AI Configuration Section
                     aiSection
 
-                    // 5. Appearance & Feedback Section
+                    // 4. Appearance & Feedback Section
                     appearanceSection
 
                     // 5. Data & Storage Section
@@ -90,7 +88,7 @@ public struct SettingsView: View {
         }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.themePreset) { _, _ in viewModel.store.isHapticsEnabled }
-        .sensoryFeedback(.selection, trigger: viewModel.store.roleplayVoiceId) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.selection, trigger: viewModel.store.voiceProfileId) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appTheme) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appLanguage) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isNotificationEnabled) { _, _ in viewModel.store.isHapticsEnabled }
@@ -149,7 +147,7 @@ public struct SettingsView: View {
     private var aiSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionAI)
-            SettingsAICard(store: viewModel.store)
+            SettingsGeminiKeyCard(store: viewModel.store)
         }
     }
 
@@ -295,11 +293,9 @@ private struct SettingsAudioCard: View {
     let onPlayPreview: () -> Void
 
     @State private var showVoicePicker: Bool = false
-    @State private var showDownloadPromptAlert: Bool = false
 
-    private var currentProfile: RoleplayVoiceProfile {
-        RoleplayVoiceProfileCatalog.profile(for: store.roleplayVoiceId)
-            ?? RoleplayVoiceProfileCatalog.defaultProfile
+    private var currentProfile: VoiceProfile {
+        VoiceProfileCatalog.resolve(id: store.voiceProfileId)
     }
 
     var body: some View {
@@ -308,16 +304,13 @@ private struct SettingsAudioCard: View {
                 // 1. Active Voice Selector Row
                 CraftListRow(
                     title: AppStrings.Settings.voiceCurrentProfile,
-                    subtitle: store.roleplayVoiceId == RoleplayVoiceProfileCatalog.defaultProfile.id ? nil :
-                                (currentProfile.engine == .geminiNeural ? AppStrings.Settings.voiceQualityGemini :
-                                currentProfile.engine == .kokoroNeural ? AppStrings.Settings.voiceQualityKokoro :
-                                AppStrings.Settings.voiceQualityApple),
+                    subtitle: currentProfile.engine == .system ? nil : AppStrings.Settings.voiceQualityApple,
                     showChevron: true,
                     action: {
                         showVoicePicker = true
                     }
                 ) {
-                    if store.roleplayVoiceId == RoleplayVoiceProfileCatalog.defaultProfile.id {
+                    if currentProfile.engine == .system {
                         CraftText(
                             AppStrings.Settings.voiceAutoPersona,
                             style: .bodyMedium,
@@ -326,7 +319,7 @@ private struct SettingsAudioCard: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                     } else {
-                        Text(verbatim: currentProfile.displayNameKey)
+                        Text(LocalizedStringKey(currentProfile.displayNameKey))
                             .font(theme.typography.bodyMedium)
                             .foregroundStyle(theme.colors.textSecondary)
                             .lineLimit(1)
@@ -347,7 +340,7 @@ private struct SettingsAudioCard: View {
                         Spacer()
 
                         CraftBadge(
-                            String(format: "%.2fx", store.roleplaySpeechRate),
+                            String(format: "%.2fx", store.speechRate),
                             variant: .subtle,
                             tone: .warning,
                             size: .sm
@@ -361,7 +354,7 @@ private struct SettingsAudioCard: View {
                             .foregroundStyle(theme.colors.textMuted)
                             .accessibilityHidden(true)
 
-                        Slider(value: $store.roleplaySpeechRate, in: 0.75...1.25, step: 0.05)
+                        Slider(value: $store.speechRate, in: 0.75...1.25, step: 0.05)
                             .tint(theme.colors.brandPrimary)
 
                         Image(systemName: "hare.fill")
@@ -373,7 +366,7 @@ private struct SettingsAudioCard: View {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(Text(AppStrings.Settings.voiceSpeed))
-                .accessibilityValue(Text(String(format: "%.2fx", store.roleplaySpeechRate)))
+                .accessibilityValue(Text(String(format: "%.2fx", store.speechRate)))
 
                 CraftDivider()
 
@@ -389,7 +382,7 @@ private struct SettingsAudioCard: View {
                         Spacer()
 
                         CraftBadge(
-                            String(format: "%.2fx", store.roleplaySpeechPitch),
+                            String(format: "%.2fx", store.speechPitch),
                             variant: .subtle,
                             tone: .primary,
                             size: .sm
@@ -402,7 +395,7 @@ private struct SettingsAudioCard: View {
                         CraftIcon(.waveform, size: .sm, color: theme.colors.textMuted)
                             .accessibilityHidden(true)
 
-                        Slider(value: $store.roleplaySpeechPitch, in: 0.85...1.15, step: 0.05)
+                        Slider(value: $store.speechPitch, in: 0.85...1.15, step: 0.05)
                             .tint(theme.colors.brandPrimary)
 
                         CraftIcon(.sparkles, size: .sm, color: theme.colors.textMuted)
@@ -413,7 +406,7 @@ private struct SettingsAudioCard: View {
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(Text(AppStrings.Settings.voicePitch))
-                .accessibilityValue(Text(String(format: "%.2fx", store.roleplaySpeechPitch)))
+                .accessibilityValue(Text(String(format: "%.2fx", store.speechPitch)))
 
                 CraftDivider()
 
@@ -424,13 +417,7 @@ private struct SettingsAudioCard: View {
                     iconColor: theme.colors.brandPrimary,
                     iconBackgroundColor: theme.colors.surfaceSubtle,
                     showChevron: !isPlayingPreview,
-                    action: {
-                        if currentProfile.engine == .kokoroNeural && !OnDemandAIModelManager.shared.isModelReady(.kokoro) {
-                            showDownloadPromptAlert = true
-                        } else {
-                            onPlayPreview()
-                        }
-                    }
+                    action: onPlayPreview
                 ) {
                     if isPlayingPreview {
                         CraftWaveformView(
@@ -451,84 +438,9 @@ private struct SettingsAudioCard: View {
             }
         }
         .sheet(isPresented: $showVoicePicker) {
-            RoleplayVoicePickerSheet(store: store, ttsService: ttsService)
+            VoicePickerSheet(store: store, ttsService: ttsService)
         }
-        .alert(
-            AppStrings.Settings.voicePreviewNeedsDownload,
-            isPresented: $showDownloadPromptAlert
-        ) {
-            Button(AppStrings.Settings.voicePreviewDownloadAction) {
-                OnDemandAIModelManager.shared.startDownload(for: .kokoro)
-            }
-            Button(AppStrings.Common.cancel, role: .cancel) {}
-        }
-    }
-}
 
-@MainActor
-public struct SettingsAICard: View {
-    @Environment(\.craftTheme) private var theme
-    @Environment(\.appContainer) private var appContainer
-    @Bindable public var store: UserSettingsStore
-
-    @State private var showConfigSheet: Bool = false
-
-    public init(store: UserSettingsStore) {
-        self.store = store
-    }
-
-    public var body: some View {
-        CraftCard(style: .outlined, padding: 0) {
-            Button {
-                showConfigSheet = true
-            } label: {
-                let activePack = appContainer.aiPackRegistry.activePack
-                let displayName = activePack?.displayName ?? appContainer.aiPackRegistry.activePackId.rawValue
-                let (statusKey, tone): (LocalizedStringKey, CraftBadgeTone) = {
-                    guard let status = activePack?.status else {
-                        return (AppStrings.AIPack.statusReady, .neutral)
-                    }
-                    return statusBadgeInfo(for: status)
-                }()
-
-                CraftListRow(
-                    title: AppStrings.AIPack.activePackTitle,
-                    subtitle: LocalizedStringKey(stringLiteral: displayName)
-                ) {
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftBadge(
-                            statusKey,
-                            variant: .subtle,
-                            tone: tone,
-                            size: .sm
-                        )
-
-                        CraftIcon(
-                            .chevronRight,
-                            size: .sm,
-                            color: theme.colors.textMuted
-                        )
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-        }
-        .sheet(isPresented: $showConfigSheet) {
-            AIConfigSheet(store: store)
-        }
-    }
-
-    private func statusBadgeInfo(for status: AIPackStatus) -> (LocalizedStringKey, CraftBadgeTone) {
-        switch status {
-        case .ready:
-            return (AppStrings.AIPack.statusReady, .success)
-        case .needsApiKey:
-            return (AppStrings.AIPack.statusNeedsKey, .warning)
-        case .needsDownload, .partiallyReady:
-            return (AppStrings.AIPack.statusNeedsDownload, .primary)
-        case .unavailable:
-            return (AppStrings.AIPack.statusUnavailable, .neutral)
-        }
     }
 }
 

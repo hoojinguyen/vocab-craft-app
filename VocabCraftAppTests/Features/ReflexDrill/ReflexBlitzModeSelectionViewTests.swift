@@ -16,6 +16,7 @@ import XCTest
 import AppKit
 #endif
 
+@MainActor
 final class ReflexBlitzModeSelectionViewTests: XCTestCase {
     private func assertColorsEqual(_ color1: Color, _ color2: Color, file: StaticString = #filePath, line: UInt = #line) {
         #if canImport(UIKit)
@@ -58,7 +59,7 @@ final class ReflexBlitzModeSelectionViewTests: XCTestCase {
         XCTAssertEqual(view.weeklyPracticedCount, 42)
         XCTAssertEqual(view.weakWordsCount, 5)
         XCTAssertEqual(view.averageSpeedSeconds, 1.6)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
 
         // Verify dismissal callback
         view.onDismiss()
@@ -81,7 +82,7 @@ final class ReflexBlitzModeSelectionViewTests: XCTestCase {
         XCTAssertEqual(view.weeklyPracticedCount, 0)
         XCTAssertEqual(view.weakWordsCount, 0)
         XCTAssertEqual(view.averageSpeedSeconds, 0.0)
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     @MainActor
@@ -135,7 +136,7 @@ final class ReflexBlitzModeSelectionViewTests: XCTestCase {
             },
             onDismiss: {}
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
         view.onSelectConfig?(config)
         XCTAssertEqual(selectedConfig?.mode, .speaking)
         XCTAssertEqual(selectedConfig?.phase, .drilling)

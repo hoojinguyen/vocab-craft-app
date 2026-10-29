@@ -1,6 +1,9 @@
 import Foundation
 import Testing
 @testable import VocabCraftApp
+#if SWIFT_PACKAGE
+@testable import VocabCraftWidgetExtension
+#endif
 
 @MainActor
 @Suite("Widget theme entries")

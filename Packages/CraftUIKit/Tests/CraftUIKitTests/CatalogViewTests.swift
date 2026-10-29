@@ -4,6 +4,7 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
+@MainActor
 final class CatalogViewTests: XCTestCase {
     // MARK: - Theme & Options Enums
 
@@ -220,7 +221,7 @@ final class CatalogViewTests: XCTestCase {
 
     func testCraftCatalogViewInstantiation() {
         let view = CraftCatalogView()
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
     }
 
     func testCraftCatalogViewThemesSurfaceStylesAndLanguages() {
@@ -403,7 +404,7 @@ final class CatalogViewTests: XCTestCase {
                 surfaceStyle: preset.surfaceStyle,
                 onContinue: {}
             )
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
             XCTAssertEqual(sheet.status, preset.status)
             XCTAssertEqual(sheet.resolvedTitle, preset.title)
             XCTAssertEqual(sheet.message, preset.message)
@@ -424,7 +425,7 @@ final class CatalogViewTests: XCTestCase {
             ) {
                 actionTapped = true
             }
-            XCTAssertNotNil(speakingCard.body)
+            assertHosted(speakingCard)
             XCTAssertEqual(speakingCard.resolvedStyle, style)
             XCTAssertEqual(speakingCard.title, "Luyện phát âm")
             XCTAssertEqual(speakingCard.symbol, .mic)
@@ -441,7 +442,7 @@ final class CatalogViewTests: XCTestCase {
                 accentColor: Color(hex: 0xF59E0B),
                 style: style
             ) {}
-            XCTAssertNotNil(typingCard.body)
+            assertHosted(typingCard)
             XCTAssertEqual(typingCard.resolvedStyle, style)
 
             let quizCard = CraftActionCard(
@@ -453,7 +454,7 @@ final class CatalogViewTests: XCTestCase {
                 accentColor: Color(hex: 0x8B5CF6),
                 style: style
             ) {}
-            XCTAssertNotNil(quizCard.body)
+            assertHosted(quizCard)
             XCTAssertEqual(quizCard.resolvedStyle, style)
 
             let audioCard = CraftActionCard(
@@ -465,7 +466,7 @@ final class CatalogViewTests: XCTestCase {
                 accentColor: Color(hex: 0x10B981),
                 style: style
             ) {}
-            XCTAssertNotNil(audioCard.body)
+            assertHosted(audioCard)
             XCTAssertEqual(audioCard.resolvedStyle, style)
         }
     }
@@ -530,14 +531,14 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertEqual(trackerCard.data.currentValue, 14)
             XCTAssertEqual(trackerCard.data.tier, .blaze)
             XCTAssertEqual(trackerCard.surfaceStyle, style)
-            XCTAssertNotNil(trackerCard.body)
+            assertHosted(trackerCard)
             trackerCard.onDayTap?(trackerData.cycleDays[0])
             XCTAssertEqual(tappedDay?.id, "1")
 
             let streakBadgeSm = CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .sm, style: style)
-            XCTAssertNotNil(streakBadgeSm.body)
+            assertHosted(streakBadgeSm)
             let streakBadgeMd = CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .md, style: style)
-            XCTAssertNotNil(streakBadgeMd.body)
+            assertHosted(streakBadgeMd)
 
             let celebrationSheet = CraftCelebrationSheet(
                 currentValue: 14,
@@ -552,7 +553,7 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertEqual(celebrationSheet.tier, .blaze)
             XCTAssertEqual(celebrationSheet.surfaceStyle, style)
             XCTAssertTrue(celebrationSheet.isMilestone)
-            XCTAssertNotNil(celebrationSheet.body)
+            assertHosted(celebrationSheet)
         }
     }
 
@@ -592,7 +593,7 @@ final class CatalogViewTests: XCTestCase {
                     onCancel: { query = "" },
                     onSubmit: {}
                 )
-                XCTAssertNotNil(sb.body)
+                assertHosted(sb)
                 XCTAssertEqual(sb.style, style)
                 XCTAssertEqual(sb.size, size)
             }
@@ -606,7 +607,7 @@ final class CatalogViewTests: XCTestCase {
             shape: .roundedRectangle(radius: 16),
             isLoading: true
         )
-        XCTAssertNotNil(loadingSb.body)
+        assertHosted(loadingSb)
         XCTAssertTrue(loadingSb.isLoading)
     }
 
@@ -648,7 +649,7 @@ final class CatalogViewTests: XCTestCase {
                 speechState: preset.speechState,
                 onTapMic: { micTapped = true }
             )
-            XCTAssertNotNil(card.body)
+            assertHosted(card)
             XCTAssertEqual(card.originText, preset.originText)
             XCTAssertEqual(card.actualText, preset.actualText)
             XCTAssertEqual(card.subtitle, preset.subtitle)
@@ -668,14 +669,14 @@ final class CatalogViewTests: XCTestCase {
             speechState: .evaluated(overallScore: 70),
             onTapMic: {}
         )
-        XCTAssertNotNil(cardWithTokens.body)
+        assertHosted(cardWithTokens)
         XCTAssertEqual(cardWithTokens.explicitTokens?.count, 2)
 
         // Test all token status chip views
         for status in CraftSpeechWordStatus.allCases {
             let token = CraftSpeechWordToken(targetWord: "word", status: status, confidence: 0.85)
             let chipView = CraftSpeechWordTokenView(token: token)
-            XCTAssertNotNil(chipView.body)
+            assertHosted(chipView)
             XCTAssertEqual(chipView.token.status, status)
         }
     }

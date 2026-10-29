@@ -23,17 +23,3 @@ public struct VoiceConfiguration: Sendable, Codable, Equatable {
         case calm
     }
 }
-
-public struct VoiceProfile: Sendable, Codable, Equatable, Identifiable {
-    public let id: String
-    public let displayName: String
-    public let voiceConfig: VoiceConfiguration
-    public let sampleText: String
-
-    public init(id: String, displayName: String, voiceConfig: VoiceConfiguration, sampleText: String) {
-        self.id = id
-        self.displayName = displayName
-        self.voiceConfig = voiceConfig
-        self.sampleText = sampleText
-    }
-}

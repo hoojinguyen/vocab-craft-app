@@ -4,6 +4,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class CraftLessonDetailSheetTests: XCTestCase {
     // MARK: - Active Node Tests
 
@@ -216,7 +217,7 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             sheet.onFastTrack?(lockedCheckpoint)
         }
         XCTAssertEqual(fastTrackTriggeredNode?.id, "cp_locked")
-        XCTAssertNotNil(sheet.body)
+        assertHosted(sheet)
     }
 
     // MARK: - Kinds & Body Rendering Tests
@@ -230,7 +231,7 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             kind: .checkpoint
         )
         let cpSheet = CraftLessonDetailSheet(node: checkpointNode)
-        XCTAssertNotNil(cpSheet.body)
+        assertHosted(cpSheet)
 
         let treasureNode = LessonNodeModel(
             id: "tc_node",
@@ -241,7 +242,7 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             stars: 3
         )
         let tcSheet = CraftLessonDetailSheet(node: treasureNode)
-        XCTAssertNotNil(tcSheet.body)
+        assertHosted(tcSheet)
     }
 
     func testBodyRenderingForAllStates() {
@@ -259,7 +260,7 @@ final class CraftLessonDetailSheetTests: XCTestCase {
                 objectives: ["Objective 1", "Objective 2"]
             )
             let sheet = CraftLessonDetailSheet(node: node)
-            XCTAssertNotNil(sheet.body)
+            assertHosted(sheet)
         }
     }
 
@@ -288,7 +289,7 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             objectives: ["Objective A", "Objective B"]
         )
         let tactileSheet = CraftLessonDetailSheet(node: activeNode, surfaceStyle: .tactile3D)
-        XCTAssertNotNil(tactileSheet.body)
+        assertHosted(tactileSheet)
 
         let completedNode = LessonNodeModel(
             id: "tac_completed",
@@ -299,6 +300,6 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             stars: 3
         )
         let completedTactileSheet = CraftLessonDetailSheet(node: completedNode, surfaceStyle: .tactile3D)
-        XCTAssertNotNil(completedTactileSheet.body)
+        assertHosted(completedTactileSheet)
     }
 }

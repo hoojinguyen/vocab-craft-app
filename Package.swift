@@ -65,9 +65,7 @@ let package = Package(
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],
             path: "VocabCraftAppTests",
-            resources: [
-                .copy("AI/GuidedPractice/Fixtures/practice-assessment-cases.json")
-            ],
+            resources: [.copy("Speaking/Fixtures")],
             swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         )
     ]

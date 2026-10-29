@@ -66,7 +66,7 @@ struct MilestoneLexicalDeltaSheetTests {
             cefrProgressTarget: 800
         )
         let view = MilestoneLexicalDeltaSheet(delta: delta, onContinue: {}, onOpenVault: {})
-        _ = view.body
+        assertHosted(view)
         #expect(view.delta.unitId == "deck_daily")
     }
 

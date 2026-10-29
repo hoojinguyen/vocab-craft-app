@@ -47,6 +47,20 @@ struct AppRouterTests {
         #expect(router.selectedTab == .home)
     }
 
+    @Test("Speaking and legacy AI deep links select the Speaking tab")
+    func speakingDeepLinkSelectsSpeakingTab() {
+        let router = AppRouter()
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://speaking")!)
+        #expect(router.selectedTab == .aiAssistant)
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://ai")!)
+        #expect(router.selectedTab == .aiAssistant)
+
+        router.handleDeepLink(url: URL(string: "vocabcraft://aiAssistant")!)
+        #expect(router.selectedTab == .aiAssistant)
+    }
+
     @Test("Review deep link opens smart review")
     func reviewDeepLinkOpensSmartReview() {
         let router = AppRouter()

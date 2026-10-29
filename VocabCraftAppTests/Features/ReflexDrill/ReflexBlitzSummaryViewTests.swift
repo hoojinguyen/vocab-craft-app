@@ -105,6 +105,7 @@ struct ReflexBlitzSummaryReDrillTests {
     }
 }
 
+@MainActor
 final class ReflexBlitzSummaryViewTests: XCTestCase {
     @MainActor
     func testSummaryViewLocalizesRatingAndDiagnosesWeakWord() {
@@ -144,7 +145,7 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onReDrillWeak: {},
             onFinish: {}
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
         XCTAssertEqual(view.summary.weakWordAttempts.count, 2)
         XCTAssertFalse(view.summary.weakWordAttempts[0].isCorrect)
         XCTAssertTrue(view.summary.weakWordAttempts[1].isCorrect)
@@ -203,8 +204,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onReDrillWeak: {},
             onFinish: {}
         )
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.summaryContent)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.summaryContent) }
         XCTAssertTrue(view.summary.weakWordAttempts.isEmpty)
     }
 
@@ -247,8 +248,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onReDrillWeak: {},
             onFinish: {}
         )
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.summaryContent)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.summaryContent) }
         XCTAssertEqual(view.summary.weakWordAttempts.count, 2)
         XCTAssertEqual(view.summary.weakWordAttempts[0].pos, "adj.")
         XCTAssertEqual(view.summary.weakWordAttempts[0].ipa, "/ɪˈfem.ər.əl/")
@@ -321,8 +322,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onFinish: {}
         )
 
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.summaryContent)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.summaryContent) }
         XCTAssertEqual(view.summary.weakWordAttempts.count, 4)
         XCTAssertEqual(view.summary.weakWordAttempts[0].ipa, "/ˌser.ənˈdɪp.ə.ti/")
         XCTAssertEqual(view.summary.weakWordAttempts[1].ipa, "/məˈtɪk.jə.ləs/")
@@ -411,8 +412,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
                 onReDrillWeak: {},
                 onFinish: {}
             )
-            XCTAssertNotNil(view.body)
-            XCTAssertNotNil(view.summaryContent)
+            assertHosted(view)
+            assertHosted(view) { XCTAssertNotNil($0.summaryContent) }
             XCTAssertEqual(view.summary.speedRating, rating)
         }
     }
@@ -434,7 +435,7 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onReDrillWeak: {},
             onFinish: {}
         )
-        XCTAssertNotNil(view.body)
+        assertHosted(view)
         XCTAssertEqual(view.summary.speedRating, "⚡️ Reflex Master")
     }
 
@@ -470,8 +471,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onFinish: { didFinish = true }
         )
 
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.bottomActionDock)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.bottomActionDock) }
         XCTAssertEqual(view.summary.weakWordAttempts.count, 1)
 
         view.onReDrillWeak()
@@ -501,8 +502,8 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onFinish: { didFinish = true }
         )
 
-        XCTAssertNotNil(view.body)
-        XCTAssertNotNil(view.bottomActionDock)
+        assertHosted(view)
+        assertHosted(view) { XCTAssertNotNil($0.bottomActionDock) }
         XCTAssertTrue(view.summary.weakWordAttempts.isEmpty)
 
         view.onFinish()

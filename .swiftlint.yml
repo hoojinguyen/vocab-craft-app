@@ -26,6 +26,9 @@ excluded:
 identifier_name:
   excluded:
     - id
+    - a2 # Speaking CEFR level
+    - b1 # Speaking CEFR level
+    - ai # Speaking speaker
     - db
     - xp
     - vm

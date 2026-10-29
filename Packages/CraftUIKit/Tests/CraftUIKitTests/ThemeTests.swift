@@ -9,6 +9,7 @@ import AppKit
 #endif
 @testable import CraftUIKit
 
+@MainActor
 final class ThemeTests: XCTestCase {
     func testDefaultThemeTokens() {
         let theme = CraftDefaultTheme()
@@ -238,19 +239,25 @@ final class ThemeTests: XCTestCase {
     func testEnvironmentInjection() {
         struct TestHostView: View {
             @Environment(\.craftTheme) var theme
+            let observe: (Color) -> Void
 
             var body: some View {
                 Text("Test")
                     .foregroundColor(theme.colors.brandPrimary)
                     .craftShadow(theme.shadows.md)
+                    .onAppear { observe(theme.colors.brandPrimary) }
             }
         }
 
-        let defaultHost = TestHostView()
-        XCTAssertNotNil(defaultHost.body)
+        var observed: Color?
+        let defaultTheme = CraftDefaultTheme()
+        assertHosted(TestHostView { observed = $0 }.craftTheme(defaultTheme))
+        XCTAssertEqual(observed, defaultTheme.colors.brandPrimary)
 
-        let modifiedView = TestHostView().craftTheme(CraftDefaultTheme())
-        XCTAssertNotNil(modifiedView)
+        observed = nil
+        let customTheme = CraftThemePreset.neoArcade.theme
+        assertHosted(TestHostView { observed = $0 }.craftTheme(customTheme))
+        XCTAssertEqual(observed?.resolve(in: EnvironmentValues()), customTheme.colors.brandPrimary.resolve(in: EnvironmentValues()))
     }
 
     func testThemePresetEnumCoverageAndInstantiation() {

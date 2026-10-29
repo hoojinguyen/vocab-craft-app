@@ -334,7 +334,7 @@ struct ReflexOtherModesTests {
         #expect(reviewedTimeout.choiceState(for: correctOpt) == .correct)
         #expect(reviewedTimeout.choiceState(for: wrongOpt) == .disabled)
         #expect(reviewedTimeout.choiceState(for: otherOpt) == .disabled)
-        _ = reviewedTimeout.body
+        assertHosted(reviewedTimeout)
 
         // 7. Reviewed with clozeParts highlighting
         let reviewedWithHighlight = ReflexListeningModeView(
@@ -349,7 +349,7 @@ struct ReflexOtherModesTests {
         #expect(reviewedWithHighlight.isReviewed == true)
         #expect(reviewedWithHighlight.isResultCorrect == true)
         #expect(reviewedWithHighlight.clozeParts?.slot == "habit")
-        _ = reviewedWithHighlight.body
+        assertHosted(reviewedWithHighlight)
     }
 
     @Test("ReflexClozeFormatter extractClozeOrLemmaParts accurately extracts target word from raw and cloze sentences")
@@ -422,7 +422,7 @@ struct ReflexOtherModesTests {
 
         #expect(mcView.isReviewed == true)
         #expect(mcView.isResultCorrect == true)
-        _ = mcView.body
+        assertHosted(mcView)
     }
 }
 #endif

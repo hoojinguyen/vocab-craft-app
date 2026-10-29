@@ -39,6 +39,7 @@ struct AudioLocalizationTests {
                         .deletingLastPathComponent()
                         .deletingLastPathComponent()
                         .deletingLastPathComponent()
+                        .deletingLastPathComponent()
                         .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
                 ].first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
             Issue.record("Localizable.xcstrings not found")

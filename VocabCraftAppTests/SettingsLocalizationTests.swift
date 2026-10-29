@@ -8,6 +8,8 @@ import XCTest
 @MainActor
 final class SettingsLocalizationTests: XCTestCase {
     private let expectedSettingsKeys: [String: (vi: String, en: String)] = [
+        "app.settings.gemini_key.title": ("Khoá API Gemini", "Gemini API Key"),
+        "app.settings.gemini_key.caption": ("Dùng cho luyện nói với AI. Chỉ lưu trên máy này.", "Used for AI speaking practice. Stored on this device."),
         "app.settings.title": ("Cài đặt", "Settings"),
         "app.settings.profile.membership_active": ("PRO ACTIVE", "PRO ACTIVE"),
         "app.settings.profile.perks": ("Thành viên Pro · Đã mở khoá toàn bộ 3,000+ từ Oxford & Reflex Blitz", "Pro Member · Unlocked all 3,000+ Oxford words & Reflex Blitz"),
@@ -41,7 +43,6 @@ final class SettingsLocalizationTests: XCTestCase {
         "app.settings.voice.speed": ("Tốc độ đọc", "Voice Speed"),
         "app.settings.voice.pitch": ("Cao độ âm sắc", "Voice Pitch"),
         "app.settings.voice.quality_apple": ("Thiết bị - Tự nhiên", "Device Enhanced"),
-        "app.settings.voice.quality_gemini": ("Cloud - Siêu thực", "Cloud Studio Neural"),
         "app.settings.section.appearance": ("GIAO DIỆN & TRẢI NGHIỆM", "APPEARANCE & EXPERIENCE"),
         "app.settings.appearance.theme_mode": ("Chế độ giao diện", "Appearance Mode"),
         "app.settings.appearance.theme_dark": ("Tối", "Dark"),
@@ -74,6 +75,8 @@ final class SettingsLocalizationTests: XCTestCase {
 
     func testAllSettingsStringsHaveBilingualTranslations() {
         let keys: [String] = [
+            "app.settings.gemini_key.title",
+            "app.settings.gemini_key.caption",
             "app.settings.title",
             "app.settings.profile.membership_active",
             "app.settings.profile.perks",
@@ -107,7 +110,6 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.settings.voice.speed",
             "app.settings.voice.pitch",
             "app.settings.voice.quality_apple",
-            "app.settings.voice.quality_gemini",
             "app.settings.section.appearance",
             "app.settings.appearance.theme_mode",
             "app.settings.appearance.theme_dark",
@@ -138,7 +140,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.profile.badge_oxford_pioneer"
         ]
 
-        XCTAssertEqual(keys.count, 62, "There must be exactly 62 required keys for Settings, Voice and Profile")
+        XCTAssertEqual(keys.count, 63, "There must be exactly 63 required keys for Settings, Voice and Profile")
 
         for key in keys {
             XCTAssertNotNil(expectedSettingsKeys[key], "Key \(key) should be present in expected dictionary")
@@ -226,7 +228,6 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertEqual(AppStrings.Settings.voiceSpeedText, "Voice Speed")
         XCTAssertEqual(AppStrings.Settings.voicePitchText, "Voice Pitch")
         XCTAssertEqual(AppStrings.Settings.voiceQualityAppleText, "Device Enhanced")
-        XCTAssertEqual(AppStrings.Settings.voiceQualityGeminiText, "Cloud Studio Neural")
 
         // LocalizedStringKey accessors
         XCTAssertNotNil(AppStrings.Settings.title)
@@ -263,7 +264,6 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.voiceSpeed)
         XCTAssertNotNil(AppStrings.Settings.voicePitch)
         XCTAssertNotNil(AppStrings.Settings.voiceQualityApple)
-        XCTAssertNotNil(AppStrings.Settings.voiceQualityGemini)
         XCTAssertNotNil(AppStrings.Settings.sectionAppearance)
         XCTAssertNotNil(AppStrings.Settings.appearanceMode)
         XCTAssertNotNil(AppStrings.Settings.themeDark)

@@ -166,25 +166,6 @@ struct HomeLocalizationTests {
         }
     }
 
-    @Test("Verifies AI Assistant accessors in AppStrings.AIAssistant")
-    func testAppStringsAIAssistantAccessors() {
-        #expect(AppStrings.AIAssistant.titleText == "AI Assistant")
-        #expect(AppStrings.AIAssistant.badgeComingSoonText == "COMING SOON")
-        #expect(AppStrings.AIAssistant.heroTitleText == "VocabCraft AI Copilot")
-        #expect(AppStrings.AIAssistant.upcomingFeaturesTitleText == "Upcoming Capabilities")
-        let _: LocalizedStringKey = AppStrings.AIAssistant.title
-        let _: LocalizedStringKey = AppStrings.AIAssistant.badgeComingSoon
-        let _: LocalizedStringKey = AppStrings.AIAssistant.heroTitle
-        let _: LocalizedStringKey = AppStrings.AIAssistant.heroDescription
-        let _: LocalizedStringKey = AppStrings.AIAssistant.upcomingFeaturesTitle
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featureConversationTitle
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featureConversationDescription
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featureContextTitle
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featureContextDescription
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featurePronunciationTitle
-        let _: LocalizedStringKey = AppStrings.AIAssistant.featurePronunciationDescription
-    }
-
     @Test("Verifies widget accessors in AppStrings.Widget")
     func testAppStringsWidgetAccessors() {
         #expect(AppStrings.Widget.displayNameText == "VocabCraft Reflex Widget")
@@ -193,24 +174,17 @@ struct HomeLocalizationTests {
         let _: LocalizedStringKey = AppStrings.Widget.description
     }
 
-    @Test("Verifies AI Assistant and widget catalog keys integrity")
-    func testAIAssistantAndWidgetCatalogKeysIntegrity() throws {
+    @Test("Verifies widget catalog keys integrity")
+    func testWidgetCatalogKeysIntegrity() throws {
         let strings = try loadCatalogStrings()
 
-        let expectedAIAssistantAndKeys: [String: (vi: String, en: String)] = [
-            "app.ai_assistant.title": ("Trợ lý AI", "AI Assistant"),
-            "app.ai_assistant.badge_coming_soon": ("SẮP RA MẮT", "COMING SOON"),
-            "app.ai_assistant.hero_title": ("VocabCraft AI Copilot", "VocabCraft AI Copilot"),
-            "app.ai_assistant.upcoming_features_title": ("Tính năng sắp ra mắt", "Upcoming Capabilities"),
-            "app.ai_assistant.feature_conversation_title": ("Đối tác Luyện hội thoại AI", "AI Conversation Partner"),
-            "app.ai_assistant.feature_context_title": ("Tạo Ngữ cảnh Thông minh", "Smart Context Generator"),
-            "app.ai_assistant.feature_pronunciation_title": ("Huấn luyện viên Ngữ điệu & Phát âm", "Phonetic & Tone Coach"),
+        let expectedWidgetKeys: [String: (vi: String, en: String)] = [
             "app.widget.display_name": ("Widget Phản xạ VocabCraft", "VocabCraft Reflex Widget"),
             "app.widget.badge.review": ("Ôn", "Review"),
             "app.widget.due_count_format": ("Cần ôn: %lld", "Due for review: %lld")
         ]
 
-        for (key, expected) in expectedAIAssistantAndKeys {
+        for (key, expected) in expectedWidgetKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")
             #expect(
                 entry["extractionState"] as? String == "manual",

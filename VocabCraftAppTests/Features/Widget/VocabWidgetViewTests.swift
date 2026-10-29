@@ -2,6 +2,9 @@ import Foundation
 import SwiftUI
 import Testing
 @testable import VocabCraftApp
+#if SWIFT_PACKAGE
+@testable import VocabCraftWidgetExtension
+#endif
 
 @Suite("VocabWidgetView")
 struct VocabWidgetViewTests {
