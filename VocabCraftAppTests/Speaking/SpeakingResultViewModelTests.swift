@@ -86,14 +86,42 @@ struct SpeakingResultViewModelTests {
         #expect(viewModel.session?.status == .analyzed)
         #expect(viewModel.session?.analysis != nil)
     }
+
+    @Test func failedAnalysisPersistenceLeavesPendingSpinnerAndRetryState() async throws {
+        let session = resultSession(status: .pendingAnalysis, audioFileName: "pending.m4a")
+        let repository = ResultRepository(sessions: [session], failingAnalysisUpdates: 1)
+        let analyzer = ResultAnalyzer(analysis: try resultAnalysis())
+        let storage = try resultStorage(files: ["pending.m4a"])
+        defer { removeResultStorage(storage) }
+        let useCase = AnalyzeSpeakingSessionUseCase(repository: repository, analyzer: analyzer, storage: storage)
+        let viewModel = SpeakingResultViewModel(
+            sessionId: session.id, repository: repository, analyze: useCase, storage: storage
+        )
+
+        await viewModel.load()
+
+        #expect(!viewModel.isAnalyzing)
+        #expect(viewModel.didFailToPersistAnalysis)
+        #expect(viewModel.canRetry)
+        #expect(viewModel.session?.status == .pendingAnalysis)
+        #expect(viewModel.session?.analysis == nil)
+
+        await viewModel.retry()
+
+        #expect(viewModel.session?.status == .analyzed)
+        #expect(viewModel.session?.analysis != nil)
+        #expect(!viewModel.didFailToPersistAnalysis)
+    }
 }
 
 private actor ResultRepository: SpeakingRepositoryProtocol {
     private var sessionsByID: [UUID: SpeakingSessionSnapshot]
     private var phrasesByID: [UUID: SavedPhrase] = [:]
+    private var failingAnalysisUpdates: Int
 
-    init(sessions: [SpeakingSessionSnapshot]) {
+    init(sessions: [SpeakingSessionSnapshot], failingAnalysisUpdates: Int = 0) {
         sessionsByID = Dictionary(uniqueKeysWithValues: sessions.map { ($0.id, $0) })
+        self.failingAnalysisUpdates = failingAnalysisUpdates
     }
 
     func save(_ session: SpeakingSessionSnapshot) async throws { sessionsByID[session.id] = session }
@@ -103,6 +131,10 @@ private actor ResultRepository: SpeakingRepositoryProtocol {
         return limit.map { Array(all.prefix(max(0, $0))) } ?? all
     }
     func updateAnalysis(sessionId: UUID, status: SpeakingSessionStatus, analysis: SpeakingAnalysis?) async throws {
+        if failingAnalysisUpdates > 0 {
+            failingAnalysisUpdates -= 1
+            throw ResultRepositoryError.analysisUpdateFailed
+        }
         guard var session = sessionsByID[sessionId] else { return }
         session.status = status
         session.analysis = analysis
@@ -119,6 +151,10 @@ private actor ResultRepository: SpeakingRepositoryProtocol {
     func phrases() async throws -> [SavedPhrase] { Array(phrasesByID.values) }
     func deletePhrase(id: UUID) async throws { phrasesByID[id] = nil }
     func detachAudio(keepingLatest count: Int) async throws -> [String] { [] }
+}
+
+private enum ResultRepositoryError: Error {
+    case analysisUpdateFailed
 }
 
 private actor ResultAnalyzer: SpeakingAnalyzing {

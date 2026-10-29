@@ -59,6 +59,8 @@ struct SpeakingResultView: View {
             loadingState
         } else if viewModel.didFailToLoad || viewModel.session == nil {
             CraftText(AppStrings.Speaking.resultFailed, style: .bodyMedium, color: theme.colors.statusWarning)
+        } else if viewModel.didFailToPersistAnalysis {
+            analysisFailedState
         } else if viewModel.session?.status == .pendingAnalysis {
             loadingState
         } else if let session = viewModel.session {
