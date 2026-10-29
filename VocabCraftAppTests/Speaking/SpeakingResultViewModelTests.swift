@@ -101,7 +101,7 @@ struct SpeakingResultViewModelTests {
         await viewModel.load()
 
         #expect(!viewModel.isAnalyzing)
-        #expect(viewModel.didFailToPersistAnalysis)
+        #expect(viewModel.didFailAnalysisWhilePending)
         #expect(viewModel.canRetry)
         #expect(viewModel.session?.status == .pendingAnalysis)
         #expect(viewModel.session?.analysis == nil)
@@ -110,7 +110,28 @@ struct SpeakingResultViewModelTests {
 
         #expect(viewModel.session?.status == .analyzed)
         #expect(viewModel.session?.analysis != nil)
-        #expect(!viewModel.didFailToPersistAnalysis)
+        #expect(!viewModel.didFailAnalysisWhilePending)
+    }
+
+    @Test func initialSessionReadFailureLeavesPendingSessionInRecoverableErrorState() async throws {
+        let session = resultSession(status: .pendingAnalysis, audioFileName: "pending.m4a")
+        let repository = ResultRepository(sessions: [session], failingSessionReadCall: 2)
+        let analyzer = ResultAnalyzer(analysis: try resultAnalysis())
+        let storage = try resultStorage(files: ["pending.m4a"])
+        defer { removeResultStorage(storage) }
+        let useCase = AnalyzeSpeakingSessionUseCase(repository: repository, analyzer: analyzer, storage: storage)
+        let viewModel = SpeakingResultViewModel(
+            sessionId: session.id, repository: repository, analyze: useCase, storage: storage
+        )
+
+        await viewModel.load()
+
+        #expect(!viewModel.isAnalyzing)
+        #expect(viewModel.didFailAnalysisWhilePending)
+        #expect(viewModel.canRetry)
+        #expect(await analyzer.callCount == 0)
+        #expect(viewModel.session?.status == .pendingAnalysis)
+        #expect(viewModel.session?.analysis == nil)
     }
 }
 
@@ -118,14 +139,27 @@ private actor ResultRepository: SpeakingRepositoryProtocol {
     private var sessionsByID: [UUID: SpeakingSessionSnapshot]
     private var phrasesByID: [UUID: SavedPhrase] = [:]
     private var failingAnalysisUpdates: Int
+    private let failingSessionReadCall: Int?
+    private var sessionReadCallCount = 0
 
-    init(sessions: [SpeakingSessionSnapshot], failingAnalysisUpdates: Int = 0) {
+    init(
+        sessions: [SpeakingSessionSnapshot],
+        failingAnalysisUpdates: Int = 0,
+        failingSessionReadCall: Int? = nil
+    ) {
         sessionsByID = Dictionary(uniqueKeysWithValues: sessions.map { ($0.id, $0) })
         self.failingAnalysisUpdates = failingAnalysisUpdates
+        self.failingSessionReadCall = failingSessionReadCall
     }
 
     func save(_ session: SpeakingSessionSnapshot) async throws { sessionsByID[session.id] = session }
-    func session(id: UUID) async throws -> SpeakingSessionSnapshot? { sessionsByID[id] }
+    func session(id: UUID) async throws -> SpeakingSessionSnapshot? {
+        sessionReadCallCount += 1
+        if sessionReadCallCount == failingSessionReadCall {
+            throw ResultRepositoryError.sessionReadFailed
+        }
+        return sessionsByID[id]
+    }
     func sessions(limit: Int?) async throws -> [SpeakingSessionSnapshot] {
         let all = sessionsByID.values.sorted { $0.startedAt > $1.startedAt }
         return limit.map { Array(all.prefix(max(0, $0))) } ?? all
@@ -155,6 +189,7 @@ private actor ResultRepository: SpeakingRepositoryProtocol {
 
 private enum ResultRepositoryError: Error {
     case analysisUpdateFailed
+    case sessionReadFailed
 }
 
 private actor ResultAnalyzer: SpeakingAnalyzing {

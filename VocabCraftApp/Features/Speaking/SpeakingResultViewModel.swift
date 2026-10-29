@@ -12,14 +12,14 @@ public final class SpeakingResultViewModel {
 
     public private(set) var session: SpeakingSessionSnapshot?
     public private(set) var isAnalyzing = false
-    public private(set) var didFailToPersistAnalysis = false
+    public private(set) var didFailAnalysisWhilePending = false
     public private(set) var savedSuggestions: Set<String> = []
     public private(set) var didFailToLoad = false
     public private(set) var didFailToSavePhrase = false
 
     public var canRetry: Bool {
         guard let session,
-              session.status == .analysisFailed || (session.status == .pendingAnalysis && didFailToPersistAnalysis),
+              session.status == .analysisFailed || (session.status == .pendingAnalysis && didFailAnalysisWhilePending),
               let audioFileName = session.audioFileName else { return false }
         let audioURL = storage.url(for: audioFileName)
         guard audioURL.lastPathComponent == audioFileName else { return false }
@@ -72,10 +72,10 @@ public final class SpeakingResultViewModel {
         guard !isAnalyzing else { return }
         isAnalyzing = true
         defer { isAnalyzing = false }
-        didFailToPersistAnalysis = false
+        didFailAnalysisWhilePending = false
         let result = await analyze.execute(sessionId: sessionId)
         await refresh()
-        didFailToPersistAnalysis = result == .analysisFailed && session?.status == .pendingAnalysis
+        didFailAnalysisWhilePending = result == .analysisFailed && session?.status == .pendingAnalysis
     }
 
     private func refresh() async {
